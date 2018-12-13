@@ -75,7 +75,7 @@ D loading
 D musics
 R C020EABA accecar.mp3
 R BB13C85A atk.mp3
-R F167E1D3 bgmusic.mp3
+R D978F462 bgmusic.mp3
 R 71A03D33 cartorunway.mp3
 R 1EE00B19 drawcar.mp3
 R 9489B14C evolutions.mp3
@@ -88,7 +88,7 @@ D config/csvJson
 R A06487AE BarrierConfig.json
 R B277BDF6 BarrierReward.json
 R 843E43E6 KindLevelConfig.json
-R A6E539FD Monster.json
+R B85EE0B0 Monster.json
 R 015B0E33 SkillConfig.json
 R 20D2D94D SkillStrengthen.json
 R ED329E37 TrainDrop.json
