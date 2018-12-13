@@ -36,7 +36,6 @@ var MoreController = /** @class */ (function (_super) {
             _this._view = new MoreView(_this, _this._model);
             _this.show();
         }));
-        EventsManager.Instance.on(EventsType.BACK_GAME, this, this.switchMute);
     };
     MoreController.prototype.initModel = function () {
         if (!this._model) {
@@ -58,17 +57,21 @@ var MoreController = /** @class */ (function (_super) {
     };
     MoreController.prototype.applyMute = function () {
         var _this = this;
-        Laya.SoundManager.musicMuted = this._model.mute;
-        Laya.SoundManager.soundMuted = this._model.mute;
-        if (!this._model.mute) {
-            if (!this._bgChannel) {
-                Laya.loader.load("musics/bgmusic.mp3", Laya.Handler.create(this, function () {
-                    _this._bgChannel = Laya.SoundManager.playMusic("musics/bgmusic.mp3", 0);
-                }));
-            }
-            else {
-                this._bgChannel.play();
-            }
+        if (this._model) {
+            Laya.SoundManager.musicMuted = this._model.mute;
+            Laya.SoundManager.soundMuted = this._model.mute;
+        }
+        else {
+            Laya.SoundManager.musicMuted = false;
+            Laya.SoundManager.soundMuted = false;
+        }
+        if (!this._bgChannel) {
+            Laya.loader.load("musics/bgmusic.mp3", Laya.Handler.create(this, function () {
+                _this._bgChannel = Laya.SoundManager.playMusic("musics/bgmusic.mp3", 0);
+            }));
+        }
+        else {
+            this._bgChannel.play();
         }
     };
     return MoreController;

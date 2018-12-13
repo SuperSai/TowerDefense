@@ -175,6 +175,7 @@ var userData: UserData = new UserData();
 
 platform.onShow(function (e: any) {
     EventsManager.Instance.event(EventsType.BACK_GAME, true);
+    MoreController.getInstance().applyMute();
     if (platform.isSharing()) return;
     //离线收益
     if (userData && userData.isLoadStorage()) {
