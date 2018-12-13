@@ -12,7 +12,7 @@ class GlobalConfig {
     };
 
     public static get NEW_ACCOUNT():boolean{
-        return true;
+        return false;
     }
 
     public static get USER():string{

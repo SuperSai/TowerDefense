@@ -169,6 +169,7 @@ var HallScene = /** @class */ (function (_super) {
         //检查守卫是否可以升级
         self.checkKingIsUpdate();
         StrengthenManager.Instance.checkRedPoint();
+        self.showStagePrize(true);
     };
     /** 初始化用户数据 */
     HallScene.prototype.initUserData = function () {

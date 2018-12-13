@@ -91,7 +91,7 @@ class MonsterSprite extends Laya.Sprite {
             let aniPath: string = self._monsterInfo.modelImgUrl;
             let aniFrameKey: string = self._monsterInfo.modelImgKey;
             self.animPreKey = aniPath + "/" + aniFrameKey;
-            let anim: Laya.Animation = < Laya.Animation > self.getChildByName(MonsterSprite.roleKey);
+            let anim: Laya.Animation = <Laya.Animation>self.getChildByName(MonsterSprite.roleKey);
             if (anim == null) {
                 //创建动画实例
                 anim = Laya.Pool.getItemByClass(userData.ANIMATION_POOL_NAME, Laya.Animation);
@@ -175,7 +175,7 @@ class MonsterSprite extends Laya.Sprite {
             }
         }
         //英雄
-        let roleAni = < Laya.Animation > self.getChildByName(MonsterSprite.roleKey);
+        let roleAni = <Laya.Animation>self.getChildByName(MonsterSprite.roleKey);
         if (roleAni) {
             roleAni.interval = aniInterval;
             if (animName == (self.animPreKey + MonsterSprite.standAnimKey)) {
@@ -440,7 +440,7 @@ class MonsterSprite extends Laya.Sprite {
         }
         self.resetLeftBlood();
         let bloodBarKey: string = "bloodBar";
-        let bloodBar = < Laya.ProgressBar > self.getChildByName(bloodBarKey);
+        let bloodBar = <Laya.ProgressBar>self.getChildByName(bloodBarKey);
         if (bloodBar == null) {
             bloodBar = new Laya.ProgressBar("images/game_blood.png");
             bloodBar.name = bloodBarKey;
@@ -490,7 +490,7 @@ class MonsterSprite extends Laya.Sprite {
         }
         that._moveSpeedRatio = _ratio;
         let effectKey: string = "iceKey";
-        let effectSp = < Laya.Image > that.getChildByName(effectKey);
+        let effectSp = <Laya.Image>that.getChildByName(effectKey);
         if (effectSp == null) {
             effectSp = Laya.Pool.getItemByClass("layaImage", Laya.Image);
             effectSp.skin = "images/effect_water002.png";
@@ -510,20 +510,20 @@ class MonsterSprite extends Laya.Sprite {
     public showDrug(_hurtValue: number, _hurtTimes: number): void {
         let that = this;
         let effectKey: string = "drugKey";
-        let effectSp = < Laya.Image > that.getChildByName(effectKey);
+        let effectSp = <Laya.Image>that.getChildByName(effectKey);
         if (effectSp == null) {
-            effectSp = Laya.Pool.getItemByClass("layaImage", Laya.Image); //new Laya.Image("images/effect_drug002.png");
+            effectSp = Laya.Pool.getItemByClass("layaImage", Laya.Image);
             effectSp.skin = "images/effect_drug002.png";
             effectSp.name = effectKey;
             that.addChild(effectSp);
             effectSp.pos(-75 / 2, -170 / 2);
             //特效
-            let actionSp = < Laya.Image > effectSp;
+            let actionSp = <Laya.Image>effectSp;
             if (actionSp) {
                 let timeLine: Laya.TimeLine = Laya.Pool.getItemByClass("timeLine", Laya.TimeLine);
                 timeLine.addLabel("tl1", 0).to(actionSp, {
-                        alpha: 0.8
-                    }, 100, Laya.Ease.linearNone)
+                    alpha: 0.8
+                }, 100, Laya.Ease.linearNone)
                     .addLabel("tl2", 100).to(actionSp, {
                         alpha: 1
                     }, 200, Laya.Ease.linearNone)
@@ -552,8 +552,8 @@ class MonsterSprite extends Laya.Sprite {
         if (actionSp) {
             let timeLine = Laya.Pool.getItemByClass("timeLine", Laya.TimeLine);
             timeLine.addLabel("tl1", 0).to(actionSp, {
-                    scaleX: 0.9
-                }, 100, Laya.Ease.linearNone)
+                scaleX: 0.9
+            }, 100, Laya.Ease.linearNone)
                 .addLabel("tl2", 100).to(actionSp, {
                     scaleX: 1
                 }, 200, Laya.Ease.linearNone)
@@ -621,29 +621,29 @@ class MonsterSprite extends Laya.Sprite {
             y: that.y
         };
         let targetPosArray = [{
-                x: spPos.x + 140,
-                y: spPos.y
-            },
-            {
-                x: spPos.x + 140,
-                y: spPos.y + 470
-            },
-            {
-                x: spPos.x + 700,
-                y: spPos.y + 470
-            },
-            {
-                x: spPos.x + 700,
-                y: spPos.y - 230
-            },
-            {
-                x: spPos.x + 300,
-                y: spPos.y - 230
-            },
-            {
-                x: spPos.x + 270,
-                y: spPos.y - 400
-            }
+            x: spPos.x + 140,
+            y: spPos.y
+        },
+        {
+            x: spPos.x + 140,
+            y: spPos.y + 470
+        },
+        {
+            x: spPos.x + 700,
+            y: spPos.y + 470
+        },
+        {
+            x: spPos.x + 700,
+            y: spPos.y - 230
+        },
+        {
+            x: spPos.x + 300,
+            y: spPos.y - 230
+        },
+        {
+            x: spPos.x + 270,
+            y: spPos.y - 400
+        }
         ];
         //移动速度
         let moveSpeed: number = that._moveBaseSpeed * 0.04;
@@ -705,7 +705,7 @@ class MonsterSprite extends Laya.Sprite {
     /** 更改血量的方向 */
     private changeBloodBarDir(): void {
         let that = this;
-        let bloodBar: Laya.ProgressBar = ( < Laya.ProgressBar > that.getChildByName("bloodBar"));
+        let bloodBar: Laya.ProgressBar = (<Laya.ProgressBar>that.getChildByName("bloodBar"));
         bloodBar.scaleX = -1;
         bloodBar.x = (-76 / 2) + bloodBar.width;
     }
@@ -725,7 +725,6 @@ class MonsterSprite extends Laya.Sprite {
     }
     public setMoveAccelerate(_value: number): void {
         let that = this;
-        // that._moveAccelerate = 1.0/_value;
         that._moveAccelerate = _value;
     }
     public setAtkAccelerate(_value: number): void {
@@ -761,7 +760,7 @@ class MonsterSprite extends Laya.Sprite {
 
     //##贝塞尔曲线#################################
     // 以控制点cp计算曲线点
-    public CalculateBeizer(cp: Array < any > , numOfPoints: number): Array < any > {
+    public CalculateBeizer(cp: Array<any>, numOfPoints: number): Array<any> {
         var t = 1.0 / (numOfPoints - 1);
         var curve = [];
         for (var i = 0; i < numOfPoints; i++) {
@@ -771,7 +770,7 @@ class MonsterSprite extends Laya.Sprite {
     }
     // 参数1: 4个点坐标(起点，控制点1，控制点2，终点)  
     // 参数2: 0 <= t <= 1   
-    private PointOnCubicBezier(cp: Array < any > , t: number): any {
+    private PointOnCubicBezier(cp: Array<any>, t: number): any {
         var tPoint_x = this.MetaComputing(cp[0].x, cp[1].x, cp[2].x, cp[3].x, t);
         var tPoint_y = this.MetaComputing(cp[0].y, cp[1].y, cp[2].y, cp[3].y, t);
         return {
@@ -803,8 +802,8 @@ class MonsterSprite extends Laya.Sprite {
 
 enum MONSTER_TYPE {
     HERO = 1,
-        SUPER_HERO = 2,
-        MONSTER = 3,
-        BOSS = 4,
-        BOSS_HERO = 5,
+    SUPER_HERO = 2,
+    MONSTER = 3,
+    BOSS = 4,
+    BOSS_HERO = 5,
 }

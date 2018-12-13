@@ -1,8 +1,8 @@
 {
     "x":0,
     "type":"View",
-    "selectedBox":15,
-    "selecteID":332,
+    "selectedBox":37,
+    "selecteID":347,
     "referenceLines":null,
     "props":{"y":0,"x":0,"width":750,"sceneColor":"#000000","sceneBg":"laya/views/Game.JPG","height":1334},
     "nodeParent":-1,
@@ -324,14 +324,13 @@
                     "props":{"y":320,"width":508,"var":"carparkList","spaceY":16,"spaceX":10,"repeatY":5,"repeatX":4,"name":"carparkList","mouseEnabled":false,"height":700,"centerX":45},
                     "nodeParent":2,
                     "label":"List(carparkList)",
-                    "isOpen":true,
+                    "isOpen":false,
                     "isDirectory":true,
                     "isAniNode":true,
                     "hasChild":true,
                     "compId":38,
                     "child":[
                         {
-                            "x":45,
                             "type":"Box",
                             "props":{"y":80,"x":30,"width":100,"visible":false,"renderType":"render","height":100},
                             "nodeParent":38,
@@ -343,7 +342,6 @@
                             "compId":40,
                             "child":[
                                 {
-                                    "x":60,
                                     "type":"Sprite",
                                     "props":{"y":-14,"x":-14,"width":128,"runtime":"MonsterSprite","name":"car","height":128},
                                     "nodeParent":40,
@@ -355,7 +353,6 @@
                                     "compId":41,
                                     "child":[
                                         {
-                                            "x":75,
                                             "type":"Image",
                                             "props":{"y":75,"x":64,"width":100,"visible":false,"skin":"images/game_select_light.png","name":"imgLight","height":50,"anchorY":0.5,"anchorX":0.5},
                                             "nodeParent":41,
@@ -369,7 +366,6 @@
                                             "$HIDDEN":false
                                         },
                                         {
-                                            "x":75,
                                             "type":"Image",
                                             "props":{"y":64,"x":64,"visible":false,"skin":"images/game_lockIcon.png","name":"imgLock","anchorY":0.5,"anchorX":0.5},
                                             "nodeParent":41,
@@ -383,7 +379,6 @@
                                             "$HIDDEN":false
                                         },
                                         {
-                                            "x":75,
                                             "type":"Image",
                                             "props":{"y":87,"x":79,"width":31,"visible":false,"skin":"images/lv_001.png","sizeGrid":"10,9,11,8","name":"imgLevel","height":25},
                                             "nodeParent":41,
@@ -409,7 +404,6 @@
                                             "$HIDDEN":false
                                         },
                                         {
-                                            "x":75,
                                             "type":"Label",
                                             "props":{"y":24,"x":34,"width":53,"text":"18关","strokeColor":"#83551a","stroke":2,"name":"txt_openLevel","height":18,"fontSize":18,"color":"#ffffff","align":"center"},
                                             "nodeParent":41,
@@ -422,7 +416,6 @@
                                                 ]
                                         },
                                         {
-                                            "x":75,
                                             "type":"Sprite",
                                             "props":{"y":74,"x":62,"width":1,"name":"heroPos","height":1},
                                             "nodeParent":41,
@@ -496,14 +489,13 @@
                             "props":{"y":1093,"x":30,"var":"btnAcce","stateNum":1,"skin":"images/gbtn_acce.png","scaleY":1,"scaleX":1,"name":"btnAcce"},
                             "nodeParent":37,
                             "label":"Button(btnAcce)",
-                            "isOpen":true,
+                            "isOpen":false,
                             "isDirectory":true,
                             "isAniNode":true,
                             "hasChild":true,
                             "compId":11,
                             "child":[
                                 {
-                                    "x":60,
                                     "type":"Script",
                                     "source":"laya/pages/ScaleAnimScript.script",
                                     "props":{},
@@ -517,7 +509,6 @@
                                         ]
                                 },
                                 {
-                                    "x":60,
                                     "type":"Image",
                                     "props":{"y":60,"x":75,"visible":false,"skin":"images/core/video_icon.png","name":"imgAd"},
                                     "nodeParent":11,
@@ -530,7 +521,6 @@
                                         ]
                                 },
                                 {
-                                    "x":60,
                                     "type":"Image",
                                     "props":{"y":-16,"x":0,"visible":false,"skin":"images/daojishi_di.png","name":"imgAcce"},
                                     "nodeParent":11,
@@ -542,7 +532,6 @@
                                     "compId":249,
                                     "child":[
                                         {
-                                            "x":75,
                                             "type":"Label",
                                             "props":{"y":8,"x":8,"width":80,"text":"00:00","name":"txtAcceTime","fontSize":28,"color":"#ffffff","align":"center"},
                                             "nodeParent":249,
@@ -562,14 +551,13 @@
                             "props":{"y":1163,"x":183,"var":"btnShopShortcut","stateNum":1,"skin":"images/gbtn_shop.png","name":"btnShopShortcut"},
                             "nodeParent":37,
                             "label":"Button(btnShopShortcut)",
-                            "isOpen":true,
+                            "isOpen":false,
                             "isDirectory":true,
                             "isAniNode":true,
                             "hasChild":true,
                             "compId":13,
                             "child":[
                                 {
-                                    "x":60,
                                     "type":"Script",
                                     "source":"laya/pages/ScaleAnimScript.script",
                                     "props":{},
@@ -583,7 +571,6 @@
                                         ]
                                 },
                                 {
-                                    "x":60,
                                     "type":"Image",
                                     "props":{"y":109,"x":30,"skin":"images/core/coin_40x40.png","name":"imgPrice","anchorY":0.5,"anchorX":0.5},
                                     "nodeParent":13,
@@ -595,7 +582,6 @@
                                     "compId":32,
                                     "child":[
                                         {
-                                            "x":75,
                                             "type":"Label",
                                             "props":{"y":4,"x":45,"width":150,"text":1000,"strokeColor":"#946430","stroke":3,"name":"txtPrice","height":32,"fontSize":30,"color":"#ffffff","bold":true,"align":"left"},
                                             "nodeParent":32,
@@ -609,7 +595,6 @@
                                         }]
                                 },
                                 {
-                                    "x":60,
                                     "type":"Label",
                                     "props":{"y":33,"x":13,"width":150,"text":"英雄 Lv1","strokeColor":"#ffe7b0","stroke":3,"name":"txtLevel","fontSize":28,"color":"#98592e","bold":true,"align":"center"},
                                     "nodeParent":13,
@@ -628,14 +613,13 @@
                             "props":{"y":1163,"x":400,"var":"btnShop","stateNum":1,"skin":"images/gbtn_shop.png","name":"btnShop"},
                             "nodeParent":37,
                             "label":"Button(btnShop)",
-                            "isOpen":true,
+                            "isOpen":false,
                             "isDirectory":true,
                             "isAniNode":true,
                             "hasChild":true,
                             "compId":15,
                             "child":[
                                 {
-                                    "x":60,
                                     "type":"Script",
                                     "source":"laya/pages/ScaleAnimScript.script",
                                     "props":{},
@@ -649,7 +633,6 @@
                                         ]
                                 },
                                 {
-                                    "x":60,
                                     "type":"Image",
                                     "props":{"y":-12,"x":41,"skin":"images/shop_btn_icon.png"},
                                     "nodeParent":15,
@@ -662,7 +645,6 @@
                                         ]
                                 },
                                 {
-                                    "x":60,
                                     "type":"Label",
                                     "props":{"y":91,"x":13,"width":150,"text":"酒馆","strokeColor":"#946430","stroke":3,"name":"txtPrice","fontSize":34,"color":"#ffffff","bold":true,"align":"center"},
                                     "nodeParent":15,
@@ -675,7 +657,6 @@
                                         ]
                                 },
                                 {
-                                    "x":60,
                                     "type":"Image",
                                     "props":{"y":-3,"x":136,"visible":false,"skin":"images/core/red_dot_hint.png","name":"imgRedPoint"},
                                     "nodeParent":15,
@@ -694,14 +675,13 @@
                             "props":{"y":124,"x":0,"visible":false,"var":"btnDailyPrize","stateNum":1,"skin":"images/dailySingBtn.png","name":"btnDailyPrize","cacheAs":"bitmap"},
                             "nodeParent":37,
                             "label":"Button(btnDailyPrize)",
-                            "isOpen":true,
+                            "isOpen":false,
                             "isDirectory":true,
                             "isAniNode":true,
                             "hasChild":true,
                             "compId":17,
                             "child":[
                                 {
-                                    "x":60,
                                     "type":"Script",
                                     "source":"laya/pages/ScaleAnimScript.script",
                                     "props":{},
@@ -715,7 +695,6 @@
                                         ]
                                 },
                                 {
-                                    "x":60,
                                     "type":"Image",
                                     "props":{"y":11,"x":66,"visible":false,"skin":"images/core/red_dot_hint.png","name":"imgRedPoint"},
                                     "nodeParent":17,
@@ -731,17 +710,16 @@
                         {
                             "x":45,
                             "type":"Button",
-                            "props":{"y":798,"x":-3,"var":"btnRanking","stateNum":1,"skin":"images/gbtn_ranking.png","name":"btnRanking","alpha":0.8},
+                            "props":{"y":809,"x":-3,"var":"btnRanking","stateNum":1,"skin":"images/gbtn_ranking.png","name":"btnRanking","alpha":0.8},
                             "nodeParent":37,
                             "label":"Button(btnRanking)",
-                            "isOpen":true,
+                            "isOpen":false,
                             "isDirectory":true,
                             "isAniNode":true,
                             "hasChild":true,
                             "compId":19,
                             "child":[
                                 {
-                                    "x":60,
                                     "type":"Script",
                                     "source":"laya/pages/ScaleAnimScript.script",
                                     "props":{},
@@ -761,14 +739,13 @@
                             "props":{"y":273,"x":2,"var":"btnTask","stateNum":1,"skin":"images/gbtn_task.png","name":"btnTask"},
                             "nodeParent":37,
                             "label":"Button(btnTask)",
-                            "isOpen":true,
+                            "isOpen":false,
                             "isDirectory":true,
                             "isAniNode":true,
                             "hasChild":true,
                             "compId":315,
                             "child":[
                                 {
-                                    "x":60,
                                     "type":"Script",
                                     "source":"laya/pages/ScaleAnimScript.script",
                                     "props":{},
@@ -782,7 +759,6 @@
                                         ]
                                 },
                                 {
-                                    "x":60,
                                     "type":"Image",
                                     "props":{"y":4,"x":86,"visible":false,"skin":"images/core/red_dot_hint.png","name":"imgRedPoint"},
                                     "nodeParent":315,
@@ -795,7 +771,6 @@
                                         ]
                                 },
                                 {
-                                    "x":60,
                                     "type":"Image",
                                     "props":{"y":-56,"x":35,"skin":"images/effect/uiBird/niao_1.png"},
                                     "nodeParent":315,
@@ -814,14 +789,13 @@
                             "props":{"y":563,"x":-15,"var":"btnLuckPrize","stateNum":1,"skin":"images/gbtn_luck.png","name":"btnLuckPrize"},
                             "nodeParent":37,
                             "label":"Button(btnLuckPrize)",
-                            "isOpen":true,
+                            "isOpen":false,
                             "isDirectory":true,
                             "isAniNode":true,
                             "hasChild":true,
                             "compId":245,
                             "child":[
                                 {
-                                    "x":60,
                                     "type":"Script",
                                     "source":"laya/pages/ScaleAnimScript.script",
                                     "props":{},
@@ -835,7 +809,6 @@
                                         ]
                                 },
                                 {
-                                    "x":60,
                                     "type":"Image",
                                     "props":{"y":10,"x":82,"visible":false,"skin":"images/core/red_dot_hint.png","name":"imgRedPoint"},
                                     "nodeParent":245,
@@ -848,7 +821,6 @@
                                         ]
                                 },
                                 {
-                                    "x":60,
                                     "type":"Image",
                                     "props":{"y":-4,"x":-2,"skin":"images/effect/uiLight/dx_zpd_3.png"},
                                     "nodeParent":245,
@@ -865,17 +837,16 @@
                         {
                             "x":45,
                             "type":"Button",
-                            "props":{"y":887,"x":-3,"var":"btnFeedback","stateNum":1,"skin":"images/gbtn_feedback.png","name":"btnFeedback"},
+                            "props":{"y":898,"x":-3,"var":"btnFeedback","stateNum":1,"skin":"images/gbtn_feedback.png","name":"btnFeedback"},
                             "nodeParent":37,
                             "label":"Button(btnFeedback)",
-                            "isOpen":true,
+                            "isOpen":false,
                             "isDirectory":true,
                             "isAniNode":true,
                             "hasChild":true,
                             "compId":310,
                             "child":[
                                 {
-                                    "x":60,
                                     "type":"Script",
                                     "source":"laya/pages/ScaleAnimScript.script",
                                     "props":{},
@@ -892,17 +863,16 @@
                         {
                             "x":45,
                             "type":"Button",
-                            "props":{"y":977,"x":-3,"var":"btnMore","stateNum":1,"skin":"images/more_icon.png","name":"btnMore"},
+                            "props":{"y":988,"x":-3,"var":"btnMore","stateNum":1,"skin":"images/more_icon.png","name":"btnMore"},
                             "nodeParent":37,
                             "label":"Button(btnMore)",
-                            "isOpen":true,
+                            "isOpen":false,
                             "isDirectory":true,
                             "isAniNode":true,
                             "hasChild":true,
                             "compId":387,
                             "child":[
                                 {
-                                    "x":60,
                                     "type":"Script",
                                     "source":"laya/pages/ScaleAnimScript.script",
                                     "props":{},
@@ -922,14 +892,13 @@
                             "props":{"y":1204,"x":30,"var":"btnStrengthen","stateNum":1,"skin":"images/gbtn_strengthen.png","name":"btnStrengthen"},
                             "nodeParent":37,
                             "label":"Button(btnStrengthen)",
-                            "isOpen":true,
+                            "isOpen":false,
                             "isDirectory":true,
                             "isAniNode":true,
                             "hasChild":true,
                             "compId":325,
                             "child":[
                                 {
-                                    "x":60,
                                     "type":"Script",
                                     "source":"laya/pages/ScaleAnimScript.script",
                                     "props":{},
@@ -943,7 +912,6 @@
                                         ]
                                 },
                                 {
-                                    "x":60,
                                     "type":"Image",
                                     "props":{"y":0,"x":71,"visible":false,"var":"strengthenRedPoint","skin":"images/core/red_dot_hint.png","name":"strengthenRedPoint"},
                                     "nodeParent":325,
@@ -962,14 +930,13 @@
                             "props":{"y":1079,"x":590,"visible":false,"var":"btnPower","stateNum":1,"skin":"images/gbtn_fire.png","name":"btnPower"},
                             "nodeParent":37,
                             "label":"Button(btnPower)",
-                            "isOpen":true,
+                            "isOpen":false,
                             "isDirectory":true,
                             "isAniNode":true,
                             "hasChild":true,
                             "compId":340,
                             "child":[
                                 {
-                                    "x":60,
                                     "type":"Script",
                                     "source":"laya/pages/ScaleAnimScript.script",
                                     "props":{},
@@ -989,14 +956,13 @@
                             "props":{"y":132,"x":497,"width":100,"var":"btnEvolution","name":"btnEvolution","height":100},
                             "nodeParent":37,
                             "label":"Button(btnEvolution)",
-                            "isOpen":true,
+                            "isOpen":false,
                             "isDirectory":true,
                             "isAniNode":true,
                             "hasChild":true,
                             "compId":345,
                             "child":[
                                 {
-                                    "x":60,
                                     "type":"Script",
                                     "source":"laya/pages/ScaleAnimScript.script",
                                     "props":{},
@@ -1010,7 +976,6 @@
                                         ]
                                 },
                                 {
-                                    "x":60,
                                     "type":"Image",
                                     "props":{"y":1,"x":86,"skin":"images/evolution_hint_frame.png"},
                                     "nodeParent":345,
@@ -1047,7 +1012,6 @@
                                         }]
                                 },
                                 {
-                                    "x":60,
                                     "type":"Image",
                                     "props":{"y":12,"x":140,"var":"kingUpdateImg","skin":"images/core/red_dot_hint.png"},
                                     "nodeParent":345,
@@ -1064,7 +1028,7 @@
                         {
                             "x":45,
                             "type":"Button",
-                            "props":{"y":696,"x":0,"width":88,"visible":false,"var":"btnStagePrize","name":"btnStagePrize","labelSize":30,"height":106},
+                            "props":{"y":700,"x":0,"width":88,"visible":false,"var":"btnStagePrize","name":"btnStagePrize","labelSize":30,"height":106},
                             "nodeParent":37,
                             "label":"Button(btnStagePrize)",
                             "isOpen":false,

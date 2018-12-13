@@ -18,7 +18,7 @@ var GlobalConfig = /** @class */ (function () {
     ;
     Object.defineProperty(GlobalConfig, "NEW_ACCOUNT", {
         get: function () {
-            return true;
+            return false;
         },
         enumerable: true,
         configurable: true
