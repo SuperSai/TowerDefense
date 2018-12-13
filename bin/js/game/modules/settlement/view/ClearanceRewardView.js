@@ -41,7 +41,7 @@ var ClearanceRewardView = /** @class */ (function (_super) {
                 var nodeView = new ClearanceRewardView(arge, callback);
                 AlignUtils.setToScreenGoldenPos(nodeView);
                 LayerManager.getInstance().subFrameLayer.addChildWithMaskCall(nodeView, nodeView.removeSelf);
-                nodeView.once(Laya.Event.REMOVED, nodeView, _removeCallback);
+                nodeView.once(Laya.Event.REMOVED, nodeView, nodeView.removeView);
             }
         }));
     };
@@ -69,6 +69,7 @@ var ClearanceRewardView = /** @class */ (function (_super) {
             rewardItem.create(cfgData.img, cfgData.value);
             self.hbox.addChild(rewardItem);
         }
+        self._tween = EffectUtils.objectRotate(self.lightImg);
         self.addEvents();
     };
     ClearanceRewardView.prototype.addEvents = function () {
@@ -90,6 +91,12 @@ var ClearanceRewardView = /** @class */ (function (_super) {
             LayerManager.getInstance().screenEffectLayer.addChild(new FlyEffect().play("rollingCoin", LayerManager.mouseX, LayerManager.mouseY));
         }
         DisplayUtils.removeAllChildren(self.hbox);
+        self.removeSelf();
+    };
+    ClearanceRewardView.prototype.removeView = function () {
+        var self = this;
+        if (self._tween)
+            Laya.Tween.clear(self._tween);
         self.removeSelf();
         self.removeEvents();
     };

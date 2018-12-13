@@ -2,9 +2,9 @@
 * name;
 */
 var ScaleAnimScript = /** @class */ (function () {
-    // private isMouseOut:boolean = false; //移除
     function ScaleAnimScript() {
         this.isMouseDown = false; //按下
+        this.isMouseOut = false; //移除
     }
     Object.defineProperty(ScaleAnimScript.prototype, "owner", {
         set: function (value) {
@@ -16,22 +16,22 @@ var ScaleAnimScript = /** @class */ (function () {
         configurable: true
     });
     ScaleAnimScript.prototype.onLoaded = function () {
-        // if (isNaN(this.scaleBox.left) && isNaN(this.scaleBox.right) && isNaN(this.scaleBox.top) &&
-        //         isNaN(this.scaleBox.bottom) && isNaN(this.scaleBox.centerX) && isNaN(this.scaleBox.centerY)) {
-        //     //居中处理
-        //     this.scaleBox.anchorX = 0.5;
-        //     this.scaleBox.anchorY = 0.5;
-        //     this.scaleBox.pos(this.scaleBox.x+this.scaleBox.width*0.5, this.scaleBox.y+this.scaleBox.height*0.5);
-        // }
+        if (isNaN(this.scaleBox.left) && isNaN(this.scaleBox.right) && isNaN(this.scaleBox.top) &&
+            isNaN(this.scaleBox.bottom) && isNaN(this.scaleBox.centerX) && isNaN(this.scaleBox.centerY)) {
+            //居中处理
+            this.scaleBox.anchorX = 0.5;
+            this.scaleBox.anchorY = 0.5;
+            this.scaleBox.pos(this.scaleBox.x + this.scaleBox.width * 0.5, this.scaleBox.y + this.scaleBox.height * 0.5);
+        }
         this.scaleOrginValue = new Laya.Point(this.scaleBox.scaleX, this.scaleBox.scaleY);
         this.scaleBox.on(Laya.Event.MOUSE_DOWN, this, this.mouseDown);
         this.scaleBox.on(Laya.Event.MOUSE_UP, this, this.mouseUp);
         this.scaleBox.on(Laya.Event.MOUSE_OUT, this, this.mouseOut);
-        // this.scaleBox.on(Laya.Event.MOUSE_MOVE, this, this.mouseMove);
+        this.scaleBox.on(Laya.Event.MOUSE_MOVE, this, this.mouseMove);
     };
     ScaleAnimScript.prototype.mouseDown = function () {
         this.isMouseDown = true;
-        // this.isMouseOut = false;
+        this.isMouseOut = false;
         this.scaleSmall();
     };
     ScaleAnimScript.prototype.mouseUp = function () {
@@ -45,28 +45,29 @@ var ScaleAnimScript = /** @class */ (function () {
             this.scaleNormal();
         }
         this.isMouseDown = false;
-        // this.isMouseOut = true;
+        this.isMouseOut = true;
     };
-    // private mouseMove():void {
-    //     if (this.isMouseOut) {
-    //         if (this.isHit(this.scaleBox)) {
-    //             this.scaleSmall();
-    //         } else {
-    //             this.scaleNormal();
-    //         }
-    //     }
-    // }
+    ScaleAnimScript.prototype.mouseMove = function () {
+        if (this.isMouseOut) {
+            if (this.isHit(this.scaleBox)) {
+                this.scaleSmall();
+            }
+            else {
+                this.scaleNormal();
+            }
+        }
+    };
     ScaleAnimScript.prototype.scaleSmall = function () {
         if (this.scaleBox) {
-            // this.scaleBox.scale(this.scaleOrginValue.x *0.95, this.scaleOrginValue.y *0.95);
-            // Laya.Tween.to(this.scaleBox, {scaleX:this.scaleOrginValue.x *0.95, scaleY: this.scaleOrginValue.y *0.95}, 60, null);
+            this.scaleBox.scale(this.scaleOrginValue.x * 0.95, this.scaleOrginValue.y * 0.95);
+            Laya.Tween.to(this.scaleBox, { scaleX: this.scaleOrginValue.x * 0.95, scaleY: this.scaleOrginValue.y * 0.95 }, 60, null);
             this.scaleBox.filters = DisplayUtils.createColorFilter(1);
         }
     };
     ScaleAnimScript.prototype.scaleNormal = function () {
         if (this.scaleBox) {
-            // this.scaleBox.scale(this.scaleOrginValue.x, this.scaleOrginValue.y);
-            // Laya.Tween.to(this.scaleBox, {scaleX:this.scaleOrginValue.x, scaleY: this.scaleOrginValue.y}, 60, null);
+            this.scaleBox.scale(this.scaleOrginValue.x, this.scaleOrginValue.y);
+            Laya.Tween.to(this.scaleBox, { scaleX: this.scaleOrginValue.x, scaleY: this.scaleOrginValue.y }, 60, null);
             this.scaleBox.filters = [];
         }
     };

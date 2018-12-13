@@ -1,8 +1,8 @@
 {
     "x":0,
     "type":"View",
-    "selectedBox":1,
-    "selecteID":19,
+    "selectedBox":151,
+    "selecteID":112,
     "props":{"width":715,"sceneColor":"#000000","height":1014},
     "nodeParent":-1,
     "label":"View",
@@ -55,13 +55,14 @@
                             "props":{"y":32,"x":32,"name":"allImg"},
                             "nodeParent":2,
                             "label":"Box(allImg)",
-                            "isOpen":false,
+                            "isOpen":true,
                             "isDirectory":true,
                             "isAniNode":true,
                             "hasChild":true,
                             "compId":150,
                             "child":[
                                 {
+                                    "x":60,
                                     "type":"Image",
                                     "props":{"x":227,"skin":"images/evolution_shop_title.png"},
                                     "nodeParent":150,
@@ -74,6 +75,7 @@
                                         ]
                                 },
                                 {
+                                    "x":60,
                                     "type":"Image",
                                     "props":{"y":614,"x":4,"skin":"images/component/frame_line_01.png"},
                                     "nodeParent":150,
@@ -86,6 +88,7 @@
                                         ]
                                 },
                                 {
+                                    "x":60,
                                     "type":"Image",
                                     "props":{"y":157,"x":4,"skin":"images/component/frame_line_01.png"},
                                     "nodeParent":150,
@@ -98,6 +101,7 @@
                                         ]
                                 },
                                 {
+                                    "x":60,
                                     "type":"Image",
                                     "props":{"y":628,"skin":"images/component/frame_9calce_05.png"},
                                     "nodeParent":150,
@@ -111,6 +115,7 @@
                                     "$HIDDEN":false
                                 },
                                 {
+                                    "x":60,
                                     "type":"Image",
                                     "props":{"y":681,"skin":"images/component/frame_9calce_05.png"},
                                     "nodeParent":150,
@@ -124,6 +129,7 @@
                                     "$HIDDEN":false
                                 },
                                 {
+                                    "x":60,
                                     "type":"Image",
                                     "props":{"y":734,"skin":"images/component/frame_9calce_05.png"},
                                     "nodeParent":150,
@@ -137,42 +143,7 @@
                                     "$HIDDEN":false
                                 },
                                 {
-                                    "type":"Image",
-                                    "props":{"y":742,"x":35,"skin":"images/icon_01.png"},
-                                    "nodeParent":150,
-                                    "label":"Image",
-                                    "isDirectory":false,
-                                    "isAniNode":true,
-                                    "hasChild":false,
-                                    "compId":135,
-                                    "child":[
-                                        ]
-                                },
-                                {
-                                    "type":"Image",
-                                    "props":{"y":688,"x":35,"skin":"images/icon_02.png"},
-                                    "nodeParent":150,
-                                    "label":"Image",
-                                    "isDirectory":false,
-                                    "isAniNode":true,
-                                    "hasChild":false,
-                                    "compId":136,
-                                    "child":[
-                                        ]
-                                },
-                                {
-                                    "type":"Image",
-                                    "props":{"y":635,"x":35,"skin":"images/icon_03.png"},
-                                    "nodeParent":150,
-                                    "label":"Image",
-                                    "isDirectory":false,
-                                    "isAniNode":true,
-                                    "hasChild":false,
-                                    "compId":137,
-                                    "child":[
-                                        ]
-                                },
-                                {
+                                    "x":60,
                                     "type":"Image",
                                     "props":{"y":175,"x":29,"skin":"images/component/frame_9calce_03.png"},
                                     "nodeParent":150,
@@ -185,6 +156,7 @@
                                         ]
                                 },
                                 {
+                                    "x":60,
                                     "type":"Image",
                                     "props":{"y":175,"x":254,"skin":"images/component/frame_9calce_03.png"},
                                     "nodeParent":150,
@@ -197,6 +169,7 @@
                                         ]
                                 },
                                 {
+                                    "x":60,
                                     "type":"Image",
                                     "props":{"y":175,"x":483,"skin":"images/component/frame_9calce_03.png"},
                                     "nodeParent":150,
@@ -209,6 +182,7 @@
                                         ]
                                 },
                                 {
+                                    "x":60,
                                     "type":"Image",
                                     "props":{"y":363,"x":29,"skin":"images/component/frame_9calce_03.png"},
                                     "nodeParent":150,
@@ -221,6 +195,7 @@
                                         ]
                                 },
                                 {
+                                    "x":60,
                                     "type":"Image",
                                     "props":{"y":363,"x":254,"skin":"images/component/frame_9calce_03.png"},
                                     "nodeParent":150,
@@ -233,6 +208,7 @@
                                         ]
                                 },
                                 {
+                                    "x":60,
                                     "type":"Image",
                                     "props":{"y":97,"x":213,"skin":"images/carImg/hero_d10_16.png"},
                                     "nodeParent":150,
@@ -245,6 +221,7 @@
                                         ]
                                 },
                                 {
+                                    "x":60,
                                     "type":"Image",
                                     "props":{"y":94,"x":441,"skin":"images/carImg/hero_d10_16.png"},
                                     "nodeParent":150,
@@ -257,6 +234,7 @@
                                         ]
                                 },
                                 {
+                                    "x":60,
                                     "type":"Image",
                                     "props":{"y":94,"x":-12,"skin":"images/carImg/hero_d10_16.png"},
                                     "nodeParent":150,
@@ -269,6 +247,7 @@
                                         ]
                                 },
                                 {
+                                    "x":60,
                                     "type":"Image",
                                     "props":{"y":379,"x":271,"skin":"images/luckLottery/luck_prize_5.png"},
                                     "nodeParent":150,
@@ -281,6 +260,7 @@
                                         ]
                                 },
                                 {
+                                    "x":60,
                                     "type":"Image",
                                     "props":{"y":388,"x":44,"skin":"images/luckLottery/luck_prize_6.png"},
                                     "nodeParent":150,
@@ -292,7 +272,7 @@
                                     "child":[
                                         ]
                                 }],
-                            "$LOCKED":true
+                            "$LOCKED":false
                         },
                         {
                             "x":45,
@@ -478,7 +458,7 @@
                                 {
                                     "x":60,
                                     "type":"Label",
-                                    "props":{"y":530,"x":224,"var":"txtNeedItem1","text":"0/1","name":"txtNeedItem1","fontSize":28,"color":"#9a8d00","align":"left"},
+                                    "props":{"y":530,"x":185,"var":"txtNeedItem1","text":"0/1","name":"txtNeedItem1","fontSize":28,"color":"#9a8d00","align":"left"},
                                     "nodeParent":151,
                                     "label":"Label(txtNeedItem1)",
                                     "isDirectory":false,
@@ -491,7 +471,7 @@
                                 {
                                     "x":60,
                                     "type":"Label",
-                                    "props":{"y":583,"x":224,"var":"txtNeedItem2","text":"0/1","name":"txtNeedItem2","fontSize":28,"color":"#9a8d00","align":"left"},
+                                    "props":{"y":583,"x":185,"var":"txtNeedItem2","text":"0/1","name":"txtNeedItem2","fontSize":28,"color":"#9a8d00","align":"left"},
                                     "nodeParent":151,
                                     "label":"Label(txtNeedItem2)",
                                     "isDirectory":false,
@@ -504,7 +484,7 @@
                                 {
                                     "x":60,
                                     "type":"Label",
-                                    "props":{"y":639,"x":224,"var":"txtNeedItem3","text":"0/1","name":"txtNeedItem3","fontSize":28,"color":"#9a8d00","align":"left"},
+                                    "props":{"y":639,"x":185,"var":"txtNeedItem3","text":"0/1","name":"txtNeedItem3","fontSize":28,"color":"#9a8d00","align":"left"},
                                     "nodeParent":151,
                                     "label":"Label(txtNeedItem3)",
                                     "isDirectory":false,
@@ -517,7 +497,7 @@
                                 {
                                     "x":60,
                                     "type":"Label",
-                                    "props":{"y":635,"x":39,"var":"txtItemName3","text":"刺龙王 Lv30:","name":"txtItemName3","fontSize":30,"color":"#9a2525","align":"left"},
+                                    "props":{"y":635,"x":0,"var":"txtItemName3","text":"刺龙王 Lv30:","name":"txtItemName3","fontSize":30,"color":"#9a2525","align":"left"},
                                     "nodeParent":151,
                                     "label":"Label(txtItemName3)",
                                     "isDirectory":false,
@@ -530,7 +510,7 @@
                                 {
                                     "x":60,
                                     "type":"Label",
-                                    "props":{"y":581,"x":39,"var":"txtItemName2","text":"毒婕拉 Lv30:","name":"txtItemName2","fontSize":30,"color":"#9a2525","align":"left"},
+                                    "props":{"y":581,"x":0,"var":"txtItemName2","text":"毒婕拉 Lv30:","name":"txtItemName2","fontSize":30,"color":"#9a2525","align":"left"},
                                     "nodeParent":151,
                                     "label":"Label(txtItemName2)",
                                     "isDirectory":false,
@@ -543,7 +523,7 @@
                                 {
                                     "x":60,
                                     "type":"Label",
-                                    "props":{"y":527,"x":39,"var":"txtItemName1","text":"雷暴龙 Lv30:","name":"txtItemName1","fontSize":30,"color":"#9a2525","align":"left"},
+                                    "props":{"y":527,"x":0,"var":"txtItemName1","text":"雷暴龙 Lv30:","name":"txtItemName1","fontSize":30,"color":"#9a2525","align":"left"},
                                     "nodeParent":151,
                                     "label":"Label(txtItemName1)",
                                     "isDirectory":false,
@@ -553,7 +533,8 @@
                                     "child":[
                                         ]
                                 }],
-                            "$LOCKED":false
+                            "$LOCKED":false,
+                            "$HIDDEN":false
                         },
                         {
                             "x":45,

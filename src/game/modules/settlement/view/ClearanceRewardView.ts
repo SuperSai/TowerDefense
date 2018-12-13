@@ -5,6 +5,7 @@ class ClearanceRewardView extends ui.settlement.ClearanceRewardViewUI {
     private _data: any[];
     private _money: number;
     private _callback: Function;
+    private _tween: Laya.Tween;
 
     constructor(data: any[] = null, callback: Function = null) {
         super();
@@ -23,7 +24,7 @@ class ClearanceRewardView extends ui.settlement.ClearanceRewardViewUI {
                 let nodeView = new ClearanceRewardView(arge, callback);
                 AlignUtils.setToScreenGoldenPos(nodeView);
                 LayerManager.getInstance().subFrameLayer.addChildWithMaskCall(nodeView, nodeView.removeSelf);
-                nodeView.once(Laya.Event.REMOVED, nodeView, _removeCallback);
+                nodeView.once(Laya.Event.REMOVED, nodeView, nodeView.removeView);
             }
         }));
     }
@@ -52,6 +53,7 @@ class ClearanceRewardView extends ui.settlement.ClearanceRewardViewUI {
             rewardItem.create(cfgData.img, cfgData.value);
             self.hbox.addChild(rewardItem);
         }
+        self._tween = EffectUtils.objectRotate(self.lightImg)
         self.addEvents();
     }
 
@@ -75,6 +77,12 @@ class ClearanceRewardView extends ui.settlement.ClearanceRewardViewUI {
             LayerManager.getInstance().screenEffectLayer.addChild(new FlyEffect().play("rollingCoin", LayerManager.mouseX, LayerManager.mouseY));
         }
         DisplayUtils.removeAllChildren(self.hbox);
+        self.removeSelf();
+    }
+
+    private removeView(): void {
+        let self = this;
+        if (self._tween) Laya.Tween.clear(self._tween);
         self.removeSelf();
         self.removeEvents();
     }
