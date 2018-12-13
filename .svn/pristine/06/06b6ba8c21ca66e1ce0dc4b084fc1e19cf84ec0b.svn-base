@@ -1,0 +1,81 @@
+/*
+* 通关获得奖励提示框;
+*/
+class ClearanceRewardView extends ui.settlement.ClearanceRewardViewUI {
+    private _data: any[];
+    private _money: number;
+    private _callback: Function;
+
+    constructor(data: any[] = null, callback: Function = null) {
+        super();
+        this._data = data;
+        this._callback = callback;
+        this.init();
+    }
+
+    //新建并添加到节点
+    static Create(_parentNode: Laya.Node, callback: any = null, _removeCallback: any = null, ...arge): void {
+        let resList = [
+            { url: "res/atlas/images/ClearanceReward.atlas", type: Laya.Loader.ATLAS }
+        ];
+        Laya.loader.load(resList, Handler.create(null, () => {
+            if (_parentNode) {
+                let nodeView = new ClearanceRewardView(arge, callback);
+                AlignUtils.setToScreenGoldenPos(nodeView);
+                LayerManager.getInstance().subFrameLayer.addChildWithMaskCall(nodeView, nodeView.removeSelf);
+                nodeView.once(Laya.Event.REMOVED, nodeView, _removeCallback);
+            }
+        }));
+    }
+
+    //初始化
+    private init(): void {
+        let self = this;
+        //关卡
+        self.txtStage.text = self._data[0] + "";
+        //当前奖励物品
+        let stagePrizeCfg: any = GlobleData.getData(GlobleData.BarrierRewardVO, self._data[0]);
+        if (stagePrizeCfg == null) {
+            return;
+        }
+        let bossM: number = MathUtils.parseStringNum(stagePrizeCfg.bossM);
+        let gold: number = BattleManager.Instance.getBarrierRewardToGold(self._data[0], MathUtils.parseStringNum(stagePrizeCfg.gold));
+        let gem: number = MathUtils.parseStringNum(stagePrizeCfg.gem);
+        let itemArray = [
+            { img: "images/ClearanceReward/result_prize_item2.png", value: gold },
+            { img: "images/ClearanceReward/result_prize_item3.png", value: gem },
+            { img: "images/ClearanceReward/result_prize_item4.png", value: bossM }
+        ];
+        for (var index = 0, len: number = itemArray.length; index < len; index++) {
+            let cfgData = itemArray[index];
+            let rewardItem: RewardItem = ObjectPool.pop(RewardItem, "RewardItem");
+            rewardItem.create(cfgData.img, cfgData.value);
+            self.hbox.addChild(rewardItem);
+        }
+        self.addEvents();
+    }
+
+    private addEvents(): void {
+        let self = this;
+        self.btnExit.on(Laya.Event.CLICK, self, self.onCloseHandler);
+    }
+
+    private removeEvents(): void {
+        let self = this;
+        self.btnExit.off(Laya.Event.CLICK, self, self.onCloseHandler);
+    }
+
+    private onCloseHandler(): void {
+        let self = this;
+        let rewardItem: RewardItem = <RewardItem>self.hbox.getChildAt(0);
+        if (rewardItem) {
+            let pos: Laya.Point = PointUtils.localToGlobal(rewardItem);
+            LayerManager.getInstance().screenEffectLayer.addChild(new FlyEffect().play("rollingCoin", pos.x, pos.y));
+        } else {
+            LayerManager.getInstance().screenEffectLayer.addChild(new FlyEffect().play("rollingCoin", LayerManager.mouseX, LayerManager.mouseY));
+        }
+        DisplayUtils.removeAllChildren(self.hbox);
+        self.removeSelf();
+        self.removeEvents();
+    }
+}

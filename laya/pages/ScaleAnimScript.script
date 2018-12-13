@@ -1,0 +1,4 @@
+<ScaleAnimScript className="ScaleAnimScript">
+	<prop name="scaleAnimX" tips="整数类型" type="number"/>
+	<prop name="scaleAnimY" tips="整数类型" type="number"/>
+</ScaleAnimScript>

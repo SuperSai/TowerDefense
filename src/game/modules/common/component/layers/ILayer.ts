@@ -1,0 +1,3 @@
+interface ILayer {
+	getLayerId(): number;
+}

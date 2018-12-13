@@ -1,0 +1,93 @@
+{
+    "frames": {
+        "sw_jz1.png": {
+            "frame": {
+                "h": 96,
+                "idx": 0,
+                "w": 94,
+                "x": 0,
+                "y": 0
+            },
+            "sourceSize": {
+                "h": 110,
+                "w": 128
+            },
+            "spriteSourceSize": {
+                "x": 17,
+                "y": 7
+            }
+        },
+        "sw_jz2.png": {
+            "frame": {
+                "h": 88,
+                "idx": 0,
+                "w": 101,
+                "x": 95,
+                "y": 0
+            },
+            "sourceSize": {
+                "h": 110,
+                "w": 128
+            },
+            "spriteSourceSize": {
+                "x": 13,
+                "y": 11
+            }
+        },
+        "sw_jz3.png": {
+            "frame": {
+                "h": 110,
+                "idx": 0,
+                "w": 126,
+                "x": 0,
+                "y": 97
+            },
+            "sourceSize": {
+                "h": 110,
+                "w": 128
+            },
+            "spriteSourceSize": {
+                "x": 1,
+                "y": 0
+            }
+        },
+        "sw_jz4.png": {
+            "frame": {
+                "h": 108,
+                "idx": 0,
+                "w": 122,
+                "x": 197,
+                "y": 0
+            },
+            "sourceSize": {
+                "h": 110,
+                "w": 128
+            },
+            "spriteSourceSize": {
+                "x": 3,
+                "y": 1
+            }
+        },
+        "sw_jz5.png": {
+            "frame": {
+                "h": 98,
+                "idx": 0,
+                "w": 106,
+                "x": 127,
+                "y": 109
+            },
+            "sourceSize": {
+                "h": 110,
+                "w": 128
+            },
+            "spriteSourceSize": {
+                "x": 11,
+                "y": 7
+            }
+        }
+    },
+    "meta": {
+        "image": "fireball.png",
+        "prefix": "fireball/"
+    }
+}

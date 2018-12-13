@@ -1,0 +1,9 @@
+{
+    "search.exclude": {
+        "**/src": true,
+        "**/libs": true,
+        "**/laya": true
+    },
+    "svn.path": "c:\\Program Files\\TortoiseSVN\\bin\\TortoiseProc.exe",
+    "git.ignoreLimitWarning": true
+}

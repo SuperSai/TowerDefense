@@ -1,0 +1,39 @@
+/*
+* 动画工具类;
+*/
+class AnimationUtils {
+
+    /** 锁定按钮n帧 */
+    static lockBtnStage(_btn: Laya.Component, _delay: number = 10) {
+        _btn.mouseEnabled = false;
+        _btn.frameOnce(_delay, _btn, () => {
+            _btn.mouseEnabled = true;
+        });
+    }
+
+    /** 动画url数组 */
+    static aniUrls(_aniName: string, _frameCount: number, _url: string = '', _isReverse: boolean = false): string[] {
+        let urls: string[] = [];
+        for (let i: number = 0; i < _frameCount; i++) {
+            //动画资源路径要和动画图集打包前的资源命名对应起来
+            urls.push(_url + _aniName + (i + 1) + ".png")
+        }
+        if (_isReverse) {
+            urls = urls.concat([].concat(urls).reverse());
+        }
+        return urls;
+    }
+
+    /** 英雄动画url数组 */
+    public static heroAniUrls(aniName: string, startCount: number, endCount: number, url: string = '', isReverse: boolean = false): string[] {
+        let urls: string[] = [];
+        //动画资源路径要和动画图集打包前的资源命名对应起来
+        for (let i: number = startCount; i < endCount; i++) {
+            urls.push(url + aniName + (i + 1) + ".png")
+        }
+        if (isReverse) {
+            urls = urls.concat([].concat(urls).reverse());
+        }
+        return urls;
+    }
+}

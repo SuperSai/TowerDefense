@@ -1,0 +1,238 @@
+/*
+* 排行榜界面
+*/
+class RankingView extends ui.rank.RankingUI {
+    private curSelectedIndex: number = -1;
+    private _tabGroup: TabGroup;
+    constructor(_isFriend: boolean) {
+        super();
+        this.init(_isFriend);
+    }
+    //新建并添加到节点
+    static Create(_callback: any = null, _isFriend: boolean = false): void {
+
+        let resList = [
+            { url: "images/ranking/headIcon.png", type: Laya.Loader.IMAGE },
+            { url: "images/ranking/surpass_bg.png", type: Laya.Loader.IMAGE },
+
+            { url: "images/ranking/title.png", type: Laya.Loader.IMAGE },
+            { url: "images/ranking/cell_bg_top1.png", type: Laya.Loader.IMAGE },
+            { url: "images/ranking/cell_bg_default.png", type: Laya.Loader.IMAGE },
+            { url: "images/ranking/cell_bg_self.png", type: Laya.Loader.IMAGE },
+            { url: "images/ranking/icon_top_1.png", type: Laya.Loader.IMAGE },
+            { url: "images/ranking/icon_top_2.png", type: Laya.Loader.IMAGE },
+            { url: "images/ranking/icon_top_3.png", type: Laya.Loader.IMAGE },
+            { url: "images/ranking/location_bg.png", type: Laya.Loader.IMAGE },
+            { url: "images/ranking/location_mark.png", type: Laya.Loader.IMAGE },
+            { url: "images/ranking/seperate_line.png", type: Laya.Loader.IMAGE },
+        ];
+        Laya.loader.load(resList, Handler.create(null, () => {
+            let nodeView = new RankingView(_isFriend);
+            AlignUtils.setToScreenGoldenPos(nodeView);
+            M.layer.frameLayer.addChildWithMaskCall(nodeView, () => {
+                nodeView.removeSelf();
+                _callback && _callback();
+            });
+
+        }));
+    }
+
+    //初始化
+    private init(_isFriend: boolean): void {
+        let that = this;
+
+        this._tabGroup = new TabGroup(that.tabGroup._childs);
+        this._tabGroup.on(Laya.Event.CHANGE, that, that.onTabChange);
+
+        this._tabGroup.selectedIndex = _isFriend ? RankingSubView.FRIEND_RANKING : RankingSubView.WORLD_RANKING;
+
+        //按钮事件
+        this.btnExit.on(Laya.Event.CLICK, that, that.onClickExit);
+
+        this.coverView.on(Laya.Event.CLICK, that, () => {
+            console.log("coverView");
+        });
+    }
+
+    //点击事件
+    private onClickExit(): void {
+
+        this.removeSelf();
+    }
+
+    private onTabChange(selectedIndex?: number): void {
+        const index: number = this._tabGroup.selectedIndex;
+        this.viewStackRanking.selectedIndex = index;
+        if (index === RankingSubView.WORLD_RANKING) {
+            this.requestWorldRankingData();
+            this.requestMyWorldRankingData();
+        } else if (index === RankingSubView.FRIEND_RANKING) {
+            this.openFriendRankingView();
+        }
+    }
+
+    private openWorldRankingView(_data) {
+        var that = this;
+        var listDatas = [];
+        //移除收益为0或以下的数据
+        if (_data) {
+            _data.forEach(element => {
+                let asset: number = MathUtils.parseStringNum(element.stage);
+                if (asset > 0) {
+                    listDatas.push(element);
+                }
+            });
+        }
+
+        that.worldRankingList.vScrollBarSkin = null;
+        that.worldRankingList.repeatY = 5;
+        that.worldRankingList.array = listDatas;
+        that.worldRankingList.renderHandler = new Laya.Handler(that, (cell: Laya.Box, index: number) => {
+            if (index > that.worldRankingList.array.length) {
+                return;
+            }
+            let item = listDatas[index];
+            if (item) {
+                let imgNo = cell.getChildByName('imgNo') as Laya.Image;
+                if (imgNo) {
+                    imgNo.visible = index < 3;
+                    if (index < 1) {
+                        imgNo.skin = "images/ranking/icon_top_1.png";
+
+                        const cellBar = cell.getChildByName("cellBar") as Laya.Image;
+                        if(cellBar){
+                            cellBar.skin = "images/ranking/cell_bg_top1.png";
+                        }
+
+                    } else if (index < 2) {
+                        imgNo.skin = "images/ranking/icon_top_2.png";
+                    } else if (index < 3) {
+                        imgNo.skin = "images/ranking/icon_top_3.png";
+                    }
+                }
+                let txtNo = cell.getChildByName('txtNo') as Laya.Label;
+                if (txtNo) {
+                    txtNo.changeText((index + 1).toString());
+                }
+                let imgAvatar = cell.getChildByName('imgAvatar') as Laya.Image;
+                if (imgAvatar) {
+                    imgAvatar.skin = item.avatar_url;
+                }
+                let txtName = cell.getChildByName('txtName') as Laya.Label;
+                if (txtName) {
+                    txtName.text = StringUtils.omitStringByByteLen(platform.decode(item.nick_name));
+                }
+                let txtPosition = cell.getChildByName('txtPosition') as Laya.Label;
+                if (txtPosition) {
+                    txtPosition.text = (item.city ? item.city : '火星');
+                }
+                let txtScore = cell.getChildByName('txtScore') as Laya.Label;
+                if (txtScore) {
+                    let asset: number = MathUtils.parseStringNum(item.stage);
+                    if (asset < 0) {
+                        asset = 0;
+                    }
+                    txtScore.changeText(MathUtils.bytesToSize(asset));
+                }
+            }
+        });
+
+        let txtHint = that.viewStackRanking.selection.getChildByName('txtHint') as Laya.Label;
+        if (txtHint) {
+            txtHint.visible = that.worldRankingList.array.length < 1;
+        }
+    }
+    //好友排行
+    private openFriendRankingView() {
+        let that = this;
+        let openDataContext: any = platform.getOpenDataContext()
+        if (openDataContext) {
+            // openDataContext.postMessage({
+            //   text: 'hello',
+            //   year: (new Date()).getFullYear()
+            // })
+            let sharedCanvas = openDataContext.canvas
+            sharedCanvas.width = that.width;
+            sharedCanvas.height = that.height;
+
+            var rankSprite = new Laya.Sprite();
+            that.viewStackRanking.selection.removeChildren();
+            that.viewStackRanking.selection.addChild(rankSprite);
+            rankSprite.zOrder = 1
+            Laya.timer.once(40, that, function () {
+                var rankTexture = new Laya.Texture(sharedCanvas);
+                rankTexture.bitmap.alwaysChange = true;//小游戏使用，非常费，每帧刷新
+                rankSprite.graphics.drawTexture(rankTexture, 0, 0, sharedCanvas.width, sharedCanvas.height);
+            });
+
+            platform.postMessage({
+                message: "showFriendRanking"
+            });
+        }
+    }
+    //我当前的世界排名
+    private showMyRankingView(_ranking: number, _stage: number) {
+        let that = this;
+        if (that.viewMyRanking) {
+            let txtMyRanking = that.viewMyRanking.getChildByName('txtMyRanking') as Laya.Label;
+            if (txtMyRanking) {
+                txtMyRanking.changeText(_ranking.toString());
+            }
+            const wxUserInfo = PlayerManager.Instance.Info.wxUserInfo;
+            if (wxUserInfo) {
+                const imgAvatar = that.viewMyRanking.getChildByName('imgAvatar') as Laya.Image;
+                if (imgAvatar) {
+                    imgAvatar.skin = wxUserInfo.avatarUrl;
+                }
+                let txtName = that.viewMyRanking.getChildByName('txtName') as Laya.Label;
+                if (txtName) {
+                    txtName.changeText(wxUserInfo.nickName);
+                }
+                let txtPosition = that.viewMyRanking.getChildByName('txtPosition') as Laya.Label;
+                if (txtPosition) {
+                    txtPosition.changeText(wxUserInfo.city ? wxUserInfo.city : '火星');
+                }
+            }
+            let txtScore = that.viewMyRanking.getChildByName('txtScore') as Laya.Label;
+            if (txtScore) {
+                txtScore.changeText(MathUtils.bytesToSize(_stage));
+            }
+        }
+    }
+
+    //请求周排行数据
+    public requestWorldRankingData(_callback: any = null): void {
+        var that = this;
+        var HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+        HttpReqHelper.request({
+            url: 'v1/rank/stage',
+            success: function (res) {
+                console.log("requestWorldRankingData:", res);
+                that.openWorldRankingView(res);
+            },
+            fail: function (res) {
+                console.log(res);
+            }
+        });
+    }
+    //请求我的周排行数据
+    public requestMyWorldRankingData(_callback: any = null): void {
+        var that = this;
+        var HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+        HttpReqHelper.request({
+            url: 'v1/rank/my_stage',
+            success: function (res) {
+                console.log("requestMyWorldRankingData:", res);
+                that.showMyRankingView(res, userData.getPassStage());
+            },
+            fail: function (res) {
+                console.log(res);
+            }
+        });
+    }
+}
+
+enum RankingSubView {
+    WORLD_RANKING,
+    FRIEND_RANKING
+}

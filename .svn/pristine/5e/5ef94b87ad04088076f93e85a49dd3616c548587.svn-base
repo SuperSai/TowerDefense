@@ -1,0 +1,45 @@
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+/*
+* 玩家信息数据管理;
+*/
+var PlayerManager = /** @class */ (function (_super) {
+    __extends(PlayerManager, _super);
+    function PlayerManager() {
+        return _super.call(this) || this;
+    }
+    PlayerManager.prototype.setup = function () {
+        var self = this;
+        self._info = new PlayerInfo();
+    };
+    Object.defineProperty(PlayerManager.prototype, "Info", {
+        /** 玩家数据 */
+        get: function () { return this._info; },
+        set: function (value) { this._info = value; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(PlayerManager, "Instance", {
+        get: function () {
+            if (!PlayerManager._instance) {
+                PlayerManager._instance = new PlayerManager();
+            }
+            return PlayerManager._instance;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    return PlayerManager;
+}(Laya.EventDispatcher));
+//# sourceMappingURL=PlayerManager.js.map
