@@ -61,14 +61,8 @@ class EvolutionAdvancedView extends ui.evolution.EvolutionAdvancedViewUI {
         if (imgBg && kingVO) {
             //升级条件
             let itemId1: number = 130;
-            let itemId2: number = 230;
-            let itemId3: number = 330;
             let itemNum1: number = userData.caculateMonsterCount(itemId1);
-            let itemNum2: number = userData.caculateMonsterCount(itemId2);
-            let itemNum3: number = userData.caculateMonsterCount(itemId3);
-            let needItemNum1: number = 1;
-            let needItemNum2: number = 1;
-            let needItemNum3: number = 1;
+            let needItemNum1: number = 3;
             //奖励
             let prizeDiamond: number = 500;
             let prizeEssence: number = 50;
@@ -85,13 +79,11 @@ class EvolutionAdvancedView extends ui.evolution.EvolutionAdvancedViewUI {
                         }
                     });
                 });
-                btnUpdate.disabled = (itemNum1 < needItemNum1) || (itemNum2 < needItemNum2) || (itemNum3 < needItemNum3);
+                btnUpdate.disabled = (itemNum1 < needItemNum1);
             }
             that.txtNeedItem1.text = Math.min(itemNum1, needItemNum1) + '/' + needItemNum1;
-            that.txtNeedItem2.text = Math.min(itemNum2, needItemNum2) + '/' + needItemNum2;
-            that.txtNeedItem3.text = Math.min(itemNum3, needItemNum3) + '/' + needItemNum3;
-            that.txtItemPrize4.text = prizeDiamond + "";
-            that.txtItemPrize5.text = prizeEssence + "";
+            that.txtItemPrize2.text = prizeDiamond + "";
+            that.txtItemPrize3.text = prizeEssence + "";
         }
     }
 

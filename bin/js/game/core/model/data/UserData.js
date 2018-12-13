@@ -903,7 +903,6 @@ var UserData = /** @class */ (function () {
     };
     //计算精灵个数
     UserData.prototype.caculateMonsterCount = function (_id) {
-        var that = this;
         var num = 0;
         if (this.parkcarInfoArray) {
             this.parkcarInfoArray.forEach(function (element) {

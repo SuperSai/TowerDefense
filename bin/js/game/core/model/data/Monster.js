@@ -516,7 +516,7 @@ var MonsterSprite = /** @class */ (function (_super) {
         var effectKey = "drugKey";
         var effectSp = that.getChildByName(effectKey);
         if (effectSp == null) {
-            effectSp = Laya.Pool.getItemByClass("layaImage", Laya.Image); //new Laya.Image("images/effect_drug002.png");
+            effectSp = Laya.Pool.getItemByClass("layaImage", Laya.Image);
             effectSp.skin = "images/effect_drug002.png";
             effectSp.name = effectKey;
             that.addChild(effectSp);
@@ -727,7 +727,6 @@ var MonsterSprite = /** @class */ (function (_super) {
     };
     MonsterSprite.prototype.setMoveAccelerate = function (_value) {
         var that = this;
-        // that._moveAccelerate = 1.0/_value;
         that._moveAccelerate = _value;
     };
     MonsterSprite.prototype.setAtkAccelerate = function (_value) {

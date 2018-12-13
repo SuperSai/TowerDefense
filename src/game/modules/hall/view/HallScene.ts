@@ -337,7 +337,7 @@ class HallScene extends ui.hall.HallSceneUI {
       });
     }
   }
-
+  
   private refreshShortcutCreateBtn(_buyType: number = 0) {
     let self = this;
     let monsterType: number = _buyType;

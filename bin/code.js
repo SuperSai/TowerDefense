@@ -4019,7 +4019,6 @@ var UserData = /** @class */ (function () {
     };
     //计算精灵个数
     UserData.prototype.caculateMonsterCount = function (_id) {
-        var that = this;
         var num = 0;
         if (this.parkcarInfoArray) {
             this.parkcarInfoArray.forEach(function (element) {
@@ -6148,7 +6147,7 @@ var MonsterSprite = /** @class */ (function (_super) {
         var effectKey = "drugKey";
         var effectSp = that.getChildByName(effectKey);
         if (effectSp == null) {
-            effectSp = Laya.Pool.getItemByClass("layaImage", Laya.Image); //new Laya.Image("images/effect_drug002.png");
+            effectSp = Laya.Pool.getItemByClass("layaImage", Laya.Image);
             effectSp.skin = "images/effect_drug002.png";
             effectSp.name = effectKey;
             that.addChild(effectSp);
@@ -6359,7 +6358,6 @@ var MonsterSprite = /** @class */ (function (_super) {
     };
     MonsterSprite.prototype.setMoveAccelerate = function (_value) {
         var that = this;
-        // that._moveAccelerate = 1.0/_value;
         that._moveAccelerate = _value;
     };
     MonsterSprite.prototype.setAtkAccelerate = function (_value) {
@@ -8343,7 +8341,7 @@ var ui;
                 _super.prototype.createChildren.call(this);
                 this.createView(ui.evolution.EvolutionAdvancedViewUI.uiView);
             };
-            EvolutionAdvancedViewUI.uiView = { "type": "View", "props": { "width": 715, "height": 1014 }, "child": [{ "type": "View", "props": { "y": 0, "width": 715, "var": "mainView", "name": "mainView", "height": 1014, "centerX": 0 }, "child": [{ "type": "Label", "props": { "y": 848, "x": 270, "text": "点击空白处关闭", "name": "txtExit", "fontSize": 30, "color": "#ffffff" } }, { "type": "Image", "props": { "y": 0, "x": 0, "width": 715, "skin": "images/component/frame_9calce_01.png", "sizeGrid": "158,62,69,62", "name": "imgBg", "height": 1014 }, "child": [{ "type": "Box", "props": { "y": 32, "x": 32, "name": "allImg" }, "child": [{ "type": "Image", "props": { "x": 227, "skin": "images/evolution_shop_title.png" } }, { "type": "Image", "props": { "y": 614, "x": 4, "skin": "images/component/frame_line_01.png" } }, { "type": "Image", "props": { "y": 157, "x": 4, "skin": "images/component/frame_line_01.png" } }, { "type": "Image", "props": { "y": 628, "skin": "images/component/frame_9calce_05.png" } }, { "type": "Image", "props": { "y": 681, "skin": "images/component/frame_9calce_05.png" } }, { "type": "Image", "props": { "y": 734, "skin": "images/component/frame_9calce_05.png" } }, { "type": "Image", "props": { "y": 175, "x": 29, "skin": "images/component/frame_9calce_03.png", "sizeGrid": "26,31,23,28" } }, { "type": "Image", "props": { "y": 175, "x": 254, "skin": "images/component/frame_9calce_03.png", "sizeGrid": "26,31,23,28" } }, { "type": "Image", "props": { "y": 175, "x": 483, "skin": "images/component/frame_9calce_03.png", "sizeGrid": "26,31,23,28" } }, { "type": "Image", "props": { "y": 363, "x": 29, "skin": "images/component/frame_9calce_03.png", "sizeGrid": "26,31,23,28" } }, { "type": "Image", "props": { "y": 363, "x": 254, "skin": "images/component/frame_9calce_03.png", "sizeGrid": "26,31,23,28" } }, { "type": "Image", "props": { "y": 97, "x": 213, "skin": "images/carImg/hero_d10_16.png" } }, { "type": "Image", "props": { "y": 94, "x": 441, "skin": "images/carImg/hero_d10_16.png" } }, { "type": "Image", "props": { "y": 94, "x": -12, "skin": "images/carImg/hero_d10_16.png" } }, { "type": "Image", "props": { "y": 379, "x": 271, "skin": "images/luckLottery/luck_prize_5.png" } }, { "type": "Image", "props": { "y": 388, "x": 44, "skin": "images/luckLottery/luck_prize_6.png" } }] }, { "type": "Box", "props": { "y": 142, "x": 68, "name": "allLabel" }, "child": [{ "type": "Label", "props": { "y": 216, "x": 469, "text": "强•独角虫", "fontSize": 24, "color": "#886300", "align": "right" } }, { "type": "Label", "props": { "y": 216, "x": 238, "text": "强•电黄蜂", "fontSize": 24, "color": "#886300", "align": "right" } }, { "type": "Label", "props": { "y": 216, "x": 11, "text": "强•蒂安希", "fontSize": 24, "color": "#886300", "align": "right" } }, { "type": "Label", "props": { "y": 458, "text": "进化条件", "fontSize": 32, "color": "#c83d33", "align": "left" } }, { "type": "Label", "props": { "y": 685, "x": 108, "text": "注：进化后系统将收回未进化英雄", "fontSize": 24, "color": "#712f0f", "align": "left" } }, { "type": "Label", "props": { "text": "进化后获得", "fontSize": 32, "color": "#c83d33", "align": "left" } }, { "type": "Label", "props": { "y": 341, "x": 286, "var": "txtItemPrize5", "text": "x30", "strokeColor": "#946430", "stroke": 3, "name": "txtItemPrize5", "fontSize": 30, "color": "#ffffff", "align": "right" } }, { "type": "Label", "props": { "y": 404, "x": 249, "text": "精华碎片", "fontSize": 24, "color": "#886300", "align": "right" } }, { "type": "Label", "props": { "y": 341, "x": 45, "var": "txtItemPrize4", "text": "x500", "strokeColor": "#946430", "stroke": 3, "name": "txtItemPrize4", "fontSize": 30, "color": "#ffffff", "align": "right" } }, { "type": "Label", "props": { "y": 404, "x": 41, "text": "钻石", "fontSize": 24, "color": "#886300", "align": "right" } }, { "type": "Label", "props": { "y": 152, "x": 534, "var": "txtItemPrize3", "text": "x1", "strokeColor": "#946430", "stroke": 3, "name": "txtItemPrize3", "fontSize": 30, "color": "#ffffff", "align": "right" } }, { "type": "Label", "props": { "y": 152, "x": 81, "var": "txtItemPrize1", "text": "x1", "strokeColor": "#946430", "stroke": 3, "name": "txtItemPrize1", "fontSize": 30, "color": "#ffffff", "align": "right" } }, { "type": "Label", "props": { "y": 152, "x": 306, "var": "txtItemPrize2", "text": "x1", "strokeColor": "#946430", "stroke": 3, "name": "txtItemPrize2", "fontSize": 30, "color": "#ffffff", "align": "right" } }, { "type": "Label", "props": { "y": 530, "x": 185, "var": "txtNeedItem1", "text": "0/1", "name": "txtNeedItem1", "fontSize": 28, "color": "#9a8d00", "align": "left" } }, { "type": "Label", "props": { "y": 583, "x": 185, "var": "txtNeedItem2", "text": "0/1", "name": "txtNeedItem2", "fontSize": 28, "color": "#9a8d00", "align": "left" } }, { "type": "Label", "props": { "y": 639, "x": 185, "var": "txtNeedItem3", "text": "0/1", "name": "txtNeedItem3", "fontSize": 28, "color": "#9a8d00", "align": "left" } }, { "type": "Label", "props": { "y": 635, "x": 0, "var": "txtItemName3", "text": "刺龙王 Lv30:", "name": "txtItemName3", "fontSize": 30, "color": "#9a2525", "align": "left" } }, { "type": "Label", "props": { "y": 581, "x": 0, "var": "txtItemName2", "text": "毒婕拉 Lv30:", "name": "txtItemName2", "fontSize": 30, "color": "#9a2525", "align": "left" } }, { "type": "Label", "props": { "y": 527, "x": 0, "var": "txtItemName1", "text": "雷暴龙 Lv30:", "name": "txtItemName1", "fontSize": 30, "color": "#9a2525", "align": "left" } }] }, { "type": "Button", "props": { "y": -4, "x": 633, "stateNum": 1, "skin": "images/component/frame_close_btn.png", "name": "btnExit" }, "child": [{ "type": "Script", "props": { "y": 0, "x": 0, "runtime": "ScaleAnimScript" } }] }, { "type": "Button", "props": { "y": 861, "x": 194, "stateNum": 1, "skin": "images/component/yellow_btn.png", "name": "btnUpdate", "labelStrokeColor": "#946430", "labelStroke": 2, "labelSize": 60, "labelColors": "#ffffff", "labelBold": true, "label": "进化", "disabled": true }, "child": [{ "type": "Script", "props": { "y": 0, "x": 0, "runtime": "ScaleAnimScript" } }] }] }] }] };
+            EvolutionAdvancedViewUI.uiView = { "type": "View", "props": { "width": 715, "height": 1014 }, "child": [{ "type": "View", "props": { "y": 0, "width": 715, "var": "mainView", "name": "mainView", "height": 1014, "centerX": 0 }, "child": [{ "type": "Label", "props": { "y": 848, "x": 270, "text": "点击空白处关闭", "name": "txtExit", "fontSize": 30, "color": "#ffffff" } }, { "type": "Image", "props": { "y": 0, "x": 0, "width": 715, "skin": "images/component/frame_9calce_01.png", "sizeGrid": "158,62,69,62", "name": "imgBg", "height": 1014 }, "child": [{ "type": "Image", "props": { "y": 32, "x": 259, "skin": "images/evolution_shop_title.png" } }, { "type": "Image", "props": { "y": 587, "x": 36, "skin": "images/component/frame_line_01.png" } }, { "type": "Image", "props": { "y": 216, "x": 36, "skin": "images/component/frame_line_01.png" } }, { "type": "Image", "props": { "y": 627, "x": 32, "skin": "images/component/frame_9calce_05.png" } }, { "type": "Image", "props": { "y": 286, "x": 61, "skin": "images/component/frame_9calce_03.png", "sizeGrid": "26,31,23,28" } }, { "type": "Image", "props": { "y": 285, "x": 295, "skin": "images/component/frame_9calce_03.png", "sizeGrid": "26,31,23,28" } }, { "type": "Image", "props": { "y": 285, "x": 520, "skin": "images/component/frame_9calce_03.png", "sizeGrid": "26,31,23,28" } }, { "type": "Image", "props": { "y": 305, "x": 94, "skin": "images/carImg/hero_d1_18.png" } }, { "type": "Image", "props": { "y": 301, "x": 537, "skin": "images/luckLottery/luck_prize_5.png" } }, { "type": "Image", "props": { "y": 310, "x": 310, "skin": "images/luckLottery/luck_prize_6.png" } }, { "type": "Label", "props": { "y": 437, "x": 543, "text": "精华碎片", "fontSize": 24, "color": "#886300", "align": "right" } }, { "type": "Label", "props": { "y": 437, "x": 338, "text": "钻石", "fontSize": 24, "color": "#886300", "align": "right" } }, { "type": "Label", "props": { "y": 437, "x": 79, "text": "强•狄安娜", "fontSize": 24, "color": "#886300", "align": "right" } }, { "type": "Label", "props": { "y": 541, "x": 68, "text": "进化条件", "fontSize": 32, "color": "#c83d33", "align": "left" } }, { "type": "Label", "props": { "y": 925, "x": 177, "text": "注：进化后系统将收回未进化英雄", "fontSize": 24, "color": "#712f0f", "align": "left" } }, { "type": "Label", "props": { "y": 169, "x": 68, "text": "进化后获得", "fontSize": 32, "color": "#c83d33", "align": "left" } }, { "type": "Label", "props": { "y": 373, "x": 588, "var": "txtItemPrize3", "text": "x30", "strokeColor": "#946430", "stroke": 3, "name": "txtItemPrize3", "fontSize": 30, "color": "#ffffff", "align": "right" } }, { "type": "Label", "props": { "y": 373, "x": 149, "var": "txtItemPrize1", "text": "x3", "strokeColor": "#946430", "stroke": 3, "name": "txtItemPrize1", "fontSize": 30, "color": "#ffffff", "align": "right" } }, { "type": "Label", "props": { "y": 373, "x": 347, "var": "txtItemPrize2", "text": "x500", "strokeColor": "#946430", "stroke": 3, "name": "txtItemPrize2", "fontSize": 30, "color": "#ffffff", "align": "right" } }, { "type": "Label", "props": { "y": 639, "x": 222, "var": "txtNeedItem1", "text": "0/1", "name": "txtNeedItem1", "fontSize": 28, "color": "#9a8d00", "align": "left" } }, { "type": "Label", "props": { "y": 636, "x": 68, "var": "txtItemName1", "text": "希芙 Lv30:", "name": "txtItemName1", "fontSize": 30, "color": "#9a2525", "align": "left" } }, { "type": "Button", "props": { "y": -4, "x": 633, "stateNum": 1, "skin": "images/component/frame_close_btn.png", "name": "btnExit" }, "child": [{ "type": "Script", "props": { "y": 0, "x": 0, "runtime": "ScaleAnimScript" } }] }, { "type": "Button", "props": { "y": 768, "x": 194, "stateNum": 1, "skin": "images/component/yellow_btn.png", "name": "btnUpdate", "labelStrokeColor": "#946430", "labelStroke": 2, "labelSize": 60, "labelColors": "#ffffff", "labelBold": true, "label": "进化", "disabled": true }, "child": [{ "type": "Script", "props": { "y": 0, "x": 0, "runtime": "ScaleAnimScript" } }] }] }] }] };
             return EvolutionAdvancedViewUI;
         }(View));
         evolution.EvolutionAdvancedViewUI = EvolutionAdvancedViewUI;
@@ -9518,14 +9516,8 @@ var EvolutionAdvancedView = /** @class */ (function (_super) {
         if (imgBg && kingVO) {
             //升级条件
             var itemId1 = 130;
-            var itemId2 = 230;
-            var itemId3 = 330;
             var itemNum1 = userData.caculateMonsterCount(itemId1);
-            var itemNum2 = userData.caculateMonsterCount(itemId2);
-            var itemNum3 = userData.caculateMonsterCount(itemId3);
-            var needItemNum1 = 1;
-            var needItemNum2 = 1;
-            var needItemNum3 = 1;
+            var needItemNum1 = 3;
             //奖励
             var prizeDiamond_1 = 500;
             var prizeEssence_1 = 50;
@@ -9541,13 +9533,11 @@ var EvolutionAdvancedView = /** @class */ (function (_super) {
                         }
                     });
                 });
-                btnUpdate.disabled = (itemNum1 < needItemNum1) || (itemNum2 < needItemNum2) || (itemNum3 < needItemNum3);
+                btnUpdate.disabled = (itemNum1 < needItemNum1);
             }
             that.txtNeedItem1.text = Math.min(itemNum1, needItemNum1) + '/' + needItemNum1;
-            that.txtNeedItem2.text = Math.min(itemNum2, needItemNum2) + '/' + needItemNum2;
-            that.txtNeedItem3.text = Math.min(itemNum3, needItemNum3) + '/' + needItemNum3;
-            that.txtItemPrize4.text = prizeDiamond_1 + "";
-            that.txtItemPrize5.text = prizeEssence_1 + "";
+            that.txtItemPrize2.text = prizeDiamond_1 + "";
+            that.txtItemPrize3.text = prizeEssence_1 + "";
         }
     };
     //请求进化
@@ -13291,8 +13281,7 @@ var ShopView = /** @class */ (function (_super) {
         self.heroList.vScrollBarSkin = '';
         self.heroList.repeatY = heroesData.length;
         self.heroList.array = heroesData;
-        if (self.isScroll)
-            self.heroList.visible = false;
+        // if (self.isScroll) self.heroList.visible = false;
         var firstLockId = 0; //第一个被锁项目
         var shareFreeCarId = 0; //免费得车Id
         var shareFreeCarCfg = BattleManager.Instance.getPreMonster(monsterType * 100 + userData.getCarLevel(), -1);
@@ -13305,18 +13294,17 @@ var ShopView = /** @class */ (function (_super) {
         self.heroList.renderHandler = new Laya.Handler(self, function (cell, index) {
             if (index > self.heroList.array.length)
                 return;
-            if (index >= curBuyIndex && self.isScroll) {
-                if (!self.heroList.visible)
-                    self.heroList.visible = true;
-                moveY = index < 4 ? 150 : 50;
-                Laya.Tween.from(cell, { y: cell.y + moveY * (count + 1) }, 100 * count, null, Laya.Handler.create(self, function () {
-                    Laya.Tween.clearTween(cell);
-                    if (count >= (curBuyIndex + 3)) {
-                        self.isScroll = false;
-                    }
-                }));
-                count++;
-            }
+            // if (index >= curBuyIndex && self.isScroll) {
+            //     if (!self.heroList.visible) self.heroList.visible = true;
+            //     moveY = index < 4 ? 150 : 50;
+            //     Laya.Tween.from(cell, { y: cell.y + moveY * (count + 1) }, 100 * count, null, Laya.Handler.create(self, () => {
+            //         Laya.Tween.clearTween(cell);
+            //         if (count >= (curBuyIndex + 3)) {
+            //             self.isScroll = false;
+            //         }
+            //     }));
+            //     count++;
+            // }
             var carInfo = self.heroList.array[index];
             if (carInfo) {
                 var monsterType_1 = BattleManager.Instance.getType(carInfo.id);

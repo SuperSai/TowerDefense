@@ -77,14 +77,8 @@ var EvolutionAdvancedView = /** @class */ (function (_super) {
         if (imgBg && kingVO) {
             //升级条件
             var itemId1 = 130;
-            var itemId2 = 230;
-            var itemId3 = 330;
             var itemNum1 = userData.caculateMonsterCount(itemId1);
-            var itemNum2 = userData.caculateMonsterCount(itemId2);
-            var itemNum3 = userData.caculateMonsterCount(itemId3);
-            var needItemNum1 = 1;
-            var needItemNum2 = 1;
-            var needItemNum3 = 1;
+            var needItemNum1 = 3;
             //奖励
             var prizeDiamond_1 = 500;
             var prizeEssence_1 = 50;
@@ -100,13 +94,11 @@ var EvolutionAdvancedView = /** @class */ (function (_super) {
                         }
                     });
                 });
-                btnUpdate.disabled = (itemNum1 < needItemNum1) || (itemNum2 < needItemNum2) || (itemNum3 < needItemNum3);
+                btnUpdate.disabled = (itemNum1 < needItemNum1);
             }
             that.txtNeedItem1.text = Math.min(itemNum1, needItemNum1) + '/' + needItemNum1;
-            that.txtNeedItem2.text = Math.min(itemNum2, needItemNum2) + '/' + needItemNum2;
-            that.txtNeedItem3.text = Math.min(itemNum3, needItemNum3) + '/' + needItemNum3;
-            that.txtItemPrize4.text = prizeDiamond_1 + "";
-            that.txtItemPrize5.text = prizeEssence_1 + "";
+            that.txtItemPrize2.text = prizeDiamond_1 + "";
+            that.txtItemPrize3.text = prizeEssence_1 + "";
         }
     };
     //请求进化

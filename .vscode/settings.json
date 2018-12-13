@@ -5,5 +5,6 @@
         "**/laya": true
     },
     "svn.path": "c:\\Program Files\\TortoiseSVN\\bin\\TortoiseProc.exe",
-    "git.ignoreLimitWarning": true
+    "git.ignoreLimitWarning": true,
+    "liveServer.settings.multiRootWorkspaceName": "TowerDefense"
 }

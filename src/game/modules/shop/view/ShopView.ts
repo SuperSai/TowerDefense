@@ -75,7 +75,7 @@ class ShopView extends ui.shop.ShopViewUI {
         self.heroList.vScrollBarSkin = '';
         self.heroList.repeatY = heroesData.length;
         self.heroList.array = heroesData;
-        if (self.isScroll) self.heroList.visible = false;
+        // if (self.isScroll) self.heroList.visible = false;
         let firstLockId: number = 0; //第一个被锁项目
         let shareFreeCarId: number = 0;//免费得车Id
         let shareFreeCarCfg = BattleManager.Instance.getPreMonster(monsterType * 100 + userData.getCarLevel(), -1);
@@ -87,17 +87,17 @@ class ShopView extends ui.shop.ShopViewUI {
         let moveY: number = 50;
         self.heroList.renderHandler = new Laya.Handler(self, (cell: Laya.Box, index: number) => {
             if (index > self.heroList.array.length) return;
-            if (index >= curBuyIndex && self.isScroll) {
-                if (!self.heroList.visible) self.heroList.visible = true;
-                moveY = index < 4 ? 150 : 50;
-                Laya.Tween.from(cell, { y: cell.y + moveY * (count + 1) }, 100 * count, null, Laya.Handler.create(self, () => {
-                    Laya.Tween.clearTween(cell);
-                    if (count >= (curBuyIndex + 3)) {
-                        self.isScroll = false;
-                    }
-                }));
-                count++;
-            }
+            // if (index >= curBuyIndex && self.isScroll) {
+            //     if (!self.heroList.visible) self.heroList.visible = true;
+            //     moveY = index < 4 ? 150 : 50;
+            //     Laya.Tween.from(cell, { y: cell.y + moveY * (count + 1) }, 100 * count, null, Laya.Handler.create(self, () => {
+            //         Laya.Tween.clearTween(cell);
+            //         if (count >= (curBuyIndex + 3)) {
+            //             self.isScroll = false;
+            //         }
+            //     }));
+            //     count++;
+            // }
             let carInfo = self.heroList.array[index];
             if (carInfo) {
                 let monsterType: number = BattleManager.Instance.getType(carInfo.id);

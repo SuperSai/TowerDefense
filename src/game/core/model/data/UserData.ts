@@ -927,7 +927,6 @@ class UserData {
 
     //计算精灵个数
     public caculateMonsterCount(_id: number): number {
-        let that = this;
         let num: number = 0;
         if (this.parkcarInfoArray) {
             this.parkcarInfoArray.forEach(element => {
