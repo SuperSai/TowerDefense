@@ -27,8 +27,13 @@ hallScene.label.txt.16:强化已经满级
 hallScene.label.txt.17:精华碎片不足
 hallScene.label.txt.18:强化成功!
 hallScene.label.txt.19:很抱歉，金币不足
-
-
+hallScene.label.txt.20:获得：{0}x{1}
+hallScene.label.txt.21:{0}(免费)
+hallScene.label.txt.22:获得：{0}
+hallScene.label.txt.23:单次抽奖将消耗钻石x{0}
+hallScene.label.txt.24:免费
+hallScene.label.txt.25:免费抽奖剩余时间：{0}
+hallScene.label.txt.26:下一次免费抽奖倒计时：{0}
 
 
 

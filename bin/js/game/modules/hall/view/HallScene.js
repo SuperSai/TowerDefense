@@ -59,7 +59,6 @@ var HallScene = /** @class */ (function (_super) {
             { url: "musics/cartorunway.mp3", type: Laya.Loader.SOUND },
             { url: "musics/accecar.mp3", type: Laya.Loader.SOUND },
             { url: "musics/drawcar.mp3", type: Laya.Loader.SOUND },
-            { url: "musics/bgmusic.mp3", type: Laya.Loader.SOUND },
             { url: "musics/atk.mp3", type: Laya.Loader.SOUND },
             { url: "musics/kingUpdate.mp3", type: Laya.Loader.SOUND },
             { url: "musics/evolutions.mp3", type: Laya.Loader.SOUND }

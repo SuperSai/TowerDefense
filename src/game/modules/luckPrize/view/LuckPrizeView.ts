@@ -61,13 +61,13 @@ class LuckPrizeView extends ui.luckPrize.LuckPrizeViewUI {
         that.initPrizeInfo((_res: any) => {
             if (that.txtTip1) {
                 that.txtTip1.visible = true;
-                that.txtTip1.changeText("单次抽奖将消耗钻石x" + that.costDiamond);
+                that.txtTip1.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.23", that.costDiamond);
             }
             //消耗钻石
             let refreshDiamondText = () => {
                 if (that.txtDiamond) {
                     if (that.freeTime > 0 || that.isTryAgain) {
-                        that.txtDiamond.changeText("免费");
+                        that.txtDiamond.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.24");
                     } else {
                         that.txtDiamond.changeText('' + that.costDiamond);
                     }
@@ -78,11 +78,11 @@ class LuckPrizeView extends ui.luckPrize.LuckPrizeViewUI {
                 that.txtTip2.visible = true;
                 let loopFun = () => {
                     if (that.freeTime > 0) {
-                        that.txtTip2.changeText("免费抽奖剩余时间: " + TimeUtil.timeFormatStr(that.freeTime, true));
+                        that.txtTip2.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.25", TimeUtil.timeFormatStr(that.freeTime, true));
                         that.txtTip2.color = "#66CD00";
                         that.freeTime--;
                     } else if (that.nextFreeTime > 0) {
-                        that.txtTip2.changeText("下一次免费抽奖倒计时: " + TimeUtil.timeFormatStr(that.nextFreeTime, true));
+                        that.txtTip2.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.26", TimeUtil.timeFormatStr(that.nextFreeTime, true));
                         that.txtTip2.color = "#EE6363";
                         that.nextFreeTime--;
                         that.freeTimes = 0; //免费次数清零
@@ -188,7 +188,7 @@ class LuckPrizeView extends ui.luckPrize.LuckPrizeViewUI {
                 HttpManager.Instance.requestDiamondData();
             });
         } else {
-            CommonFun.showTip("钻石不足，做任务领钻石");
+            CommonFun.showTip(LanguageManager.Instance.getLanguageText("hallScene.label.txt.04"));
             that.startBtnEnabled(false);
         }
     }
@@ -272,13 +272,13 @@ class LuckPrizeView extends ui.luckPrize.LuckPrizeViewUI {
                 if (_itemId == 1 || _itemId == 8) {//T恤/腾讯卡
                     let txtItemName = bgView.getChildByName("txtItemName") as Laya.Label;
                     if (txtItemName) {
-                        txtItemName.changeText("获得:" + itemData.name + "x" + itemData.num);
+                        txtItemName.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.20", itemData.name, itemData.num);
                     }
                     that.requestPrizeCensus(_itemId, 1);
                 } else if (_itemId == 2) {//钻石
                     let txtItemName = bgView.getChildByName("txtItemName") as Laya.Label;
                     if (txtItemName) {
-                        txtItemName.changeText("获得:" + itemData.name + "x" + itemData.num);
+                        txtItemName.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.20", itemData.name, itemData.num);
                     }
                     //刷新钻石数量
                     HttpManager.Instance.requestDiamondData();
@@ -286,7 +286,7 @@ class LuckPrizeView extends ui.luckPrize.LuckPrizeViewUI {
                 } else if (_itemId == 3) {//加速
                     let txtItemName = bgView.getChildByName("txtItemName") as Laya.Label;
                     if (txtItemName) {
-                        txtItemName.changeText("获得:" + itemData.name + "x1");
+                        txtItemName.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.20", itemData.name, 1);
                     }
                     if (EventsManager.Instance) {
                         EventsManager.Instance.event(EventsType.LUCK_PRIZE, { id: _itemId, num: 90 });
@@ -295,7 +295,7 @@ class LuckPrizeView extends ui.luckPrize.LuckPrizeViewUI {
                 } else if (_itemId == 4) {//先知球
                     let txtItemName = bgView.getChildByName("txtItemName") as Laya.Label;
                     if (txtItemName) {
-                        txtItemName.changeText("获得:" + itemData.name);
+                        txtItemName.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.22", itemData.name);
                     }
                     let skinPath = "";
                     let monsterType: number = 1;
@@ -319,7 +319,7 @@ class LuckPrizeView extends ui.luckPrize.LuckPrizeViewUI {
                 } else if (_itemId == 6) {//精华碎片
                     let txtItemName = bgView.getChildByName("txtItemName") as Laya.Label;
                     if (txtItemName) {
-                        txtItemName.changeText("获得:" + itemData.name + "x" + itemData.num);
+                        txtItemName.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.20", itemData.name, itemData.num);
                     }
                     HttpManager.Instance.requestEssenceData();
                     that.requestPrizeCensus(_itemId, 1);
@@ -341,7 +341,7 @@ class LuckPrizeView extends ui.luckPrize.LuckPrizeViewUI {
                     let txtItemName = bgView.getChildByName("txtItemName") as Laya.Label;
                     if (txtItemName) {
                         LayerManager.getInstance().screenEffectLayer.addChild(new FlyEffect().play("rollingCoin", LayerManager.mouseX, LayerManager.mouseY));
-                        txtItemName.changeText("获得:" + itemData.name + "x" + MathUtils.bytesToSize(money));
+                        txtItemName.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.20", itemData.name, MathUtils.bytesToSize(money));
                     }
                     if (EventsManager.Instance) {
                         EventsManager.Instance.event(EventsType.LUCK_PRIZE, { id: _itemId, num: money });
@@ -350,7 +350,7 @@ class LuckPrizeView extends ui.luckPrize.LuckPrizeViewUI {
                 } else {
                     let txtItemName = bgView.getChildByName("txtItemName") as Laya.Label;
                     if (txtItemName) {
-                        txtItemName.changeText(itemData.name + "(免费)");
+                        txtItemName.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.21", itemData.name);
                     }
                     that.isTryAgain = true;
                     that.requestPrizeCensus(_itemId, 1);

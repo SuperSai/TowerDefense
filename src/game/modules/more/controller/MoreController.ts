@@ -26,6 +26,7 @@ class MoreController extends Laya.EventDispatcher {
             this._view = new MoreView(this, this._model);
             this.show();
         }));
+        EventsManager.Instance.on(EventsType.BACK_GAME, this, this.switchMute);
     }
 
 
@@ -50,13 +51,16 @@ class MoreController extends Laya.EventDispatcher {
     }
 
     public applyMute() {
-        if (!this._model) return;
         Laya.SoundManager.musicMuted = this._model.mute;
         Laya.SoundManager.soundMuted = this._model.mute;
         if (!this._model.mute) {
-            Laya.loader.load("musics/bgmusic.mp3", Laya.Handler.create(this, () => {
-                this._bgChannel = Laya.SoundManager.playMusic("musics/bgmusic.mp3", 0);
-            }));
+            if (!this._bgChannel) {
+                Laya.loader.load("musics/bgmusic.mp3", Laya.Handler.create(this, () => {
+                    this._bgChannel = Laya.SoundManager.playMusic("musics/bgmusic.mp3", 0);
+                }));
+            } else {
+                this._bgChannel.play();
+            }
         }
     }
 }

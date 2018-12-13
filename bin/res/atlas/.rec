@@ -2,7 +2,7 @@ D .
 R DED3E094 Compression.bat
 R A41E3D13 pngquant.exe
 D config
-R A10596CB language.txt
+R 59710F80 language.txt
 D images
 P 3035E761 acce_effect.png
 P 5131035C accelerate_icon.png
@@ -75,7 +75,7 @@ D loading
 D musics
 R C020EABA accecar.mp3
 R BB13C85A atk.mp3
-R D978F462 bgmusic.mp3
+R F167E1D3 bgmusic.mp3
 R 71A03D33 cartorunway.mp3
 R 1EE00B19 drawcar.mp3
 R 9489B14C evolutions.mp3
