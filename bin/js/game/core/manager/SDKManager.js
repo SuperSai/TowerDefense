@@ -125,6 +125,22 @@ var SDKManager = /** @class */ (function () {
             callback && callback();
         }
     };
+    /**
+     * 跳转小程序
+     * @param {string} appId
+     * @memberof SDKManager
+     */
+    SDKManager.prototype.navigateToMiniProgram = function (appId) {
+        platform.navigateToMiniProgram({
+            appId: appId,
+            path: userData.miniPagePath(),
+            success: function (res) {
+                console.log("小程序跳转成功", res);
+            }
+        });
+        //小程序跳转次数统计
+        HttpManager.Instance.requestShareAdFinish("minipro_" + appId);
+    };
     Object.defineProperty(SDKManager, "Instance", {
         get: function () {
             if (!SDKManager._instance) {

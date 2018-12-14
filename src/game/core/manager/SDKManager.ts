@@ -132,7 +132,22 @@ class SDKManager {
         }
     }
 
-
+    /**
+     * 跳转小程序
+     * @param {string} appId
+     * @memberof SDKManager
+     */
+    public navigateToMiniProgram(appId: string): void {
+        platform.navigateToMiniProgram({
+            appId: appId,
+            path: userData.miniPagePath(),
+            success(res) {
+                console.log("小程序跳转成功", res);
+            }
+        });
+        //小程序跳转次数统计
+        HttpManager.Instance.requestShareAdFinish("minipro_" + appId);
+    }
 
 
 

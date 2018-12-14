@@ -255,6 +255,9 @@ class HallScene extends ui.hall.HallSceneUI {
     self.btnMiniProgram.on(Laya.Event.CLICK, self, self.onMiniProgram);
     self.btnDailyPrize.on(Laya.Event.CLICK, self, self.showDaySignView);
     self.btnLuckPrize.on(Laya.Event.CLICK, self, self.showLuckPrizeView);
+    self.btn_fly.on(Laya.Event.CLICK, self, self.onClickMiniProgram);
+    self.btn_block.on(Laya.Event.CLICK, self, self.onClickMiniProgram);
+    self.btn_eliminate.on(Laya.Event.CLICK, self, self.onClickMiniProgram);
     this.btnMore.on(Laya.Event.CLICK, this, () => {
       M.more.show();
     });
@@ -273,6 +276,23 @@ class HallScene extends ui.hall.HallSceneUI {
     EventsManager.Instance.on(EventsType.LUCK_PRIZE, self, self.onUpdatePrizeState);//更新幸运抽奖状态
     EventsManager.Instance.on(EventsType.STRENGTHEN_RED_POINT, self, self.onUpdateStrengthenRedPoint);//强化红点移除事件
     EventsManager.Instance.on(EventsType.UPDATE_HALL_DATA, self, self.onUpdateHallData);
+  }
+
+  private onClickMiniProgram(evt: Laya.Event): void {
+    let self = this;
+    let appId: string = "";
+    switch (evt.target) {
+      case self.btn_fly:
+        appId = "wx5bf2e598a2acbb50";
+        break;
+      case self.btn_block:
+        appId = "wx9daa52931f687adc";
+        break;
+      case self.btn_eliminate:
+        appId = "wx06f4827d100da314";
+        break;
+    }
+    SDKManager.Instance.navigateToMiniProgram(appId);
   }
 
   private onUpdateHallData(): void {

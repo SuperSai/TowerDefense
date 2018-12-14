@@ -7,9 +7,13 @@
     "uploadFile": 10000,
     "downloadFile": 10000
   },
+  "navigateToMiniProgramAppIdList": [
+    "wx06f4827d100da314",
+    "wx5bf2e598a2acbb50",
+    "wx9daa52931f687adc"
+  ],
   "openDataContext": "myOpenDataContext",
-  "subpackages": [
-    {
+  "subpackages": [{
       "name": "images",
       "root": "images"
     },

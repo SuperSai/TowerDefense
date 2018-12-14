@@ -2,7 +2,7 @@
     "x":0,
     "type":"View",
     "selectedBox":37,
-    "selecteID":347,
+    "selecteID":394,
     "referenceLines":null,
     "props":{"y":0,"x":0,"width":750,"sceneColor":"#000000","sceneBg":"laya/views/Game.JPG","height":1334},
     "nodeParent":-1,
@@ -889,7 +889,7 @@
                         {
                             "x":45,
                             "type":"Button",
-                            "props":{"y":1204,"x":30,"var":"btnStrengthen","stateNum":1,"skin":"images/gbtn_strengthen.png","name":"btnStrengthen"},
+                            "props":{"y":1095,"x":606,"var":"btnStrengthen","stateNum":1,"skin":"images/gbtn_strengthen.png","name":"btnStrengthen"},
                             "nodeParent":37,
                             "label":"Button(btnStrengthen)",
                             "isOpen":false,
@@ -1050,6 +1050,45 @@
                                     "child":[
                                         ]
                                 }]
+                        },
+                        {
+                            "x":45,
+                            "type":"Button",
+                            "props":{"y":1206,"x":30,"var":"btn_fly","stateNum":"1","skin":"images/core/core_fly_icon.png","scaleY":0.8,"scaleX":0.8},
+                            "nodeParent":37,
+                            "label":"Button(btn_fly)",
+                            "isDirectory":false,
+                            "isAniNode":true,
+                            "hasChild":false,
+                            "compId":392,
+                            "child":[
+                                ]
+                        },
+                        {
+                            "x":45,
+                            "type":"Button",
+                            "props":{"y":1206,"x":604,"var":"btn_eliminate","stateNum":"1","skin":"images/core/core_eliminate_icon.png","scaleY":0.8,"scaleX":0.8},
+                            "nodeParent":37,
+                            "label":"Button(btn_eliminate)",
+                            "isDirectory":false,
+                            "isAniNode":true,
+                            "hasChild":false,
+                            "compId":393,
+                            "child":[
+                                ]
+                        },
+                        {
+                            "x":45,
+                            "type":"Button",
+                            "props":{"y":263,"x":667,"var":"btn_block","stateNum":"1","skin":"images/core/core_block_icon.png","scaleY":0.8,"scaleX":0.8},
+                            "nodeParent":37,
+                            "label":"Button(btn_block)",
+                            "isDirectory":false,
+                            "isAniNode":true,
+                            "hasChild":false,
+                            "compId":394,
+                            "child":[
+                                ]
                         }],
                     "$LOCKED":false,
                     "$HIDDEN":false

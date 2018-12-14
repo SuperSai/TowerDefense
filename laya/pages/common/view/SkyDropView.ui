@@ -2,7 +2,6 @@
     "x":0,
     "type":"View",
     "selectedBox":1,
-    "selecteID":21,
     "props":{"sceneWidth":750,"sceneHeight":1334,"sceneColor":"#000000","sceneBg":"laya/views/SkyDropFrame.JPG"},
     "nodeParent":-1,
     "label":"View",

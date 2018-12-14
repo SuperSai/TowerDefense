@@ -448,10 +448,15 @@ class HttpManager {
             method: 'Post',
             data: dataString,
             success: function (res) {
-                console.log("requestSaveUserinfoData2", res);
+                console.log("@FREEMAN: 请求心跳保存数据：", res);
+                if (res) {
+                    if (res.task_flag) {
+                        EventsManager.Instance.event(EventsType.TASK_RED_POINT, "show");
+                    }
+                }
             },
             fail: function (res) {
-                console.log(res);
+                console.log("@FREEMAN: 请求心跳保存数据：", res);
             }
         });
     }
