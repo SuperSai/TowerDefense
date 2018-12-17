@@ -1,0 +1,4 @@
+<res>
+   <item name="images/ranking" type="" compress="0" pack="2" quality="80" props="" picType="0" scale="0"/>
+   <item name="images/ranking/location_bg.png" type="Image" compress="0" pack="0" quality="80" props="sizeGrid=0,25,0,26" picType="0" scale="0"/>
+</res>
