@@ -116,7 +116,7 @@ var MonsterSprite = /** @class */ (function (_super) {
                     var aniGraphics = anim_1.frames[1];
                     if (aniGraphics) {
                         var aniBounds = aniGraphics.getBounds();
-                        if (self._monsterInfo.type == MONSTER_TYPE.HERO) { //英雄
+                        if (self._monsterInfo.type == MONSTER_TYPE.HERO || self._monsterInfo.type == MONSTER_TYPE.SUPER_HERO) { //英雄
                             anim_1.scaleX = -1;
                             var heroPos = self.getChildByName('heroPos');
                             if (heroPos) {

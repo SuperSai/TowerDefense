@@ -304,14 +304,16 @@ var NoviceActivateType;
     NoviceActivateType[NoviceActivateType["LEVEL"] = 1] = "LEVEL";
     NoviceActivateType[NoviceActivateType["SYNTHESIS_LEVEL"] = 2] = "SYNTHESIS_LEVEL";
 })(NoviceActivateType || (NoviceActivateType = {}));
-var NoviceTarget;
-(function (NoviceTarget) {
-    NoviceTarget["QUICK_PURCHASE_MONSTER"] = "QUICK_PURCHASE_MONSTER";
-    NoviceTarget["FOREST_KING"] = "FOREST_KING";
-    NoviceTarget["FOREST_KING_UPGRADE"] = "FOREST_KING_UPGRADE";
-    NoviceTarget["FOREST_KING_CLOSE"] = "FOREST_KING_CLOSE";
-    NoviceTarget["MONSTER_CELL_2"] = "MONSTER_CELL_2";
-})(NoviceTarget || (NoviceTarget = {}));
+var NoviceTarget = /** @class */ (function () {
+    function NoviceTarget() {
+    }
+    NoviceTarget.QUICK_PURCHASE_MONSTER = "QUICK_PURCHASE_MONSTER";
+    NoviceTarget.FOREST_KING = "FOREST_KING";
+    NoviceTarget.FOREST_KING_UPGRADE = "FOREST_KING_UPGRADE";
+    NoviceTarget.FOREST_KING_CLOSE = "FOREST_KING_CLOSE";
+    NoviceTarget.MONSTER_CELL_2 = "MONSTER_CELL_2";
+    return NoviceTarget;
+}());
 var NoviceEvent = /** @class */ (function () {
     function NoviceEvent() {
     }

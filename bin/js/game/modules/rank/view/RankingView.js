@@ -97,15 +97,20 @@ var RankingView = /** @class */ (function (_super) {
             }
             var item = listDatas[index];
             if (item) {
+                var cellBar = cell.getChildByName("cellBar");
+                if (cellBar) {
+                    if (index < 1) {
+                        cellBar.skin = "images/ranking/cell_bg_top1.png";
+                    }
+                    else {
+                        cellBar.skin = "images/ranking/cell_bg_default.png";
+                    }
+                }
                 var imgNo = cell.getChildByName('imgNo');
                 if (imgNo) {
                     imgNo.visible = index < 3;
                     if (index < 1) {
                         imgNo.skin = "images/ranking/icon_top_1.png";
-                        var cellBar = cell.getChildByName("cellBar");
-                        if (cellBar) {
-                            cellBar.skin = "images/ranking/cell_bg_top1.png";
-                        }
                     }
                     else if (index < 2) {
                         imgNo.skin = "images/ranking/icon_top_2.png";

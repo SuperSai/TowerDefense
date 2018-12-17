@@ -2,7 +2,6 @@
 * terry 2018/7/16;
 * 用户数据本地存储
 */
-var httpReq = null;
 var UserData = /** @class */ (function () {
     function UserData() {
         this._noviceGroupId = 1; // 新手节点
@@ -17,7 +16,6 @@ var UserData = /** @class */ (function () {
         /** 怪物子弹 */
         this.MONSTER_BULLET = "MONSTER_BULLET";
         this.ANIMATION_POOL_NAME = "ANIMATION_POOL_NAME";
-        // public runcarCountMax: number = 2; //跑道车数量最大值
         this.parkcarInfoArray = []; //车位信息({id: index, carId: 0, isRunning:false})
         this.carBuyRecordArray = []; //车购买记录({carId: 1, buyTimes:0})
         this.skillAdditionArray = []; //技能加成表({skillId: 1, buyTimes:0})
@@ -27,8 +25,6 @@ var UserData = /** @class */ (function () {
         this.evolutionLevel = 1; //商店进化等级
         this.passStage = 1; //通关的游戏关卡
         this.passSection = 1; //通过的游戏章节
-        // private httpDataList: Array<any> = []; //数据传输列表
-        this.httpJsonData = null; //正在上传
         this.s_user_old = 'user_data'; //保存本地v1.0
         this.s_user = "user_storage"; //保存本地
         this.s_offline_time = 's_offline_time'; //离线服务器时间
@@ -47,7 +43,6 @@ var UserData = /** @class */ (function () {
         this.showShareGiftRedPoint = false; //分享礼包红点
         this.showDailySignRedPoint = false; //每日签到红点
         this.showStrengthenRedPoint = false; //强化红点
-        // private showCarShopRedPoint: boolean = false; //车商店红点
         this.showTaskRedPoint = false; //任务红点
         this.showLuckPrizeRedPoint = false; //转盘红点
         this.showFollowRedPoint = false; //关注奖励红点
@@ -59,21 +54,12 @@ var UserData = /** @class */ (function () {
         this.shareFailedTimes = 0; //分享失败保底
         //初始化车位
         for (var index = 0; index < 20; index++) {
-            // if (index <1) {
-            //     this.parkcarInfoArray[index] = {id: index, carId: 1, isRunning:true};
-            // } else if (index <3) {
-            //     this.parkcarInfoArray[index] = {id: index, carId: 1, isRunning:false};
-            // } else {
-            //     this.parkcarInfoArray[index] = {id: index, carId: 0, isRunning:false};
-            // }
             this.parkcarInfoArray[index] = { id: index, carId: 0, isRunning: false };
         }
         //分享广告
         this.shareAdStage[10] = true;
         this.shareAdStage[11] = true;
         this.shareAdStage[12] = true;
-        //读取本地数据
-        // this.loadStorage();
     }
     Object.defineProperty(UserData.prototype, "noviceGroupId", {
         get: function () {
@@ -113,7 +99,7 @@ var UserData = /** @class */ (function () {
         this.noviceGroupId = groupId;
         this.saveLocal();
     };
-    //刷新购买记录
+    /** 刷新购买记录 */
     UserData.prototype.refreshBuyRecord = function (_carId, _isDiamond) {
         if (_isDiamond === void 0) { _isDiamond = false; }
         var that = this;
@@ -142,7 +128,7 @@ var UserData = /** @class */ (function () {
         }
         Laya.timer.callLater(that, that.saveLocal, [true, { petShop: true }]);
     };
-    //查询购买记录
+    /** 查询购买记录 */
     UserData.prototype.queryBuyRecord = function (_carId, _isDiamond) {
         if (_isDiamond === void 0) { _isDiamond = false; }
         var that = this;
@@ -162,7 +148,7 @@ var UserData = /** @class */ (function () {
         }
         return 0;
     };
-    //刷新技能加成
+    /** 刷新技能加成 */
     UserData.prototype.refreshSkillAddition = function (_skillId) {
         var that = this;
         var isNew = true;
@@ -181,7 +167,7 @@ var UserData = /** @class */ (function () {
         // userData.saveLocal();
         Laya.timer.callLater(that, that.saveLocal, [true, { skill: true }]);
     };
-    //查询技能加成
+    /** 查询技能加成 */
     UserData.prototype.querySkillAddition = function (_skillId) {
         var that = this;
         for (var key in that.skillAdditionArray) {
@@ -194,7 +180,7 @@ var UserData = /** @class */ (function () {
         }
         return 0;
     };
-    //获取技能加成或触发几率
+    /** 获取技能加成或触发几率 */
     UserData.prototype.getSkillAdditionProbability = function (_skillId) {
         var that = this;
         var strengthenLevel = that.querySkillAddition(_skillId);
@@ -203,7 +189,7 @@ var UserData = /** @class */ (function () {
         var probability = SkillManager.Instance.getSkillStrengthenLevelProbability(_skillId, strengthenLevel);
         return probability;
     };
-    //升级车辆等级
+    /** 升级车辆等级 */
     UserData.prototype.updateCarLevel = function (_level) {
         var that = this;
         if (that.carLevel < that.carLevelMax()) {
@@ -235,16 +221,16 @@ var UserData = /** @class */ (function () {
         this.gold = Math.floor($gold);
         Laya.timer.callLater(this, this.saveLocal);
     };
-    //设置元宝
+    /** 设置钻石 */
     UserData.prototype.setDiamond = function (_value) {
         this.diamond = Math.floor(_value);
         Laya.timer.callLater(this, this.saveLocal);
     };
-    //设置精华
+    /** 设置精华 */
     UserData.prototype.setEssence = function (_value) {
         this.essence = Math.floor(_value);
     };
-    //升级森林王等级
+    /** 升级森林王等级 */
     UserData.prototype.updateKingLevel = function (_level) {
         var that = this;
         if (that.kingLevel < that.kingLevelMax()) {
@@ -269,7 +255,7 @@ var UserData = /** @class */ (function () {
     UserData.prototype.kingLevelMax = function () {
         return 60;
     };
-    //升级森林王等级
+    /** 升级森林王等级 */
     UserData.prototype.updateEvolutionLevel = function (_level) {
         var that = this;
         if (that.evolutionLevel < that.evolutionLevelMax()) {

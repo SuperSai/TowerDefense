@@ -115,7 +115,7 @@ class MonsterSprite extends Laya.Sprite {
                     let aniGraphics = anim.frames[1] as Laya.Graphics;
                     if (aniGraphics) {
                         let aniBounds = aniGraphics.getBounds() as Laya.Rectangle;
-                        if (self._monsterInfo.type == MONSTER_TYPE.HERO) { //英雄
+                        if (self._monsterInfo.type == MONSTER_TYPE.HERO || self._monsterInfo.type == MONSTER_TYPE.SUPER_HERO) { //英雄
                             anim.scaleX = -1;
                             let heroPos: Laya.Sprite = self.getChildByName('heroPos') as Laya.Sprite;
                             if (heroPos) {

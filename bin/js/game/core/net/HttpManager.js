@@ -371,13 +371,17 @@ var HttpManager = /** @class */ (function () {
                     userData.userId = res.id;
                     console.log("@FREEMAN: UserId = {" + userData.userId + "}");
                     EventsManager.Instance.event(EventsType.UPDATE_HALL_DATA);
+                    _callback && _callback(res);
                 }
-                _callback && _callback(res);
+                else {
+                    this.requestUserinfoData(_callback);
+                }
             },
             fail: function (res) {
                 console.log(res);
                 EffectUtils.stopWaitEffect();
                 MessageUtils.showMsgTips("网络异常");
+                this.requestUserinfoData(_callback);
             }
         });
     };

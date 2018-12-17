@@ -386,13 +386,17 @@ class HttpManager {
                     userData.userId = res.id;
                     console.log("@FREEMAN: UserId = {" + userData.userId + "}");
                     EventsManager.Instance.event(EventsType.UPDATE_HALL_DATA);
+                    _callback && _callback(res);
+                } else {
+                    this.requestUserinfoData(_callback);
                 }
-                _callback && _callback(res);
+
             },
             fail: function (res) {
                 console.log(res);
                 EffectUtils.stopWaitEffect();
                 MessageUtils.showMsgTips("网络异常");
+                this.requestUserinfoData(_callback);
             }
         });
     }

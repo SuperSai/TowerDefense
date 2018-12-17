@@ -2,9 +2,6 @@
 * terry 2018/7/16;
 * 用户数据本地存储
 */
-
-let httpReq: HttpRequest = null;
-
 class UserData {
     private _noviceGroupId: number = 1; // 新手节点
 
@@ -33,10 +30,7 @@ class UserData {
     public MONSTER_POOL_NAME: string = "MONSTER_POOL_NAME";
     /** 怪物子弹 */
     public MONSTER_BULLET: string = "MONSTER_BULLET";
-
     public ANIMATION_POOL_NAME: string = "ANIMATION_POOL_NAME";
-    // public runcarCountMax: number = 2; //跑道车数量最大值
-
     public parkcarInfoArray: Array<any> = []; //车位信息({id: index, carId: 0, isRunning:false})
     public carBuyRecordArray: Array<any> = []; //车购买记录({carId: 1, buyTimes:0})
     public skillAdditionArray: Array<any> = []; //技能加成表({skillId: 1, buyTimes:0})
@@ -49,8 +43,6 @@ class UserData {
     public passStage: number = 1; //通关的游戏关卡
     private passSection: number = 1; //通过的游戏章节
 
-    // private httpDataList: Array<any> = []; //数据传输列表
-    private httpJsonData: any = null; //正在上传
     private s_user_old = 'user_data'; //保存本地v1.0
     private s_user: string = "user_storage"; //保存本地
     private s_offline_time = 's_offline_time'; //离线服务器时间
@@ -76,7 +68,6 @@ class UserData {
     private showShareGiftRedPoint: boolean = false; //分享礼包红点
     private showDailySignRedPoint: boolean = false; //每日签到红点
     private showStrengthenRedPoint: boolean = false;//强化红点
-    // private showCarShopRedPoint: boolean = false; //车商店红点
     private showTaskRedPoint: boolean = false; //任务红点
     private showLuckPrizeRedPoint: boolean = false; //转盘红点
     private showFollowRedPoint: boolean = false; //关注奖励红点
@@ -92,26 +83,14 @@ class UserData {
     private shareFailedTimes: number = 0; //分享失败保底
 
     constructor() {
-
         //初始化车位
         for (let index = 0; index < 20; index++) {
-            // if (index <1) {
-            //     this.parkcarInfoArray[index] = {id: index, carId: 1, isRunning:true};
-            // } else if (index <3) {
-            //     this.parkcarInfoArray[index] = {id: index, carId: 1, isRunning:false};
-            // } else {
-            //     this.parkcarInfoArray[index] = {id: index, carId: 0, isRunning:false};
-            // }
             this.parkcarInfoArray[index] = { id: index, carId: 0, isRunning: false };
         }
-
         //分享广告
         this.shareAdStage[10] = true;
         this.shareAdStage[11] = true;
         this.shareAdStage[12] = true;
-
-        //读取本地数据
-        // this.loadStorage();
     }
 
     public getUserId() {
@@ -134,7 +113,7 @@ class UserData {
         this.saveLocal();
     }
 
-    //刷新购买记录
+    /** 刷新购买记录 */
     public refreshBuyRecord(_carId, _isDiamond: boolean = false): void {
         let that = this;
         let mLevel: number = BattleManager.Instance.getLevel(_carId);
@@ -161,7 +140,8 @@ class UserData {
         }
         Laya.timer.callLater(that, that.saveLocal, [true, { petShop: true }]);
     }
-    //查询购买记录
+
+    /** 查询购买记录 */
     public queryBuyRecord(_carId: number, _isDiamond: boolean = false): number {
         let that = this;
         let mLevel: number = BattleManager.Instance.getLevel(_carId);
@@ -180,7 +160,7 @@ class UserData {
         return 0;
     }
 
-    //刷新技能加成
+    /** 刷新技能加成 */
     public refreshSkillAddition(_skillId): void {
         let that = this;
         let isNew = true;
@@ -200,7 +180,8 @@ class UserData {
         // userData.saveLocal();
         Laya.timer.callLater(that, that.saveLocal, [true, { skill: true }]);
     }
-    //查询技能加成
+    
+    /** 查询技能加成 */
     public querySkillAddition(_skillId: number): number {
         let that = this;
         for (let key in that.skillAdditionArray) {
@@ -213,7 +194,8 @@ class UserData {
         }
         return 0;
     }
-    //获取技能加成或触发几率
+
+    /** 获取技能加成或触发几率 */
     public getSkillAdditionProbability(_skillId: number): number {
         let that = this;
         let strengthenLevel: number = that.querySkillAddition(_skillId);
@@ -222,7 +204,7 @@ class UserData {
         return probability;
     }
 
-    //升级车辆等级
+    /** 升级车辆等级 */
     public updateCarLevel(_level: number): boolean {
         let that = this;
         if (that.carLevel < that.carLevelMax()) {
@@ -239,12 +221,15 @@ class UserData {
         }
         return false;
     }
+
     public getCarLevel(): number {
         return this.carLevel;
     }
+
     public carLevelMax(): number {
         return BattleManager.Instance.model.monsterMaxLevel;
     }
+
     public resetMonsterLevel(): void {
         this.carLevel = 1;
     }
@@ -254,17 +239,19 @@ class UserData {
         this.gold = Math.floor($gold);
         Laya.timer.callLater(this, this.saveLocal);
     }
-    //设置元宝
+
+    /** 设置钻石 */
     public setDiamond(_value: number): void {
         this.diamond = Math.floor(_value);
         Laya.timer.callLater(this, this.saveLocal);
     }
-    //设置精华
+
+    /** 设置精华 */
     public setEssence(_value: number): void {
         this.essence = Math.floor(_value);
     }
 
-    //升级森林王等级
+    /** 升级森林王等级 */
     public updateKingLevel(_level: number): boolean {
         let that = this;
         if (that.kingLevel < that.kingLevelMax()) {
@@ -282,14 +269,16 @@ class UserData {
         }
         return false;
     }
+
     public getKingLevel(): number {
         return this.kingLevel;
     }
+
     public kingLevelMax(): number {
         return 60;
     }
 
-    //升级森林王等级
+    /** 升级森林王等级 */
     public updateEvolutionLevel(_level: number): boolean {
         let that = this;
         if (that.evolutionLevel < that.evolutionLevelMax()) {
@@ -348,12 +337,14 @@ class UserData {
     public getPassStage(): number {
         return this.passStage;
     }
+
     //通过的游戏章节
     public updatePassSection(_value: number): void {
         let that = this;
         that.passSection = _value;
         Laya.timer.callLater(that, that.saveLocal, [true]);
     }
+
     public getPassSection(): number {
         return this.passSection;
     }
@@ -372,6 +363,7 @@ class UserData {
         }
         return 0;
     }
+    
     public getShareTimes(_kind: number): number {
         let that = this;
         if (that.shareAdTimes) {

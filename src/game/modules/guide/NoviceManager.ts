@@ -335,19 +335,17 @@ enum NoviceActivateType {
     SYNTHESIS_LEVEL = 2,
 }
 
-
-enum NoviceTarget {
-    QUICK_PURCHASE_MONSTER = "QUICK_PURCHASE_MONSTER",
-    FOREST_KING = "FOREST_KING",
-    FOREST_KING_UPGRADE = "FOREST_KING_UPGRADE",
-    FOREST_KING_CLOSE = "FOREST_KING_CLOSE",
-    MONSTER_CELL_2 = "MONSTER_CELL_2"
+class NoviceTarget {
+    static QUICK_PURCHASE_MONSTER = "QUICK_PURCHASE_MONSTER";
+    static FOREST_KING = "FOREST_KING";
+    static FOREST_KING_UPGRADE = "FOREST_KING_UPGRADE";
+    static FOREST_KING_CLOSE = "FOREST_KING_CLOSE";
+    static MONSTER_CELL_2 = "MONSTER_CELL_2";
 }
 
 class NoviceEvent {
     public static ACTIVATE_TARGET: string = "ACTIVATE_TARGET";
     public static WAITING: string = "WAITING";
-
     public static DEFAULT: string = "DEFAULT";
     public static CLICK: string = "CLICK";
 }
