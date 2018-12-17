@@ -4510,21 +4510,19 @@ var SDKManager = /** @class */ (function () {
         if (force === void 0) { force = false; }
         if (offsetY === void 0) { offsetY = 0; }
         var self = this;
-        console.log("@FREEMAN: 暂时未有banner广告权限，功能已注释");
-        return;
-        // if (self.isForbidBannerAd && _force == false) {
-        //     return;
-        // }
-        // self.closeBannerAd();
-        // let bannerAd = platform.createBannerAd({
-        //     adUnitId: 'adunit-a8c13c9b0cb17e96',
-        //     top: (1334 + _offsetY)
-        // });
-        // if (bannerAd) {
-        //     bannerAd.show();
-        // }
-        // self.bannerAd = bannerAd;
-        // return bannerAd;
+        if (self._isForbidBannerAd && force == false) {
+            return;
+        }
+        self.closeBannerAd();
+        var bannerAd = platform.createBannerAd({
+            adUnitId: 'adunit-439fc3b5508c60cc',
+            top: (1334 + offsetY)
+        });
+        if (bannerAd) {
+            bannerAd.show();
+        }
+        self._bannerAd = bannerAd;
+        return bannerAd;
     };
     /**
      *  关闭banner广告
@@ -4558,7 +4556,7 @@ var SDKManager = /** @class */ (function () {
         if (self._videoAd)
             return;
         var videoAd = platform.createRewardedVideoAd({
-            adUnitId: 'adunit-c82707765582eb45'
+            adUnitId: 'adunit-d2cf9b98a2801c37'
         });
         if (videoAd) {
             self._videoAd = videoAd;
@@ -4568,13 +4566,13 @@ var SDKManager = /** @class */ (function () {
                 // 小于 2.1.0 的基础库版本，res 是一个 undefined
                 if (res && res.isEnded || res === undefined) {
                     // 正常播放结束，可以下发游戏奖励
+                    callback && callback(res);
                 }
                 else {
                     // 播放中途退出，不下发游戏奖励
+                    videoAd.offClose(closeCallback_1);
                 }
                 self._isForbidBannerAd = false;
-                callback && callback(res);
-                videoAd.offClose(closeCallback_1);
                 self._videoAd = null;
             };
             videoAd.onClose(closeCallback_1);
@@ -8542,7 +8540,7 @@ var ui;
                 _super.prototype.createChildren.call(this);
                 this.createView(ui.luckPrize.LuckPrizeViewUI.uiView);
             };
-            LuckPrizeViewUI.uiView = { "type": "View", "props": { "y": 0, "x": 0, "width": 750, "name": "rolledTIme", "height": 1092 }, "child": [{ "type": "View", "props": { "y": 0, "x": 0, "width": 750, "var": "mainView", "name": "mainView", "height": 1092 }, "child": [{ "type": "Image", "props": { "y": 639, "x": 371, "var": "imgBg", "skin": "images/luckLottery/luck_huanpan.png", "rotation": 0, "name": "imgBg", "anchorY": 0.5, "anchorX": 0.5 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "skin": "images/luckLottery/luck_huanpan_light.png", "name": "imgEffect1" }, "compId": 68 }, { "type": "Image", "props": { "y": 0, "x": 0, "visible": false, "skin": "images/luck_huanpan_light.png", "name": "imgEffect2" }, "compId": 69 }] }, { "type": "Image", "props": { "y": 0, "x": 37, "skin": "images/luckLottery/luck_title.png" } }, { "type": "Label", "props": { "y": 998, "x": 167, "width": 425, "visible": false, "var": "txtTip1", "text": "单词抽奖将消耗钻石x120", "name": "txtTip1", "height": 30, "fontSize": 30, "color": "#ffffff", "bold": true, "align": "center" } }, { "type": "Label", "props": { "y": 1045, "x": 64, "width": 621, "visible": false, "var": "txtTip2", "text": "00:00之后免费抽奖一次", "name": "txtTip2", "height": 30, "fontSize": 30, "color": "#fff272", "bold": true, "align": "center" } }, { "type": "Button", "props": { "y": -2, "x": 634, "var": "btnExit", "stateNum": 1, "skin": "images/component/frame_close_btn.png", "name": "btnExit" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }, { "type": "Button", "props": { "y": 510, "x": 263, "var": "btnStart", "stateNum": 1, "skin": "images/luckLottery/luck_go.png", "name": "btnStart" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }, { "type": "Image", "props": { "y": 161, "x": 83, "skin": "images/core/diamond.png", "name": "imgDiamond", "anchorY": 0.5, "anchorX": 0.5 }, "child": [{ "type": "Label", "props": { "y": 6, "x": 41, "var": "txtDiamond", "text": "120", "strokeColor": "#000000", "stroke": 2, "name": "txtDiamond", "fontSize": 28, "color": "#f4d80d", "bold": true, "align": "left" } }] }] }, { "type": "Box", "props": { "y": 199, "x": 267 }, "child": [{ "type": "Image", "props": { "skin": "images/luckLottery/luck_price_bg.png" } }, { "type": "Image", "props": { "y": 15, "x": 21, "skin": "images/core/diamond.png" } }, { "type": "Label", "props": { "y": 19, "x": 70, "var": "txt_diamond", "text": "0", "fontSize": 30, "color": "#ffffff", "bold": true } }] }] }], "animations": [{ "nodes": [{ "target": 68, "keyframes": { "alpha": [{ "value": 1, "tweenMethod": "linearNone", "tween": true, "target": 68, "key": "alpha", "index": 0 }, { "value": 0, "tweenMethod": "linearNone", "tween": true, "target": 68, "key": "alpha", "index": 10 }, { "value": 1, "tweenMethod": "linearNone", "tween": true, "target": 68, "key": "alpha", "index": 20 }] } }, { "target": 69, "keyframes": { "alpha": [{ "value": 0, "tweenMethod": "linearNone", "tween": true, "target": 69, "key": "alpha", "index": 0 }, { "value": 1, "tweenMethod": "linearNone", "tween": true, "target": 69, "key": "alpha", "index": 10 }, { "value": 0, "tweenMethod": "linearNone", "tween": true, "target": 69, "key": "alpha", "index": 20 }] } }], "name": "ani1", "id": 1, "frameRate": 24, "action": 2 }] };
+            LuckPrizeViewUI.uiView = { "type": "View", "props": { "y": 0, "x": 0, "width": 750, "name": "rolledTIme", "height": 1092 }, "child": [{ "type": "View", "props": { "y": 0, "x": 0, "width": 750, "var": "mainView", "name": "mainView", "height": 1092 }, "child": [{ "type": "Image", "props": { "y": 532, "x": 371, "var": "imgBg", "skin": "images/luckLottery/luck_huanpan.png", "rotation": 0, "name": "imgBg", "anchorY": 0.5, "anchorX": 0.5 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "skin": "images/luckLottery/luck_huanpan_light.png", "name": "imgEffect1" }, "compId": 68 }, { "type": "Image", "props": { "y": 0, "x": 0, "visible": false, "skin": "images/luck_huanpan_light.png", "name": "imgEffect2" }, "compId": 69 }] }, { "type": "Image", "props": { "y": -71, "x": 37, "skin": "images/luckLottery/luck_title.png" } }, { "type": "Label", "props": { "y": 875, "x": 167, "width": 425, "visible": false, "var": "txtTip1", "text": "单词抽奖将消耗钻石x120", "name": "txtTip1", "height": 30, "fontSize": 30, "color": "#ffffff", "bold": true, "align": "center" } }, { "type": "Label", "props": { "y": 919, "x": 64, "width": 621, "visible": false, "var": "txtTip2", "text": "00:00之后免费抽奖一次", "name": "txtTip2", "height": 30, "fontSize": 30, "color": "#fff272", "bold": true, "align": "center" } }, { "type": "Button", "props": { "y": -2, "x": 634, "var": "btnExit", "stateNum": 1, "skin": "images/component/frame_close_btn.png", "name": "btnExit" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }, { "type": "Button", "props": { "y": 394, "x": 263, "var": "btnStart", "stateNum": 1, "skin": "images/luckLottery/luck_go.png", "name": "btnStart" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }, { "type": "Image", "props": { "y": 161, "x": 83, "skin": "images/core/diamond.png", "name": "imgDiamond", "anchorY": 0.5, "anchorX": 0.5 }, "child": [{ "type": "Label", "props": { "y": 6, "x": 41, "var": "txtDiamond", "text": "120", "strokeColor": "#000000", "stroke": 2, "name": "txtDiamond", "fontSize": 28, "color": "#f4d80d", "bold": true, "align": "left" } }] }] }, { "type": "Box", "props": { "y": 130, "x": 267 }, "child": [{ "type": "Image", "props": { "skin": "images/luckLottery/luck_price_bg.png" } }, { "type": "Image", "props": { "y": 15, "x": 21, "skin": "images/core/diamond.png" } }, { "type": "Label", "props": { "y": 19, "x": 70, "var": "txt_diamond", "text": "0", "fontSize": 30, "color": "#ffffff", "bold": true } }] }] }], "animations": [{ "nodes": [{ "target": 68, "keyframes": { "alpha": [{ "value": 1, "tweenMethod": "linearNone", "tween": true, "target": 68, "key": "alpha", "index": 0 }, { "value": 0, "tweenMethod": "linearNone", "tween": true, "target": 68, "key": "alpha", "index": 10 }, { "value": 1, "tweenMethod": "linearNone", "tween": true, "target": 68, "key": "alpha", "index": 20 }] } }, { "target": 69, "keyframes": { "alpha": [{ "value": 0, "tweenMethod": "linearNone", "tween": true, "target": 69, "key": "alpha", "index": 0 }, { "value": 1, "tweenMethod": "linearNone", "tween": true, "target": 69, "key": "alpha", "index": 10 }, { "value": 0, "tweenMethod": "linearNone", "tween": true, "target": 69, "key": "alpha", "index": 20 }] } }], "name": "ani1", "id": 1, "frameRate": 24, "action": 2 }] };
             return LuckPrizeViewUI;
         }(View));
         luckPrize.LuckPrizeViewUI = LuckPrizeViewUI;
@@ -8803,6 +8801,7 @@ var DiamondBuyView = /** @class */ (function (_super) {
                 self.imgMonster.skin = "images/carImg/" + self._data[2].imgUrl;
                 break;
             case DILOG_TYPE.ACC:
+                SDKManager.Instance.showBannerAd(true);
                 self.petTitleImg.visible = self.imgMonster.visible = false;
                 self.accTitleImg.visible = self.accIcon.visible = true;
                 break;
@@ -9086,6 +9085,7 @@ var RewardGoldView = /** @class */ (function (_super) {
     //初始化
     RewardGoldView.prototype.init = function () {
         var self = this;
+        SDKManager.Instance.showBannerAd(true);
         self.txt_share.visible = PlayerManager.Instance.Info.dayGetGoldCount != 6 && PlayerManager.Instance.Info.dayGetGoldCount != 2;
         self.advBox.visible = !self.txt_share.visible;
         self.txt_lastCount.text = "今天剩余" + PlayerManager.Instance.Info.dayGetGoldCount + "次";
@@ -9129,7 +9129,7 @@ var RewardGoldView = /** @class */ (function (_super) {
                 var adStage = userData.toShareAd(function () {
                     if (self._callback)
                         self._callback(self._money);
-                }, 1);
+                }, 12);
                 //没有广告就走分享
                 if (adStage > 0) {
                     MessageUtils.showMsgTips("广告看完了");
@@ -10137,14 +10137,16 @@ var NoviceActivateType;
     NoviceActivateType[NoviceActivateType["LEVEL"] = 1] = "LEVEL";
     NoviceActivateType[NoviceActivateType["SYNTHESIS_LEVEL"] = 2] = "SYNTHESIS_LEVEL";
 })(NoviceActivateType || (NoviceActivateType = {}));
-var NoviceTarget;
-(function (NoviceTarget) {
-    NoviceTarget["QUICK_PURCHASE_MONSTER"] = "QUICK_PURCHASE_MONSTER";
-    NoviceTarget["FOREST_KING"] = "FOREST_KING";
-    NoviceTarget["FOREST_KING_UPGRADE"] = "FOREST_KING_UPGRADE";
-    NoviceTarget["FOREST_KING_CLOSE"] = "FOREST_KING_CLOSE";
-    NoviceTarget["MONSTER_CELL_2"] = "MONSTER_CELL_2";
-})(NoviceTarget || (NoviceTarget = {}));
+var NoviceTarget = /** @class */ (function () {
+    function NoviceTarget() {
+    }
+    NoviceTarget.QUICK_PURCHASE_MONSTER = "QUICK_PURCHASE_MONSTER";
+    NoviceTarget.FOREST_KING = "FOREST_KING";
+    NoviceTarget.FOREST_KING_UPGRADE = "FOREST_KING_UPGRADE";
+    NoviceTarget.FOREST_KING_CLOSE = "FOREST_KING_CLOSE";
+    NoviceTarget.MONSTER_CELL_2 = "MONSTER_CELL_2";
+    return NoviceTarget;
+}());
 var NoviceEvent = /** @class */ (function () {
     function NoviceEvent() {
     }
@@ -10453,8 +10455,6 @@ var HallScene = /** @class */ (function (_super) {
         self.initUserData();
         self.initCarUI();
         self.initCarparkList();
-        //显示广告
-        SDKManager.Instance.showBannerAd(false, self.mainView.y);
         //投诉建议
         if (self.btnFeedback) {
             var rect = LayerManager.getRealStageRect(self.btnFeedback);
@@ -10743,19 +10743,13 @@ var HallScene = /** @class */ (function (_super) {
     //排行
     HallScene.prototype.onRanking = function () {
         var self = this;
-        SDKManager.Instance.closeBannerAd(true);
         RankingView.Create(function () {
-            //返回
-            SDKManager.Instance.showBannerAd(true, self.mainView.y);
             self.showSurpassView();
         });
     };
     HallScene.prototype.onFriendRanking = function () {
         var that = this;
-        SDKManager.Instance.closeBannerAd(true);
         RankingView.Create(function () {
-            //返回
-            SDKManager.Instance.showBannerAd(true, that.mainView.y);
             that.showSurpassView();
         }, true);
         //锁定按钮
@@ -10792,6 +10786,8 @@ var HallScene = /** @class */ (function (_super) {
                     PlayerManager.Instance.Info.dayGetGoldCount--;
                     self.updateGold(PlayerManager.Instance.Info.userMoney + money);
                     userData.saveLocal();
+                }, function () {
+                    SDKManager.Instance.closeBannerAd(true);
                 });
             }
             else {
@@ -10881,7 +10877,7 @@ var HallScene = /** @class */ (function (_super) {
         //重置快捷购买按钮
         that.refreshShortcutCreateBtn();
         //奖励三个高级精灵
-        var prizeMonsterArray = [1001, 2001, 3001];
+        var prizeMonsterArray = [1001, 1001, 1001];
         if (that.carparkList) {
             for (var index = 0; index < HallManager.Instance.hallData.parkMonsterCount; index++) {
                 var element = that.carparkList.getCell(index);
@@ -10985,7 +10981,9 @@ var HallScene = /** @class */ (function (_super) {
                     MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.05"));
                 }
             }, 1);
-        }, null, DILOG_TYPE.ACC, carPrice);
+        }, function () {
+            SDKManager.Instance.closeBannerAd(true);
+        }, DILOG_TYPE.ACC, carPrice);
     };
     HallScene.prototype.onShareFreeCar = function (_carInfo, btnObj) {
         if (_carInfo === void 0) { _carInfo = null; }
@@ -11031,6 +11029,8 @@ var HallScene = /** @class */ (function (_super) {
                 _nodeView.evolutionFun = Laya.Handler.create(that, that.onEvolutionShop, null, false);
                 _nodeView.refreshMoney(PlayerManager.Instance.Info.userMoney, PlayerManager.Instance.Info.userDiamond);
             }
+        }, function () {
+            SDKManager.Instance.closeBannerAd(true);
         });
     };
     //能量加速
@@ -11598,10 +11598,8 @@ var HallScene = /** @class */ (function (_super) {
     //任务界面
     HallScene.prototype.showTaskView = function () {
         var that = this;
-        SDKManager.Instance.closeBannerAd(true);
         TaskView.Create(null, function () {
-            //返回
-            SDKManager.Instance.showBannerAd(true, that.mainView.y);
+            SDKManager.Instance.closeBannerAd(true);
         }, true);
     };
     //每日签到界面
@@ -11632,10 +11630,8 @@ var HallScene = /** @class */ (function (_super) {
     };
     //幸运抽奖界面
     HallScene.prototype.showLuckPrizeView = function () {
-        // CommonFun.closeBannerAd(true);
         LuckPrizeView.Create(null, function () {
-            //返回
-            // CommonFun.showBannerAd(true);
+            SDKManager.Instance.closeBannerAd(true);
         });
     };
     //跳转小程序
@@ -12093,65 +12089,66 @@ var LuckPrizeView = /** @class */ (function (_super) {
     };
     //初始化
     LuckPrizeView.prototype.init = function () {
-        var that = this;
+        var self = this;
+        SDKManager.Instance.showBannerAd(true);
         //按钮事件
-        that.btnExit.on(Laya.Event.CLICK, that, that.onClickExit);
-        that.btnStart.on(Laya.Event.CLICK, that, that.onStart);
-        that.initPrizeInfo(function (_res) {
-            if (that.txtTip1) {
-                that.txtTip1.visible = true;
-                that.txtTip1.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.23", that.costDiamond);
+        self.btnExit.on(Laya.Event.CLICK, self, self.onClickExit);
+        self.btnStart.on(Laya.Event.CLICK, self, self.onStart);
+        self.initPrizeInfo(function (_res) {
+            if (self.txtTip1) {
+                self.txtTip1.visible = true;
+                self.txtTip1.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.23", self.costDiamond);
             }
             //消耗钻石
             var refreshDiamondText = function () {
-                if (that.txtDiamond) {
-                    if (that.freeTime > 0 || that.isTryAgain) {
-                        that.txtDiamond.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.24");
+                if (self.txtDiamond) {
+                    if (self.freeTime > 0 || self.isTryAgain) {
+                        self.txtDiamond.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.24");
                     }
                     else {
-                        that.txtDiamond.changeText('' + that.costDiamond);
+                        self.txtDiamond.changeText('' + self.costDiamond);
                     }
                 }
             };
             refreshDiamondText();
-            if (that.txtTip2) {
-                that.txtTip2.visible = true;
+            if (self.txtTip2) {
+                self.txtTip2.visible = true;
                 var loopFun = function () {
-                    if (that.freeTime > 0) {
-                        that.txtTip2.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.25", TimeUtil.timeFormatStr(that.freeTime, true));
-                        that.txtTip2.color = "#66CD00";
-                        that.freeTime--;
+                    if (self.freeTime > 0) {
+                        self.txtTip2.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.25", TimeUtil.timeFormatStr(self.freeTime, true));
+                        self.txtTip2.color = "#66CD00";
+                        self.freeTime--;
                     }
-                    else if (that.nextFreeTime > 0) {
-                        that.txtTip2.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.26", TimeUtil.timeFormatStr(that.nextFreeTime, true));
-                        that.txtTip2.color = "#EE6363";
-                        that.nextFreeTime--;
-                        that.freeTimes = 0; //免费次数清零
+                    else if (self.nextFreeTime > 0) {
+                        self.txtTip2.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.26", TimeUtil.timeFormatStr(self.nextFreeTime, true));
+                        self.txtTip2.color = "#EE6363";
+                        self.nextFreeTime--;
+                        self.freeTimes = 0; //免费次数清零
                     }
                     else {
-                        if (that.txtTip2.visible) {
-                            that.initPrizeInfo();
+                        if (self.txtTip2.visible) {
+                            self.initPrizeInfo();
                         }
-                        that.txtTip2.visible = false;
+                        self.txtTip2.visible = false;
                     }
                     //消耗钻石
                     refreshDiamondText();
                 };
                 loopFun();
-                that.timerLoop(1000, that, loopFun);
+                self.timerLoop(1000, self, loopFun);
             }
         });
         //移除红点
         if (userData) {
             userData.removeLuckPrizeRedPoint();
         }
-        that.showMyDiamond(PlayerManager.Instance.Info.userDiamond);
-        EventsManager.Instance.on(EventsType.DIAMOND_CHANGE, that, function (_data) {
+        self.showMyDiamond(PlayerManager.Instance.Info.userDiamond);
+        EventsManager.Instance.on(EventsType.DIAMOND_CHANGE, self, function (_data) {
             if (_data && _data.diamond) {
-                that.showMyDiamond(_data.diamond);
+                self.showMyDiamond(_data.diamond);
             }
             else {
-                that.showMyDiamond(userData.diamond);
+                self.showMyDiamond(userData.diamond);
             }
         });
     };
@@ -13377,6 +13374,7 @@ var ShopView = /** @class */ (function (_super) {
     //初始化
     ShopView.prototype.init = function (_kind) {
         var self = this;
+        SDKManager.Instance.showBannerAd(true);
         //按钮事件
         self.removeEvents();
         self.btnExit.on(Laya.Event.CLICK, self, self.onClickExit);
@@ -13532,11 +13530,11 @@ var ShopView = /** @class */ (function (_super) {
                         self.btnFreeFun && self.btnFreeFun.runWith([_carInfo, _btnObj]);
                     }, [carInfo, btnSharePrize]);
                     //观看次数已用完
-                    if (userData.getAdTimes(12) < 1 && userData.getShareTimes(11) < 1) {
+                    if (userData.getAdTimes(11) < 1 && userData.getShareTimes(11) < 1) {
                         btnSharePrize.visible = false;
                     }
                     else {
-                        if (userData.isAdStage(12)) {
+                        if (userData.isAdStage(11)) {
                             btnSharePrize.skin = "images/core/shop_free_video.png";
                         }
                         else {
@@ -13635,6 +13633,7 @@ var StrengthenView = /** @class */ (function (_super) {
                 nodeView_1.once(Laya.Event.REMOVED, nodeView_1, function () {
                     StrengthenView.isOpen = false;
                     nodeView_1.removeUI();
+                    SDKManager.Instance.closeBannerAd(true);
                     _removeCallback && _removeCallback();
                 });
             }
@@ -13642,27 +13641,28 @@ var StrengthenView = /** @class */ (function (_super) {
     };
     //初始化
     StrengthenView.prototype.init = function (_stage) {
-        var that = this;
+        var self = this;
+        SDKManager.Instance.showBannerAd(true);
         //界面初始化
-        var imgBg = that.mainView.getChildByName("imgBg");
+        var imgBg = self.mainView.getChildByName("imgBg");
         if (imgBg) {
             var btnExit = imgBg.getChildByName("btnExit");
             if (btnExit) {
                 btnExit.offAll(Laya.Event.CLICK);
                 btnExit.on(Laya.Event.CLICK, btnExit, function () {
-                    that.removeSelf();
+                    self.removeSelf();
                 });
             }
         }
         //box
         for (var index = 0; index < 4; index++) {
-            var skillId = that.indexArray[index];
-            that.refreshBoxUI(skillId);
+            var skillId = self.indexArray[index];
+            self.refreshBoxUI(skillId);
         }
         //精华碎片刷新
-        that.setEssence(userData.essence);
-        EventsManager.Instance.on(EventsType.ESSENCE_CHANGE, that, function (_data) {
-            that.setEssence(userData.essence);
+        self.setEssence(userData.essence);
+        EventsManager.Instance.on(EventsType.ESSENCE_CHANGE, self, function (_data) {
+            self.setEssence(userData.essence);
         });
         HttpManager.Instance.requestEssenceData();
     };
@@ -13817,13 +13817,14 @@ var TaskView = /** @class */ (function (_super) {
     };
     //初始化
     TaskView.prototype.init = function (_isTask) {
-        var that = this;
+        var self = this;
+        SDKManager.Instance.showBannerAd(true);
         //按钮事件
-        that.btnExit.on(Laya.Event.CLICK, that, that.onClickExit);
-        that.blankView.on(Laya.Event.CLICK, that, that.onClickExit);
-        that._tabGroup = new TabGroup(that.tabGroup._childs);
-        that._tabGroup.on(Laya.Event.CHANGE, that, that.onTabChange);
-        that._tabGroup.selectedIndex = _isTask ? QuestSubView.DAILY_QUEST : QuestSubView.INVITE_AWARD;
+        self.btnExit.on(Laya.Event.CLICK, self, self.onClickExit);
+        self.blankView.on(Laya.Event.CLICK, self, self.onClickExit);
+        self._tabGroup = new TabGroup(self.tabGroup._childs);
+        self._tabGroup.on(Laya.Event.CHANGE, self, self.onTabChange);
+        self._tabGroup.selectedIndex = _isTask ? QuestSubView.DAILY_QUEST : QuestSubView.INVITE_AWARD;
     };
     TaskView.prototype.onClickExit = function () {
         this.removeSelf();

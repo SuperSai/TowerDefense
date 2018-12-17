@@ -142,8 +142,6 @@ var HallScene = /** @class */ (function (_super) {
         self.initUserData();
         self.initCarUI();
         self.initCarparkList();
-        //显示广告
-        SDKManager.Instance.showBannerAd(false, self.mainView.y);
         //投诉建议
         if (self.btnFeedback) {
             var rect = LayerManager.getRealStageRect(self.btnFeedback);
@@ -432,19 +430,13 @@ var HallScene = /** @class */ (function (_super) {
     //排行
     HallScene.prototype.onRanking = function () {
         var self = this;
-        SDKManager.Instance.closeBannerAd(true);
         RankingView.Create(function () {
-            //返回
-            SDKManager.Instance.showBannerAd(true, self.mainView.y);
             self.showSurpassView();
         });
     };
     HallScene.prototype.onFriendRanking = function () {
         var that = this;
-        SDKManager.Instance.closeBannerAd(true);
         RankingView.Create(function () {
-            //返回
-            SDKManager.Instance.showBannerAd(true, that.mainView.y);
             that.showSurpassView();
         }, true);
         //锁定按钮
@@ -481,6 +473,8 @@ var HallScene = /** @class */ (function (_super) {
                     PlayerManager.Instance.Info.dayGetGoldCount--;
                     self.updateGold(PlayerManager.Instance.Info.userMoney + money);
                     userData.saveLocal();
+                }, function () {
+                    SDKManager.Instance.closeBannerAd(true);
                 });
             }
             else {
@@ -570,7 +564,7 @@ var HallScene = /** @class */ (function (_super) {
         //重置快捷购买按钮
         that.refreshShortcutCreateBtn();
         //奖励三个高级精灵
-        var prizeMonsterArray = [1001, 2001, 3001];
+        var prizeMonsterArray = [1001, 1001, 1001];
         if (that.carparkList) {
             for (var index = 0; index < HallManager.Instance.hallData.parkMonsterCount; index++) {
                 var element = that.carparkList.getCell(index);
@@ -674,7 +668,9 @@ var HallScene = /** @class */ (function (_super) {
                     MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.05"));
                 }
             }, 1);
-        }, null, DILOG_TYPE.ACC, carPrice);
+        }, function () {
+            SDKManager.Instance.closeBannerAd(true);
+        }, DILOG_TYPE.ACC, carPrice);
     };
     HallScene.prototype.onShareFreeCar = function (_carInfo, btnObj) {
         if (_carInfo === void 0) { _carInfo = null; }
@@ -720,6 +716,8 @@ var HallScene = /** @class */ (function (_super) {
                 _nodeView.evolutionFun = Laya.Handler.create(that, that.onEvolutionShop, null, false);
                 _nodeView.refreshMoney(PlayerManager.Instance.Info.userMoney, PlayerManager.Instance.Info.userDiamond);
             }
+        }, function () {
+            SDKManager.Instance.closeBannerAd(true);
         });
     };
     //能量加速
@@ -1287,10 +1285,8 @@ var HallScene = /** @class */ (function (_super) {
     //任务界面
     HallScene.prototype.showTaskView = function () {
         var that = this;
-        SDKManager.Instance.closeBannerAd(true);
         TaskView.Create(null, function () {
-            //返回
-            SDKManager.Instance.showBannerAd(true, that.mainView.y);
+            SDKManager.Instance.closeBannerAd(true);
         }, true);
     };
     //每日签到界面
@@ -1321,10 +1317,8 @@ var HallScene = /** @class */ (function (_super) {
     };
     //幸运抽奖界面
     HallScene.prototype.showLuckPrizeView = function () {
-        // CommonFun.closeBannerAd(true);
         LuckPrizeView.Create(null, function () {
-            //返回
-            // CommonFun.showBannerAd(true);
+            SDKManager.Instance.closeBannerAd(true);
         });
     };
     //跳转小程序

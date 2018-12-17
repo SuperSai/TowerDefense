@@ -53,13 +53,14 @@ var TaskView = /** @class */ (function (_super) {
     };
     //初始化
     TaskView.prototype.init = function (_isTask) {
-        var that = this;
+        var self = this;
+        SDKManager.Instance.showBannerAd(true);
         //按钮事件
-        that.btnExit.on(Laya.Event.CLICK, that, that.onClickExit);
-        that.blankView.on(Laya.Event.CLICK, that, that.onClickExit);
-        that._tabGroup = new TabGroup(that.tabGroup._childs);
-        that._tabGroup.on(Laya.Event.CHANGE, that, that.onTabChange);
-        that._tabGroup.selectedIndex = _isTask ? QuestSubView.DAILY_QUEST : QuestSubView.INVITE_AWARD;
+        self.btnExit.on(Laya.Event.CLICK, self, self.onClickExit);
+        self.blankView.on(Laya.Event.CLICK, self, self.onClickExit);
+        self._tabGroup = new TabGroup(self.tabGroup._childs);
+        self._tabGroup.on(Laya.Event.CHANGE, self, self.onTabChange);
+        self._tabGroup.selectedIndex = _isTask ? QuestSubView.DAILY_QUEST : QuestSubView.INVITE_AWARD;
     };
     TaskView.prototype.onClickExit = function () {
         this.removeSelf();

@@ -134,8 +134,6 @@ class HallScene extends ui.hall.HallSceneUI {
     self.initUserData();
     self.initCarUI();
     self.initCarparkList();
-    //显示广告
-    SDKManager.Instance.showBannerAd(false, self.mainView.y);
     //投诉建议
     if (self.btnFeedback) {
       const rect: Rectangle = LayerManager.getRealStageRect(self.btnFeedback);
@@ -426,20 +424,14 @@ class HallScene extends ui.hall.HallSceneUI {
   //排行
   private onRanking(): void {
     let self = this;
-    SDKManager.Instance.closeBannerAd(true);
     RankingView.Create(() => {
-      //返回
-      SDKManager.Instance.showBannerAd(true, self.mainView.y);
       self.showSurpassView();
     });
   }
 
   private onFriendRanking(): void {
     let that = this;
-    SDKManager.Instance.closeBannerAd(true);
     RankingView.Create(() => {
-      //返回
-      SDKManager.Instance.showBannerAd(true, that.mainView.y);
       that.showSurpassView();
     }, true);
     //锁定按钮
@@ -473,6 +465,8 @@ class HallScene extends ui.hall.HallSceneUI {
           PlayerManager.Instance.Info.dayGetGoldCount--;
           self.updateGold(PlayerManager.Instance.Info.userMoney + money);
           userData.saveLocal();
+        }, () => {
+          SDKManager.Instance.closeBannerAd(true);
         });
       } else {
         MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.19"));
@@ -558,7 +552,7 @@ class HallScene extends ui.hall.HallSceneUI {
     //重置快捷购买按钮
     that.refreshShortcutCreateBtn();
     //奖励三个高级精灵
-    let prizeMonsterArray: Array<number> = [1001, 2001, 3001];
+    let prizeMonsterArray: Array<number> = [1001, 1001, 1001];
     if (that.carparkList) {
       for (var index = 0; index < HallManager.Instance.hallData.parkMonsterCount; index++) {
         var element = that.carparkList.getCell(index);
@@ -653,7 +647,9 @@ class HallScene extends ui.hall.HallSceneUI {
           MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.05"));
         }
       }, 1);
-    }, null, DILOG_TYPE.ACC, carPrice);
+    }, () => {
+      SDKManager.Instance.closeBannerAd(true);
+    }, DILOG_TYPE.ACC, carPrice);
   }
 
   private onShareFreeCar(_carInfo: any = null, btnObj: Laya.Button = null): void {
@@ -697,6 +693,8 @@ class HallScene extends ui.hall.HallSceneUI {
         _nodeView.evolutionFun = Laya.Handler.create(that, that.onEvolutionShop, null, false);
         _nodeView.refreshMoney(PlayerManager.Instance.Info.userMoney, PlayerManager.Instance.Info.userDiamond);
       }
+    }, () => {
+      SDKManager.Instance.closeBannerAd(true);
     });
   }
 
@@ -1251,10 +1249,8 @@ class HallScene extends ui.hall.HallSceneUI {
   //任务界面
   public showTaskView(): void {
     let that = this;
-    SDKManager.Instance.closeBannerAd(true);
     TaskView.Create(null, () => {
-      //返回
-      SDKManager.Instance.showBannerAd(true, that.mainView.y);
+      SDKManager.Instance.closeBannerAd(true);
     }, true);
   }
 
@@ -1287,10 +1283,8 @@ class HallScene extends ui.hall.HallSceneUI {
 
   //幸运抽奖界面
   public showLuckPrizeView(): void {
-    // CommonFun.closeBannerAd(true);
     LuckPrizeView.Create(null, () => {
-      //返回
-      // CommonFun.showBannerAd(true);
+      SDKManager.Instance.closeBannerAd(true);
     });
   }
 

@@ -21,24 +21,20 @@ class SDKManager {
      */
     public showBannerAd(force: boolean = false, offsetY: number = 0): any {
         let self = this;
-        console.log("@FREEMAN: 暂时未有banner广告权限，功能已注释");
-        return;
-        // if (self.isForbidBannerAd && _force == false) {
-        //     return;
-        // }
-        // self.closeBannerAd();
-
-        // let bannerAd = platform.createBannerAd({
-        //     adUnitId: 'adunit-a8c13c9b0cb17e96',
-        //     top: (1334 + _offsetY)
-        // });
-        // if (bannerAd) {
-        //     bannerAd.show();
-        // }
-        // self.bannerAd = bannerAd;
-        // return bannerAd;
+        if (self._isForbidBannerAd && force == false) {
+            return;
+        }
+        self.closeBannerAd();
+        let bannerAd = platform.createBannerAd({
+            adUnitId: 'adunit-439fc3b5508c60cc',
+            top: (1334 + offsetY)
+        });
+        if (bannerAd) {
+            bannerAd.show();
+        }
+        self._bannerAd = bannerAd;
+        return bannerAd;
     }
-
 
     /**
      *  关闭banner广告
@@ -69,7 +65,7 @@ class SDKManager {
         let self = this;
         if (self._videoAd) return;
         let videoAd = platform.createRewardedVideoAd({
-            adUnitId: 'adunit-c82707765582eb45'
+            adUnitId: 'adunit-d2cf9b98a2801c37'
         });
         if (videoAd) {
             self._videoAd = videoAd;
@@ -79,13 +75,13 @@ class SDKManager {
                 // 小于 2.1.0 的基础库版本，res 是一个 undefined
                 if (res && res.isEnded || res === undefined) {
                     // 正常播放结束，可以下发游戏奖励
+                    callback && callback(res);
                 }
                 else {
                     // 播放中途退出，不下发游戏奖励
+                    videoAd.offClose(closeCallback);
                 }
                 self._isForbidBannerAd = false;
-                callback && callback(res);
-                videoAd.offClose(closeCallback);
                 self._videoAd = null;
             }
             videoAd.onClose(closeCallback);
@@ -126,7 +122,6 @@ class SDKManager {
             videoAd.onError(errCallback);
             self._isForbidBannerAd = true;
         }
-
         if (!Laya.Browser.onMiniGame) {
             callback && callback();
         }

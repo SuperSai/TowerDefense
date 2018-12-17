@@ -38,6 +38,7 @@ class DiamondBuyView extends ui.common.view.DiamondBuyViewUI {
                 self.imgMonster.skin = "images/carImg/" + self._data[2].imgUrl;
                 break;
             case DILOG_TYPE.ACC:
+                SDKManager.Instance.showBannerAd(true);
                 self.petTitleImg.visible = self.imgMonster.visible = false;
                 self.accTitleImg.visible = self.accIcon.visible = true;
                 break;

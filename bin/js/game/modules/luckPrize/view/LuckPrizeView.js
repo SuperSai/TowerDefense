@@ -67,65 +67,66 @@ var LuckPrizeView = /** @class */ (function (_super) {
     };
     //初始化
     LuckPrizeView.prototype.init = function () {
-        var that = this;
+        var self = this;
+        SDKManager.Instance.showBannerAd(true);
         //按钮事件
-        that.btnExit.on(Laya.Event.CLICK, that, that.onClickExit);
-        that.btnStart.on(Laya.Event.CLICK, that, that.onStart);
-        that.initPrizeInfo(function (_res) {
-            if (that.txtTip1) {
-                that.txtTip1.visible = true;
-                that.txtTip1.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.23", that.costDiamond);
+        self.btnExit.on(Laya.Event.CLICK, self, self.onClickExit);
+        self.btnStart.on(Laya.Event.CLICK, self, self.onStart);
+        self.initPrizeInfo(function (_res) {
+            if (self.txtTip1) {
+                self.txtTip1.visible = true;
+                self.txtTip1.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.23", self.costDiamond);
             }
             //消耗钻石
             var refreshDiamondText = function () {
-                if (that.txtDiamond) {
-                    if (that.freeTime > 0 || that.isTryAgain) {
-                        that.txtDiamond.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.24");
+                if (self.txtDiamond) {
+                    if (self.freeTime > 0 || self.isTryAgain) {
+                        self.txtDiamond.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.24");
                     }
                     else {
-                        that.txtDiamond.changeText('' + that.costDiamond);
+                        self.txtDiamond.changeText('' + self.costDiamond);
                     }
                 }
             };
             refreshDiamondText();
-            if (that.txtTip2) {
-                that.txtTip2.visible = true;
+            if (self.txtTip2) {
+                self.txtTip2.visible = true;
                 var loopFun = function () {
-                    if (that.freeTime > 0) {
-                        that.txtTip2.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.25", TimeUtil.timeFormatStr(that.freeTime, true));
-                        that.txtTip2.color = "#66CD00";
-                        that.freeTime--;
+                    if (self.freeTime > 0) {
+                        self.txtTip2.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.25", TimeUtil.timeFormatStr(self.freeTime, true));
+                        self.txtTip2.color = "#66CD00";
+                        self.freeTime--;
                     }
-                    else if (that.nextFreeTime > 0) {
-                        that.txtTip2.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.26", TimeUtil.timeFormatStr(that.nextFreeTime, true));
-                        that.txtTip2.color = "#EE6363";
-                        that.nextFreeTime--;
-                        that.freeTimes = 0; //免费次数清零
+                    else if (self.nextFreeTime > 0) {
+                        self.txtTip2.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.26", TimeUtil.timeFormatStr(self.nextFreeTime, true));
+                        self.txtTip2.color = "#EE6363";
+                        self.nextFreeTime--;
+                        self.freeTimes = 0; //免费次数清零
                     }
                     else {
-                        if (that.txtTip2.visible) {
-                            that.initPrizeInfo();
+                        if (self.txtTip2.visible) {
+                            self.initPrizeInfo();
                         }
-                        that.txtTip2.visible = false;
+                        self.txtTip2.visible = false;
                     }
                     //消耗钻石
                     refreshDiamondText();
                 };
                 loopFun();
-                that.timerLoop(1000, that, loopFun);
+                self.timerLoop(1000, self, loopFun);
             }
         });
         //移除红点
         if (userData) {
             userData.removeLuckPrizeRedPoint();
         }
-        that.showMyDiamond(PlayerManager.Instance.Info.userDiamond);
-        EventsManager.Instance.on(EventsType.DIAMOND_CHANGE, that, function (_data) {
+        self.showMyDiamond(PlayerManager.Instance.Info.userDiamond);
+        EventsManager.Instance.on(EventsType.DIAMOND_CHANGE, self, function (_data) {
             if (_data && _data.diamond) {
-                that.showMyDiamond(_data.diamond);
+                self.showMyDiamond(_data.diamond);
             }
             else {
-                that.showMyDiamond(userData.diamond);
+                self.showMyDiamond(userData.diamond);
             }
         });
     };

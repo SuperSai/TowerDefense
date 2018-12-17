@@ -47,6 +47,7 @@ var ShopView = /** @class */ (function (_super) {
     //初始化
     ShopView.prototype.init = function (_kind) {
         var self = this;
+        SDKManager.Instance.showBannerAd(true);
         //按钮事件
         self.removeEvents();
         self.btnExit.on(Laya.Event.CLICK, self, self.onClickExit);
@@ -202,11 +203,11 @@ var ShopView = /** @class */ (function (_super) {
                         self.btnFreeFun && self.btnFreeFun.runWith([_carInfo, _btnObj]);
                     }, [carInfo, btnSharePrize]);
                     //观看次数已用完
-                    if (userData.getAdTimes(12) < 1 && userData.getShareTimes(11) < 1) {
+                    if (userData.getAdTimes(11) < 1 && userData.getShareTimes(11) < 1) {
                         btnSharePrize.visible = false;
                     }
                     else {
-                        if (userData.isAdStage(12)) {
+                        if (userData.isAdStage(11)) {
                             btnSharePrize.skin = "images/core/shop_free_video.png";
                         }
                         else {

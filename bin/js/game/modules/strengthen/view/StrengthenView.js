@@ -46,6 +46,7 @@ var StrengthenView = /** @class */ (function (_super) {
                 nodeView_1.once(Laya.Event.REMOVED, nodeView_1, function () {
                     StrengthenView.isOpen = false;
                     nodeView_1.removeUI();
+                    SDKManager.Instance.closeBannerAd(true);
                     _removeCallback && _removeCallback();
                 });
             }
@@ -53,27 +54,28 @@ var StrengthenView = /** @class */ (function (_super) {
     };
     //初始化
     StrengthenView.prototype.init = function (_stage) {
-        var that = this;
+        var self = this;
+        SDKManager.Instance.showBannerAd(true);
         //界面初始化
-        var imgBg = that.mainView.getChildByName("imgBg");
+        var imgBg = self.mainView.getChildByName("imgBg");
         if (imgBg) {
             var btnExit = imgBg.getChildByName("btnExit");
             if (btnExit) {
                 btnExit.offAll(Laya.Event.CLICK);
                 btnExit.on(Laya.Event.CLICK, btnExit, function () {
-                    that.removeSelf();
+                    self.removeSelf();
                 });
             }
         }
         //box
         for (var index = 0; index < 4; index++) {
-            var skillId = that.indexArray[index];
-            that.refreshBoxUI(skillId);
+            var skillId = self.indexArray[index];
+            self.refreshBoxUI(skillId);
         }
         //精华碎片刷新
-        that.setEssence(userData.essence);
-        EventsManager.Instance.on(EventsType.ESSENCE_CHANGE, that, function (_data) {
-            that.setEssence(userData.essence);
+        self.setEssence(userData.essence);
+        EventsManager.Instance.on(EventsType.ESSENCE_CHANGE, self, function (_data) {
+            self.setEssence(userData.essence);
         });
         HttpManager.Instance.requestEssenceData();
     };

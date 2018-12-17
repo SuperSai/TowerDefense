@@ -48,6 +48,7 @@ var RewardGoldView = /** @class */ (function (_super) {
     //初始化
     RewardGoldView.prototype.init = function () {
         var self = this;
+        SDKManager.Instance.showBannerAd(true);
         self.txt_share.visible = PlayerManager.Instance.Info.dayGetGoldCount != 6 && PlayerManager.Instance.Info.dayGetGoldCount != 2;
         self.advBox.visible = !self.txt_share.visible;
         self.txt_lastCount.text = "今天剩余" + PlayerManager.Instance.Info.dayGetGoldCount + "次";
@@ -91,7 +92,7 @@ var RewardGoldView = /** @class */ (function (_super) {
                 var adStage = userData.toShareAd(function () {
                     if (self._callback)
                         self._callback(self._money);
-                }, 1);
+                }, 12);
                 //没有广告就走分享
                 if (adStage > 0) {
                     MessageUtils.showMsgTips("广告看完了");

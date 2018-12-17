@@ -1,8 +1,8 @@
 {
     "x":0,
     "type":"View",
-    "selectedBox":1,
-    "selecteID":62,
+    "selectedBox":62,
+    "selecteID":78,
     "props":{"y":0,"x":0,"width":750,"sceneColor":"#000000","name":"rolledTIme","height":1092},
     "nodeParent":-1,
     "label":"View(rolledTIme)",
@@ -27,7 +27,7 @@
                 {
                     "x":30,
                     "type":"Image",
-                    "props":{"y":639,"x":371,"var":"imgBg","skin":"images/luckLottery/luck_huanpan.png","rotation":0,"name":"imgBg","anchorY":0.5,"anchorX":0.5},
+                    "props":{"y":532,"x":371,"var":"imgBg","skin":"images/luckLottery/luck_huanpan.png","rotation":0,"name":"imgBg","anchorY":0.5,"anchorX":0.5},
                     "nodeParent":62,
                     "label":"Image(imgBg)",
                     "isOpen":true,
@@ -69,7 +69,7 @@
                 {
                     "x":30,
                     "type":"Image",
-                    "props":{"y":0,"x":37,"skin":"images/luckLottery/luck_title.png"},
+                    "props":{"y":-71,"x":37,"skin":"images/luckLottery/luck_title.png"},
                     "nodeParent":62,
                     "label":"Image",
                     "isOpen":true,
@@ -84,7 +84,7 @@
                 {
                     "x":30,
                     "type":"Label",
-                    "props":{"y":998,"x":167,"width":425,"visible":false,"var":"txtTip1","text":"单词抽奖将消耗钻石x120","name":"txtTip1","height":30,"fontSize":30,"color":"#ffffff","bold":true,"align":"center"},
+                    "props":{"y":875,"x":167,"width":425,"visible":false,"var":"txtTip1","text":"单词抽奖将消耗钻石x120","name":"txtTip1","height":30,"fontSize":30,"color":"#ffffff","bold":true,"align":"center"},
                     "nodeParent":62,
                     "label":"Label(txtTip1)",
                     "isDirectory":false,
@@ -97,7 +97,7 @@
                 {
                     "x":30,
                     "type":"Label",
-                    "props":{"y":1045,"x":64,"width":621,"visible":false,"var":"txtTip2","text":"00:00之后免费抽奖一次","name":"txtTip2","height":30,"fontSize":30,"color":"#fff272","bold":true,"align":"center"},
+                    "props":{"y":919,"x":64,"width":621,"visible":false,"var":"txtTip2","text":"00:00之后免费抽奖一次","name":"txtTip2","height":30,"fontSize":30,"color":"#fff272","bold":true,"align":"center"},
                     "nodeParent":62,
                     "label":"Label(txtTip2)",
                     "isDirectory":false,
@@ -136,7 +136,7 @@
                 {
                     "x":30,
                     "type":"Button",
-                    "props":{"y":510,"x":263,"var":"btnStart","stateNum":"1","skin":"images/luckLottery/luck_go.png","name":"btnStart"},
+                    "props":{"y":394,"x":263,"var":"btnStart","stateNum":"1","skin":"images/luckLottery/luck_go.png","name":"btnStart"},
                     "nodeParent":62,
                     "label":"Button(btnStart)",
                     "isOpen":true,
@@ -189,7 +189,7 @@
                 {
                     "x":30,
                     "type":"Box",
-                    "props":{"y":199,"x":267},
+                    "props":{"y":130,"x":267},
                     "nodeParent":62,
                     "label":"Box",
                     "isOpen":true,

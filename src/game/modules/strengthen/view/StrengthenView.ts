@@ -28,6 +28,7 @@ class StrengthenView extends ui.strengthen.StrengthenViewUI {
                 nodeView.once(Laya.Event.REMOVED, nodeView, () => {
                     StrengthenView.isOpen = false;
                     nodeView.removeUI();
+                    SDKManager.Instance.closeBannerAd(true);
                     _removeCallback && _removeCallback();
                 });
             }
@@ -36,27 +37,28 @@ class StrengthenView extends ui.strengthen.StrengthenViewUI {
 
     //初始化
     private init(_stage: number): void {
-        let that = this;
+        let self = this;
+        SDKManager.Instance.showBannerAd(true);
         //界面初始化
-        let imgBg = that.mainView.getChildByName("imgBg") as Laya.Image;
+        let imgBg = self.mainView.getChildByName("imgBg") as Laya.Image;
         if (imgBg) {
             let btnExit = imgBg.getChildByName("btnExit") as Laya.Button;
             if (btnExit) {
                 btnExit.offAll(Laya.Event.CLICK);
                 btnExit.on(Laya.Event.CLICK, btnExit, () => {
-                    that.removeSelf();
+                    self.removeSelf();
                 });
             }
         }
         //box
         for (var index = 0; index < 4; index++) {
-            let skillId: number = that.indexArray[index];
-            that.refreshBoxUI(skillId);
+            let skillId: number = self.indexArray[index];
+            self.refreshBoxUI(skillId);
         }
         //精华碎片刷新
-        that.setEssence(userData.essence);
-        EventsManager.Instance.on(EventsType.ESSENCE_CHANGE, that, (_data: any) => {
-            that.setEssence(userData.essence);
+        self.setEssence(userData.essence);
+        EventsManager.Instance.on(EventsType.ESSENCE_CHANGE, self, (_data: any) => {
+            self.setEssence(userData.essence);
         });
 
         HttpManager.Instance.requestEssenceData();

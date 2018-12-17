@@ -43,15 +43,16 @@ class TaskView extends ui.task.TaskViewUI {
 
     //初始化
     private init(_isTask: boolean): void {
-        var that = this;
+        var self = this;
+        SDKManager.Instance.showBannerAd(true);
         //按钮事件
-        that.btnExit.on(Laya.Event.CLICK, that, that.onClickExit);
-        that.blankView.on(Laya.Event.CLICK, that, that.onClickExit);
+        self.btnExit.on(Laya.Event.CLICK, self, self.onClickExit);
+        self.blankView.on(Laya.Event.CLICK, self, self.onClickExit);
 
-        that._tabGroup = new TabGroup(that.tabGroup._childs);
-        that._tabGroup.on(Laya.Event.CHANGE, that, that.onTabChange);
+        self._tabGroup = new TabGroup(self.tabGroup._childs);
+        self._tabGroup.on(Laya.Event.CHANGE, self, self.onTabChange);
 
-        that._tabGroup.selectedIndex = _isTask ? QuestSubView.DAILY_QUEST : QuestSubView.INVITE_AWARD;
+        self._tabGroup.selectedIndex = _isTask ? QuestSubView.DAILY_QUEST : QuestSubView.INVITE_AWARD;
     }
     private onClickExit(): void {
         this.removeSelf();
