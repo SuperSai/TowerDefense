@@ -2,7 +2,7 @@
     "x":0,
     "type":"View",
     "selectedBox":2,
-    "selecteID":110,
+    "selecteID":109,
     "props":{"width":715,"sceneColor":"#000000","height":1014},
     "nodeParent":-1,
     "label":"View",
@@ -313,7 +313,7 @@
                         {
                             "x":45,
                             "type":"Label",
-                            "props":{"y":636,"x":68,"var":"txtItemName1","text":"希芙 Lv30:","name":"txtItemName1","fontSize":30,"color":"#9a2525","align":"left"},
+                            "props":{"y":636,"x":42,"var":"txtItemName1","text":"希芙 Lv30:","name":"txtItemName1","fontSize":30,"color":"#9a2525","align":"left"},
                             "nodeParent":2,
                             "label":"Label(txtItemName1)",
                             "isDirectory":false,

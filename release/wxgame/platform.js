@@ -364,9 +364,9 @@ class WxgamePlatform {
         // }
 
         let bannerY = 1334 * pRatio;
-        if (_param.top) {
-            bannerY = _param.top * pRatio;
-        }
+        // if (_param.top) {
+        //     bannerY = _param.top * pRatio;
+        // }
         let bannerAd = wx.createBannerAd({
             adUnitId: _param.adUnitId,
             style: {
@@ -384,7 +384,7 @@ class WxgamePlatform {
                 if (isResize == false) {
                     isResize = true;
                     // bannerAd.style.top = systemInfo.screenHeight - res.height;
-                    bannerAd.style.top = bannerY - res.height;
+                    bannerAd.style.top = bannerY - res.height + _param.top;
                 }
             });
         }

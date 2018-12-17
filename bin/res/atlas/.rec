@@ -164,6 +164,9 @@ P 678A7F87 obtained_mark.png
 P 9DAC9B01 right_link.png
 P 7BF6BEEA title.png
 D images/effect
+D images/followReward
+R 1A133A24 followReward_bg.jpg
+P A94025F7 followReward_btn.png
 D images/luckLottery
 P 043405C4 luck_go.png
 R 71914F23 luck_huanpan.png

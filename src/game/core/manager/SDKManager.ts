@@ -27,7 +27,7 @@ class SDKManager {
         self.closeBannerAd();
         let bannerAd = platform.createBannerAd({
             adUnitId: 'adunit-439fc3b5508c60cc',
-            top: (1334 + offsetY)
+            top: LayerManager.clientTop
         });
         if (bannerAd) {
             bannerAd.show();
