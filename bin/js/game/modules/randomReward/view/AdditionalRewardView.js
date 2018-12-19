@@ -16,30 +16,32 @@ var __extends = (this && this.__extends) || (function () {
 */
 var AdditionalRewardView = /** @class */ (function (_super) {
     __extends(AdditionalRewardView, _super);
-    function AdditionalRewardView() {
+    function AdditionalRewardView(data) {
         var _this = _super.call(this) || this;
+        _this._data = data;
         _this.addEvetns();
         _this.init();
         return _this;
     }
     //新建并添加到节点
-    AdditionalRewardView.Create = function (_parentNode) {
+    AdditionalRewardView.Create = function (_parentNode, data) {
         var resList = [
             { url: "res/atlas/images/randomReward.atlas", type: Laya.Loader.ATLAS }
         ];
         Laya.loader.load(resList, Handler.create(null, function () {
             if (_parentNode) {
-                var nodeView = new AdditionalRewardView();
+                var nodeView = new AdditionalRewardView(data);
                 AlignUtils.setToScreenGoldenPos(nodeView);
                 LayerManager.getInstance().subFrameLayer.addChildWithMaskCall(nodeView, nodeView.removeView);
-                nodeView.once(Laya.Event.REMOVED, nodeView, nodeView.removeView);
+                // nodeView.once(Laya.Event.REMOVED, nodeView, nodeView.removeView);
             }
         }));
     };
     //初始化
     AdditionalRewardView.prototype.init = function () {
         var self = this;
-        self.txt_count.text = RandomUtils.rangeInt(5, 20) + "";
+        self._tween = EffectUtils.objectRotate(self.imgLight);
+        self.txt_count.text = "x" + self._data.diamond;
     };
     AdditionalRewardView.prototype.addEvetns = function () {
         var self = this;
@@ -53,34 +55,19 @@ var AdditionalRewardView = /** @class */ (function (_super) {
     AdditionalRewardView.prototype.onGetReward = function () {
         var self = this;
         userData.toShareAd(function () {
-            self.requestReward(1, function (_res) {
-                if (_res) {
-                    if (_res.code === 1) {
-                        MessageUtils.showMsgTips("奖励领取成功");
-                        self.removeView();
-                    }
-                    else if (_res.code === 2) {
-                        MessageUtils.showMsgTips("领取失败！");
-                    }
-                }
+            HttpManager.Instance.requestRandomRewardDiamond(self._data.diamond, function (res) {
+                self.removeView();
+                var point = PointUtils.localToGlobal(self.btn_get);
+                M.layer.screenEffectLayer.addChild(new FlyEffect().play("diamond", point.x, point.y, 38, 73));
+                EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: userData.diamond = res.total_diamond });
+                MessageUtils.showMsgTips("获得钻石:" + self._data.diamond);
             });
-        });
-    };
-    AdditionalRewardView.prototype.requestReward = function (itemId, callback) {
-        var that = this;
-        var HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
-        HttpReqHelper.request({
-            url: 'v1/task/rewards/' + itemId,
-            success: function (res) {
-                callback && callback(res);
-            },
-            fail: function (res) {
-                console.log(res);
-            }
         });
     };
     AdditionalRewardView.prototype.removeView = function () {
         var self = this;
+        self._tween && (Laya.Tween.clear(self._tween));
+        self._tween = null;
         self.removeSelf();
         self.removeEvents();
     };

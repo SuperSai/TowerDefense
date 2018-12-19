@@ -515,7 +515,6 @@ class HttpManager {
 
     /** 分享标志 */
     public requestShareFlag(): void {
-        let that = this;
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/share/flag',
@@ -532,6 +531,47 @@ class HttpManager {
         });
     }
 
+    /** 随机钻石奖励请求 */
+    public requestShowRandomRewardDiamond(callback: Function): void {
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+        HttpReqHelper.request({
+            url: 'v1/activity/rand/diamond',
+            success: function (res) {
+                callback && callback(res);
+            },
+            fail: function (res) {
+                console.log(res);
+            }
+        });
+    }
+
+    /** 随机钻石奖励请求 */
+    public requestRandomRewardDiamond(diamond: number, callback: Function): void {
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+        HttpReqHelper.request({
+            url: 'v1/activity/rand/diamond/reward/' + diamond,
+            success: function (res) {
+                callback && callback(res);
+            },
+            fail: function (res) {
+                console.log(res);
+            }
+        });
+    }
+
+    /** 领取在线奖励 */
+    public requestGetOffLineReward(callback: Function): void {
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+        HttpReqHelper.request({
+            url: 'v1/activity/online/reward',
+            success: function (res) {
+                callback && callback(res);
+            },
+            fail: function (res) {
+                console.log(res);
+            }
+        });
+    }
 
     private static _instance: HttpManager;
     public static get Instance(): HttpManager {

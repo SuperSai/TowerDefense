@@ -50,6 +50,8 @@ class EffectUtils extends Laya.Sprite {
         //飘金币
         for (var index = 0; index < 15; index++) {
             let coinSp: Laya.Image = Laya.Pool.getItemByClass("p_coin", Laya.Image);
+            coinSp.mouseEnabled = false;
+            coinSp.mouseThrough = false;
             coinSp.graphics.clear();
             coinSp.loadImage(_imgUrl);
             coinSp.scale(1, 1);
@@ -105,6 +107,7 @@ class EffectUtils extends Laya.Sprite {
         //飘文字
         if (Math.random() < 0.6) return;
         let bloodClip: Laya.FontClip = ObjectPool.pop(Laya.FontClip, "BloodFontClip");
+        bloodClip.mouseEnabled = bloodClip.mouseThrough = false;
         bloodClip.skin = "images/blood_num.png";
         bloodClip.sheet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWSYZT";
         bloodClip.alpha = 1;

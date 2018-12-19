@@ -87,6 +87,7 @@ R 60254AD8 sheet.json
 D config/csvJson
 R A06487AE BarrierConfig.json
 R B277BDF6 BarrierReward.json
+R 0FA4EFC9 Item.json
 R 843E43E6 KindLevelConfig.json
 R FB3CB231 Monster.json
 R 015B0E33 SkillConfig.json
@@ -110,6 +111,7 @@ P EFE0D97E frame_9calce_08.png
 P 5B203EAD frame_9scale_09.png
 P 794B90EE frame_9scale_10.png
 P 634234AE frame_9scale_11.png
+P 1F6D3DFB frame_9scale_12.png
 P BDBDE042 frame_btn_small_blue.png
 P B6817D81 frame_btn_small_yellow.png
 P A5B1E251 frame_close_btn.png
@@ -135,7 +137,9 @@ P BE12F052 core_tips_icon.png
 P EFAC6458 dailySingBtn.png
 P 2B06544D diamond.png
 P AC393376 diamond_icon.png
+P 1ECAC6D4 diamond_icon_more.png
 P A1C17549 essence.png
+P 8721B77E essence_icon.png
 P DFA8EC49 fenxiang_icon.png
 P F5420F53 game_exp_pro_head.png
 R 232B38FF light_01.png
@@ -172,18 +176,19 @@ P DBD31032 friendConcur_bg.png
 P 51E39C02 friendConcur_time_bg.png
 P D1A691B6 friendConcur_title.png
 D images/hall
-P 43328219 hall_arrow.png
+P 309C3D81 hall_arrow.png
 P 139C419D hall_concurBtn.png
 P EFAC6458 hall_dailySingBtn.png
 P F2049765 hall_followBtn.png
 P 51BB37C3 hall_online_reward.png
 P DE37E78D hall_rankBtn.png
-P 3D0A950F hall_suofang_bg.png
+P B6B1E7F9 hall_suofang_bg.png
+P 87443716 reward_get_title.png
 D images/luckLottery
 P 043405C4 luck_go.png
 R 71914F23 luck_huanpan.png
 R E0670AD6 luck_huanpan_light.png
-P DE3505C6 luck_item_title.png
+R 3ACAA4E1 luck_item_title.png
 P F8378FE5 luck_price_bg.png
 P 6189DB90 luck_prize_0.png
 P 2D627445 luck_prize_2.png

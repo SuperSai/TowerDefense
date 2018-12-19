@@ -42,6 +42,7 @@ var GlobleData = /** @class */ (function (_super) {
         self._totalStepCsvList.Add(GlobleData.SkillConfigVO, SkillConfigVO);
         self._totalStepCsvList.Add(GlobleData.SkillStrengthenVO, SkillStrengthenVO);
         self._totalStepCsvList.Add(GlobleData.TrainDropVO, TrainDropVO);
+        self._totalStepCsvList.Add(GlobleData.ItemVO, ItemVO);
     };
     // 解析初始数据表
     GlobleData.prototype.initStep = function () {
@@ -153,6 +154,8 @@ var GlobleData = /** @class */ (function (_super) {
     GlobleData.SkillStrengthenVO = "SkillStrengthen_json";
     /** 训练时间掉落表 */
     GlobleData.TrainDropVO = "TrainDrop_json";
+    /** 物品表 */
+    GlobleData.ItemVO = "Item_json";
     return GlobleData;
 }(Laya.EventDispatcher));
 //# sourceMappingURL=GlobleData.js.map

@@ -698,7 +698,7 @@
                                 {
                                     "x":60,
                                     "type":"Label",
-                                    "props":{"y":57,"x":7,"width":78,"var":"txt_diamondTime","text":"05:00","strokeColor":"#8d5d2e","stroke":2,"height":26,"fontSize":26,"color":"#ffffff","align":"center"},
+                                    "props":{"y":60,"x":2,"width":86,"var":"txt_diamondTime","text":"05:00","strokeColor":"#8d5d2e","stroke":2,"height":26,"fontSize":22,"color":"#ffffff","align":"center"},
                                     "nodeParent":19,
                                     "label":"Label(txt_diamondTime)",
                                     "isDirectory":false,
@@ -1088,7 +1088,7 @@
                         {
                             "x":45,
                             "type":"Box",
-                            "props":{"y":127,"var":"menuBox","left":0},
+                            "props":{"y":127,"width":457,"var":"menuBox","left":0,"height":109},
                             "nodeParent":37,
                             "label":"Box(menuBox)",
                             "isOpen":true,
@@ -1100,7 +1100,7 @@
                                 {
                                     "x":60,
                                     "type":"Image",
-                                    "props":{"width":457,"skin":"images/hall/hall_suofang_bg.png","sizeGrid":"45,44,50,0","height":109},
+                                    "props":{"width":457,"skin":"images/hall/hall_suofang_bg.png","sizeGrid":"45,44,50,0","mouseThrough":false,"mouseEnabled":false,"height":109},
                                     "nodeParent":410,
                                     "label":"Image",
                                     "isDirectory":false,
@@ -1113,7 +1113,7 @@
                                 {
                                     "x":60,
                                     "type":"Button",
-                                    "props":{"y":52,"x":420,"var":"btn_arrow","stateNum":"1","skin":"images/hall/hall_arrow.png","scaleX":-1,"anchorY":0.5,"anchorX":0.5},
+                                    "props":{"y":54,"x":420,"var":"btn_arrow","stateNum":"1","skin":"images/hall/hall_arrow.png","scaleX":1,"anchorY":0.5,"anchorX":0.5},
                                     "nodeParent":410,
                                     "label":"Button(btn_arrow)",
                                     "isOpen":true,
@@ -1415,16 +1415,17 @@
                 {
                     "x":30,
                     "type":"Button",
-                    "props":{"y":450,"x":92,"visible":false,"var":"btnCarStore","stateNum":1,"skin":"images/box_001.png","name":"btnCarStore","labelSize":30,"anchorY":0.5,"anchorX":0.5},
+                    "props":{"y":410,"x":4,"visible":false,"var":"btnCarStore","stateNum":1,"skin":"images/box_001.png","name":"btnCarStore","labelSize":30},
                     "nodeParent":2,
                     "label":"Button(btnCarStore)",
-                    "isOpen":false,
+                    "isOpen":true,
                     "isDirectory":true,
                     "isAniNode":true,
                     "hasChild":true,
                     "compId":252,
                     "child":[
                         {
+                            "x":45,
                             "type":"Script",
                             "source":"laya/pages/ScaleAnimScript.script",
                             "props":{},

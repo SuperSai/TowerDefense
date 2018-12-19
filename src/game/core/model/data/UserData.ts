@@ -64,6 +64,8 @@ class UserData {
     public userId: number = 0; //用户id-用于分享奖励
 
     public shareAdTimes: any = {}; //分享广告可点击次数
+    /** 在线奖励剩余次数 */
+    public offlineRewardCount: number = 0;
     private shareAdStage: any = {}; //分享或广告状态
     private hasVideoAd: boolean = true; //是否有视频广告
 
@@ -73,16 +75,15 @@ class UserData {
     private showTaskRedPoint: boolean = false; //任务红点
     private showLuckPrizeRedPoint: boolean = false; //转盘红点
     private showFollowRedPoint: boolean = false; //关注奖励红点
-
+    private showFriendConcurRedPoint: boolean = false;//好友互助红点
     private isOpenShareAd: boolean = false; //打开视频分享
-
     private advert: Array<any> = []; //广告
     private diamond_acce_num: number = 0; //每日元宝加速次数
+    private shareFailedTimes: number = 0; //分享失败保底
 
     public carparkJsonRecord: string = ''; //防止提交相同数据给服务器
     public carshopJsonRecord: string = ''; //防止提交相同数据给服务器
-
-    private shareFailedTimes: number = 0; //分享失败保底
+    public menuRedPointCount: number = 0;
 
     constructor() {
         //初始化车位
@@ -434,6 +435,7 @@ class UserData {
     public removeDailySignRedPoint(): void {
         this.showDailySignRedPoint = false;
         if (EventsManager.Instance) {
+            this.menuRedPointCount--;
             EventsManager.Instance.event(EventsType.DAY_SIGN_RED_POINT, "remove");
         }
     }
@@ -493,7 +495,21 @@ class UserData {
     public removeFollowRedPoint(): void {
         this.showFollowRedPoint = false;
         if (EventsManager.Instance) {
+            this.menuRedPointCount--;
             EventsManager.Instance.event(EventsType.FOLLOW_RED_POINT, "remove");
+        }
+    }
+
+    //显示好友互助红点
+    public isShowFriendConcurRedPoint(): boolean {
+        return this.showFriendConcurRedPoint;
+    }
+    //移除好友互助红点
+    public removeFriendConcurRedPoint(): void {
+        this.showFriendConcurRedPoint = false;
+        if (EventsManager.Instance) {
+            this.menuRedPointCount--;
+            EventsManager.Instance.event(EventsType.FRIEND_CONCUR_RED_POINT, "remove");
         }
     }
 
@@ -545,16 +561,15 @@ class UserData {
             console.log("新手引导不保存");
             return;
         }
-        // let localData: any = {};
-        // ["gold", "diamond", "parkcarInfoArray", "carBuyRecordArray", "skillAdditionArray", "kingLevel", "evolutionLevel",
-        //     "carLevel", "level", "exp", "userId", "shareAdStage", "passStage", "noviceGroupId", "dayGetGoldCount"].forEach(element => {
-        //         localData[element] = that[element];
-        //     });
-        // let dataJson = JSON.stringify(localData);
-        // if (dataJson) {
-        //     let storage = window.localStorage;
-        //     storage.setItem(that.s_user, dataJson);
-        // }
+        let localData: any = {};
+        ["gold"].forEach(element => {
+            localData[element] = that[element];
+        });
+        let dataJson = JSON.stringify(localData);
+        if (dataJson) {
+            let storage = window.localStorage;
+            storage.setItem(that.s_user, dataJson);
+        }
 
         if (_upload) {
             HttpManager.Instance.requestSaveUserinfoData();
@@ -578,20 +593,20 @@ class UserData {
                 return;
             }
         }
-        // let storage = window.localStorage;
-        // let dataJson = storage.getItem(that.s_user);
-        // if (dataJson) {
-        //     let jsonObj = JSON.parse(dataJson);
-        //     if (jsonObj) {
-        //         console.log("@FREEMAN: 本地缓存 {" + that.s_user + "} 读取成功：{", jsonObj, "}");
-        //         for (let key in jsonObj) {
-        //             if (jsonObj.hasOwnProperty(key)) {
-        //                 that[key] = jsonObj[key];
-        //             }
-        //         }
-        //     }
-        //     _callback && _callback(true);
-        // } else 
+        let storage = window.localStorage;
+        let dataJson = storage.getItem(that.s_user);
+        if (dataJson) {
+            let jsonObj = JSON.parse(dataJson);
+            if (jsonObj) {
+                console.log("@FREEMAN: 本地缓存 {" + that.s_user + "} 读取成功：{", jsonObj, "}");
+                that["gold"] = jsonObj["gold"];
+                // for (let key in jsonObj) {
+                //     if (jsonObj.hasOwnProperty(key)) {
+                //         that[key] = jsonObj[key];
+                //     }
+                // }
+            }
+        }
         if (Laya.Browser.onPC) {
             //测试
             _callback && _callback(true);
@@ -976,41 +991,48 @@ class UserData {
 
     //用户基础数据
     public requestUserBaseData(_callback: any = null): void {
-        let that = this;
+        let self = this;
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/user/info',
             success: function (res) {
                 console.log("requestUserBaseData:", res);
                 if (res) {
-                    that.shareAdTimes = res.operation;
-                    PlayerManager.Instance.Info.dayGetGoldCount = that.shareAdTimes.share_no_money_num;
-                    that.showShareGiftRedPoint = res.share_reward_flag;
-                    that.showDailySignRedPoint = res.sign_flag;
-                    that.showTaskRedPoint = res.task_flag;
-                    that.showLuckPrizeRedPoint = res.roulette_flag;
-                    that.showFollowRedPoint = res.subscribe_flag;
-                    that.advert = res.advert;
-                    that.diamond_acce_num = res.diamond_acce_num;
+                    self.offlineRewardCount = res.remain_online_num;
+                    self.shareAdTimes = res.operation;
+                    PlayerManager.Instance.Info.dayGetGoldCount = self.shareAdTimes.share_no_money_num;
+                    self.showShareGiftRedPoint = res.share_reward_flag;
+                    self.showDailySignRedPoint = res.sign_flag;
+                    self.showTaskRedPoint = res.task_flag;
+                    self.showLuckPrizeRedPoint = res.roulette_flag;
+                    self.showFollowRedPoint = res.subscribe_flag;
+                    self.showFriendConcurRedPoint = res.friend_help_flag;
+                    self.advert = res.advert;
+                    self.diamond_acce_num = res.diamond_acce_num;
                     if (EventsManager.Instance) {
-                        if (that.isShowShareGiftRedPoint()) {
+                        if (self.isShowShareGiftRedPoint()) {
                             EventsManager.Instance.event(EventsType.SHARE_GIFT_RED_POINT, "show");
                         }
-                        if (that.isShowDailySignRedPoint()) {
+                        if (self.isShowDailySignRedPoint()) {
+                            self.menuRedPointCount++;
                             EventsManager.Instance.event(EventsType.DAY_SIGN_RED_POINT, "show");
                         }
-                        if (that.isShowCarShopRedPoint()) {
+                        if (self.isShowCarShopRedPoint()) {
                             EventsManager.Instance.event(EventsType.HERO_SHOP_RED_POINT, "show");
                         }
-                        if (that.isShowTaskRedPoint()) {
+                        if (self.isShowTaskRedPoint()) {
                             EventsManager.Instance.event(EventsType.TASK_RED_POINT, "show");
                         }
-                        if (that.isShowLuckPrizeRedPoint()) {
+                        if (self.isShowLuckPrizeRedPoint()) {
                             EventsManager.Instance.event(EventsType.LUCK_PRIZED_RED_POINT, "show");
                         }
-                        if (that.isShowFollowRedPoint()) {
-                            console.log("关注红点");
+                        if (self.isShowFollowRedPoint()) {
+                            self.menuRedPointCount++;
                             EventsManager.Instance.event(EventsType.FOLLOW_RED_POINT, "show");
+                        }
+                        if (self.isShowFriendConcurRedPoint()) {
+                            self.menuRedPointCount++;
+                            EventsManager.Instance.event(EventsType.FRIEND_CONCUR_RED_POINT, "show");
                         }
                         EventsManager.Instance.event(EventsType.ACCE_CHANGE, "refresh");
                     }

@@ -27,4 +27,5 @@
    <item name="images/randomReward" type="" compress="0" pack="1" quality="80" props="" picType="0" scale="0"/>
    <item name="images/randomReward/randomReward_title_01.png" type="Image" compress="0" pack="1" quality="80" props="" picType="0" scale="0"/>
    <item name="images/randomReward/randomReward_title_02.png" type="Image" compress="0" pack="1" quality="80" props="" picType="0" scale="0"/>
+   <item name="images/hall/reward_get_title.png" type="Image" compress="0" pack="1" quality="80" props="" picType="0" scale="0"/>
 </res>

@@ -42,7 +42,6 @@ var FriendConcurView = /** @class */ (function (_super) {
         self.rewardList.visible = false;
         self.rewardList.itemRender = FriendConcurItem;
         self.rewardList.vScrollBarSkin = "";
-        self.rewardList.optimizeScrollRect = true;
         self.requestReward();
     };
     FriendConcurView.prototype.addEvetns = function () {
@@ -70,15 +69,20 @@ var FriendConcurView = /** @class */ (function (_super) {
         self.rewardList.visible = true;
         var listData = data;
         listData.sort(function (pre, next) {
-            return next.status - pre.status;
+            return pre.status - next.status;
         });
+        listData.forEach(function (data, index, list) {
+            FriendConcurView.redPointNum += (data.status == 0 ? 1 : 0);
+            FriendConcurView.redPointNum += (data.p_status == 0 ? 1 : 0);
+        });
+        self.rewardList.repeatY = listData.length;
         self.rewardList.array = listData;
     };
     FriendConcurView.prototype.requestReward = function () {
         var that = this;
         var HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
-            url: 'v1/friend/help',
+            url: 'v1/activity/friend/help',
             success: function (res) {
                 that.refreshRewarList(res);
             },
@@ -92,6 +96,7 @@ var FriendConcurView = /** @class */ (function (_super) {
         self.removeSelf();
         self.removeEvents();
     };
+    FriendConcurView.redPointNum = 0;
     return FriendConcurView;
 }(ui.friendConcur.FriendConcurUI));
 //# sourceMappingURL=FriendConcurView.js.map

@@ -2,6 +2,9 @@
 * 好友互助;
 */
 class FriendConcurView extends ui.friendConcur.FriendConcurUI {
+
+    public static redPointNum = 0;
+
     constructor() {
         super();
         this.addEvetns();
@@ -29,7 +32,6 @@ class FriendConcurView extends ui.friendConcur.FriendConcurUI {
         self.rewardList.visible = false;
         self.rewardList.itemRender = FriendConcurItem;
         self.rewardList.vScrollBarSkin = "";
-        self.rewardList.optimizeScrollRect = true;
         self.requestReward();
     }
 
@@ -60,8 +62,13 @@ class FriendConcurView extends ui.friendConcur.FriendConcurUI {
         self.rewardList.visible = true;
         let listData: any[] = data;
         listData.sort((pre, next): number => {
-            return next.status - pre.status;
+            return pre.status - next.status;
         });
+        listData.forEach((data, index, list) => {
+            FriendConcurView.redPointNum += (data.status == 0 ? 1 : 0);
+            FriendConcurView.redPointNum += (data.p_status == 0 ? 1 : 0);
+        });
+        self.rewardList.repeatY = listData.length;
         self.rewardList.array = listData;
     }
 
@@ -69,7 +76,7 @@ class FriendConcurView extends ui.friendConcur.FriendConcurUI {
         let that = this;
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
-            url: 'v1/friend/help',
+            url: 'v1/activity/friend/help',
             success: function (res) {
                 that.refreshRewarList(res);
             },

@@ -45,6 +45,7 @@ var HallModel = /** @class */ (function () {
         this.stagePrizeList = [];
         /** 守卫是否可以升级 */
         this.isUpdate = false;
+        this.offlineTotalTime = 5 * 60 * 1000;
     }
     return HallModel;
 }());

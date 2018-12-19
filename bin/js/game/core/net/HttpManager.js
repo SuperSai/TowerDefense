@@ -494,7 +494,6 @@ var HttpManager = /** @class */ (function () {
     };
     /** 分享标志 */
     HttpManager.prototype.requestShareFlag = function () {
-        var that = this;
         var HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/share/flag',
@@ -504,6 +503,45 @@ var HttpManager = /** @class */ (function () {
                 if (EventsManager.Instance) {
                     EventsManager.Instance.event(EventsType.SHARE_SWITCH, res);
                 }
+            },
+            fail: function (res) {
+                console.log(res);
+            }
+        });
+    };
+    /** 随机钻石奖励请求 */
+    HttpManager.prototype.requestShowRandomRewardDiamond = function (callback) {
+        var HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+        HttpReqHelper.request({
+            url: 'v1/activity/rand/diamond',
+            success: function (res) {
+                callback && callback(res);
+            },
+            fail: function (res) {
+                console.log(res);
+            }
+        });
+    };
+    /** 随机钻石奖励请求 */
+    HttpManager.prototype.requestRandomRewardDiamond = function (diamond, callback) {
+        var HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+        HttpReqHelper.request({
+            url: 'v1/activity/rand/diamond/reward/' + diamond,
+            success: function (res) {
+                callback && callback(res);
+            },
+            fail: function (res) {
+                console.log(res);
+            }
+        });
+    };
+    /** 领取在线奖励 */
+    HttpManager.prototype.requestGetOffLineReward = function (callback) {
+        var HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+        HttpReqHelper.request({
+            url: 'v1/activity/online/reward',
+            success: function (res) {
+                callback && callback(res);
             },
             fail: function (res) {
                 console.log(res);

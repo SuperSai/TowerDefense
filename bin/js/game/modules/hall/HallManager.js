@@ -151,4 +151,9 @@ var HallManager = /** @class */ (function (_super) {
     });
     return HallManager;
 }(Laya.EventDispatcher));
+var ITEM_ID;
+(function (ITEM_ID) {
+    ITEM_ID[ITEM_ID["GOLD"] = 1] = "GOLD";
+    ITEM_ID[ITEM_ID["DIAMOND"] = 2] = "DIAMOND";
+})(ITEM_ID || (ITEM_ID = {}));
 //# sourceMappingURL=HallManager.js.map

@@ -1,0 +1,6 @@
+﻿{
+"titles":["id","type","name","bigIcon","smallIcon","moreIcon"],
+"data":[[1,1,"金币","coin_big","coin_40x40","coin_stack_01"],
+[2,2,"钻石","diamond_icon","diamond","diamond_icon_more"],
+[3,3,"精华","essence_icon","essence","essence_icon"]]
+}

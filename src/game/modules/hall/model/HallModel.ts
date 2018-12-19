@@ -45,6 +45,8 @@ class HallModel {
     /** 守卫是否可以升级 */
     public isUpdate: boolean = false;
 
+    public offlineTotalTime: number = 5 * 60 * 1000;
+
     constructor() {
 
     }

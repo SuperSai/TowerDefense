@@ -242,6 +242,12 @@ class HallScene extends ui.hall.HallSceneUI {
       if (userData.isShowFollowRedPoint()) {
         self.showFollowRewardRedPoint();
       }
+      //好友互助红点
+      if (userData.isShowFriendConcurRedPoint()) {
+        self.showFriendConcurRedPoint();
+      }
+      self.menuRedPointIsShow();
+      self.updateDiamondTime(HallManager.Instance.hallData.offlineTotalTime);
     }
   }
 
@@ -264,6 +270,7 @@ class HallScene extends ui.hall.HallSceneUI {
     self.btn_ranking.on(Laya.Event.CLICK, self, self.onRanking);//排行榜
     self.btn_sign.on(Laya.Event.CLICK, self, self.showDaySignView);//签到
     self.btn_follow.on(Laya.Event.CLICK, self, self.onClickFollow);//关注
+    self.btn_online.on(Laya.Event.CLICK, self, self.onGetOffLineReward);//在线奖励
     this.btnMore.on(Laya.Event.CLICK, this, () => {
       M.more.show();
     });
@@ -282,6 +289,7 @@ class HallScene extends ui.hall.HallSceneUI {
     EventsManager.Instance.on(EventsType.LUCK_PRIZE, self, self.onUpdatePrizeState);//更新幸运抽奖状态
     EventsManager.Instance.on(EventsType.STRENGTHEN_RED_POINT, self, self.onUpdateStrengthenRedPoint);//强化红点移除事件
     EventsManager.Instance.on(EventsType.FOLLOW_RED_POINT, self, self.onFollowRewardRedPoint);//关注红点事件
+    EventsManager.Instance.on(EventsType.FRIEND_CONCUR_RED_POINT, self, self.onFriendConcurRedPoint);//好友互助红点事件
     EventsManager.Instance.on(EventsType.UPDATE_HALL_DATA, self, self.onUpdateHallData);
   }
 
@@ -919,16 +927,23 @@ class HallScene extends ui.hall.HallSceneUI {
                           userData.synthesisCount++;
                           //随机奖励
                           if (userData.synthesisCount % 12 == 0) {
-                            if (Math.random() < 0.4) {
-                              AdditionalRewardView.Create(that);
+                            let randomNum: number = Math.random();
+                            if (randomNum < 0.4) {
+                              that.showRandomDiamondReward();
                             } else {
-                              HeroLevelView.Create(that, () => {
-                                MessageUtils.showMsgTips("升级成功！");
-                                carParkSp.setKind(nextCardId + 2, index);
-                              }, () => {
-                                MessageUtils.showMsgTips("升级失败！");
-                                carParkSp.setKind(nextCardId, index);
-                              }, nextCardId, nextCardId + 2);
+                              let upLevel: number = nextCardId + 2;
+                              let kingLevel: number = userData.isEvolution() ? userData.getKingLevel() - 30 : userData.getKingLevel();
+                              if ((currPetLv + 2) > kingLevel) {
+                                that.showRandomDiamondReward();
+                              } else {
+                                HeroLevelView.Create(that, () => {
+                                  MessageUtils.showMsgTips("升级成功！");
+                                  carParkSp.setKind(upLevel, index);
+                                }, () => {
+                                  MessageUtils.showMsgTips("升级失败！");
+                                  carParkSp.setKind(nextCardId, index);
+                                }, nextCardId, upLevel);
+                              }
                             }
                           } else {
                             carParkSp.setKind(nextCardId, index);
@@ -1005,6 +1020,14 @@ class HallScene extends ui.hall.HallSceneUI {
     }
     BattleManager.Instance.hallScene = that;
     BattleManager.Instance.startBattle();
+  }
+
+  /** 随机钻石奖励界面 */
+  private showRandomDiamondReward(): void {
+    let self = this;
+    HttpManager.Instance.requestShowRandomRewardDiamond((res) => {
+      AdditionalRewardView.Create(self, res);
+    })
   }
 
   //初始化兵营
@@ -1587,6 +1610,7 @@ class HallScene extends ui.hall.HallSceneUI {
     } else {
       self.showDailySignRedPoint(false);
     }
+    self.menuRedPointIsShow();
   }
 
   /** 更新强化红点 */
@@ -1602,12 +1626,42 @@ class HallScene extends ui.hall.HallSceneUI {
   /** 更新关注红点 */
   private onFollowRewardRedPoint($data: any): void {
     let self = this;
-    console.log("关注红点 ---- " + $data);
     if ($data == "show") {
       self.showFollowRewardRedPoint();
     } else {
       self.showFollowRewardRedPoint(false);
     }
+    self.menuRedPointIsShow();
+  }
+
+  /** 更新好友互助红点 */
+  private onFriendConcurRedPoint($data: any): void {
+    let self = this;
+    if ($data == "show") {
+      self.showFriendConcurRedPoint();
+    } else {
+      self.showFriendConcurRedPoint(false);
+    }
+    self.menuRedPointIsShow();
+  }
+
+  /** 显示好友互助红点 */
+  private showFriendConcurRedPoint(show: boolean = true): void {
+    let self = this;
+    if (self.btn_concur) {
+      let imgRedPoint = self.btn_concur.getChildByName("imgRedPoint") as Laya.Image;
+      if (imgRedPoint) {
+        imgRedPoint.visible = show;
+      }
+    }
+  }
+
+
+
+  /** 菜单红点是否显示 */
+  private menuRedPointIsShow(): void {
+    let self = this;
+    self.menuRedPoint.visible = userData.menuRedPointCount > 0;
   }
 
   /** 刷新金币 */
@@ -1690,17 +1744,17 @@ class HallScene extends ui.hall.HallSceneUI {
   private onClickMenuHandler(): void {
     let self = this;
     self.btn_arrow.mouseEnabled = false;
-    if (self.btn_arrow.scaleX == -1) {
+    if (self.btn_arrow.scaleX == 1) {
       Laya.Tween.to(self.menuBox, { left: -390 }, 350, null, Laya.Handler.create(self, () => {
         Laya.Tween.clearTween(self.menuBox);
         self.btn_arrow.mouseEnabled = true;
-        self.btn_arrow.scaleX = 1;
+        self.btn_arrow.scaleX = -1;
       }, null, true));
     } else {
       Laya.Tween.to(self.menuBox, { left: 0 }, 350, null, Laya.Handler.create(self, () => {
         Laya.Tween.clearTween(self.menuBox);
         self.btn_arrow.mouseEnabled = true;
-        self.btn_arrow.scaleX = -1;
+        self.btn_arrow.scaleX = 1;
       }, null, true));
     }
   }
@@ -1750,24 +1804,43 @@ class HallScene extends ui.hall.HallSceneUI {
     let self = this;
     self._diamondTime = time;
     self.btn_online.mouseEnabled = false;
-    if (self._diamondTime > 0) {
-      self.txt_diamondTime.text = TimeUtil.S2H(self._diamondTime, ":", false);
-      TimerManager.Instance.doTimer(1000, 0, self.onUpdateTime, self);
-    } else if (self._diamondTime <= 0) {
-      self.txt_diamondTime.text = "领取奖励";
-      self.btn_online.mouseEnabled = true;
+    self.btn_online.visible = userData.offlineRewardCount > 0;
+    if (self.btn_online.visible) {
+      if (self._diamondTime > 0) {
+        self.txt_diamondTime.text = TimeUtil.S2H(self._diamondTime, ":", false);
+        TimerManager.Instance.doTimer(1000, 0, self.onUpdateTime, self);
+      } else if (self._diamondTime <= 0) {
+        self.txt_diamondTime.text = "领取奖励";
+        self.btn_online.mouseEnabled = true;
+      }
     }
   }
 
   private onUpdateTime(): void {
     let self = this;
     if (self._diamondTime > 0) {
+      self._diamondTime -= 1000;
       self.txt_diamondTime.text = TimeUtil.S2H(self._diamondTime, ":", false);
-      self._diamondTime--;
     } else {
       TimerManager.Instance.remove(self.onUpdateTime, self);
       self.txt_diamondTime.text = "领取奖励";
       self.btn_online.mouseEnabled = true;
+    }
+  }
+
+  /** 领取在线奖励 */
+  private onGetOffLineReward(): void {
+    let self = this;
+    if (self._diamondTime < 1 && userData.offlineRewardCount > 0) {
+      HttpManager.Instance.requestGetOffLineReward((res) => {
+        RewardGetView.Create(self, () => {
+          M.layer.screenEffectLayer.addChild(new FlyEffect().play("diamond", LayerManager.mouseX, LayerManager.mouseY, 38, 83));
+          MessageUtils.showMsgTips("获得钻石：" + res.diamond);
+          EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: userData.diamond += res.diamond });
+          userData.offlineRewardCount = res.remain_online_num;
+          self.updateDiamondTime(HallManager.Instance.hallData.offlineTotalTime);
+        }, [res.diamond], [2])
+      })
     }
   }
 

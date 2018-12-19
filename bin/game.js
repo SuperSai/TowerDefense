@@ -27,7 +27,7 @@ wx.onShow(function (_param) {
     if (_param.query && _param.query.shareType == "friendConcur") {
       console.log("好友互助UID:", _param.query.userId);
       httpReq.request({
-        url: "v1/friend/click/" + _param.query.userId,
+        url: "v1/activity/friend/click/" + _param.query.userId,
         success: function (res) {
           console.log(res);
         },

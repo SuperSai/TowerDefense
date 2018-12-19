@@ -2,23 +2,28 @@
 * 额外奖励界面;
 */
 class AdditionalRewardView extends ui.randomReward.AdditionalRewardViewUI {
-    constructor() {
+
+    private _tween: Laya.Tween;
+    private _data: any;
+
+    constructor(data: any) {
         super();
+        this._data = data;
         this.addEvetns();
         this.init();
     }
 
     //新建并添加到节点
-    static Create(_parentNode: Laya.Node): void {
+    static Create(_parentNode: Laya.Node, data: any): void {
         let resList = [
             { url: "res/atlas/images/randomReward.atlas", type: Laya.Loader.ATLAS }
         ];
         Laya.loader.load(resList, Handler.create(null, () => {
             if (_parentNode) {
-                let nodeView = new AdditionalRewardView();
+                let nodeView = new AdditionalRewardView(data);
                 AlignUtils.setToScreenGoldenPos(nodeView);
                 LayerManager.getInstance().subFrameLayer.addChildWithMaskCall(nodeView, nodeView.removeView);
-                nodeView.once(Laya.Event.REMOVED, nodeView, nodeView.removeView);
+                // nodeView.once(Laya.Event.REMOVED, nodeView, nodeView.removeView);
             }
         }));
     }
@@ -26,7 +31,8 @@ class AdditionalRewardView extends ui.randomReward.AdditionalRewardViewUI {
     //初始化
     private init(): void {
         let self = this;
-        self.txt_count.text = RandomUtils.rangeInt(5, 20) + "";
+        self._tween = EffectUtils.objectRotate(self.imgLight);
+        self.txt_count.text = "x" + self._data.diamond;
     }
 
     private addEvetns(): void {
@@ -43,37 +49,20 @@ class AdditionalRewardView extends ui.randomReward.AdditionalRewardViewUI {
     private onGetReward(): void {
         let self = this;
         userData.toShareAd(() => {
-            self.requestReward(1, (_res: any) => {
-                if (_res) {
-                    if (_res.code === 1) {
-                        MessageUtils.showMsgTips("奖励领取成功");
-                        self.removeView();
-                    } else if (_res.code === 2) {
-                        MessageUtils.showMsgTips("领取失败！");
-                    }
-                }
+            HttpManager.Instance.requestRandomRewardDiamond(self._data.diamond, (res) => {
+                self.removeView();
+                let point: Laya.Point = PointUtils.localToGlobal(self.btn_get)
+                M.layer.screenEffectLayer.addChild(new FlyEffect().play("diamond", point.x, point.y, 38, 73));
+                EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: userData.diamond = res.total_diamond });
+                MessageUtils.showMsgTips("获得钻石:" + self._data.diamond);
             });
         })
     }
 
-    public requestReward(itemId: number, callback: any): void {
-        let that = this;
-        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
-        HttpReqHelper.request({
-            url: 'v1/task/rewards/' + itemId,
-            success: function (res) {
-                callback && callback(res);
-            },
-            fail: function (res) {
-                console.log(res);
-            }
-        });
-    }
-
-
-
     private removeView(): void {
         let self = this;
+        self._tween && (Laya.Tween.clear(self._tween));
+        self._tween = null;
         self.removeSelf();
         self.removeEvents();
     }

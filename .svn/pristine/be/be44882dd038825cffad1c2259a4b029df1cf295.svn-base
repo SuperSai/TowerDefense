@@ -1,0 +1,68 @@
+
+class MoreView extends Laya.Component {
+    public ui: ui.more.MoreViewUI;
+
+    private _controller: MoreController;
+    private _model: MoreModel;
+
+    constructor(controller: MoreController, model: MoreModel) {
+        super();
+
+        this._controller = controller;
+        this._model = model;
+
+        this.ui = new ui.more.MoreViewUI();
+        this.updateMuteImg();
+
+        this.size(this.ui.width, this.ui.height);
+        this.addChild(this.ui);
+        AlignUtils.setToScreenGoldenPos(this);
+
+        this.initList();
+        this.addEvents();
+    }
+
+    private initList() {
+        this.ui.listMoreItem.itemRender = MoreViewListItem;
+        this.ui.listMoreItem.vScrollBarSkin = "";
+        this.ui.listMoreItem.optimizeScrollRect = true;
+
+        const len: number = this._model.itemList.length;
+        this.ui.lblNoneGameTips.visible = len <= 0;
+        this.ui.listMoreItem.visible = len > 0;
+        if (len) {
+            this.ui.listMoreItem.array = this._model.itemList;
+        }
+    }
+
+    private addEvents() {
+        this.ui.btnCustomService.on(Laya.Event.CLICK, this, this.onCustomService);
+        this.ui.btnSoundOpend.on(Laya.Event.CLICK, this, this.onSwitchMute);
+        this.ui.btnSoundClosed.on(Laya.Event.CLICK, this, this.onSwitchMute);
+        this.ui.imgClose.on(Laya.Event.CLICK, this, this.removeSelf);
+    }
+
+    private onSwitchMute() {
+        this._controller.switchMute();
+        this.updateMuteImg();
+    }
+
+    private updateMuteImg(): void {
+        this.ui.btnSoundOpend.visible = !this._model.mute;
+        this.ui.btnSoundClosed.visible = this._model.mute;
+    }
+
+    private onCustomService() {
+        platform.openCustomerService({
+            sessionFrom: "",
+            showMessageCard: false,
+            sendMessageTitle: "wellcome",
+            sendMessagePath: "",
+            sendMessageImg: "",
+            success: function (res) {
+            },
+            fail: function (res) {
+            }
+        });
+    }
+}

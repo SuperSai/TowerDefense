@@ -46,7 +46,7 @@ class DebugView extends Laya.View {
         });
 
         this.ui.btnAddGold.on(Laya.Event.CLICK, this, () => {
-            EventsManager.Instance.event(EventsType.GLOD_CHANGE, { money: userData.gold += 9000000000000 });
+            EventsManager.Instance.event(EventsType.GLOD_CHANGE, { money: userData.gold += (userData.gold * 2) + 1e100 });
         });
 
         this.ui.btnAddDiamond.on(Laya.Event.CLICK, this, () => {

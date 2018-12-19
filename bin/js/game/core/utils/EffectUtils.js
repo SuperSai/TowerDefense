@@ -62,6 +62,8 @@ var EffectUtils = /** @class */ (function (_super) {
         //飘金币
         for (var index = 0; index < 15; index++) {
             var coinSp = Laya.Pool.getItemByClass("p_coin", Laya.Image);
+            coinSp.mouseEnabled = false;
+            coinSp.mouseThrough = false;
             coinSp.graphics.clear();
             coinSp.loadImage(_imgUrl);
             coinSp.scale(1, 1);
@@ -117,6 +119,7 @@ var EffectUtils = /** @class */ (function (_super) {
         if (Math.random() < 0.6)
             return;
         var bloodClip = ObjectPool.pop(Laya.FontClip, "BloodFontClip");
+        bloodClip.mouseEnabled = bloodClip.mouseThrough = false;
         bloodClip.skin = "images/blood_num.png";
         bloodClip.sheet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWSYZT";
         bloodClip.alpha = 1;

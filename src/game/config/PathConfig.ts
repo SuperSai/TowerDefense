@@ -9,5 +9,6 @@ class PathConfig {
     public static MonsterUrl: string = PathConfig.AppResUrl + "images/anim/{0}.atlas";
     public static GameResUrl: string = "images/{0}.png";
     public static EffectUrl: string = "images/effect/{0}.atlas";
+    public static ItemUrl: string = "images/core/{0}.png";
 
 }

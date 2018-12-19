@@ -135,3 +135,8 @@ class HallManager extends Laya.EventDispatcher {
         return HallManager._instance;
     }
 }
+
+enum ITEM_ID {
+    GOLD = 1,
+    DIAMOND = 2,
+}

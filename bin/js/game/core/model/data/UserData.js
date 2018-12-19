@@ -40,6 +40,8 @@ var UserData = /** @class */ (function () {
         this.shareSwitchOpen = false; //分享开关打开
         this.userId = 0; //用户id-用于分享奖励
         this.shareAdTimes = {}; //分享广告可点击次数
+        /** 在线奖励剩余次数 */
+        this.offlineRewardCount = 0;
         this.shareAdStage = {}; //分享或广告状态
         this.hasVideoAd = true; //是否有视频广告
         this.showShareGiftRedPoint = false; //分享礼包红点
@@ -48,12 +50,14 @@ var UserData = /** @class */ (function () {
         this.showTaskRedPoint = false; //任务红点
         this.showLuckPrizeRedPoint = false; //转盘红点
         this.showFollowRedPoint = false; //关注奖励红点
+        this.showFriendConcurRedPoint = false; //好友互助红点
         this.isOpenShareAd = false; //打开视频分享
         this.advert = []; //广告
         this.diamond_acce_num = 0; //每日元宝加速次数
+        this.shareFailedTimes = 0; //分享失败保底
         this.carparkJsonRecord = ''; //防止提交相同数据给服务器
         this.carshopJsonRecord = ''; //防止提交相同数据给服务器
-        this.shareFailedTimes = 0; //分享失败保底
+        this.menuRedPointCount = 0;
         //初始化车位
         for (var index = 0; index < 20; index++) {
             this.parkcarInfoArray[index] = { id: index, carId: 0, isRunning: false };
@@ -413,6 +417,7 @@ var UserData = /** @class */ (function () {
     UserData.prototype.removeDailySignRedPoint = function () {
         this.showDailySignRedPoint = false;
         if (EventsManager.Instance) {
+            this.menuRedPointCount--;
             EventsManager.Instance.event(EventsType.DAY_SIGN_RED_POINT, "remove");
         }
     };
@@ -468,7 +473,20 @@ var UserData = /** @class */ (function () {
     UserData.prototype.removeFollowRedPoint = function () {
         this.showFollowRedPoint = false;
         if (EventsManager.Instance) {
+            this.menuRedPointCount--;
             EventsManager.Instance.event(EventsType.FOLLOW_RED_POINT, "remove");
+        }
+    };
+    //显示好友互助红点
+    UserData.prototype.isShowFriendConcurRedPoint = function () {
+        return this.showFriendConcurRedPoint;
+    };
+    //移除好友互助红点
+    UserData.prototype.removeFriendConcurRedPoint = function () {
+        this.showFriendConcurRedPoint = false;
+        if (EventsManager.Instance) {
+            this.menuRedPointCount--;
+            EventsManager.Instance.event(EventsType.FRIEND_CONCUR_RED_POINT, "remove");
         }
     };
     //是否新手
@@ -520,16 +538,15 @@ var UserData = /** @class */ (function () {
             console.log("新手引导不保存");
             return;
         }
-        // let localData: any = {};
-        // ["gold", "diamond", "parkcarInfoArray", "carBuyRecordArray", "skillAdditionArray", "kingLevel", "evolutionLevel",
-        //     "carLevel", "level", "exp", "userId", "shareAdStage", "passStage", "noviceGroupId", "dayGetGoldCount"].forEach(element => {
-        //         localData[element] = that[element];
-        //     });
-        // let dataJson = JSON.stringify(localData);
-        // if (dataJson) {
-        //     let storage = window.localStorage;
-        //     storage.setItem(that.s_user, dataJson);
-        // }
+        var localData = {};
+        ["gold"].forEach(function (element) {
+            localData[element] = that[element];
+        });
+        var dataJson = JSON.stringify(localData);
+        if (dataJson) {
+            var storage = window.localStorage;
+            storage.setItem(that.s_user, dataJson);
+        }
         if (_upload) {
             HttpManager.Instance.requestSaveUserinfoData();
             saveOptions && saveOptions.petList && HttpManager.Instance.requestSaveCarparkData();
@@ -552,20 +569,20 @@ var UserData = /** @class */ (function () {
                 return;
             }
         }
-        // let storage = window.localStorage;
-        // let dataJson = storage.getItem(that.s_user);
-        // if (dataJson) {
-        //     let jsonObj = JSON.parse(dataJson);
-        //     if (jsonObj) {
-        //         console.log("@FREEMAN: 本地缓存 {" + that.s_user + "} 读取成功：{", jsonObj, "}");
-        //         for (let key in jsonObj) {
-        //             if (jsonObj.hasOwnProperty(key)) {
-        //                 that[key] = jsonObj[key];
-        //             }
-        //         }
-        //     }
-        //     _callback && _callback(true);
-        // } else 
+        var storage = window.localStorage;
+        var dataJson = storage.getItem(that.s_user);
+        if (dataJson) {
+            var jsonObj = JSON.parse(dataJson);
+            if (jsonObj) {
+                console.log("@FREEMAN: 本地缓存 {" + that.s_user + "} 读取成功：{", jsonObj, "}");
+                that["gold"] = jsonObj["gold"];
+                // for (let key in jsonObj) {
+                //     if (jsonObj.hasOwnProperty(key)) {
+                //         that[key] = jsonObj[key];
+                //     }
+                // }
+            }
+        }
         if (Laya.Browser.onPC) {
             //测试
             _callback && _callback(true);
@@ -949,41 +966,48 @@ var UserData = /** @class */ (function () {
     //用户基础数据
     UserData.prototype.requestUserBaseData = function (_callback) {
         if (_callback === void 0) { _callback = null; }
-        var that = this;
+        var self = this;
         var HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/user/info',
             success: function (res) {
                 console.log("requestUserBaseData:", res);
                 if (res) {
-                    that.shareAdTimes = res.operation;
-                    PlayerManager.Instance.Info.dayGetGoldCount = that.shareAdTimes.share_no_money_num;
-                    that.showShareGiftRedPoint = res.share_reward_flag;
-                    that.showDailySignRedPoint = res.sign_flag;
-                    that.showTaskRedPoint = res.task_flag;
-                    that.showLuckPrizeRedPoint = res.roulette_flag;
-                    that.showFollowRedPoint = res.subscribe_flag;
-                    that.advert = res.advert;
-                    that.diamond_acce_num = res.diamond_acce_num;
+                    self.offlineRewardCount = res.remain_online_num;
+                    self.shareAdTimes = res.operation;
+                    PlayerManager.Instance.Info.dayGetGoldCount = self.shareAdTimes.share_no_money_num;
+                    self.showShareGiftRedPoint = res.share_reward_flag;
+                    self.showDailySignRedPoint = res.sign_flag;
+                    self.showTaskRedPoint = res.task_flag;
+                    self.showLuckPrizeRedPoint = res.roulette_flag;
+                    self.showFollowRedPoint = res.subscribe_flag;
+                    self.showFriendConcurRedPoint = res.friend_help_flag;
+                    self.advert = res.advert;
+                    self.diamond_acce_num = res.diamond_acce_num;
                     if (EventsManager.Instance) {
-                        if (that.isShowShareGiftRedPoint()) {
+                        if (self.isShowShareGiftRedPoint()) {
                             EventsManager.Instance.event(EventsType.SHARE_GIFT_RED_POINT, "show");
                         }
-                        if (that.isShowDailySignRedPoint()) {
+                        if (self.isShowDailySignRedPoint()) {
+                            self.menuRedPointCount++;
                             EventsManager.Instance.event(EventsType.DAY_SIGN_RED_POINT, "show");
                         }
-                        if (that.isShowCarShopRedPoint()) {
+                        if (self.isShowCarShopRedPoint()) {
                             EventsManager.Instance.event(EventsType.HERO_SHOP_RED_POINT, "show");
                         }
-                        if (that.isShowTaskRedPoint()) {
+                        if (self.isShowTaskRedPoint()) {
                             EventsManager.Instance.event(EventsType.TASK_RED_POINT, "show");
                         }
-                        if (that.isShowLuckPrizeRedPoint()) {
+                        if (self.isShowLuckPrizeRedPoint()) {
                             EventsManager.Instance.event(EventsType.LUCK_PRIZED_RED_POINT, "show");
                         }
-                        if (that.isShowFollowRedPoint()) {
-                            console.log("关注红点");
+                        if (self.isShowFollowRedPoint()) {
+                            self.menuRedPointCount++;
                             EventsManager.Instance.event(EventsType.FOLLOW_RED_POINT, "show");
+                        }
+                        if (self.isShowFriendConcurRedPoint()) {
+                            self.menuRedPointCount++;
+                            EventsManager.Instance.event(EventsType.FRIEND_CONCUR_RED_POINT, "show");
                         }
                         EventsManager.Instance.event(EventsType.ACCE_CHANGE, "refresh");
                     }

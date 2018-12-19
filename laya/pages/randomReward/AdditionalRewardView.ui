@@ -109,16 +109,17 @@
                 {
                     "x":30,
                     "type":"Button",
-                    "props":{"y":492,"x":129,"var":"btn_get","stateNum":"1","skin":"images/component/yellow_btn.png","labelStrokeColor":"#946430","labelStroke":2,"labelSize":40,"labelColors":"#FFFFFF,#FFFFFF,#FFFFFF,#FFFFFF","labelBold":true,"label":"领取"},
+                    "props":{"y":492,"x":129,"var":"btn_get","stateNum":"1","skin":"images/component/yellow_btn.png","labelStrokeColor":"#946430","labelStroke":2,"labelSize":40,"labelPadding":"0,0,0,-30","labelColors":"#FFFFFF,#FFFFFF,#FFFFFF,#FFFFFF","labelBold":true,"label":"领取"},
                     "nodeParent":5,
                     "label":"Button(btn_get)",
-                    "isOpen":false,
+                    "isOpen":true,
                     "isDirectory":true,
                     "isAniNode":true,
                     "hasChild":true,
                     "compId":3,
                     "child":[
                         {
+                            "x":45,
                             "type":"Script",
                             "source":"laya/pages/ScaleAnimScript.script",
                             "props":{},
@@ -128,6 +129,19 @@
                             "isAniNode":true,
                             "hasChild":false,
                             "compId":4,
+                            "child":[
+                                ]
+                        },
+                        {
+                            "x":45,
+                            "type":"Image",
+                            "props":{"y":33,"x":186,"skin":"images/randomReward/randomReward_share.png"},
+                            "nodeParent":3,
+                            "label":"Image",
+                            "isDirectory":false,
+                            "isAniNode":true,
+                            "hasChild":false,
+                            "compId":11,
                             "child":[
                                 ]
                         }],

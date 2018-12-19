@@ -1,0 +1,68 @@
+/*
+* 奖励领取界面;
+*/
+class RewardGetView extends ui.common.view.RewardGetViewUI {
+
+    private _values: any[];
+    private _items: any[] = [1, 2];
+    private _tween: Laya.Tween;
+
+    constructor(values: any[], items: any[]) {
+        super();
+        this._values = values;
+        this._items = items;
+        this.init();
+    }
+
+    //新建并添加到节点
+    static Create(_parentNode: Laya.Node, callback: any = null, values: any[], items: any[] = [1, 2]): void {
+        let resList = [
+            { url: "res/atlas/images.atlas", type: Laya.Loader.ATLAS }
+        ];
+        Laya.loader.load(resList, Handler.create(null, () => {
+            if (_parentNode) {
+                let nodeView = new RewardGetView(values, items);
+                AlignUtils.setToScreenGoldenPos(nodeView);
+                LayerManager.getInstance().subFrameLayer.addChildWithMaskCall(nodeView, nodeView.removeSelf);
+                nodeView.once(Laya.Event.REMOVED, nodeView, () => {
+                    callback && callback();
+                    nodeView.removeView();
+                });
+            }
+        }));
+    }
+
+    //初始化
+    private init(): void {
+        let self = this;
+        self._tween = EffectUtils.objectRotate(self.imgLight);
+        for (let index = 0, len: number = this._values.length; index < len; index++) {
+            let price = this._values[index];
+            let itemInfo: ItemVO = GlobleData.getData(GlobleData.ItemVO, self._items[index]);
+            let rewardItem: RewardItem = ObjectPool.pop(RewardItem, "RewardItem");
+            let url = PathConfig.ItemUrl.replace("{0}", itemInfo.bigIcon);
+            rewardItem.create(url, price);
+            self.hbox.addChild(rewardItem);
+        }
+        self.hbox.refresh();
+        self.addEvents();
+    }
+
+    private addEvents(): void {
+        let self = this;
+        self.btn_get.on(Laya.Event.CLICK, self, self.removeSelf);
+    }
+
+    private removeEvents(): void {
+        let self = this;
+        self.btn_get.off(Laya.Event.CLICK, self, self.removeSelf);
+    }
+
+    private removeView(): void {
+        let self = this;
+        self._tween && (Laya.Tween.clear(self._tween));
+        self._tween = null;
+        self.removeSelf();
+        self.removeEvents();
+    }
+}

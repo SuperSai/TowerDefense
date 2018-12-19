@@ -10,6 +10,7 @@ var PathConfig = /** @class */ (function () {
     PathConfig.MonsterUrl = PathConfig.AppResUrl + "images/anim/{0}.atlas";
     PathConfig.GameResUrl = "images/{0}.png";
     PathConfig.EffectUrl = "images/effect/{0}.atlas";
+    PathConfig.ItemUrl = "images/core/{0}.png";
     return PathConfig;
 }());
 //# sourceMappingURL=PathConfig.js.map

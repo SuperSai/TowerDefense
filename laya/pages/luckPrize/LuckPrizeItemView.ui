@@ -1,7 +1,8 @@
 {
     "x":0,
     "type":"View",
-    "selectedBox":1,
+    "selectedBox":19,
+    "selecteID":13,
     "props":{"width":600,"sceneColor":"#000000","height":400},
     "nodeParent":-1,
     "label":"View",
@@ -40,7 +41,7 @@
                 {
                     "x":30,
                     "type":"Button",
-                    "props":{"y":-182,"x":610,"stateNum":"1","skin":"images/component/frame_close_btn.png","name":"btnExit"},
+                    "props":{"y":-171,"x":596,"stateNum":"1","skin":"images/component/frame_close_btn.png","name":"btnExit"},
                     "nodeParent":19,
                     "label":"Button(btnExit)",
                     "isOpen":false,
@@ -66,7 +67,7 @@
                 {
                     "x":30,
                     "type":"Image",
-                    "props":{"y":-195,"x":234,"skin":"images/luckLottery/luck_item_title.png"},
+                    "props":{"y":-147,"x":84,"skin":"images/luckLottery/luck_item_title.png"},
                     "nodeParent":19,
                     "label":"Image",
                     "isOpen":true,
@@ -81,7 +82,7 @@
                 {
                     "x":30,
                     "type":"Image",
-                    "props":{"y":187,"x":374,"skin":"images/component/frame_9calce_03.png","name":"imgItemBg","anchorY":0.5,"anchorX":0.5},
+                    "props":{"y":209,"x":374,"skin":"images/component/frame_9calce_03.png","name":"imgItemBg","anchorY":0.5,"anchorX":0.5},
                     "nodeParent":19,
                     "label":"Image(imgItemBg)",
                     "isDirectory":false,
@@ -95,7 +96,7 @@
                 {
                     "x":30,
                     "type":"Image",
-                    "props":{"y":188,"x":374,"visible":false,"skin":"images/luckLottery/luck_prize_3.png","name":"imgItem","anchorY":0.5,"anchorX":0.5},
+                    "props":{"y":210,"x":374,"visible":false,"skin":"images/luckLottery/luck_prize_3.png","name":"imgItem","anchorY":0.5,"anchorX":0.5},
                     "nodeParent":19,
                     "label":"Image(imgItem)",
                     "isDirectory":false,
@@ -108,7 +109,7 @@
                 {
                     "x":30,
                     "type":"Label",
-                    "props":{"y":445,"x":124,"width":500,"text":"先知球x1","name":"txtItemName","fontSize":50,"color":"#ffffff","bold":true,"align":"center"},
+                    "props":{"y":445,"x":89,"width":578,"text":"先知球x1","strokeColor":"#946430","stroke":2,"name":"txtItemName","height":50,"fontSize":50,"color":"#ffebbc","bold":true,"align":"center"},
                     "nodeParent":19,
                     "label":"Label(txtItemName)",
                     "isDirectory":false,

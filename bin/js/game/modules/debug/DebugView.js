@@ -44,7 +44,7 @@ var DebugView = /** @class */ (function (_super) {
             DebugView.GameView.setKingLevel(1);
         });
         _this.ui.btnAddGold.on(Laya.Event.CLICK, _this, function () {
-            EventsManager.Instance.event(EventsType.GLOD_CHANGE, { money: userData.gold += 9000000000000 });
+            EventsManager.Instance.event(EventsType.GLOD_CHANGE, { money: userData.gold += (userData.gold * 2) + 1e100 });
         });
         _this.ui.btnAddDiamond.on(Laya.Event.CLICK, _this, function () {
             EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: userData.diamond += 1000 });
