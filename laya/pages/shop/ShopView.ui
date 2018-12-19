@@ -1,8 +1,8 @@
 {
     "x":0,
     "type":"View",
-    "selectedBox":135,
-    "selecteID":252,
+    "selectedBox":106,
+    "selecteID":379,
     "props":{"y":0,"x":0,"width":726,"sceneColor":"#000000","height":1030},
     "nodeParent":-1,
     "label":"View",
@@ -39,7 +39,7 @@
                         {
                             "x":45,
                             "type":"Image",
-                            "props":{"y":26,"x":256,"skin":"images/shop/shop_title_icon.png"},
+                            "props":{"y":26,"x":301,"skin":"images/shop/shop_title_icon.png"},
                             "nodeParent":106,
                             "label":"Image",
                             "isOpen":false,
@@ -520,7 +520,7 @@
                         {
                             "x":45,
                             "type":"Label",
-                            "props":{"y":1016,"x":270,"text":"点击空白处关闭","name":"txtExit","fontSize":30,"color":"#ffffff"},
+                            "props":{"y":1016,"x":251,"text":"点击空白处关闭","name":"txtExit","fontSize":30,"color":"#ffffff"},
                             "nodeParent":106,
                             "label":"Label(txtExit)",
                             "isDirectory":false,

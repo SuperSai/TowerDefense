@@ -39,7 +39,6 @@ class MoreView extends Laya.Component {
         this.ui.btnCustomService.on(Laya.Event.CLICK, this, this.onCustomService);
         this.ui.btnSoundOpend.on(Laya.Event.CLICK, this, this.onSwitchMute);
         this.ui.btnSoundClosed.on(Laya.Event.CLICK, this, this.onSwitchMute);
-        this.ui.imgSubscribe.on(Laya.Event.CLICK, this, this.onSubscribe);
         this.ui.imgClose.on(Laya.Event.CLICK, this, this.removeSelf);
     }
 
@@ -64,12 +63,6 @@ class MoreView extends Laya.Component {
             },
             fail: function (res) {
             }
-        });
-    }
-
-    /** 关注奖励 */
-    private onSubscribe() {
-        FollowRewardView.Create(this, () => {
         });
     }
 }

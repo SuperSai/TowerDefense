@@ -165,8 +165,20 @@ P 9DAC9B01 right_link.png
 P 7BF6BEEA title.png
 D images/effect
 D images/followReward
-R 1A133A24 followReward_bg.jpg
+P 1A133A24 followReward_bg.jpg
 P A94025F7 followReward_btn.png
+D images/friendConcur
+P DBD31032 friendConcur_bg.png
+P 51E39C02 friendConcur_time_bg.png
+P D1A691B6 friendConcur_title.png
+D images/hall
+P 43328219 hall_arrow.png
+P 139C419D hall_concurBtn.png
+P EFAC6458 hall_dailySingBtn.png
+P F2049765 hall_followBtn.png
+P 51BB37C3 hall_online_reward.png
+P DE37E78D hall_rankBtn.png
+P 3D0A950F hall_suofang_bg.png
 D images/luckLottery
 P 043405C4 luck_go.png
 R 71914F23 luck_huanpan.png
@@ -205,6 +217,11 @@ P 10F98E01 reward_bg.png
 P B93E802F selected_btn.png
 P 7EDB17DF tab.png
 P AC9933B2 title.png
+D images/randomReward
+P 17CBF9FA randomReward_arrow.png
+P 724BA31E randomReward_share.png
+P D1C05EA6 randomReward_title_01.png
+P ADB97E48 randomReward_title_02.png
 D images/ranking
 D images/rewardGold
 P E6D682DB rewardGold_title.png
@@ -216,7 +233,7 @@ P 921044F3 shop_bg_04.png
 P 48524E10 shop_btn_03.png
 P 69893E48 shop_item_bg.png
 P 91690D8C shop_skill_btn.png
-P EC1B1111 shop_title_icon.png
+P 6D46D7B5 shop_title_icon.png
 D images/skyDrop
 R 6446466B title.png
 D images/stageSummary

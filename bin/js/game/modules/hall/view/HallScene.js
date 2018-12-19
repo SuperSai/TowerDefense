@@ -23,6 +23,8 @@ var HallScene = /** @class */ (function (_super) {
         _this.imgCarNumTimeLine = null; //兵营满席动画
         _this._giveCarTime = 0; //定时赠送怪物
         _this._giveTempTime = 0; //定时赠送怪物
+        /** 更新在线奖励时间 */
+        _this._diamondTime = 0;
         var self = _this;
         self.frameOnce(5, self, function () {
             self.addEvents();
@@ -35,6 +37,7 @@ var HallScene = /** @class */ (function (_super) {
         var resList = [
             { url: "res/atlas/images.atlas", type: Laya.Loader.ATLAS },
             { url: "res/atlas/images/component.atlas", type: Laya.Loader.ATLAS },
+            { url: "res/atlas/images/hall.atlas", type: Laya.Loader.ATLAS },
             { url: "res/atlas/images/core.atlas", type: Laya.Loader.ATLAS },
             { url: "res/atlas/images/novice.atlas", type: Laya.Loader.ATLAS },
             { url: "sheets/sheet.json", type: Laya.Loader.JSON }
@@ -245,11 +248,14 @@ var HallScene = /** @class */ (function (_super) {
             if (userData.isShowLuckPrizeRedPoint()) {
                 self.showLuckPrizeRedPoint();
             }
+            //关注红点
+            if (userData.isShowFollowRedPoint()) {
+                self.showFollowRewardRedPoint();
+            }
         }
     };
     HallScene.prototype.addEvents = function () {
         var self = this;
-        self.btnRanking.on(Laya.Event.CLICK, self, self.onRanking);
         self.btnPower.on(Laya.Event.CLICK, self, self.onPowerAcce);
         self.btnShop.on(Laya.Event.CLICK, self, self.onShowCarport);
         self.btnCarStore.on(Laya.Event.CLICK, self, self.onCarStore);
@@ -258,11 +264,15 @@ var HallScene = /** @class */ (function (_super) {
         self.btnStrengthen.on(Laya.Event.CLICK, self, self.onStrengthen);
         self.btnStagePrize.on(Laya.Event.CLICK, self, self.onStagePrize);
         self.btnMiniProgram.on(Laya.Event.CLICK, self, self.onMiniProgram);
-        self.btnDailyPrize.on(Laya.Event.CLICK, self, self.showDaySignView);
         self.btnLuckPrize.on(Laya.Event.CLICK, self, self.showLuckPrizeView);
         self.btn_fly.on(Laya.Event.CLICK, self, self.onClickMiniProgram);
         self.btn_block.on(Laya.Event.CLICK, self, self.onClickMiniProgram);
         self.btn_eliminate.on(Laya.Event.CLICK, self, self.onClickMiniProgram);
+        self.btn_arrow.on(Laya.Event.CLICK, self, self.onClickMenuHandler);
+        self.btn_concur.on(Laya.Event.CLICK, self, self.onClickConcur); //好友互助 
+        self.btn_ranking.on(Laya.Event.CLICK, self, self.onRanking); //排行榜
+        self.btn_sign.on(Laya.Event.CLICK, self, self.showDaySignView); //签到
+        self.btn_follow.on(Laya.Event.CLICK, self, self.onClickFollow); //关注
         this.btnMore.on(Laya.Event.CLICK, this, function () {
             M.more.show();
         });
@@ -282,6 +292,7 @@ var HallScene = /** @class */ (function (_super) {
         EventsManager.Instance.on(EventsType.ACCE_CHANGE, self, self.onUpdateAccelerateBtnState); //加速按钮状态
         EventsManager.Instance.on(EventsType.LUCK_PRIZE, self, self.onUpdatePrizeState); //更新幸运抽奖状态
         EventsManager.Instance.on(EventsType.STRENGTHEN_RED_POINT, self, self.onUpdateStrengthenRedPoint); //强化红点移除事件
+        EventsManager.Instance.on(EventsType.FOLLOW_RED_POINT, self, self.onFollowRewardRedPoint); //关注红点事件
         EventsManager.Instance.on(EventsType.UPDATE_HALL_DATA, self, self.onUpdateHallData);
     };
     HallScene.prototype.onClickMiniProgram = function (evt) {
@@ -426,13 +437,6 @@ var HallScene = /** @class */ (function (_super) {
                 }
             }
         }
-    };
-    //排行
-    HallScene.prototype.onRanking = function () {
-        var self = this;
-        RankingView.Create(function () {
-            self.showSurpassView();
-        });
     };
     HallScene.prototype.onFriendRanking = function () {
         var that = this;
@@ -706,14 +710,14 @@ var HallScene = /** @class */ (function (_super) {
         }, 11, false, true);
     };
     HallScene.prototype.onShowCarport = function () {
-        var that = this;
-        ShopView.Create(that, function (_nodeView) {
+        var self = this;
+        ShopView.Create(self, function (_nodeView) {
             if (_nodeView) {
                 _nodeView.name = "nodeShopView";
-                _nodeView.btnBuyFun = Laya.Handler.create(that, that.onBuyPet, null, false);
-                _nodeView.btnFreeFun = Laya.Handler.create(that, that.onShareFreeCar, null, false);
-                _nodeView.btnDiamondFun = Laya.Handler.create(that, that.onDiamondBuy, null, false);
-                _nodeView.evolutionFun = Laya.Handler.create(that, that.onEvolutionShop, null, false);
+                _nodeView.btnBuyFun = Laya.Handler.create(self, self.onBuyPet, null, false);
+                _nodeView.btnFreeFun = Laya.Handler.create(self, self.onShareFreeCar, null, false);
+                _nodeView.btnDiamondFun = Laya.Handler.create(self, self.onDiamondBuy, null, false);
+                _nodeView.evolutionFun = Laya.Handler.create(self, self.onEvolutionShop, null, false);
                 _nodeView.refreshMoney(PlayerManager.Instance.Info.userMoney, PlayerManager.Instance.Info.userDiamond);
             }
         }, function () {
@@ -803,8 +807,8 @@ var HallScene = /** @class */ (function (_super) {
     HallScene.prototype.showDailySignRedPoint = function (_show) {
         if (_show === void 0) { _show = true; }
         var that = this;
-        if (that.btnDailyPrize) {
-            var imgRedPoint = that.btnDailyPrize.getChildByName("imgRedPoint");
+        if (that.btn_sign) {
+            var imgRedPoint = that.btn_sign.getChildByName("imgRedPoint");
             if (imgRedPoint) {
                 imgRedPoint.visible = _show;
             }
@@ -815,6 +819,17 @@ var HallScene = /** @class */ (function (_super) {
         if (show === void 0) { show = true; }
         var self = this;
         self.strengthenRedPoint.visible = show;
+    };
+    /** 显示关注奖励红点 */
+    HallScene.prototype.showFollowRewardRedPoint = function (show) {
+        if (show === void 0) { show = true; }
+        var self = this;
+        if (self.btn_follow) {
+            var imgRedPoint = self.btn_follow.getChildByName("imgRedPoint");
+            if (imgRedPoint) {
+                imgRedPoint.visible = show;
+            }
+        }
     };
     //显示任务红点
     HallScene.prototype.showTaskRedPoint = function (_show) {
@@ -909,13 +924,13 @@ var HallScene = /** @class */ (function (_super) {
                         that.curMonsterSprite.setStage(1);
                         //判断是否合并或交换位置
                         if (that.carparkList) {
-                            for (var index = 0; index < HallManager.Instance.hallData.parkMonsterCount; index++) {
-                                var element = that.carparkList.getCell(index);
+                            var _loop_3 = function () {
+                                element = that.carparkList.getCell(index);
                                 if (element) {
-                                    var carParkSp = element.getChildByName("car");
-                                    if (carParkSp && ObjectUtils.isHit(carParkSp) && carParkSp != that.curMonsterSprite) {
-                                        if (!carParkSp.isBox() && !carParkSp.isLock()) {
-                                            var carId = carParkSp.monsterId;
+                                    var carParkSp_1 = element.getChildByName("car");
+                                    if (carParkSp_1 && ObjectUtils.isHit(carParkSp_1) && carParkSp_1 != that.curMonsterSprite) {
+                                        if (!carParkSp_1.isBox() && !carParkSp_1.isLock()) {
+                                            var carId = carParkSp_1.monsterId;
                                             var currPetLv = BattleManager.Instance.getLevel(carId);
                                             if (that.curMonsterSprite.isSameLevel(carId)) {
                                                 //合并
@@ -926,20 +941,32 @@ var HallScene = /** @class */ (function (_super) {
                                                 else {
                                                     monsterLevel = ((userData.getKingLevel() - 1) % 30) + 1;
                                                 }
-                                                if (carParkSp.isMaxLevel()) {
+                                                if (carParkSp_1.isMaxLevel()) {
                                                     MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.06"));
                                                 }
                                                 else if (currPetLv >= monsterLevel) {
                                                     MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.08"));
                                                 }
                                                 else {
-                                                    var nextCardId = carId + 1;
-                                                    if (carParkSp.isRunning()) {
-                                                        carParkSp.setKind(nextCardId, index);
-                                                        carParkSp.setStage(2);
+                                                    var nextCardId_1 = carId + 1;
+                                                    userData.synthesisCount++;
+                                                    //随机奖励
+                                                    if (userData.synthesisCount % 12 == 0) {
+                                                        if (Math.random() < 0.4) {
+                                                            AdditionalRewardView.Create(that);
+                                                        }
+                                                        else {
+                                                            HeroLevelView.Create(that, function () {
+                                                                MessageUtils.showMsgTips("升级成功！");
+                                                                carParkSp_1.setKind(nextCardId_1 + 2, index);
+                                                            }, function () {
+                                                                MessageUtils.showMsgTips("升级失败！");
+                                                                carParkSp_1.setKind(nextCardId_1, index);
+                                                            }, nextCardId_1, nextCardId_1 + 2);
+                                                        }
                                                     }
                                                     else {
-                                                        carParkSp.setKind(nextCardId, index);
+                                                        carParkSp_1.setKind(nextCardId_1, index);
                                                     }
                                                     if (NoviceManager.cache.synthesiseComplete) {
                                                         NoviceManager.cache.synthesiseComplete();
@@ -948,9 +975,9 @@ var HallScene = /** @class */ (function (_super) {
                                                         NoviceManager.cache.checkPetSynthesisLevel(currPetLv + 1);
                                                     }
                                                     that.curMonsterSprite.clearStage();
-                                                    carParkSp.playMergeEffetc(that.mainView, carId);
+                                                    carParkSp_1.playMergeEffetc(that.mainView, carId);
                                                     //检测等级刷新
-                                                    if (userData.updateCarLevel(BattleManager.Instance.getLevel(nextCardId))) {
+                                                    if (userData.updateCarLevel(BattleManager.Instance.getLevel(nextCardId_1))) {
                                                         //显示红点
                                                         if (userData.isShowCarShopRedPoint() && userData.getCarLevel() == 6) {
                                                             that.showCarportRedPoint();
@@ -964,18 +991,18 @@ var HallScene = /** @class */ (function (_super) {
                                                     that.refreshShortcutCreateBtn();
                                                     HallManager.Instance.updateIncomePerSec(HallManager.Instance.getCalculateIncomePerSec(that.carparkList));
                                                     //本地保存
-                                                    userData.setCarparkSave(carParkSp, that.curMonsterSprite);
+                                                    userData.setCarparkSave(carParkSp_1, that.curMonsterSprite);
                                                     //任务统计
                                                     HttpManager.Instance.requestDailyTaskData(1);
                                                     //检查守卫是否可以升级
                                                     that.checkKingIsUpdate();
                                                 }
                                             }
-                                            else if (!carParkSp.isRunning() && HallManager.Instance.isGuide() == false) {
+                                            else if (!carParkSp_1.isRunning() && HallManager.Instance.isGuide() == false) {
                                                 //交换
-                                                var isEmpty = carParkSp.isEmpty();
-                                                carParkSp.setKind(that.curMonsterSprite.monsterId);
-                                                carParkSp.setStage(that.curMonsterSprite.monsterStage);
+                                                var isEmpty = carParkSp_1.isEmpty();
+                                                carParkSp_1.setKind(that.curMonsterSprite.monsterId);
+                                                carParkSp_1.setStage(that.curMonsterSprite.monsterStage);
                                                 if (isEmpty) {
                                                     that.curMonsterSprite.clearStage();
                                                 }
@@ -983,13 +1010,19 @@ var HallScene = /** @class */ (function (_super) {
                                                     that.curMonsterSprite.setKind(carId);
                                                 }
                                                 //本地保存
-                                                userData.setCarparkSave(carParkSp, that.curMonsterSprite);
+                                                userData.setCarparkSave(carParkSp_1, that.curMonsterSprite);
                                                 Laya.SoundManager.playSound("musics/drawcar.mp3");
                                             }
                                         }
-                                        break;
+                                        return "break";
                                     }
                                 }
+                            };
+                            var element;
+                            for (var index = 0; index < HallManager.Instance.hallData.parkMonsterCount; index++) {
+                                var state_2 = _loop_3();
+                                if (state_2 === "break")
+                                    break;
                             }
                         }
                     }
@@ -1183,7 +1216,6 @@ var HallScene = /** @class */ (function (_super) {
             // 8级之后：随机掉落，最小值：当前金币最高解锁的等级-7，最大值=当前最高金币可购买怪物-4。
             var boxDropCfg = GlobleData.getData(GlobleData.TrainDropVO, userData.getCarLevel());
             var randCarId = 101;
-            var curBuyIndex = 1;
             var dropId = 100;
             if (!boxDropCfg) { //先不走表的规则去掉落
                 var dropCarArray = [boxDropCfg.dropHeroLevel3, boxDropCfg.dropHeroLevel2, boxDropCfg.dropHeroLevel1];
@@ -1204,8 +1236,12 @@ var HallScene = /** @class */ (function (_super) {
                     var monsterInfo = BattleManager.Instance.getUnLockMonster(HallManager.Instance.hallData.buyMonsterType, monsterLevel);
                     randCarId = RandomUtils.rangeInt(monsterInfo.id - 6, monsterInfo.id - 4);
                 }
-                if (randCarId <= 100)
+                if (randCarId <= 100 && !userData.isEvolution()) {
                     randCarId = 101;
+                }
+                else if (randCarId <= 1000 && userData.isEvolution()) {
+                    randCarId = 1001;
+                }
                 var carParkSp = BattleManager.Instance.createPet(randCarId, true);
                 if (carParkSp) {
                     carParkSp.dropBoxEffect(self.mainView);
@@ -1289,32 +1325,6 @@ var HallScene = /** @class */ (function (_super) {
             SDKManager.Instance.closeBannerAd(true);
         }, true);
     };
-    //每日签到界面
-    HallScene.prototype.showDaySignView = function () {
-        var _this = this;
-        var that = this;
-        DaySignView.Create(Laya.Handler.create(this, function (view) {
-            if (view) {
-                view.on(DaySignView.REMOVE_FROM_STAGE, _this, function () {
-                    resolveDailyPrizeVisible();
-                });
-            }
-            resolveDailyPrizeVisible();
-            function resolveDailyPrizeVisible() {
-                if (DaySignView.signData) {
-                    that.btnDailyPrize.visible = DaySignView.signData.sign.status === 0;
-                }
-                else {
-                    that.btnDailyPrize.visible = true;
-                }
-                // if(that.btnDailyPrize.visible){
-                //     if (DaySignView.signData.sign.status) {
-                //         that.showDailySignRedPoint();
-                //     }
-                // }
-            }
-        }));
-    };
     //幸运抽奖界面
     HallScene.prototype.showLuckPrizeView = function () {
         LuckPrizeView.Create(null, function () {
@@ -1383,7 +1393,6 @@ var HallScene = /** @class */ (function (_super) {
     //本地取出怪物
     HallScene.prototype.getCarStore = function (_isRemove) {
         if (_isRemove === void 0) { _isRemove = false; }
-        var that = this;
         var storage = window.localStorage;
         var dataJson = storage.getItem(HallManager.Instance.hallData.monsterStoreKey);
         if (dataJson) {
@@ -1629,6 +1638,17 @@ var HallScene = /** @class */ (function (_super) {
             self.showStrengthenRedPoint(false);
         }
     };
+    /** 更新关注红点 */
+    HallScene.prototype.onFollowRewardRedPoint = function ($data) {
+        var self = this;
+        console.log("关注红点 ---- " + $data);
+        if ($data == "show") {
+            self.showFollowRewardRedPoint();
+        }
+        else {
+            self.showFollowRewardRedPoint(false);
+        }
+    };
     /** 刷新金币 */
     HallScene.prototype.onRefreshGold = function () {
         var self = this;
@@ -1703,6 +1723,86 @@ var HallScene = /** @class */ (function (_super) {
                 self.handlerGiveMonster();
             }
         });
+    };
+    /** 功能菜单 */
+    HallScene.prototype.onClickMenuHandler = function () {
+        var self = this;
+        self.btn_arrow.mouseEnabled = false;
+        if (self.btn_arrow.scaleX == -1) {
+            Laya.Tween.to(self.menuBox, { left: -390 }, 350, null, Laya.Handler.create(self, function () {
+                Laya.Tween.clearTween(self.menuBox);
+                self.btn_arrow.mouseEnabled = true;
+                self.btn_arrow.scaleX = 1;
+            }, null, true));
+        }
+        else {
+            Laya.Tween.to(self.menuBox, { left: 0 }, 350, null, Laya.Handler.create(self, function () {
+                Laya.Tween.clearTween(self.menuBox);
+                self.btn_arrow.mouseEnabled = true;
+                self.btn_arrow.scaleX = -1;
+            }, null, true));
+        }
+    };
+    /** 好友互助 */
+    HallScene.prototype.onClickConcur = function () {
+        FriendConcurView.Create(this);
+    };
+    /** 关注 */
+    HallScene.prototype.onClickFollow = function () {
+        FollowRewardView.Create(this, function () {
+        });
+    };
+    //每日签到界面
+    HallScene.prototype.showDaySignView = function () {
+        var _this = this;
+        var that = this;
+        DaySignView.Create(Laya.Handler.create(this, function (view) {
+            if (view) {
+                view.on(DaySignView.REMOVE_FROM_STAGE, _this, function () {
+                    resolveDailyPrizeVisible();
+                });
+            }
+            resolveDailyPrizeVisible();
+            function resolveDailyPrizeVisible() {
+                // if (DaySignView.signData) {
+                //   that.btnDailyPrize.visible = DaySignView.signData.sign.status === 0;
+                // } else {
+                //   that.btnDailyPrize.visible = true;
+                // }
+            }
+        }));
+    };
+    //排行
+    HallScene.prototype.onRanking = function () {
+        var self = this;
+        RankingView.Create(function () {
+            self.showSurpassView();
+        });
+    };
+    HallScene.prototype.updateDiamondTime = function (time) {
+        var self = this;
+        self._diamondTime = time;
+        self.btn_online.mouseEnabled = false;
+        if (self._diamondTime > 0) {
+            self.txt_diamondTime.text = TimeUtil.S2H(self._diamondTime, ":", false);
+            TimerManager.Instance.doTimer(1000, 0, self.onUpdateTime, self);
+        }
+        else if (self._diamondTime <= 0) {
+            self.txt_diamondTime.text = "领取奖励";
+            self.btn_online.mouseEnabled = true;
+        }
+    };
+    HallScene.prototype.onUpdateTime = function () {
+        var self = this;
+        if (self._diamondTime > 0) {
+            self.txt_diamondTime.text = TimeUtil.S2H(self._diamondTime, ":", false);
+            self._diamondTime--;
+        }
+        else {
+            TimerManager.Instance.remove(self.onUpdateTime, self);
+            self.txt_diamondTime.text = "领取奖励";
+            self.btn_online.mouseEnabled = true;
+        }
     };
     return HallScene;
 }(ui.hall.HallSceneUI));

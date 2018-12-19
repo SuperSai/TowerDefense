@@ -3245,6 +3245,8 @@ var BarrierConfigVO = /** @class */ (function () {
 var UserData = /** @class */ (function () {
     function UserData() {
         this._noviceGroupId = 1; // 新手节点
+        /** 合成次数 */
+        this.synthesisCount = 0;
         /** 金币 */
         this.gold = 2000; //拥有金币
         /** 钻石 */
@@ -3958,10 +3960,11 @@ var UserData = /** @class */ (function () {
         return this.shareSwitchOpen;
     };
     //请求分享
-    UserData.prototype.toShare = function (_callback, _isTask, _isGroupShare) {
+    UserData.prototype.toShare = function (_callback, _isTask, _isGroupShare, shareType) {
         if (_callback === void 0) { _callback = null; }
         if (_isTask === void 0) { _isTask = false; }
         if (_isGroupShare === void 0) { _isGroupShare = false; }
+        if (shareType === void 0) { shareType = "share"; }
         var that = this;
         var isTask = _isTask;
         var isGroupShare = _isGroupShare;
@@ -3976,7 +3979,7 @@ var UserData = /** @class */ (function () {
                 queryData = "userId=" + userData.userId + "&shareId=" + shareCfg.id + "&shareType=task";
             }
             else {
-                queryData = "userId=" + userData.userId + "&shareId=" + shareCfg.id + "&shareType=share";
+                queryData = "userId=" + userData.userId + "&shareId=" + shareCfg.id + "&shareType=" + shareType;
             }
             //重返游戏
             var curTime = (new Date()).getTime() / 1000;
@@ -4026,7 +4029,10 @@ var UserData = /** @class */ (function () {
         //是否优先视频广告
         if (self.getAdTimes(type) > 0) {
             SDKManager.Instance.showVideoAd(function (_res) {
+                // 用户点击了【关闭广告】按钮
+                // 小于 2.1.0 的基础库版本，res 是一个 undefined
                 if (_res && _res.isEnded || _res === undefined) {
+                    // 正常播放结束，可以下发游戏奖励
                     self.decreAdTimes(type);
                     var adKey = "ad";
                     if (type == 10) {
@@ -4050,7 +4056,20 @@ var UserData = /** @class */ (function () {
             return 0;
         }
         switch (type) {
-            case 10: {
+            case 1:
+                SDKManager.Instance.showVideoAd(function (_res) {
+                    if (_res && _res.isEnded || _res === undefined) {
+                        callback && callback();
+                        HttpManager.Instance.requestShareAdFinish("ad_other", _res);
+                    }
+                }, function () {
+                    //无视频回调
+                    self.hasVideoAd = false;
+                    self.isOpenShareAd = false;
+                    self.toShareAd(callback, 0, isTask, isGroupShare);
+                });
+                break;
+            case 10:
                 //加速
                 if (self.getShareTimes(type) < 1) {
                     return 1;
@@ -4061,8 +4080,7 @@ var UserData = /** @class */ (function () {
                     callback && callback();
                 }, isTask, isGroupShare);
                 break;
-            }
-            case 11: {
+            case 11:
                 //免费的车
                 if (self.getShareTimes(type) < 1) {
                     MessageUtils.showMsgTips("今日分享次数已用完");
@@ -4074,8 +4092,7 @@ var UserData = /** @class */ (function () {
                     callback && callback();
                 }, isTask, isGroupShare);
                 break;
-            }
-            case 12: {
+            case 12:
                 //无金币
                 if (self.getShareTimes(type) < 1) {
                     MessageUtils.showMsgTips("今日分享次数已用完");
@@ -4090,29 +4107,19 @@ var UserData = /** @class */ (function () {
                     HttpManager.Instance.requestShareAdFinish("share_no_money", _res);
                 }, isTask, isGroupShare);
                 break;
-            }
-            case 13: {
+            case 13:
                 // 天降惊喜礼包分享
                 self.toShare(function (res) {
                     callback && callback();
                     HttpManager.Instance.requestShareAdFinish("share_sky_drop", res);
                 }, isTask, isGroupShare);
                 break;
-            }
-            case 1: {
-                SDKManager.Instance.showVideoAd(function (_res) {
-                    if (_res && _res.isEnded || _res === undefined) {
-                        callback && callback();
-                        HttpManager.Instance.requestShareAdFinish("ad_other", _res);
-                    }
-                }, function () {
-                    //无视频回调
-                    self.hasVideoAd = false;
-                    self.isOpenShareAd = false;
-                    self.toShareAd(callback, 0, isTask, isGroupShare);
-                });
+            case 14: //好友互助分享
+                self.toShare(function (res) {
+                    callback && callback();
+                    HttpManager.Instance.requestShareAdFinish("share_friend_concur", res);
+                }, isTask, isGroupShare, "friendConcur");
                 break;
-            }
             //分享无限次数
             default: {
                 self.toShare(function (_res) {
@@ -4195,7 +4202,7 @@ var UserData = /** @class */ (function () {
                     that.showDailySignRedPoint = res.sign_flag;
                     that.showTaskRedPoint = res.task_flag;
                     that.showLuckPrizeRedPoint = res.roulette_flag;
-                    that.showFollowRedPoint = res.follow_flag;
+                    that.showFollowRedPoint = res.subscribe_flag;
                     that.advert = res.advert;
                     that.diamond_acce_num = res.diamond_acce_num;
                     if (EventsManager.Instance) {
@@ -4215,6 +4222,7 @@ var UserData = /** @class */ (function () {
                             EventsManager.Instance.event(EventsType.LUCK_PRIZED_RED_POINT, "show");
                         }
                         if (that.isShowFollowRedPoint()) {
+                            console.log("关注红点");
                             EventsManager.Instance.event(EventsType.FOLLOW_RED_POINT, "show");
                         }
                         EventsManager.Instance.event(EventsType.ACCE_CHANGE, "refresh");
@@ -4562,16 +4570,8 @@ var SDKManager = /** @class */ (function () {
             self._videoAd = videoAd;
             videoAd.load().then(function () { return videoAd.show(); });
             var closeCallback_1 = function (res) {
-                // 用户点击了【关闭广告】按钮
-                // 小于 2.1.0 的基础库版本，res 是一个 undefined
-                if (res && res.isEnded || res === undefined) {
-                    // 正常播放结束，可以下发游戏奖励
-                    callback && callback(res);
-                }
-                else {
-                    // 播放中途退出，不下发游戏奖励
-                    videoAd.offClose(closeCallback_1);
-                }
+                callback && callback(res);
+                videoAd.offClose(closeCallback_1);
                 self._isForbidBannerAd = false;
                 self._videoAd = null;
             };
@@ -4882,6 +4882,8 @@ var EventsType = /** @class */ (function () {
     EventsType.LUCK_PRIZED_RED_POINT = "LUCK_PRIZED_RED_POINT";
     EventsType.FOLLOW_RED_POINT = "FOLLOW_RED_POINT";
     EventsType.UPDATE_HALL_DATA = "UPDATE_HALL_DATA";
+    /** 好友助力领奖 */
+    EventsType.FRIEND_CONCUR_GET_REWARD = "FRIEND_CONCUR_GET_REWARD";
     return EventsType;
 }());
 //# sourceMappingURL=EventsType.js.map
@@ -5807,6 +5809,9 @@ var MonsterSprite = /** @class */ (function (_super) {
         if (self.isLock())
             return;
         self.monsterId = id;
+        if (BattleManager.Instance.getLevel(self.monsterId) > 70) {
+            return;
+        }
         if ($index >= 0) {
             self.parkIndex = $index; //-1默认不设置
         }
@@ -8217,7 +8222,7 @@ var ui;
                     _super.prototype.createChildren.call(this);
                     this.createView(ui.common.view.FreeGetPetViewUI.uiView);
                 };
-                FreeGetPetViewUI.uiView = { "type": "View", "props": {}, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "width": 650, "skin": "images/component/frame_9calce_04.png", "name": "imgBg", "height": 500 }, "child": [{ "type": "Image", "props": { "y": 26, "x": 175, "skin": "images/getFreePet_title.png" } }, { "type": "Image", "props": { "y": 218, "x": 252, "skin": "images/component/frame_9calce_03.png", "sizeGrid": "26,31,23,28" } }, { "type": "Image", "props": { "y": 240, "x": 284, "var": "imgPet", "skin": "images/carImg/hero_d1_18.png" } }, { "type": "Label", "props": { "y": 496, "x": 234, "text": "点击空白处关闭", "fontSize": 26, "color": "#ffffff", "align": "center" } }, { "type": "Button", "props": { "y": -8, "x": 564, "var": "btnExit", "stateNum": 1, "skin": "images/component/frame_close_btn.png", "name": "btnExit" }, "child": [{ "type": "Script", "props": { "y": 0, "x": 0, "runtime": "ScaleAnimScript" } }] }] }] };
+                FreeGetPetViewUI.uiView = { "type": "View", "props": {}, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "width": 650, "skin": "images/component/frame_9calce_04.png", "name": "imgBg", "height": 500 }, "child": [{ "type": "Image", "props": { "y": 26, "x": 175, "skin": "images/getFreePet_title.png" } }, { "type": "Image", "props": { "y": 213, "x": 260, "skin": "images/component/frame_9calce_03.png", "sizeGrid": "26,31,23,28" } }, { "type": "Image", "props": { "y": 332, "x": 325, "var": "imgPet", "skin": "images/carImg/hero_d1_18.png", "anchorY": 1, "anchorX": 0.5 } }, { "type": "Label", "props": { "y": 496, "x": 234, "text": "点击空白处关闭", "fontSize": 26, "color": "#ffffff", "align": "center" } }, { "type": "Button", "props": { "y": -8, "x": 564, "var": "btnExit", "stateNum": 1, "skin": "images/component/frame_close_btn.png", "name": "btnExit" }, "child": [{ "type": "Script", "props": { "y": 0, "x": 0, "runtime": "ScaleAnimScript" } }] }] }] };
                 return FreeGetPetViewUI;
             }(View));
             view.FreeGetPetViewUI = FreeGetPetViewUI;
@@ -8433,6 +8438,62 @@ var ui;
     })(evolution = ui.evolution || (ui.evolution = {}));
 })(ui || (ui = {}));
 (function (ui) {
+    var follow;
+    (function (follow) {
+        var FollowRewardViewUI = /** @class */ (function (_super) {
+            __extends(FollowRewardViewUI, _super);
+            function FollowRewardViewUI() {
+                return _super.call(this) || this;
+            }
+            FollowRewardViewUI.prototype.createChildren = function () {
+                View.regComponent("ScaleAnimScript", ScaleAnimScript);
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.follow.FollowRewardViewUI.uiView);
+            };
+            FollowRewardViewUI.uiView = { "type": "View", "props": { "width": 750, "height": 1334 }, "child": [{ "type": "View", "props": { "y": 0, "x": 0, "width": 750, "var": "mainView", "name": "mainView", "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 294, "x": 300, "width": 750, "var": "imgBg", "skin": "images/followReward/followReward_bg.jpg", "rotation": 0, "pivotY": 294, "pivotX": 300, "height": 1334 } }, { "type": "Button", "props": { "y": 139, "x": 587, "var": "btnExit", "stateNum": 1, "skin": "images/component/frame_close_btn.png", "name": "btnExit" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }, { "type": "Button", "props": { "y": 556, "x": 212, "var": "btnGet", "stateNum": 1, "skin": "images/followReward/followReward_btn.png", "name": "btnGet" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }] }] };
+            return FollowRewardViewUI;
+        }(View));
+        follow.FollowRewardViewUI = FollowRewardViewUI;
+    })(follow = ui.follow || (ui.follow = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var friendConcur;
+    (function (friendConcur) {
+        var FriendConcurUI = /** @class */ (function (_super) {
+            __extends(FriendConcurUI, _super);
+            function FriendConcurUI() {
+                return _super.call(this) || this;
+            }
+            FriendConcurUI.prototype.createChildren = function () {
+                View.regComponent("ScaleAnimScript", ScaleAnimScript);
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.friendConcur.FriendConcurUI.uiView);
+            };
+            FriendConcurUI.uiView = { "type": "View", "props": {}, "child": [{ "type": "Box", "props": { "y": 0, "x": 0 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "width": 715, "skin": "images/component/frame_9calce_01.png", "height": 1015, "sizeGrid": "168,65,62,82" } }, { "type": "Image", "props": { "y": 35, "x": 258, "skin": "images/friendConcur/friendConcur_title.png" } }, { "type": "Image", "props": { "y": 137, "x": 35, "width": 646, "skin": "images/component/frame_9calce_02.png", "height": 668, "sizeGrid": "25,32,32,36" } }, { "type": "Button", "props": { "y": -6, "x": 633, "var": "btn_exit", "stateNum": 1, "skin": "images/component/frame_close_btn.png" } }, { "type": "Button", "props": { "y": 823, "x": 200, "var": "btn_send", "stateNum": 1, "skin": "images/component/yellow_btn.png", "labelStrokeColor": "#946430", "labelStroke": 2, "labelSize": 40, "labelColors": "#FFFFFF,#FFFFFF,#FFFFFF,#FFFFFF", "labelBold": true, "label": "发起好友互助" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }, { "type": "Label", "props": { "y": 942, "x": 116, "text": "好友点开互助链接，双方都能获得金币奖励", "fontSize": 26, "color": "#ff0000" } }, { "type": "List", "props": { "y": 149, "x": 49, "width": 617, "var": "rewardList", "spaceY": 5, "repeatY": 1, "repeatX": 1, "height": 636 } }] }] };
+            return FriendConcurUI;
+        }(View));
+        friendConcur.FriendConcurUI = FriendConcurUI;
+    })(friendConcur = ui.friendConcur || (ui.friendConcur = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var friendConcur;
+    (function (friendConcur) {
+        var FriendConcurItemUI = /** @class */ (function (_super) {
+            __extends(FriendConcurItemUI, _super);
+            function FriendConcurItemUI() {
+                return _super.call(this) || this;
+            }
+            FriendConcurItemUI.prototype.createChildren = function () {
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.friendConcur.FriendConcurItemUI.uiView);
+            };
+            FriendConcurItemUI.uiView = { "type": "View", "props": { "width": 617, "height": 140 }, "child": [{ "type": "Box", "props": { "y": 0, "x": 0, "renderType": "render" }, "child": [{ "type": "Image", "props": { "x": 1, "skin": "images/friendConcur/friendConcur_bg.png" } }, { "type": "Image", "props": { "y": 7, "skin": "images/friendConcur/friendConcur_time_bg.png" } }, { "type": "Label", "props": { "y": 12, "x": 35, "width": 227, "var": "txt_time", "text": "2018-11-20 16:40", "height": 22, "fontSize": 22, "color": "#ffffff" } }, { "type": "Label", "props": { "y": 50, "x": 29, "var": "txt_des", "text": "您点击了隔壁的分享链接", "fontSize": 22, "color": "#946430", "align": "left" } }, { "type": "Image", "props": { "y": 85, "x": 46, "width": 109, "skin": "images/strengthen/strengthen_frame_bar.png", "name": "imgGold", "height": 36 }, "child": [{ "type": "Image", "props": { "y": -3, "x": -13, "skin": "images/core/coin_40x40.png", "name": "imgIcon" } }, { "type": "Label", "props": { "y": 3, "x": 30, "var": "txt_gold", "text": "0", "strokeColor": "#946430", "stroke": 4, "fontSize": 26, "color": "#ffffff", "bold": true, "align": "left" } }] }, { "type": "HBox", "props": { "y": 84, "x": 165, "var": "diamondBox", "space": 2 }, "child": [{ "type": "Label", "props": { "y": 3, "text": "额外奖励", "fontSize": 24, "color": "#ff0000" } }, { "type": "Image", "props": { "x": 101, "skin": "images/core/diamond.png", "scaleY": 0.8, "scaleX": 0.8 } }, { "type": "Label", "props": { "y": 3, "x": 135, "var": "txt_diamond", "text": "+0", "fontSize": 24, "color": "#ff931f" } }] }, { "type": "Button", "props": { "y": 39, "x": 419, "var": "btn_get", "stateNum": 1, "skin": "images/component/frame_btn_small_yellow.png", "labelStrokeColor": "#946430", "labelStroke": 2, "labelSize": 32, "labelColors": "#FFFFFF,#FFFFFF,#FFFFFF,#FFFFFF", "label": "领取" } }] }] };
+            return FriendConcurItemUI;
+        }(View));
+        friendConcur.FriendConcurItemUI = FriendConcurItemUI;
+    })(friendConcur = ui.friendConcur || (ui.friendConcur = {}));
+})(ui || (ui = {}));
+(function (ui) {
     var guide;
     (function (guide) {
         var NoviceViewUI = /** @class */ (function (_super) {
@@ -8483,7 +8544,7 @@ var ui;
                 _super.prototype.createChildren.call(this);
                 this.createView(ui.hall.HallSceneUI.uiView);
             };
-            HallSceneUI.uiView = { "type": "View", "props": { "y": 0, "x": 0, "width": 750, "height": 1334 }, "child": [{ "type": "View", "props": { "width": 750, "var": "mainView", "name": "mainView", "height": 1334, "centerY": 0, "centerX": 0 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "skin": "images/bg.jpg", "cacheAs": "bitmap" }, "child": [{ "type": "Image", "props": { "y": 68, "x": 140, "skin": "images/effect/uiElectric/electric_4.png" }, "compId": 356 }] }, { "type": "Image", "props": { "y": 0, "x": 375, "width": 1, "var": "imgUserInfo", "name": "imgUserInfo", "height": 1 }, "child": [{ "type": "ProgressBar", "props": { "y": 31, "x": -120, "var": "progressBarExp", "value": 0, "skin": "images/game_exp_pro.png", "name": "progressBarExp" } }, { "type": "Image", "props": { "y": 13, "x": -161, "skin": "images/core/game_exp_pro_head.png" }, "child": [{ "type": "Image", "props": { "y": -4, "x": 275, "skin": "images/gicon_boss.png" } }] }, { "type": "Label", "props": { "y": 38, "x": -52, "width": 100, "var": "txtSection", "text": "1/10", "strokeColor": "#946430", "stroke": 3, "name": "txtSection", "fontSize": 24, "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "y": 32, "x": -198, "width": 150, "var": "txtLevel", "text": 1, "strokeColor": "#946430", "stroke": 3, "name": "txtLevel", "fontSize": 30, "color": "#ffffff", "bold": true, "align": "center" } }, { "type": "Image", "props": { "y": 17, "x": -347, "skin": "images/coin_frame.png", "name": "imgMoney" }, "child": [{ "type": "Image", "props": { "y": 25, "x": 10, "var": "imgMoney", "skin": "images/core/coin_big.png", "name": "imgMoney", "anchorY": 0.5, "anchorX": 0.5 }, "child": [{ "type": "Label", "props": { "y": 15, "x": 63, "width": 200, "var": "txtMoney", "text": 1000, "name": "txtMoney", "fontSize": 30, "color": "#ffffff", "bold": true, "align": "left" } }] }] }, { "type": "Image", "props": { "y": 76, "x": -341, "var": "imgDiamond", "skin": "images/coin_frame.png", "name": "imgDiamond" }, "child": [{ "type": "Image", "props": { "y": -5, "x": -22, "skin": "images/core/diamond_icon.png" } }, { "type": "Label", "props": { "y": 10, "x": 43, "width": 107, "var": "txtDiamond", "text": 0, "name": "txtDiamond", "height": 30, "fontSize": 30, "color": "#ffffff", "align": "left" } }] }, { "type": "Label", "props": { "y": 208, "x": 160, "width": 80, "var": "txtKingLevel", "text": 1, "strokeColor": "#946430", "stroke": 3, "skewY": -10, "name": "txtKingLevel", "fontSize": 26, "color": "#ffffff", "bold": true, "align": "center" } }, { "type": "Image", "props": { "y": 1083, "x": -90, "var": "imgTrain", "skin": "images/component/frame_9calce_08.png", "name": "imgTrain" }, "child": [{ "type": "Label", "props": { "y": 21, "x": 31, "text": "训练中...", "strokeColor": "#946430", "stroke": 3, "name": "txtTrain", "fontSize": 30, "color": "#ffffff", "bold": true, "alpha": 0.8, "align": "center" } }] }, { "type": "Image", "props": { "y": 126, "x": -145, "var": "gameTimebg", "skin": "images/hall_time_bg.png" } }, { "type": "Label", "props": { "y": 145, "x": -135, "width": 80, "var": "txtGameTime", "text": "00:00", "strokeColor": "#ffffff", "stroke": 2, "name": "txtGameTime", "fontSize": 26, "color": "#3568fd", "bold": true, "alpha": 1, "align": "center" } }, { "type": "Image", "props": { "y": 102, "x": -162, "var": "gameTimeImg", "skin": "images/game_gameLasttime.png", "sizeGrid": "29,48,27,42" } }] }, { "type": "Image", "props": { "y": 550, "x": 1, "width": 110, "visible": false, "var": "imgBorn", "name": "imgBorn", "mouseEnabled": false, "height": 90, "cacheAs": "bitmap", "anchorY": 0.5, "anchorX": 0.5, "alpha": 0.5 } }, { "type": "Image", "props": { "y": 112, "x": 220, "width": 110, "visible": false, "var": "imgDestination", "name": "imgDestination", "mouseEnabled": false, "height": 90, "alpha": 0.5 } }, { "type": "Image", "props": { "y": 211, "x": 240, "var": "btnDelete", "skin": "images/huishou_icon_0.png", "name": "btnDelete" } }, { "type": "List", "props": { "y": 320, "width": 508, "var": "carparkList", "spaceY": 16, "spaceX": 10, "repeatY": 5, "repeatX": 4, "name": "carparkList", "mouseEnabled": false, "height": 700, "centerX": 45 }, "child": [{ "type": "Box", "props": { "y": 80, "x": 30, "width": 100, "visible": false, "renderType": "render", "height": 100 }, "child": [{ "type": "Sprite", "props": { "y": -14, "x": -14, "width": 128, "runtime": "MonsterSprite", "name": "car", "height": 128 }, "child": [{ "type": "Image", "props": { "y": 75, "x": 64, "width": 100, "visible": false, "skin": "images/game_select_light.png", "name": "imgLight", "height": 50, "anchorY": 0.5, "anchorX": 0.5 } }, { "type": "Image", "props": { "y": 64, "x": 64, "visible": false, "skin": "images/game_lockIcon.png", "name": "imgLock", "anchorY": 0.5, "anchorX": 0.5 } }, { "type": "Image", "props": { "y": 87, "x": 79, "width": 31, "visible": false, "skin": "images/lv_001.png", "sizeGrid": "10,9,11,8", "name": "imgLevel", "height": 25 }, "child": [{ "type": "Label", "props": { "y": 3, "x": 4, "width": 23, "text": "0", "name": "txtLevel", "height": 18, "fontSize": 18, "color": "#ffffff", "align": "center" } }] }, { "type": "Label", "props": { "y": 24, "x": 34, "width": 53, "text": "18关", "strokeColor": "#83551a", "stroke": 2, "name": "txt_openLevel", "height": 18, "fontSize": 18, "color": "#ffffff", "align": "center" } }, { "type": "Sprite", "props": { "y": 74, "x": 62, "width": 1, "name": "heroPos", "height": 1 } }] }] }] }, { "type": "Sprite", "props": { "y": 170, "x": 535, "width": 32, "var": "spMountGuard", "runtime": "MonsterSprite", "name": "spMountGuard", "height": 32 } }, { "type": "View", "props": { "y": 0, "x": 0, "var": "roadView", "name": "roadView" } }, { "type": "View", "props": { "y": 10, "x": 10, "name": "effectView" } }, { "type": "View", "props": { "y": 1, "x": 0, "var": "menuView", "name": "menuView", "cacheAs": "bitmap" }, "child": [{ "type": "Button", "props": { "y": 1093, "x": 30, "var": "btnAcce", "stateNum": 1, "skin": "images/gbtn_acce.png", "scaleY": 1, "scaleX": 1, "name": "btnAcce" }, "compId": 11, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }, { "type": "Image", "props": { "y": 60, "x": 75, "visible": false, "skin": "images/core/video_icon.png", "name": "imgAd" } }, { "type": "Image", "props": { "y": -16, "x": 0, "visible": false, "skin": "images/daojishi_di.png", "name": "imgAcce" }, "child": [{ "type": "Label", "props": { "y": 8, "x": 8, "width": 80, "text": "00:00", "name": "txtAcceTime", "fontSize": 28, "color": "#ffffff", "align": "center" } }] }] }, { "type": "Button", "props": { "y": 1163, "x": 183, "var": "btnShopShortcut", "stateNum": 1, "skin": "images/gbtn_shop.png", "name": "btnShopShortcut" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }, { "type": "Image", "props": { "y": 109, "x": 30, "skin": "images/core/coin_40x40.png", "name": "imgPrice", "anchorY": 0.5, "anchorX": 0.5 }, "child": [{ "type": "Label", "props": { "y": 4, "x": 45, "width": 150, "text": 1000, "strokeColor": "#946430", "stroke": 3, "name": "txtPrice", "height": 32, "fontSize": 30, "color": "#ffffff", "bold": true, "align": "left" } }] }, { "type": "Label", "props": { "y": 33, "x": 13, "width": 150, "text": "英雄 Lv1", "strokeColor": "#ffe7b0", "stroke": 3, "name": "txtLevel", "fontSize": 28, "color": "#98592e", "bold": true, "align": "center" } }] }, { "type": "Button", "props": { "y": 1163, "x": 400, "var": "btnShop", "stateNum": 1, "skin": "images/gbtn_shop.png", "name": "btnShop" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }, { "type": "Image", "props": { "y": -12, "x": 41, "skin": "images/shop_btn_icon.png" } }, { "type": "Label", "props": { "y": 91, "x": 13, "width": 150, "text": "酒馆", "strokeColor": "#946430", "stroke": 3, "name": "txtPrice", "fontSize": 34, "color": "#ffffff", "bold": true, "align": "center" } }, { "type": "Image", "props": { "y": -3, "x": 136, "visible": false, "skin": "images/core/red_dot_hint.png", "name": "imgRedPoint" } }] }, { "type": "Button", "props": { "y": 124, "x": 0, "visible": false, "var": "btnDailyPrize", "stateNum": 1, "skin": "images/dailySingBtn.png", "name": "btnDailyPrize", "cacheAs": "bitmap" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }, { "type": "Image", "props": { "y": 11, "x": 66, "visible": false, "skin": "images/core/red_dot_hint.png", "name": "imgRedPoint" } }] }, { "type": "Button", "props": { "y": 809, "x": -3, "var": "btnRanking", "stateNum": 1, "skin": "images/gbtn_ranking.png", "name": "btnRanking", "alpha": 0.8 }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }, { "type": "Button", "props": { "y": 273, "x": 2, "var": "btnTask", "stateNum": 1, "skin": "images/gbtn_task.png", "name": "btnTask" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }, { "type": "Image", "props": { "y": 4, "x": 86, "visible": false, "skin": "images/core/red_dot_hint.png", "name": "imgRedPoint" } }, { "type": "Image", "props": { "y": -56, "x": 35, "skin": "images/effect/uiBird/niao_1.png" }, "compId": 355 }] }, { "type": "Button", "props": { "y": 563, "x": -15, "var": "btnLuckPrize", "stateNum": 1, "skin": "images/gbtn_luck.png", "name": "btnLuckPrize" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }, { "type": "Image", "props": { "y": 10, "x": 82, "visible": false, "skin": "images/core/red_dot_hint.png", "name": "imgRedPoint" } }, { "type": "Image", "props": { "y": -4, "x": -2, "skin": "images/effect/uiLight/dx_zpd_3.png" }, "compId": 357 }] }, { "type": "Button", "props": { "y": 898, "x": -3, "var": "btnFeedback", "stateNum": 1, "skin": "images/gbtn_feedback.png", "name": "btnFeedback" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }, { "type": "Button", "props": { "y": 988, "x": -3, "var": "btnMore", "stateNum": 1, "skin": "images/more_icon.png", "name": "btnMore" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }, { "type": "Button", "props": { "y": 1095, "x": 606, "var": "btnStrengthen", "stateNum": 1, "skin": "images/gbtn_strengthen.png", "name": "btnStrengthen" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }, { "type": "Image", "props": { "y": 0, "x": 71, "visible": false, "var": "strengthenRedPoint", "skin": "images/core/red_dot_hint.png", "name": "strengthenRedPoint" } }] }, { "type": "Button", "props": { "y": 1079, "x": 590, "visible": false, "var": "btnPower", "stateNum": 1, "skin": "images/gbtn_fire.png", "name": "btnPower" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }, { "type": "Button", "props": { "y": 132, "x": 497, "width": 100, "var": "btnEvolution", "name": "btnEvolution", "height": 100 }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }, { "type": "Image", "props": { "y": 1, "x": 86, "skin": "images/evolution_hint_frame.png" }, "child": [{ "type": "Image", "props": { "y": 10, "x": 57, "visible": false, "skin": "" } }, { "type": "Label", "props": { "y": 28, "x": -3, "width": 80, "text": "守卫", "skewY": -20, "name": "txtKingLevel", "height": 30, "fontSize": 26, "color": "#4f8d2d", "bold": true, "align": "center" } }] }, { "type": "Image", "props": { "y": 12, "x": 140, "var": "kingUpdateImg", "skin": "images/core/red_dot_hint.png" } }] }, { "type": "Button", "props": { "y": 700, "x": 0, "width": 88, "visible": false, "var": "btnStagePrize", "name": "btnStagePrize", "labelSize": 30, "height": 106 }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }, { "type": "Button", "props": { "y": 1200, "x": 30, "var": "btn_fly", "stateNum": 1, "skin": "images/core/core_fly_icon.png" } }, { "type": "Button", "props": { "y": 1200, "x": 604, "var": "btn_eliminate", "stateNum": 1, "skin": "images/core/core_eliminate_icon.png" } }, { "type": "Button", "props": { "y": 266, "x": 638, "var": "btn_block", "stateNum": 1, "skin": "images/core/core_block_icon.png" } }] }, { "type": "View", "props": { "y": 987, "x": -63, "width": 157, "visible": false, "var": "settingView", "rotation": 0, "name": "settingView", "height": 120 }, "child": [{ "type": "Image", "props": { "y": 9, "x": 0, "skin": "images/game_menu2.png" } }, { "type": "Button", "props": { "y": 55, "x": 88, "stateNum": 1, "skin": "images/game_menu1.png", "name": "menuBtn", "mouseEnabled": false, "anchorY": 0.5, "anchorX": 0.5 }, "child": [{ "type": "Script", "props": { "y": 0, "x": 0, "runtime": "ScaleAnimScript" } }] }, { "type": "Button", "props": { "y": 30, "x": 4, "stateNum": 1, "skin": "images/home_menu_server.png", "name": "menuServerBtn", "mouseEnabled": false }, "child": [{ "type": "Script", "props": { "y": 0, "x": 0, "runtime": "ScaleAnimScript" } }] }, { "type": "Button", "props": { "y": 103, "x": 4, "stateNum": 1, "skin": "images/home_menu_music1.png", "name": "menuMusicBtn", "mouseEnabled": false }, "child": [{ "type": "Script", "props": { "y": 0, "x": 0, "runtime": "ScaleAnimScript" } }] }] }, { "type": "Button", "props": { "y": 1269, "x": 654, "width": 84, "visible": false, "var": "btnMiniProgram", "stateNum": 1, "skin": "images/miniProgram_icon.png", "name": "btnMiniProgram", "labelSize": 30, "height": 61, "anchorY": 0.5, "anchorX": 0.5 }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }, { "type": "Button", "props": { "y": 450, "x": 92, "visible": false, "var": "btnCarStore", "stateNum": 1, "skin": "images/box_001.png", "name": "btnCarStore", "labelSize": 30, "anchorY": 0.5, "anchorX": 0.5 }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }, { "type": "Image", "props": { "y": 1201, "x": 725, "visible": false, "var": "imgPowerBg", "skin": "images/gpro_powerBg.png", "name": "imgPowerBg", "anchorY": 1, "anchorX": 0.5 }, "child": [{ "type": "ProgressBar", "props": { "y": 90, "x": 11, "var": "progressBarPower", "value": 0, "skin": "images/gpro_power.png", "rotation": -90, "name": "progressBarPower", "anchorY": 0.5 } }, { "type": "Image", "props": { "y": 80, "x": 11, "visible": false, "var": "imgPowerCar", "skin": "images/core/coin_40x40.png", "name": "imgPowerCar", "anchorY": 0.5, "anchorX": 0.5, "alpha": 0.9 } }] }, { "type": "View", "props": { "y": 110, "x": 654, "width": 96, "visible": false, "var": "surpassView", "name": "surpassView", "height": 160 } }] }, { "type": "View", "props": { "y": 10, "x": 10, "var": "viewBuffContainer" } }, { "type": "View", "props": { "y": 0, "x": 0, "var": "viewSkyDropContainer" } }, { "type": "View", "props": { "width": 750, "visible": false, "var": "acceEffectView", "name": "acceEffectView", "height": 1334, "centerY": 0, "centerX": 0 }, "child": [{ "type": "Image", "props": { "y": 565, "x": 375, "skin": "images/acce_effect.png", "anchorY": 0.5, "anchorX": 0.5 }, "compId": 127 }] }, { "type": "View", "props": { "y": 10, "x": 10, "var": "viewNoviceContainer" } }], "animations": [{ "nodes": [{ "target": 11, "keyframes": { "scaleY": [{ "value": 1, "tweenMethod": "linearNone", "tween": true, "target": 11, "key": "scaleY", "index": 0 }, { "value": 0.96, "tweenMethod": "linearNone", "tween": true, "target": 11, "key": "scaleY", "index": 15 }, { "value": 1, "tweenMethod": "linearNone", "tween": true, "target": 11, "key": "scaleY", "index": 30 }], "scaleX": [{ "value": 1, "tweenMethod": "linearNone", "tween": true, "target": 11, "key": "scaleX", "index": 0 }, { "value": 0.96, "tweenMethod": "linearNone", "tween": true, "target": 11, "key": "scaleX", "index": 15 }, { "value": 1, "tweenMethod": "linearNone", "tween": true, "target": 11, "key": "scaleX", "index": 30 }] } }], "name": "ani1", "id": 1, "frameRate": 24, "action": 0 }, { "nodes": [{ "target": 127, "keyframes": { "y": [{ "value": 1500, "tweenMethod": "backOut", "tween": true, "target": 127, "key": "y", "index": 0 }, { "value": 600, "tweenMethod": "linearNone", "tween": true, "target": 127, "key": "y", "index": 10 }, { "value": 610, "tweenMethod": "backIn", "tween": true, "target": 127, "key": "y", "index": 20 }, { "value": -150, "tweenMethod": "linearNone", "tween": true, "target": 127, "key": "y", "index": 35 }] } }], "name": "ani2", "id": 2, "frameRate": 24, "action": 0 }, { "nodes": [], "name": "ani3", "id": 3, "frameRate": 24, "action": 2 }, { "nodes": [{ "target": 355, "keyframes": { "skin": [{ "value": "images/effect/uiBird/niao_1.png", "tweenMethod": "linearNone", "tween": false, "target": 355, "key": "skin", "index": 0 }, { "value": "images/effect/uiBird/niao_2.png", "tweenMethod": "linearNone", "tween": false, "target": 355, "key": "skin", "index": 3 }, { "value": "images/effect/uiBird/niao_3.png", "tweenMethod": "linearNone", "tween": false, "target": 355, "key": "skin", "index": 6 }, { "value": "images/effect/uiBird/niao_4.png", "tweenMethod": "linearNone", "tween": false, "target": 355, "key": "skin", "index": 9 }, { "value": "images/effect/uiBird/niao_5.png", "tweenMethod": "linearNone", "tween": false, "target": 355, "key": "skin", "index": 12 }, { "value": "images/effect/uiBird/niao_6.png", "tweenMethod": "linearNone", "tween": false, "target": 355, "key": "skin", "index": 15 }, { "value": "images/effect/uiBird/niao_7.png", "tweenMethod": "linearNone", "tween": false, "target": 355, "key": "skin", "index": 18 }, { "value": "images/effect/uiBird/niao_1.png", "tweenMethod": "linearNone", "tween": false, "target": 355, "key": "skin", "index": 35 }] } }, { "target": 356, "keyframes": { "skin": [{ "value": "images/effect/uiElectric/electric_1.png", "tweenMethod": "linearNone", "tween": false, "target": 356, "key": "skin", "index": 0 }, { "value": "images/effect/uiElectric/electric_2.png", "tweenMethod": "linearNone", "tween": false, "target": 356, "key": "skin", "index": 5 }, { "value": "images/effect/uiElectric/electric_3.png", "tweenMethod": "linearNone", "tween": false, "target": 356, "key": "skin", "index": 10 }, { "value": "images/effect/uiElectric/electric_4.png", "tweenMethod": "linearNone", "tween": false, "target": 356, "key": "skin", "index": 15 }, { "value": "images/effect/uiElectric/electric_1.png", "tweenMethod": "linearNone", "tween": false, "target": 356, "key": "skin", "index": 20 }, { "value": "images/effect/uiElectric/electric_2.png", "tweenMethod": "linearNone", "tween": false, "target": 356, "key": "skin", "index": 25 }, { "value": "images/effect/uiElectric/electric_3.png", "tweenMethod": "linearNone", "tween": false, "target": 356, "key": "skin", "index": 30 }, { "value": "images/effect/uiElectric/electric_4.png", "tweenMethod": "linearNone", "tween": false, "target": 356, "key": "skin", "index": 35 }] } }, { "target": 357, "keyframes": { "skin": [{ "value": "images/effect/uiLight/dx_zpd_1.png", "tweenMethod": "linearNone", "tween": false, "target": 357, "key": "skin", "index": 0 }, { "value": "images/effect/uiLight/dx_zpd_2.png", "tweenMethod": "linearNone", "tween": false, "target": 357, "key": "skin", "index": 12 }, { "value": "images/effect/uiLight/dx_zpd_3.png", "tweenMethod": "linearNone", "tween": false, "target": 357, "key": "skin", "index": 25 }] } }], "name": "ani4", "id": 4, "frameRate": 24, "action": 2 }] };
+            HallSceneUI.uiView = { "type": "View", "props": { "y": 0, "x": 0, "width": 750, "height": 1334 }, "child": [{ "type": "View", "props": { "width": 750, "var": "mainView", "name": "mainView", "height": 1334, "centerY": 0, "centerX": 0 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "skin": "images/bg.jpg", "cacheAs": "bitmap" }, "child": [{ "type": "Image", "props": { "y": 68, "x": 140, "skin": "images/effect/uiElectric/electric_4.png" }, "compId": 356 }] }, { "type": "Image", "props": { "y": 0, "x": 375, "width": 1, "var": "imgUserInfo", "name": "imgUserInfo", "height": 1 }, "child": [{ "type": "ProgressBar", "props": { "y": 31, "x": -120, "var": "progressBarExp", "value": 0, "skin": "images/game_exp_pro.png", "name": "progressBarExp" } }, { "type": "Image", "props": { "y": 13, "x": -161, "skin": "images/core/game_exp_pro_head.png" }, "child": [{ "type": "Image", "props": { "y": -4, "x": 275, "skin": "images/gicon_boss.png" } }] }, { "type": "Label", "props": { "y": 38, "x": -52, "width": 100, "var": "txtSection", "text": "1/10", "strokeColor": "#946430", "stroke": 3, "name": "txtSection", "fontSize": 24, "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "y": 32, "x": -198, "width": 150, "var": "txtLevel", "text": 1, "strokeColor": "#946430", "stroke": 3, "name": "txtLevel", "fontSize": 30, "color": "#ffffff", "bold": true, "align": "center" } }, { "type": "Image", "props": { "y": 17, "x": -347, "skin": "images/coin_frame.png", "name": "imgMoney" }, "child": [{ "type": "Image", "props": { "y": 25, "x": 10, "var": "imgMoney", "skin": "images/core/coin_big.png", "name": "imgMoney", "anchorY": 0.5, "anchorX": 0.5 }, "child": [{ "type": "Label", "props": { "y": 15, "x": 63, "width": 200, "var": "txtMoney", "text": 1000, "name": "txtMoney", "fontSize": 30, "color": "#ffffff", "bold": true, "align": "left" } }] }] }, { "type": "Image", "props": { "y": 76, "x": -341, "var": "imgDiamond", "skin": "images/coin_frame.png", "name": "imgDiamond" }, "child": [{ "type": "Image", "props": { "y": -5, "x": -22, "skin": "images/core/diamond_icon.png" } }, { "type": "Label", "props": { "y": 10, "x": 43, "width": 107, "var": "txtDiamond", "text": 0, "name": "txtDiamond", "height": 30, "fontSize": 30, "color": "#ffffff", "align": "left" } }] }, { "type": "Label", "props": { "y": 208, "x": 160, "width": 80, "var": "txtKingLevel", "text": 1, "strokeColor": "#946430", "stroke": 3, "skewY": -10, "name": "txtKingLevel", "fontSize": 26, "color": "#ffffff", "bold": true, "align": "center" } }, { "type": "Image", "props": { "y": 1083, "x": -90, "var": "imgTrain", "skin": "images/component/frame_9calce_08.png", "name": "imgTrain" }, "child": [{ "type": "Label", "props": { "y": 21, "x": 31, "text": "训练中...", "strokeColor": "#946430", "stroke": 3, "name": "txtTrain", "fontSize": 30, "color": "#ffffff", "bold": true, "alpha": 0.8, "align": "center" } }] }, { "type": "Image", "props": { "y": 126, "x": -145, "var": "gameTimebg", "skin": "images/hall_time_bg.png" } }, { "type": "Label", "props": { "y": 145, "x": -135, "width": 80, "var": "txtGameTime", "text": "00:00", "strokeColor": "#ffffff", "stroke": 2, "name": "txtGameTime", "fontSize": 26, "color": "#3568fd", "bold": true, "alpha": 1, "align": "center" } }, { "type": "Image", "props": { "y": 102, "x": -162, "var": "gameTimeImg", "skin": "images/game_gameLasttime.png", "sizeGrid": "29,48,27,42" } }] }, { "type": "Image", "props": { "y": 550, "x": 1, "width": 110, "visible": false, "var": "imgBorn", "name": "imgBorn", "mouseEnabled": false, "height": 90, "cacheAs": "bitmap", "anchorY": 0.5, "anchorX": 0.5, "alpha": 0.5 } }, { "type": "Image", "props": { "y": 112, "x": 220, "width": 110, "visible": false, "var": "imgDestination", "name": "imgDestination", "mouseEnabled": false, "height": 90, "alpha": 0.5 } }, { "type": "Image", "props": { "y": 211, "x": 240, "var": "btnDelete", "skin": "images/huishou_icon_0.png", "name": "btnDelete" } }, { "type": "List", "props": { "y": 320, "width": 508, "var": "carparkList", "spaceY": 16, "spaceX": 10, "repeatY": 5, "repeatX": 4, "name": "carparkList", "mouseEnabled": false, "height": 700, "centerX": 45 }, "child": [{ "type": "Box", "props": { "y": 80, "x": 30, "width": 100, "visible": false, "renderType": "render", "height": 100 }, "child": [{ "type": "Sprite", "props": { "y": -14, "x": -14, "width": 128, "runtime": "MonsterSprite", "name": "car", "height": 128 }, "child": [{ "type": "Image", "props": { "y": 75, "x": 64, "width": 100, "visible": false, "skin": "images/game_select_light.png", "name": "imgLight", "height": 50, "anchorY": 0.5, "anchorX": 0.5 } }, { "type": "Image", "props": { "y": 64, "x": 64, "visible": false, "skin": "images/game_lockIcon.png", "name": "imgLock", "anchorY": 0.5, "anchorX": 0.5 } }, { "type": "Image", "props": { "y": 87, "x": 79, "width": 31, "visible": false, "skin": "images/lv_001.png", "sizeGrid": "10,9,11,8", "name": "imgLevel", "height": 25 }, "child": [{ "type": "Label", "props": { "y": 3, "x": 4, "width": 23, "text": "0", "name": "txtLevel", "height": 18, "fontSize": 18, "color": "#ffffff", "align": "center" } }] }, { "type": "Label", "props": { "y": 24, "x": 34, "width": 53, "text": "18关", "strokeColor": "#83551a", "stroke": 2, "name": "txt_openLevel", "height": 18, "fontSize": 18, "color": "#ffffff", "align": "center" } }, { "type": "Sprite", "props": { "y": 74, "x": 62, "width": 1, "name": "heroPos", "height": 1 } }] }] }] }, { "type": "Sprite", "props": { "y": 170, "x": 535, "width": 32, "var": "spMountGuard", "runtime": "MonsterSprite", "name": "spMountGuard", "height": 32 } }, { "type": "View", "props": { "y": 0, "x": 0, "var": "roadView", "name": "roadView" } }, { "type": "View", "props": { "y": 10, "x": 10, "name": "effectView" } }, { "type": "View", "props": { "y": 1, "x": 0, "var": "menuView", "name": "menuView", "cacheAs": "bitmap" }, "child": [{ "type": "Button", "props": { "y": 1093, "x": 30, "var": "btnAcce", "stateNum": 1, "skin": "images/gbtn_acce.png", "scaleY": 1, "scaleX": 1, "name": "btnAcce" }, "compId": 11, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }, { "type": "Image", "props": { "y": 60, "x": 75, "visible": false, "skin": "images/core/video_icon.png", "name": "imgAd" } }, { "type": "Image", "props": { "y": -16, "x": 0, "visible": false, "skin": "images/daojishi_di.png", "name": "imgAcce" }, "child": [{ "type": "Label", "props": { "y": 8, "x": 8, "width": 80, "text": "00:00", "name": "txtAcceTime", "fontSize": 28, "color": "#ffffff", "align": "center" } }] }] }, { "type": "Button", "props": { "y": 1163, "x": 183, "var": "btnShopShortcut", "stateNum": 1, "skin": "images/gbtn_shop.png", "name": "btnShopShortcut" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }, { "type": "Image", "props": { "y": 109, "x": 30, "skin": "images/core/coin_40x40.png", "name": "imgPrice", "anchorY": 0.5, "anchorX": 0.5 }, "child": [{ "type": "Label", "props": { "y": 4, "x": 45, "width": 150, "text": 1000, "strokeColor": "#946430", "stroke": 3, "name": "txtPrice", "height": 32, "fontSize": 30, "color": "#ffffff", "bold": true, "align": "left" } }] }, { "type": "Label", "props": { "y": 33, "x": 13, "width": 150, "text": "英雄 Lv1", "strokeColor": "#ffe7b0", "stroke": 3, "name": "txtLevel", "fontSize": 28, "color": "#98592e", "bold": true, "align": "center" } }] }, { "type": "Button", "props": { "y": 1163, "x": 400, "var": "btnShop", "stateNum": 1, "skin": "images/gbtn_shop.png", "name": "btnShop" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }, { "type": "Image", "props": { "y": -12, "x": 41, "skin": "images/shop_btn_icon.png" } }, { "type": "Label", "props": { "y": 91, "x": 13, "width": 150, "text": "酒馆", "strokeColor": "#946430", "stroke": 3, "name": "txtPrice", "fontSize": 34, "color": "#ffffff", "bold": true, "align": "center" } }, { "type": "Image", "props": { "y": -3, "x": 136, "visible": false, "skin": "images/core/red_dot_hint.png", "name": "imgRedPoint" } }] }, { "type": "Button", "props": { "y": 809, "x": -3, "var": "btn_online", "stateNum": 1, "skin": "images/hall/hall_online_reward.png" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }, { "type": "Label", "props": { "y": 57, "x": 7, "width": 78, "var": "txt_diamondTime", "text": "05:00", "strokeColor": "#8d5d2e", "stroke": 2, "height": 26, "fontSize": 26, "color": "#ffffff", "align": "center" } }] }, { "type": "Button", "props": { "y": 273, "x": 2, "var": "btnTask", "stateNum": 1, "skin": "images/gbtn_task.png", "name": "btnTask" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }, { "type": "Image", "props": { "y": 4, "x": 86, "visible": false, "skin": "images/core/red_dot_hint.png", "name": "imgRedPoint" } }, { "type": "Image", "props": { "y": -56, "x": 35, "skin": "images/effect/uiBird/niao_1.png" }, "compId": 355 }] }, { "type": "Button", "props": { "y": 563, "x": -15, "var": "btnLuckPrize", "stateNum": 1, "skin": "images/gbtn_luck.png", "name": "btnLuckPrize" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }, { "type": "Image", "props": { "y": 10, "x": 82, "visible": false, "skin": "images/core/red_dot_hint.png", "name": "imgRedPoint" } }, { "type": "Image", "props": { "y": -4, "x": -2, "skin": "images/effect/uiLight/dx_zpd_3.png" }, "compId": 357 }] }, { "type": "Button", "props": { "y": 898, "x": -3, "var": "btnFeedback", "stateNum": 1, "skin": "images/gbtn_feedback.png", "name": "btnFeedback" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }, { "type": "Button", "props": { "y": 988, "x": -3, "var": "btnMore", "stateNum": 1, "skin": "images/more_icon.png", "name": "btnMore" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }, { "type": "Image", "props": { "y": 3, "x": 59, "visible": false, "var": "followRedPoint", "skin": "images/core/red_dot_hint.png", "name": "followRedPoint" } }] }, { "type": "Button", "props": { "y": 1095, "x": 606, "var": "btnStrengthen", "stateNum": 1, "skin": "images/gbtn_strengthen.png", "name": "btnStrengthen" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }, { "type": "Image", "props": { "y": 0, "x": 71, "visible": false, "var": "strengthenRedPoint", "skin": "images/core/red_dot_hint.png", "name": "strengthenRedPoint" } }] }, { "type": "Button", "props": { "y": 1079, "x": 590, "visible": false, "var": "btnPower", "stateNum": 1, "skin": "images/gbtn_fire.png", "name": "btnPower" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }, { "type": "Button", "props": { "y": 132, "x": 497, "width": 100, "var": "btnEvolution", "name": "btnEvolution", "height": 100 }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }, { "type": "Image", "props": { "y": 1, "x": 86, "skin": "images/evolution_hint_frame.png" }, "child": [{ "type": "Image", "props": { "y": 10, "x": 57, "visible": false, "skin": "" } }, { "type": "Label", "props": { "y": 28, "x": -3, "width": 80, "text": "守卫", "skewY": -20, "name": "txtKingLevel", "height": 30, "fontSize": 26, "color": "#4f8d2d", "bold": true, "align": "center" } }] }, { "type": "Image", "props": { "y": 12, "x": 140, "var": "kingUpdateImg", "skin": "images/core/red_dot_hint.png" } }] }, { "type": "Button", "props": { "y": 700, "x": 0, "width": 88, "visible": false, "var": "btnStagePrize", "name": "btnStagePrize", "labelSize": 30, "height": 106 }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }, { "type": "Button", "props": { "y": 1200, "x": 30, "var": "btn_fly", "stateNum": 1, "skin": "images/core/core_fly_icon.png" } }, { "type": "Button", "props": { "y": 1200, "x": 604, "var": "btn_eliminate", "stateNum": 1, "skin": "images/core/core_eliminate_icon.png" } }, { "type": "Button", "props": { "y": 266, "x": 638, "var": "btn_block", "stateNum": 1, "skin": "images/core/core_block_icon.png" } }, { "type": "Box", "props": { "y": 127, "var": "menuBox", "left": 0 }, "child": [{ "type": "Image", "props": { "width": 457, "skin": "images/hall/hall_suofang_bg.png", "sizeGrid": "45,44,50,0", "height": 109 } }, { "type": "Button", "props": { "y": 52, "x": 420, "var": "btn_arrow", "stateNum": 1, "skin": "images/hall/hall_arrow.png", "scaleX": -1, "anchorY": 0.5, "anchorX": 0.5 } }, { "type": "Button", "props": { "y": 11, "x": 6, "var": "btn_ranking", "stateNum": 1, "skin": "images/hall/hall_rankBtn.png" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }, { "type": "Button", "props": { "y": 10, "x": 101, "var": "btn_follow", "stateNum": 1, "skin": "images/hall/hall_followBtn.png" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }, { "type": "Image", "props": { "y": 3, "x": 57, "visible": false, "skin": "images/core/red_dot_hint.png", "name": "imgRedPoint" } }] }, { "type": "Button", "props": { "y": 11, "x": 196, "var": "btn_concur", "stateNum": 1, "skin": "images/hall/hall_concurBtn.png" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }, { "type": "Image", "props": { "y": 3, "x": 57, "visible": false, "skin": "images/core/red_dot_hint.png", "name": "imgRedPoint" } }] }, { "type": "Button", "props": { "y": 9, "x": 291, "var": "btn_sign", "stateNum": 1, "skin": "images/hall/hall_dailySingBtn.png" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }, { "type": "Image", "props": { "y": 2, "x": 59, "visible": false, "skin": "images/core/red_dot_hint.png", "name": "imgRedPoint" } }] }, { "type": "Image", "props": { "y": -7, "x": 425, "visible": false, "var": "menuRedPoint", "skin": "images/core/red_dot_hint.png" } }] }] }, { "type": "View", "props": { "y": 987, "x": -63, "width": 157, "visible": false, "var": "settingView", "rotation": 0, "name": "settingView", "height": 120 }, "child": [{ "type": "Image", "props": { "y": 9, "x": 0, "skin": "images/game_menu2.png" } }, { "type": "Button", "props": { "y": 55, "x": 88, "stateNum": 1, "skin": "images/game_menu1.png", "name": "menuBtn", "mouseEnabled": false, "anchorY": 0.5, "anchorX": 0.5 }, "child": [{ "type": "Script", "props": { "y": 0, "x": 0, "runtime": "ScaleAnimScript" } }] }, { "type": "Button", "props": { "y": 30, "x": 4, "stateNum": 1, "skin": "images/home_menu_server.png", "name": "menuServerBtn", "mouseEnabled": false }, "child": [{ "type": "Script", "props": { "y": 0, "x": 0, "runtime": "ScaleAnimScript" } }] }, { "type": "Button", "props": { "y": 103, "x": 4, "stateNum": 1, "skin": "images/home_menu_music1.png", "name": "menuMusicBtn", "mouseEnabled": false }, "child": [{ "type": "Script", "props": { "y": 0, "x": 0, "runtime": "ScaleAnimScript" } }] }] }, { "type": "Button", "props": { "y": 1269, "x": 654, "width": 84, "visible": false, "var": "btnMiniProgram", "stateNum": 1, "skin": "images/miniProgram_icon.png", "name": "btnMiniProgram", "labelSize": 30, "height": 61, "anchorY": 0.5, "anchorX": 0.5 }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }, { "type": "Button", "props": { "y": 450, "x": 92, "visible": false, "var": "btnCarStore", "stateNum": 1, "skin": "images/box_001.png", "name": "btnCarStore", "labelSize": 30, "anchorY": 0.5, "anchorX": 0.5 }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }, { "type": "Image", "props": { "y": 1201, "x": 725, "visible": false, "var": "imgPowerBg", "skin": "images/gpro_powerBg.png", "name": "imgPowerBg", "anchorY": 1, "anchorX": 0.5 }, "child": [{ "type": "ProgressBar", "props": { "y": 90, "x": 11, "var": "progressBarPower", "value": 0, "skin": "images/gpro_power.png", "rotation": -90, "name": "progressBarPower", "anchorY": 0.5 } }, { "type": "Image", "props": { "y": 80, "x": 11, "visible": false, "var": "imgPowerCar", "skin": "images/core/coin_40x40.png", "name": "imgPowerCar", "anchorY": 0.5, "anchorX": 0.5, "alpha": 0.9 } }] }, { "type": "View", "props": { "y": 110, "x": 654, "width": 96, "visible": false, "var": "surpassView", "name": "surpassView", "height": 160 } }] }, { "type": "View", "props": { "y": 10, "x": 10, "var": "viewBuffContainer" } }, { "type": "View", "props": { "y": 0, "x": 0, "var": "viewSkyDropContainer" } }, { "type": "View", "props": { "width": 750, "visible": false, "var": "acceEffectView", "name": "acceEffectView", "height": 1334, "centerY": 0, "centerX": 0 }, "child": [{ "type": "Image", "props": { "y": 565, "x": 375, "skin": "images/acce_effect.png", "anchorY": 0.5, "anchorX": 0.5 }, "compId": 127 }] }, { "type": "View", "props": { "y": 10, "x": 10, "var": "viewNoviceContainer" } }], "animations": [{ "nodes": [{ "target": 11, "keyframes": { "scaleY": [{ "value": 1, "tweenMethod": "linearNone", "tween": true, "target": 11, "key": "scaleY", "index": 0 }, { "value": 0.96, "tweenMethod": "linearNone", "tween": true, "target": 11, "key": "scaleY", "index": 15 }, { "value": 1, "tweenMethod": "linearNone", "tween": true, "target": 11, "key": "scaleY", "index": 30 }], "scaleX": [{ "value": 1, "tweenMethod": "linearNone", "tween": true, "target": 11, "key": "scaleX", "index": 0 }, { "value": 0.96, "tweenMethod": "linearNone", "tween": true, "target": 11, "key": "scaleX", "index": 15 }, { "value": 1, "tweenMethod": "linearNone", "tween": true, "target": 11, "key": "scaleX", "index": 30 }] } }], "name": "ani1", "id": 1, "frameRate": 24, "action": 0 }, { "nodes": [{ "target": 127, "keyframes": { "y": [{ "value": 1500, "tweenMethod": "backOut", "tween": true, "target": 127, "key": "y", "index": 0 }, { "value": 600, "tweenMethod": "linearNone", "tween": true, "target": 127, "key": "y", "index": 10 }, { "value": 610, "tweenMethod": "backIn", "tween": true, "target": 127, "key": "y", "index": 20 }, { "value": -150, "tweenMethod": "linearNone", "tween": true, "target": 127, "key": "y", "index": 35 }] } }], "name": "ani2", "id": 2, "frameRate": 24, "action": 0 }, { "nodes": [], "name": "ani3", "id": 3, "frameRate": 24, "action": 2 }, { "nodes": [{ "target": 355, "keyframes": { "skin": [{ "value": "images/effect/uiBird/niao_1.png", "tweenMethod": "linearNone", "tween": false, "target": 355, "key": "skin", "index": 0 }, { "value": "images/effect/uiBird/niao_2.png", "tweenMethod": "linearNone", "tween": false, "target": 355, "key": "skin", "index": 3 }, { "value": "images/effect/uiBird/niao_3.png", "tweenMethod": "linearNone", "tween": false, "target": 355, "key": "skin", "index": 6 }, { "value": "images/effect/uiBird/niao_4.png", "tweenMethod": "linearNone", "tween": false, "target": 355, "key": "skin", "index": 9 }, { "value": "images/effect/uiBird/niao_5.png", "tweenMethod": "linearNone", "tween": false, "target": 355, "key": "skin", "index": 12 }, { "value": "images/effect/uiBird/niao_6.png", "tweenMethod": "linearNone", "tween": false, "target": 355, "key": "skin", "index": 15 }, { "value": "images/effect/uiBird/niao_7.png", "tweenMethod": "linearNone", "tween": false, "target": 355, "key": "skin", "index": 18 }, { "value": "images/effect/uiBird/niao_1.png", "tweenMethod": "linearNone", "tween": false, "target": 355, "key": "skin", "index": 35 }] } }, { "target": 356, "keyframes": { "skin": [{ "value": "images/effect/uiElectric/electric_1.png", "tweenMethod": "linearNone", "tween": false, "target": 356, "key": "skin", "index": 0 }, { "value": "images/effect/uiElectric/electric_2.png", "tweenMethod": "linearNone", "tween": false, "target": 356, "key": "skin", "index": 5 }, { "value": "images/effect/uiElectric/electric_3.png", "tweenMethod": "linearNone", "tween": false, "target": 356, "key": "skin", "index": 10 }, { "value": "images/effect/uiElectric/electric_4.png", "tweenMethod": "linearNone", "tween": false, "target": 356, "key": "skin", "index": 15 }, { "value": "images/effect/uiElectric/electric_1.png", "tweenMethod": "linearNone", "tween": false, "target": 356, "key": "skin", "index": 20 }, { "value": "images/effect/uiElectric/electric_2.png", "tweenMethod": "linearNone", "tween": false, "target": 356, "key": "skin", "index": 25 }, { "value": "images/effect/uiElectric/electric_3.png", "tweenMethod": "linearNone", "tween": false, "target": 356, "key": "skin", "index": 30 }, { "value": "images/effect/uiElectric/electric_4.png", "tweenMethod": "linearNone", "tween": false, "target": 356, "key": "skin", "index": 35 }] } }, { "target": 357, "keyframes": { "skin": [{ "value": "images/effect/uiLight/dx_zpd_1.png", "tweenMethod": "linearNone", "tween": false, "target": 357, "key": "skin", "index": 0 }, { "value": "images/effect/uiLight/dx_zpd_2.png", "tweenMethod": "linearNone", "tween": false, "target": 357, "key": "skin", "index": 12 }, { "value": "images/effect/uiLight/dx_zpd_3.png", "tweenMethod": "linearNone", "tween": false, "target": 357, "key": "skin", "index": 25 }] } }], "name": "ani4", "id": 4, "frameRate": 24, "action": 2 }] };
             return HallSceneUI;
         }(View));
         hall.HallSceneUI = HallSceneUI;
@@ -8576,11 +8637,49 @@ var ui;
                 _super.prototype.createChildren.call(this);
                 this.createView(ui.more.MoreViewUI.uiView);
             };
-            MoreViewUI.uiView = { "type": "View", "props": {}, "child": [{ "type": "Image", "props": { "y": 4, "x": 0, "width": 715, "skin": "images/component/frame_9calce_01.png", "height": 1015, "sizeGrid": "168,65,62,82" } }, { "type": "Image", "props": { "y": 40, "x": 307, "skin": "images/more/title.png" } }, { "type": "Image", "props": { "y": 0, "x": 631, "var": "imgClose", "skin": "images/component/frame_close_btn.png" } }, { "type": "Image", "props": { "y": 144, "x": 33, "width": 649, "skin": "images/component/frame_9calce_02.png", "height": 153, "sizeGrid": "25,32,32,36" } }, { "type": "Image", "props": { "y": 312, "x": 33, "width": 649, "skin": "images/component/frame_9calce_02.png", "height": 668, "sizeGrid": "25,32,32,36" } }, { "type": "Image", "props": { "y": 322, "x": 194, "skin": "images/component/sub_title_bg.png" } }, { "type": "Label", "props": { "y": 331, "x": 242, "width": 228, "text": "更多好玩", "height": 45, "fontSize": 40, "color": "#ab4c17", "bold": true, "align": "center" } }, { "type": "Label", "props": { "y": 405, "x": 147, "width": 418, "text": "完整体验一个游戏，可获得奖励", "height": 37, "fontSize": 26, "color": "#845013", "bold": true, "align": "center" } }, { "type": "Image", "props": { "y": 426, "x": 37, "skin": "images/component/seperate_line.png" } }, { "type": "Button", "props": { "y": 166, "x": 93, "var": "btnCustomService", "stateNum": 1, "skin": "images/more/custom_service.png" }, "child": [{ "type": "Label", "props": { "y": 81, "x": 15, "text": "客服", "strokeColor": "#8d5d2e", "stroke": 3, "fontSize": 30, "color": "#ffffff", "bold": true, "align": "center" } }] }, { "type": "Button", "props": { "y": 167, "x": 302, "var": "btnSoundClosed", "stateNum": 1, "skin": "images/more/sound_closed.png" }, "child": [{ "type": "Label", "props": { "y": 79, "x": 17, "text": "声音", "strokeColor": "#8d5d2e", "stroke": 3, "fontSize": 30, "color": "#ffffff", "bold": true, "align": "center" } }] }, { "type": "Button", "props": { "y": 166, "x": 301, "var": "btnSoundOpend", "stateNum": 1, "skin": "images/more/sound_opened.png" }, "child": [{ "type": "Label", "props": { "y": 80, "x": 18, "text": "声音", "strokeColor": "#8d5d2e", "stroke": 3, "fontSize": 30, "color": "#ffffff", "bold": true, "align": "center" } }] }, { "type": "Image", "props": { "y": 166, "x": 536, "var": "imgSubscribe", "skin": "images/more/subscribe.png" }, "child": [{ "type": "Label", "props": { "y": 80, "x": 11, "text": "关注", "strokeColor": "#8d5d2e", "stroke": 3, "fontSize": 30, "color": "#ffffff", "bold": true, "align": "center" } }] }, { "type": "List", "props": { "y": 454, "x": 49, "width": 619, "var": "listMoreItem", "spaceY": 15, "repeatY": 4, "repeatX": 1, "height": 511 } }, { "type": "Label", "props": { "y": 685, "x": 147, "width": 418, "var": "lblNoneGameTips", "text": "暂时没有游戏体验哦", "strokeColor": "#845013", "stroke": 3, "height": 37, "fontSize": 36, "color": "#e2e2e2", "bold": true, "align": "center" } }] };
+            MoreViewUI.uiView = { "type": "View", "props": {}, "child": [{ "type": "Image", "props": { "y": 4, "x": 0, "width": 715, "skin": "images/component/frame_9calce_01.png", "height": 1015, "sizeGrid": "168,65,62,82" } }, { "type": "Image", "props": { "y": 40, "x": 307, "skin": "images/more/title.png" } }, { "type": "Image", "props": { "y": 0, "x": 631, "var": "imgClose", "skin": "images/component/frame_close_btn.png" } }, { "type": "Image", "props": { "y": 144, "x": 33, "width": 649, "skin": "images/component/frame_9calce_02.png", "height": 153, "sizeGrid": "25,32,32,36" } }, { "type": "Image", "props": { "y": 312, "x": 33, "width": 649, "skin": "images/component/frame_9calce_02.png", "height": 668, "sizeGrid": "25,32,32,36" } }, { "type": "Image", "props": { "y": 322, "x": 194, "skin": "images/component/sub_title_bg.png" } }, { "type": "Label", "props": { "y": 331, "x": 242, "width": 228, "text": "更多好玩", "height": 45, "fontSize": 40, "color": "#ab4c17", "bold": true, "align": "center" } }, { "type": "Label", "props": { "y": 405, "x": 147, "width": 418, "text": "完整体验一个游戏，可获得奖励", "height": 37, "fontSize": 26, "color": "#845013", "bold": true, "align": "center" } }, { "type": "Image", "props": { "y": 426, "x": 37, "skin": "images/component/seperate_line.png" } }, { "type": "Button", "props": { "y": 169, "x": 172, "var": "btnCustomService", "stateNum": 1, "skin": "images/more/custom_service.png" }, "child": [{ "type": "Label", "props": { "y": 81, "x": 15, "text": "客服", "strokeColor": "#8d5d2e", "stroke": 3, "fontSize": 30, "color": "#ffffff", "bold": true, "align": "center" } }] }, { "type": "Button", "props": { "y": 170, "x": 466, "var": "btnSoundClosed", "stateNum": 1, "skin": "images/more/sound_closed.png" }, "child": [{ "type": "Label", "props": { "y": 79, "x": 17, "text": "声音", "strokeColor": "#8d5d2e", "stroke": 3, "fontSize": 30, "color": "#ffffff", "bold": true, "align": "center" } }] }, { "type": "Button", "props": { "y": 169, "x": 465, "var": "btnSoundOpend", "stateNum": 1, "skin": "images/more/sound_opened.png" }, "child": [{ "type": "Label", "props": { "y": 80, "x": 18, "text": "声音", "strokeColor": "#8d5d2e", "stroke": 3, "fontSize": 30, "color": "#ffffff", "bold": true, "align": "center" } }] }, { "type": "List", "props": { "y": 454, "x": 49, "width": 619, "var": "listMoreItem", "spaceY": 15, "repeatY": 4, "repeatX": 1, "height": 511 } }, { "type": "Label", "props": { "y": 685, "x": 147, "width": 418, "var": "lblNoneGameTips", "text": "暂时没有游戏体验哦", "strokeColor": "#845013", "stroke": 3, "height": 37, "fontSize": 36, "color": "#e2e2e2", "bold": true, "align": "center" } }] };
             return MoreViewUI;
         }(View));
         more.MoreViewUI = MoreViewUI;
     })(more = ui.more || (ui.more = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var randomReward;
+    (function (randomReward) {
+        var AdditionalRewardViewUI = /** @class */ (function (_super) {
+            __extends(AdditionalRewardViewUI, _super);
+            function AdditionalRewardViewUI() {
+                return _super.call(this) || this;
+            }
+            AdditionalRewardViewUI.prototype.createChildren = function () {
+                View.regComponent("ScaleAnimScript", ScaleAnimScript);
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.randomReward.AdditionalRewardViewUI.uiView);
+            };
+            AdditionalRewardViewUI.uiView = { "type": "View", "props": {}, "child": [{ "type": "Box", "props": { "y": 0, "x": 0, "width": 587, "height": 614 }, "child": [{ "type": "Image", "props": { "y": 334, "x": 292, "var": "imgLight", "skin": "images/core/light_01.png", "anchorY": 0.5, "anchorX": 0.5 } }, { "type": "Image", "props": { "skin": "images/randomReward/randomReward_title_02.png" } }, { "type": "Image", "props": { "y": 267, "x": 232, "skin": "images/component/frame_9calce_03.png", "sizeGrid": "26,31,23,28" } }, { "type": "Image", "props": { "y": 287, "x": 252, "skin": "images/core/diamond_icon.png", "scaleY": 1.5, "scaleX": 1.5 } }, { "type": "Label", "props": { "y": 621, "x": 188, "text": "点击空白处关闭", "fontSize": 30, "color": "#ffffff" } }, { "type": "Label", "props": { "y": 361, "x": 253, "width": 98, "var": "txt_count", "text": "x100", "strokeColor": "#946430", "stroke": 2, "height": 24, "fontSize": 24, "color": "#ffffff", "align": "right" } }, { "type": "Button", "props": { "y": 492, "x": 129, "var": "btn_get", "stateNum": 1, "skin": "images/component/yellow_btn.png", "labelStrokeColor": "#946430", "labelStroke": 2, "labelSize": 40, "labelColors": "#FFFFFF,#FFFFFF,#FFFFFF,#FFFFFF", "labelBold": true, "label": "领取" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }] }] };
+            return AdditionalRewardViewUI;
+        }(View));
+        randomReward.AdditionalRewardViewUI = AdditionalRewardViewUI;
+    })(randomReward = ui.randomReward || (ui.randomReward = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var randomReward;
+    (function (randomReward) {
+        var HeroLevelViewUI = /** @class */ (function (_super) {
+            __extends(HeroLevelViewUI, _super);
+            function HeroLevelViewUI() {
+                return _super.call(this) || this;
+            }
+            HeroLevelViewUI.prototype.createChildren = function () {
+                View.regComponent("ScaleAnimScript", ScaleAnimScript);
+                _super.prototype.createChildren.call(this);
+                this.createView(ui.randomReward.HeroLevelViewUI.uiView);
+            };
+            HeroLevelViewUI.uiView = { "type": "View", "props": {}, "child": [{ "type": "Box", "props": { "y": 0, "x": 0, "width": 638, "height": 836 }, "child": [{ "type": "Image", "props": { "y": 334, "x": 318, "var": "imgLight", "skin": "images/core/light_01.png", "anchorY": 0.5, "anchorX": 0.5 } }, { "type": "Image", "props": { "x": 25, "skin": "images/randomReward/randomReward_title_01.png" } }, { "type": "Image", "props": { "y": 518, "x": 241, "skin": "images/component/frame_9calce_03.png", "scaleY": 1.2, "scaleX": 1.2, "sizeGrid": "26,31,23,28" } }, { "type": "Image", "props": { "y": 258, "x": 241, "skin": "images/component/frame_9calce_03.png", "scaleY": 1.2, "scaleX": 1.2, "sizeGrid": "26,31,23,28" } }, { "type": "Image", "props": { "y": 429, "x": 281, "skin": "images/randomReward/randomReward_arrow.png" } }, { "type": "Image", "props": { "y": 663, "x": 320, "var": "oldHero", "skin": "images/carImg/hero_d1_18.png", "anchorY": 1, "anchorX": 0.5 } }, { "type": "Image", "props": { "y": 402, "x": 321, "var": "newHero", "skin": "images/carImg/hero_d1_18.png", "anchorY": 1, "anchorX": 0.5 } }, { "type": "Label", "props": { "y": 848, "x": 214, "text": "点击空白处关闭", "fontSize": 30, "color": "#ffffff" } }, { "type": "Button", "props": { "y": 718, "x": 156, "var": "btn_level", "stateNum": 1, "skin": "images/component/yellow_btn.png", "labelStrokeColor": "#946430", "labelStroke": 2, "labelSize": 40, "labelPadding": "0,0,0,-30", "labelColors": "#FFFFFF,#FFFFFF,#FFFFFF,#FFFFFF", "labelBold": true, "label": "升级" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }, { "type": "Image", "props": { "y": 34, "x": 189, "skin": "images/randomReward/randomReward_share.png" } }] }, { "type": "Label", "props": { "y": 635, "x": 255, "width": 129, "var": "txt_oldLevel", "text": "1级", "strokeColor": "#946430", "stroke": 2, "height": 26, "fontSize": 26, "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "y": 375, "x": 255, "width": 129, "var": "txt_newLevel", "text": "1级", "strokeColor": "#946430", "stroke": 2, "height": 26, "fontSize": 26, "color": "#ffffff", "align": "center" } }] }] };
+            return HeroLevelViewUI;
+        }(View));
+        randomReward.HeroLevelViewUI = HeroLevelViewUI;
+    })(randomReward = ui.randomReward || (ui.randomReward = {}));
 })(ui || (ui = {}));
 (function (ui) {
     var rank;
@@ -8670,7 +8769,7 @@ var ui;
                 _super.prototype.createChildren.call(this);
                 this.createView(ui.shop.ShopViewUI.uiView);
             };
-            ShopViewUI.uiView = { "type": "View", "props": { "y": 0, "x": 0, "width": 726, "height": 1030 }, "child": [{ "type": "View", "props": { "y": -2, "x": -1, "width": 726, "var": "mainView", "height": 1017 }, "child": [{ "type": "Image", "props": { "width": 713, "skin": "images/component/frame_9calce_01.png", "sizeGrid": "158,62,69,62", "name": "imgBg", "height": 1017 }, "child": [{ "type": "Image", "props": { "y": 26, "x": 256, "skin": "images/shop/shop_title_icon.png" }, "child": [{ "type": "Label", "props": { "y": 12, "x": -134, "width": 600, "visible": false, "valign": "middle", "text": "排行榜", "strokeColor": "#5e2818", "stroke": 2, "name": "txtTitle", "height": 60, "fontSize": 40, "color": "#fff4c0", "bold": true, "align": "center" } }] }, { "type": "Image", "props": { "y": 172, "x": 34, "width": 644, "skin": "images/component/frame_9calce_02.png", "sizeGrid": "59,56,54,51", "height": 778 } }, { "type": "Image", "props": { "y": 184, "x": 41, "skin": "images/shop/shop_bg_01.png" } }, { "type": "Image", "props": { "y": 85, "x": -15, "skin": "images/shop/shop_bg_04.png" } }, { "type": "Image", "props": { "y": 199, "x": 81, "skin": "images/shop/shop_bg_02.png", "height": 40 }, "child": [{ "type": "Image", "props": { "y": -10, "x": -14, "skin": "images/core/coin_big.png", "name": "imgMoney" }, "child": [{ "type": "Label", "props": { "y": 13, "x": 60, "var": "txtMoney", "text": "0", "strokeColor": "#946430", "stroke": 4, "name": "txtMoney", "fontSize": 30, "color": "#ffffff", "bold": true, "align": "left" } }] }] }, { "type": "Image", "props": { "y": 198, "x": 267, "skin": "images/shop/shop_bg_03.png" }, "child": [{ "type": "Image", "props": { "y": -9, "x": -22, "skin": "images/core/diamond_icon.png", "name": "imgDiamond" }, "child": [{ "type": "Label", "props": { "y": 12, "x": 60, "var": "txtDiamond", "text": "0", "strokeColor": "#946430", "stroke": 4, "name": "txtDiamond", "fontSize": 30, "color": "#ffffff", "bold": true, "align": "left" } }] }] }, { "type": "List", "props": { "y": 260, "x": 46, "width": 620, "var": "heroList", "spaceY": 15, "spaceX": 0, "repeatY": 1, "repeatX": 1, "name": "heroList", "height": 659 }, "child": [{ "type": "Box", "props": { "y": 190, "x": 110, "width": 620, "renderType": "render", "height": 150 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "skin": "images/shop/shop_item_bg.png" } }, { "type": "Image", "props": { "y": 128, "x": 90, "name": "imgModel", "anchorY": 1, "anchorX": 0.5 } }, { "type": "Image", "props": { "y": 62, "x": 499, "name": "imgPet", "disabled": true, "anchorY": 0.5, "anchorX": 0.5 } }, { "type": "Image", "props": { "y": 57, "x": 167, "skin": "images/shop/shop_bg_03.png", "name": "imgAtk" }, "child": [{ "type": "Label", "props": { "y": 6, "x": 13, "text": "攻击:", "strokeColor": "#946430", "stroke": 2, "fontSize": 24, "color": "#ffffff", "bold": true } }, { "type": "Label", "props": { "y": 7, "x": 71, "text": "0", "strokeColor": "#946430", "stroke": 2, "name": "txtAtk", "fontSize": 24, "color": "#ffffff", "bold": true } }] }, { "type": "Image", "props": { "y": 98, "x": 167, "skin": "images/shop/shop_bg_03.png", "name": "imgSpeed" }, "child": [{ "type": "Label", "props": { "y": 6, "x": 13, "text": "攻速:", "strokeColor": "#946430", "stroke": 2, "fontSize": 24, "color": "#ffffff", "bold": true } }, { "type": "Label", "props": { "y": 7, "x": 71, "text": "0", "strokeColor": "#946430", "stroke": 2, "name": "txtSpeed", "fontSize": 24, "color": "#ffffff", "bold": true } }] }, { "type": "Label", "props": { "y": 17, "x": 176, "text": "大黄蜂", "name": "txtName", "fontSize": 30, "color": "#d28a00", "bold": true } }, { "type": "Label", "props": { "y": 15, "x": 9, "width": 30, "text": "0", "name": "txtLevel", "fontSize": 20, "color": "#ffffff", "align": "center" } }, { "type": "Button", "props": { "y": 43, "x": 422, "stateNum": 1, "skin": "images/component/frame_btn_small_yellow.png", "name": "btnBuy", "labelSize": 30 }, "child": [{ "type": "Image", "props": { "y": 11, "x": 19, "skin": "images/core/coin_40x40.png", "name": "imgPrice" }, "child": [{ "type": "Label", "props": { "y": 5, "x": 42, "text": "1000", "strokeColor": "#946430", "stroke": 4, "name": "txtPrice", "fontSize": 30, "color": "#ffffff", "bold": true, "align": "left" } }] }, { "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }, { "type": "Button", "props": { "y": 73, "x": 422, "visible": false, "stateNum": 1, "skin": "images/shop/shop_btn_03.png", "name": "btnBuyLock", "labelSize": 30 }, "child": [{ "type": "Label", "props": { "y": -40, "x": 63, "width": 50, "text": "0", "strokeColor": "#946430", "stroke": 4, "name": "txtUnlockLevel", "fontSize": 30, "color": "#ffffff", "bold": true, "align": "center" } }, { "type": "Label", "props": { "y": 13, "x": 37, "text": "待解锁", "strokeColor": "#946430", "stroke": 4, "fontSize": 35, "color": "#ffffff", "bold": true } }, { "type": "Script", "props": { "y": -63, "x": -412, "runtime": "ScaleAnimScript" } }] }, { "type": "Button", "props": { "y": 26, "x": 332, "visible": false, "stateNum": 1, "skin": "images/core/shop_free_video.png", "name": "btnSharePrize", "labelSize": 30 }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }, { "type": "Image", "props": { "y": 0, "x": 55, "skin": "images/core/red_dot_hint.png", "name": "imgRedPoint" } }] }, { "type": "Button", "props": { "y": 26, "x": 335, "visible": false, "stateNum": 1, "skin": "images/shop_diamond_buy.png", "name": "btnDiamondBuy", "labelSize": 30 }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }] }] }, { "type": "Label", "props": { "y": 1016, "x": 270, "text": "点击空白处关闭", "name": "txtExit", "fontSize": 30, "color": "#ffffff" } }, { "type": "Button", "props": { "y": 192, "x": 505, "var": "btn_skillExplain", "stateNum": 1, "skin": "images/shop/shop_skill_btn.png" } }, { "type": "Button", "props": { "y": -13, "x": 633, "var": "btnExit", "stateNum": 1, "skin": "images/component/frame_close_btn.png", "name": "btnExit" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }] }] }] };
+            ShopViewUI.uiView = { "type": "View", "props": { "y": 0, "x": 0, "width": 726, "height": 1030 }, "child": [{ "type": "View", "props": { "y": -2, "x": -1, "width": 726, "var": "mainView", "height": 1017 }, "child": [{ "type": "Image", "props": { "width": 713, "skin": "images/component/frame_9calce_01.png", "sizeGrid": "158,62,69,62", "name": "imgBg", "height": 1017 }, "child": [{ "type": "Image", "props": { "y": 26, "x": 301, "skin": "images/shop/shop_title_icon.png" }, "child": [{ "type": "Label", "props": { "y": 12, "x": -134, "width": 600, "visible": false, "valign": "middle", "text": "排行榜", "strokeColor": "#5e2818", "stroke": 2, "name": "txtTitle", "height": 60, "fontSize": 40, "color": "#fff4c0", "bold": true, "align": "center" } }] }, { "type": "Image", "props": { "y": 172, "x": 34, "width": 644, "skin": "images/component/frame_9calce_02.png", "sizeGrid": "59,56,54,51", "height": 778 } }, { "type": "Image", "props": { "y": 184, "x": 41, "skin": "images/shop/shop_bg_01.png" } }, { "type": "Image", "props": { "y": 85, "x": -15, "skin": "images/shop/shop_bg_04.png" } }, { "type": "Image", "props": { "y": 199, "x": 81, "skin": "images/shop/shop_bg_02.png", "height": 40 }, "child": [{ "type": "Image", "props": { "y": -10, "x": -14, "skin": "images/core/coin_big.png", "name": "imgMoney" }, "child": [{ "type": "Label", "props": { "y": 13, "x": 60, "var": "txtMoney", "text": "0", "strokeColor": "#946430", "stroke": 4, "name": "txtMoney", "fontSize": 30, "color": "#ffffff", "bold": true, "align": "left" } }] }] }, { "type": "Image", "props": { "y": 198, "x": 267, "skin": "images/shop/shop_bg_03.png" }, "child": [{ "type": "Image", "props": { "y": -9, "x": -22, "skin": "images/core/diamond_icon.png", "name": "imgDiamond" }, "child": [{ "type": "Label", "props": { "y": 12, "x": 60, "var": "txtDiamond", "text": "0", "strokeColor": "#946430", "stroke": 4, "name": "txtDiamond", "fontSize": 30, "color": "#ffffff", "bold": true, "align": "left" } }] }] }, { "type": "List", "props": { "y": 260, "x": 46, "width": 620, "var": "heroList", "spaceY": 15, "spaceX": 0, "repeatY": 1, "repeatX": 1, "name": "heroList", "height": 659 }, "child": [{ "type": "Box", "props": { "y": 190, "x": 110, "width": 620, "renderType": "render", "height": 150 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "skin": "images/shop/shop_item_bg.png" } }, { "type": "Image", "props": { "y": 128, "x": 90, "name": "imgModel", "anchorY": 1, "anchorX": 0.5 } }, { "type": "Image", "props": { "y": 62, "x": 499, "name": "imgPet", "disabled": true, "anchorY": 0.5, "anchorX": 0.5 } }, { "type": "Image", "props": { "y": 57, "x": 167, "skin": "images/shop/shop_bg_03.png", "name": "imgAtk" }, "child": [{ "type": "Label", "props": { "y": 6, "x": 13, "text": "攻击:", "strokeColor": "#946430", "stroke": 2, "fontSize": 24, "color": "#ffffff", "bold": true } }, { "type": "Label", "props": { "y": 7, "x": 71, "text": "0", "strokeColor": "#946430", "stroke": 2, "name": "txtAtk", "fontSize": 24, "color": "#ffffff", "bold": true } }] }, { "type": "Image", "props": { "y": 98, "x": 167, "skin": "images/shop/shop_bg_03.png", "name": "imgSpeed" }, "child": [{ "type": "Label", "props": { "y": 6, "x": 13, "text": "攻速:", "strokeColor": "#946430", "stroke": 2, "fontSize": 24, "color": "#ffffff", "bold": true } }, { "type": "Label", "props": { "y": 7, "x": 71, "text": "0", "strokeColor": "#946430", "stroke": 2, "name": "txtSpeed", "fontSize": 24, "color": "#ffffff", "bold": true } }] }, { "type": "Label", "props": { "y": 17, "x": 176, "text": "大黄蜂", "name": "txtName", "fontSize": 30, "color": "#d28a00", "bold": true } }, { "type": "Label", "props": { "y": 15, "x": 9, "width": 30, "text": "0", "name": "txtLevel", "fontSize": 20, "color": "#ffffff", "align": "center" } }, { "type": "Button", "props": { "y": 43, "x": 422, "stateNum": 1, "skin": "images/component/frame_btn_small_yellow.png", "name": "btnBuy", "labelSize": 30 }, "child": [{ "type": "Image", "props": { "y": 11, "x": 19, "skin": "images/core/coin_40x40.png", "name": "imgPrice" }, "child": [{ "type": "Label", "props": { "y": 5, "x": 42, "text": "1000", "strokeColor": "#946430", "stroke": 4, "name": "txtPrice", "fontSize": 30, "color": "#ffffff", "bold": true, "align": "left" } }] }, { "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }, { "type": "Button", "props": { "y": 73, "x": 422, "visible": false, "stateNum": 1, "skin": "images/shop/shop_btn_03.png", "name": "btnBuyLock", "labelSize": 30 }, "child": [{ "type": "Label", "props": { "y": -40, "x": 63, "width": 50, "text": "0", "strokeColor": "#946430", "stroke": 4, "name": "txtUnlockLevel", "fontSize": 30, "color": "#ffffff", "bold": true, "align": "center" } }, { "type": "Label", "props": { "y": 13, "x": 37, "text": "待解锁", "strokeColor": "#946430", "stroke": 4, "fontSize": 35, "color": "#ffffff", "bold": true } }, { "type": "Script", "props": { "y": -63, "x": -412, "runtime": "ScaleAnimScript" } }] }, { "type": "Button", "props": { "y": 26, "x": 332, "visible": false, "stateNum": 1, "skin": "images/core/shop_free_video.png", "name": "btnSharePrize", "labelSize": 30 }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }, { "type": "Image", "props": { "y": 0, "x": 55, "skin": "images/core/red_dot_hint.png", "name": "imgRedPoint" } }] }, { "type": "Button", "props": { "y": 26, "x": 335, "visible": false, "stateNum": 1, "skin": "images/shop_diamond_buy.png", "name": "btnDiamondBuy", "labelSize": 30 }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }] }] }, { "type": "Label", "props": { "y": 1016, "x": 251, "text": "点击空白处关闭", "name": "txtExit", "fontSize": 30, "color": "#ffffff" } }, { "type": "Button", "props": { "y": 192, "x": 505, "var": "btn_skillExplain", "stateNum": 1, "skin": "images/shop/shop_skill_btn.png" } }, { "type": "Button", "props": { "y": -13, "x": 633, "var": "btnExit", "stateNum": 1, "skin": "images/component/frame_close_btn.png", "name": "btnExit" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }] }] }] };
             return ShopViewUI;
         }(View));
         shop.ShopViewUI = ShopViewUI;
@@ -9844,6 +9943,263 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+/*
+* 关注奖励;
+*/
+var FollowRewardView = /** @class */ (function (_super) {
+    __extends(FollowRewardView, _super);
+    function FollowRewardView() {
+        var _this = _super.call(this) || this;
+        _this.init();
+        return _this;
+    }
+    //新建并添加到节点
+    FollowRewardView.Create = function (_parentNode, callback, _removeCallback) {
+        if (callback === void 0) { callback = null; }
+        if (_removeCallback === void 0) { _removeCallback = null; }
+        var arge = [];
+        for (var _i = 3; _i < arguments.length; _i++) {
+            arge[_i - 3] = arguments[_i];
+        }
+        var resList = [
+            { url: "res/atlas/images/followReward.atlas", type: Laya.Loader.ATLAS }
+        ];
+        Laya.loader.load(resList, Handler.create(null, function () {
+            if (_parentNode) {
+                var nodeView = new FollowRewardView();
+                AlignUtils.setToScreenGoldenPos(nodeView);
+                LayerManager.getInstance().frameLayer.addChildWithMaskCall(nodeView, nodeView.removeSelf);
+                nodeView.once(Laya.Event.REMOVED, nodeView, _removeCallback);
+            }
+        }));
+    };
+    //初始化
+    FollowRewardView.prototype.init = function () {
+        var that = this;
+        //按钮事件
+        that.btnExit.on(Laya.Event.CLICK, that, that.onClickExit);
+        that.btnGet.on(Laya.Event.CLICK, that, that.onClickGet);
+        that.requestOfficialAccData(function (_res) {
+            if (that.imgBg && _res && _res.image) {
+                that.imgBg.skin = _res.image;
+            }
+        });
+    };
+    FollowRewardView.prototype.onClickExit = function () {
+        this.removeSelf();
+    };
+    FollowRewardView.prototype.onClickGet = function () {
+        var that = this;
+        that.requestPrize();
+    };
+    //拉取奖励
+    FollowRewardView.prototype.requestPrize = function () {
+        var that = this;
+        var HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+        HttpReqHelper.request({
+            url: 'v1/subscription/rewards',
+            success: function (res) {
+                console.log("requestPrize", res);
+                if (res.code == 1) {
+                    MessageUtils.showMsgTips("奖励领取成功");
+                    HttpManager.Instance.requestDiamondData();
+                    //移除红点
+                    if (userData) {
+                        userData.removeFollowRedPoint();
+                    }
+                }
+                else if (res.code == 2) {
+                    MessageUtils.showMsgTips("未关注公众号");
+                }
+                else if (res.code == 3) {
+                    MessageUtils.showMsgTips("奖励已领取");
+                }
+            },
+            fail: function (res) {
+                console.log(res);
+            }
+        });
+    };
+    //拉取公众二维码
+    FollowRewardView.prototype.requestOfficialAccData = function (_callback) {
+        var that = this;
+        var HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+        HttpReqHelper.request({
+            url: 'v1/subscription/get_info',
+            success: function (res) {
+                console.log("requestOfficialAccData", res);
+                _callback && _callback(res);
+            },
+            fail: function (res) {
+                console.log(res);
+            }
+        });
+    };
+    return FollowRewardView;
+}(ui.follow.FollowRewardViewUI));
+//# sourceMappingURL=FollowRewardView.js.map
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+/*
+* 好友互助Item;
+*/
+var FriendConcurItem = /** @class */ (function (_super) {
+    __extends(FriendConcurItem, _super);
+    function FriendConcurItem() {
+        return _super.call(this) || this;
+    }
+    Object.defineProperty(FriendConcurItem.prototype, "dataSource", {
+        set: function (value) {
+            var self = this;
+            if (value) {
+                self.txt_time.text = value.create_time;
+                self.btn_get.disabled = value.status != 0;
+                if (self.btn_get.disabled) {
+                    self.btn_get.label = "已领取";
+                }
+                else {
+                    self.btn_get.label = "可领取";
+                }
+                if (value.uid == userData.userId) {
+                    self.txt_des.text = "有位好友为您助力!";
+                }
+                else {
+                    self.txt_des.text = "您点击了" + StringUtils.omitStringByByteLen(platform.decode(value.nick_name)) + "的分享链接";
+                }
+                this.btn_get.on(Laya.Event.CLICK, this, this.onGetReward);
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    /** 领取奖励 */
+    FriendConcurItem.prototype.onGetReward = function () {
+        EventsManager.Instance.event(EventsType.FRIEND_CONCUR_GET_REWARD);
+    };
+    return FriendConcurItem;
+}(ui.friendConcur.FriendConcurItemUI));
+//# sourceMappingURL=FriendConcurItem.js.map
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+/*
+* 好友互助;
+*/
+var FriendConcurView = /** @class */ (function (_super) {
+    __extends(FriendConcurView, _super);
+    function FriendConcurView() {
+        var _this = _super.call(this) || this;
+        _this.addEvetns();
+        _this.init();
+        return _this;
+    }
+    //新建并添加到节点
+    FriendConcurView.Create = function (_parentNode) {
+        var resList = [
+            { url: "res/atlas/images/friendConcur.atlas", type: Laya.Loader.ATLAS }
+        ];
+        Laya.loader.load(resList, Handler.create(null, function () {
+            if (_parentNode) {
+                var nodeView = new FriendConcurView();
+                AlignUtils.setToScreenGoldenPos(nodeView);
+                LayerManager.getInstance().frameLayer.addChildWithMaskCall(nodeView, nodeView.removeView);
+                nodeView.once(Laya.Event.REMOVED, nodeView, nodeView.removeView);
+            }
+        }));
+    };
+    //初始化
+    FriendConcurView.prototype.init = function () {
+        var self = this;
+        self.rewardList.visible = false;
+        self.rewardList.itemRender = FriendConcurItem;
+        self.rewardList.vScrollBarSkin = "";
+        self.rewardList.optimizeScrollRect = true;
+        self.requestReward();
+    };
+    FriendConcurView.prototype.addEvetns = function () {
+        var self = this;
+        self.btn_exit.on(Laya.Event.CLICK, self, self.removeView);
+        self.btn_send.on(Laya.Event.CLICK, self, self.onSendShareHandler);
+        EventsManager.Instance.on(EventsType.FRIEND_CONCUR_GET_REWARD, self, self.requestReward);
+    };
+    FriendConcurView.prototype.removeEvents = function () {
+        var self = this;
+        self.btn_exit.off(Laya.Event.CLICK, self, self.removeView);
+        self.btn_send.off(Laya.Event.CLICK, self, self.onSendShareHandler);
+        EventsManager.Instance.off(EventsType.FRIEND_CONCUR_GET_REWARD, self, self.requestReward);
+    };
+    /** 发送分享 */
+    FriendConcurView.prototype.onSendShareHandler = function () {
+        userData.toShareAd(function () {
+            MessageUtils.showMsgTips("分享成功");
+        }, 14);
+    };
+    FriendConcurView.prototype.refreshRewarList = function (data) {
+        var self = this;
+        if (data == null)
+            return console.log("好友互动 -- 拉取不到数据。。。");
+        self.rewardList.visible = true;
+        var listData = data;
+        listData.sort(function (pre, next) {
+            return next.status - pre.status;
+        });
+        self.rewardList.array = listData;
+    };
+    FriendConcurView.prototype.requestReward = function () {
+        var that = this;
+        var HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+        HttpReqHelper.request({
+            url: 'v1/friend/help',
+            success: function (res) {
+                that.refreshRewarList(res);
+            },
+            fail: function (res) {
+                console.log(res);
+            }
+        });
+    };
+    FriendConcurView.prototype.removeView = function () {
+        var self = this;
+        self.removeSelf();
+        self.removeEvents();
+    };
+    return FriendConcurView;
+}(ui.friendConcur.FriendConcurUI));
+//# sourceMappingURL=FriendConcurView.js.map
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 var NoviceManager = /** @class */ (function (_super) {
     __extends(NoviceManager, _super);
     function NoviceManager() {
@@ -10336,6 +10692,8 @@ var HallScene = /** @class */ (function (_super) {
         _this.imgCarNumTimeLine = null; //兵营满席动画
         _this._giveCarTime = 0; //定时赠送怪物
         _this._giveTempTime = 0; //定时赠送怪物
+        /** 更新在线奖励时间 */
+        _this._diamondTime = 0;
         var self = _this;
         self.frameOnce(5, self, function () {
             self.addEvents();
@@ -10348,6 +10706,7 @@ var HallScene = /** @class */ (function (_super) {
         var resList = [
             { url: "res/atlas/images.atlas", type: Laya.Loader.ATLAS },
             { url: "res/atlas/images/component.atlas", type: Laya.Loader.ATLAS },
+            { url: "res/atlas/images/hall.atlas", type: Laya.Loader.ATLAS },
             { url: "res/atlas/images/core.atlas", type: Laya.Loader.ATLAS },
             { url: "res/atlas/images/novice.atlas", type: Laya.Loader.ATLAS },
             { url: "sheets/sheet.json", type: Laya.Loader.JSON }
@@ -10558,11 +10917,14 @@ var HallScene = /** @class */ (function (_super) {
             if (userData.isShowLuckPrizeRedPoint()) {
                 self.showLuckPrizeRedPoint();
             }
+            //关注红点
+            if (userData.isShowFollowRedPoint()) {
+                self.showFollowRewardRedPoint();
+            }
         }
     };
     HallScene.prototype.addEvents = function () {
         var self = this;
-        self.btnRanking.on(Laya.Event.CLICK, self, self.onRanking);
         self.btnPower.on(Laya.Event.CLICK, self, self.onPowerAcce);
         self.btnShop.on(Laya.Event.CLICK, self, self.onShowCarport);
         self.btnCarStore.on(Laya.Event.CLICK, self, self.onCarStore);
@@ -10571,11 +10933,15 @@ var HallScene = /** @class */ (function (_super) {
         self.btnStrengthen.on(Laya.Event.CLICK, self, self.onStrengthen);
         self.btnStagePrize.on(Laya.Event.CLICK, self, self.onStagePrize);
         self.btnMiniProgram.on(Laya.Event.CLICK, self, self.onMiniProgram);
-        self.btnDailyPrize.on(Laya.Event.CLICK, self, self.showDaySignView);
         self.btnLuckPrize.on(Laya.Event.CLICK, self, self.showLuckPrizeView);
         self.btn_fly.on(Laya.Event.CLICK, self, self.onClickMiniProgram);
         self.btn_block.on(Laya.Event.CLICK, self, self.onClickMiniProgram);
         self.btn_eliminate.on(Laya.Event.CLICK, self, self.onClickMiniProgram);
+        self.btn_arrow.on(Laya.Event.CLICK, self, self.onClickMenuHandler);
+        self.btn_concur.on(Laya.Event.CLICK, self, self.onClickConcur); //好友互助 
+        self.btn_ranking.on(Laya.Event.CLICK, self, self.onRanking); //排行榜
+        self.btn_sign.on(Laya.Event.CLICK, self, self.showDaySignView); //签到
+        self.btn_follow.on(Laya.Event.CLICK, self, self.onClickFollow); //关注
         this.btnMore.on(Laya.Event.CLICK, this, function () {
             M.more.show();
         });
@@ -10595,6 +10961,7 @@ var HallScene = /** @class */ (function (_super) {
         EventsManager.Instance.on(EventsType.ACCE_CHANGE, self, self.onUpdateAccelerateBtnState); //加速按钮状态
         EventsManager.Instance.on(EventsType.LUCK_PRIZE, self, self.onUpdatePrizeState); //更新幸运抽奖状态
         EventsManager.Instance.on(EventsType.STRENGTHEN_RED_POINT, self, self.onUpdateStrengthenRedPoint); //强化红点移除事件
+        EventsManager.Instance.on(EventsType.FOLLOW_RED_POINT, self, self.onFollowRewardRedPoint); //关注红点事件
         EventsManager.Instance.on(EventsType.UPDATE_HALL_DATA, self, self.onUpdateHallData);
     };
     HallScene.prototype.onClickMiniProgram = function (evt) {
@@ -10739,13 +11106,6 @@ var HallScene = /** @class */ (function (_super) {
                 }
             }
         }
-    };
-    //排行
-    HallScene.prototype.onRanking = function () {
-        var self = this;
-        RankingView.Create(function () {
-            self.showSurpassView();
-        });
     };
     HallScene.prototype.onFriendRanking = function () {
         var that = this;
@@ -11019,14 +11379,14 @@ var HallScene = /** @class */ (function (_super) {
         }, 11, false, true);
     };
     HallScene.prototype.onShowCarport = function () {
-        var that = this;
-        ShopView.Create(that, function (_nodeView) {
+        var self = this;
+        ShopView.Create(self, function (_nodeView) {
             if (_nodeView) {
                 _nodeView.name = "nodeShopView";
-                _nodeView.btnBuyFun = Laya.Handler.create(that, that.onBuyPet, null, false);
-                _nodeView.btnFreeFun = Laya.Handler.create(that, that.onShareFreeCar, null, false);
-                _nodeView.btnDiamondFun = Laya.Handler.create(that, that.onDiamondBuy, null, false);
-                _nodeView.evolutionFun = Laya.Handler.create(that, that.onEvolutionShop, null, false);
+                _nodeView.btnBuyFun = Laya.Handler.create(self, self.onBuyPet, null, false);
+                _nodeView.btnFreeFun = Laya.Handler.create(self, self.onShareFreeCar, null, false);
+                _nodeView.btnDiamondFun = Laya.Handler.create(self, self.onDiamondBuy, null, false);
+                _nodeView.evolutionFun = Laya.Handler.create(self, self.onEvolutionShop, null, false);
                 _nodeView.refreshMoney(PlayerManager.Instance.Info.userMoney, PlayerManager.Instance.Info.userDiamond);
             }
         }, function () {
@@ -11116,8 +11476,8 @@ var HallScene = /** @class */ (function (_super) {
     HallScene.prototype.showDailySignRedPoint = function (_show) {
         if (_show === void 0) { _show = true; }
         var that = this;
-        if (that.btnDailyPrize) {
-            var imgRedPoint = that.btnDailyPrize.getChildByName("imgRedPoint");
+        if (that.btn_sign) {
+            var imgRedPoint = that.btn_sign.getChildByName("imgRedPoint");
             if (imgRedPoint) {
                 imgRedPoint.visible = _show;
             }
@@ -11128,6 +11488,17 @@ var HallScene = /** @class */ (function (_super) {
         if (show === void 0) { show = true; }
         var self = this;
         self.strengthenRedPoint.visible = show;
+    };
+    /** 显示关注奖励红点 */
+    HallScene.prototype.showFollowRewardRedPoint = function (show) {
+        if (show === void 0) { show = true; }
+        var self = this;
+        if (self.btn_follow) {
+            var imgRedPoint = self.btn_follow.getChildByName("imgRedPoint");
+            if (imgRedPoint) {
+                imgRedPoint.visible = show;
+            }
+        }
     };
     //显示任务红点
     HallScene.prototype.showTaskRedPoint = function (_show) {
@@ -11222,13 +11593,13 @@ var HallScene = /** @class */ (function (_super) {
                         that.curMonsterSprite.setStage(1);
                         //判断是否合并或交换位置
                         if (that.carparkList) {
-                            for (var index = 0; index < HallManager.Instance.hallData.parkMonsterCount; index++) {
-                                var element = that.carparkList.getCell(index);
+                            var _loop_3 = function () {
+                                element = that.carparkList.getCell(index);
                                 if (element) {
-                                    var carParkSp = element.getChildByName("car");
-                                    if (carParkSp && ObjectUtils.isHit(carParkSp) && carParkSp != that.curMonsterSprite) {
-                                        if (!carParkSp.isBox() && !carParkSp.isLock()) {
-                                            var carId = carParkSp.monsterId;
+                                    var carParkSp_1 = element.getChildByName("car");
+                                    if (carParkSp_1 && ObjectUtils.isHit(carParkSp_1) && carParkSp_1 != that.curMonsterSprite) {
+                                        if (!carParkSp_1.isBox() && !carParkSp_1.isLock()) {
+                                            var carId = carParkSp_1.monsterId;
                                             var currPetLv = BattleManager.Instance.getLevel(carId);
                                             if (that.curMonsterSprite.isSameLevel(carId)) {
                                                 //合并
@@ -11239,20 +11610,32 @@ var HallScene = /** @class */ (function (_super) {
                                                 else {
                                                     monsterLevel = ((userData.getKingLevel() - 1) % 30) + 1;
                                                 }
-                                                if (carParkSp.isMaxLevel()) {
+                                                if (carParkSp_1.isMaxLevel()) {
                                                     MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.06"));
                                                 }
                                                 else if (currPetLv >= monsterLevel) {
                                                     MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.08"));
                                                 }
                                                 else {
-                                                    var nextCardId = carId + 1;
-                                                    if (carParkSp.isRunning()) {
-                                                        carParkSp.setKind(nextCardId, index);
-                                                        carParkSp.setStage(2);
+                                                    var nextCardId_1 = carId + 1;
+                                                    userData.synthesisCount++;
+                                                    //随机奖励
+                                                    if (userData.synthesisCount % 12 == 0) {
+                                                        if (Math.random() < 0.4) {
+                                                            AdditionalRewardView.Create(that);
+                                                        }
+                                                        else {
+                                                            HeroLevelView.Create(that, function () {
+                                                                MessageUtils.showMsgTips("升级成功！");
+                                                                carParkSp_1.setKind(nextCardId_1 + 2, index);
+                                                            }, function () {
+                                                                MessageUtils.showMsgTips("升级失败！");
+                                                                carParkSp_1.setKind(nextCardId_1, index);
+                                                            }, nextCardId_1, nextCardId_1 + 2);
+                                                        }
                                                     }
                                                     else {
-                                                        carParkSp.setKind(nextCardId, index);
+                                                        carParkSp_1.setKind(nextCardId_1, index);
                                                     }
                                                     if (NoviceManager.cache.synthesiseComplete) {
                                                         NoviceManager.cache.synthesiseComplete();
@@ -11261,9 +11644,9 @@ var HallScene = /** @class */ (function (_super) {
                                                         NoviceManager.cache.checkPetSynthesisLevel(currPetLv + 1);
                                                     }
                                                     that.curMonsterSprite.clearStage();
-                                                    carParkSp.playMergeEffetc(that.mainView, carId);
+                                                    carParkSp_1.playMergeEffetc(that.mainView, carId);
                                                     //检测等级刷新
-                                                    if (userData.updateCarLevel(BattleManager.Instance.getLevel(nextCardId))) {
+                                                    if (userData.updateCarLevel(BattleManager.Instance.getLevel(nextCardId_1))) {
                                                         //显示红点
                                                         if (userData.isShowCarShopRedPoint() && userData.getCarLevel() == 6) {
                                                             that.showCarportRedPoint();
@@ -11277,18 +11660,18 @@ var HallScene = /** @class */ (function (_super) {
                                                     that.refreshShortcutCreateBtn();
                                                     HallManager.Instance.updateIncomePerSec(HallManager.Instance.getCalculateIncomePerSec(that.carparkList));
                                                     //本地保存
-                                                    userData.setCarparkSave(carParkSp, that.curMonsterSprite);
+                                                    userData.setCarparkSave(carParkSp_1, that.curMonsterSprite);
                                                     //任务统计
                                                     HttpManager.Instance.requestDailyTaskData(1);
                                                     //检查守卫是否可以升级
                                                     that.checkKingIsUpdate();
                                                 }
                                             }
-                                            else if (!carParkSp.isRunning() && HallManager.Instance.isGuide() == false) {
+                                            else if (!carParkSp_1.isRunning() && HallManager.Instance.isGuide() == false) {
                                                 //交换
-                                                var isEmpty = carParkSp.isEmpty();
-                                                carParkSp.setKind(that.curMonsterSprite.monsterId);
-                                                carParkSp.setStage(that.curMonsterSprite.monsterStage);
+                                                var isEmpty = carParkSp_1.isEmpty();
+                                                carParkSp_1.setKind(that.curMonsterSprite.monsterId);
+                                                carParkSp_1.setStage(that.curMonsterSprite.monsterStage);
                                                 if (isEmpty) {
                                                     that.curMonsterSprite.clearStage();
                                                 }
@@ -11296,13 +11679,19 @@ var HallScene = /** @class */ (function (_super) {
                                                     that.curMonsterSprite.setKind(carId);
                                                 }
                                                 //本地保存
-                                                userData.setCarparkSave(carParkSp, that.curMonsterSprite);
+                                                userData.setCarparkSave(carParkSp_1, that.curMonsterSprite);
                                                 Laya.SoundManager.playSound("musics/drawcar.mp3");
                                             }
                                         }
-                                        break;
+                                        return "break";
                                     }
                                 }
+                            };
+                            var element;
+                            for (var index = 0; index < HallManager.Instance.hallData.parkMonsterCount; index++) {
+                                var state_2 = _loop_3();
+                                if (state_2 === "break")
+                                    break;
                             }
                         }
                     }
@@ -11496,7 +11885,6 @@ var HallScene = /** @class */ (function (_super) {
             // 8级之后：随机掉落，最小值：当前金币最高解锁的等级-7，最大值=当前最高金币可购买怪物-4。
             var boxDropCfg = GlobleData.getData(GlobleData.TrainDropVO, userData.getCarLevel());
             var randCarId = 101;
-            var curBuyIndex = 1;
             var dropId = 100;
             if (!boxDropCfg) { //先不走表的规则去掉落
                 var dropCarArray = [boxDropCfg.dropHeroLevel3, boxDropCfg.dropHeroLevel2, boxDropCfg.dropHeroLevel1];
@@ -11517,8 +11905,12 @@ var HallScene = /** @class */ (function (_super) {
                     var monsterInfo = BattleManager.Instance.getUnLockMonster(HallManager.Instance.hallData.buyMonsterType, monsterLevel);
                     randCarId = RandomUtils.rangeInt(monsterInfo.id - 6, monsterInfo.id - 4);
                 }
-                if (randCarId <= 100)
+                if (randCarId <= 100 && !userData.isEvolution()) {
                     randCarId = 101;
+                }
+                else if (randCarId <= 1000 && userData.isEvolution()) {
+                    randCarId = 1001;
+                }
                 var carParkSp = BattleManager.Instance.createPet(randCarId, true);
                 if (carParkSp) {
                     carParkSp.dropBoxEffect(self.mainView);
@@ -11602,32 +11994,6 @@ var HallScene = /** @class */ (function (_super) {
             SDKManager.Instance.closeBannerAd(true);
         }, true);
     };
-    //每日签到界面
-    HallScene.prototype.showDaySignView = function () {
-        var _this = this;
-        var that = this;
-        DaySignView.Create(Laya.Handler.create(this, function (view) {
-            if (view) {
-                view.on(DaySignView.REMOVE_FROM_STAGE, _this, function () {
-                    resolveDailyPrizeVisible();
-                });
-            }
-            resolveDailyPrizeVisible();
-            function resolveDailyPrizeVisible() {
-                if (DaySignView.signData) {
-                    that.btnDailyPrize.visible = DaySignView.signData.sign.status === 0;
-                }
-                else {
-                    that.btnDailyPrize.visible = true;
-                }
-                // if(that.btnDailyPrize.visible){
-                //     if (DaySignView.signData.sign.status) {
-                //         that.showDailySignRedPoint();
-                //     }
-                // }
-            }
-        }));
-    };
     //幸运抽奖界面
     HallScene.prototype.showLuckPrizeView = function () {
         LuckPrizeView.Create(null, function () {
@@ -11696,7 +12062,6 @@ var HallScene = /** @class */ (function (_super) {
     //本地取出怪物
     HallScene.prototype.getCarStore = function (_isRemove) {
         if (_isRemove === void 0) { _isRemove = false; }
-        var that = this;
         var storage = window.localStorage;
         var dataJson = storage.getItem(HallManager.Instance.hallData.monsterStoreKey);
         if (dataJson) {
@@ -11942,6 +12307,17 @@ var HallScene = /** @class */ (function (_super) {
             self.showStrengthenRedPoint(false);
         }
     };
+    /** 更新关注红点 */
+    HallScene.prototype.onFollowRewardRedPoint = function ($data) {
+        var self = this;
+        console.log("关注红点 ---- " + $data);
+        if ($data == "show") {
+            self.showFollowRewardRedPoint();
+        }
+        else {
+            self.showFollowRewardRedPoint(false);
+        }
+    };
     /** 刷新金币 */
     HallScene.prototype.onRefreshGold = function () {
         var self = this;
@@ -12016,6 +12392,86 @@ var HallScene = /** @class */ (function (_super) {
                 self.handlerGiveMonster();
             }
         });
+    };
+    /** 功能菜单 */
+    HallScene.prototype.onClickMenuHandler = function () {
+        var self = this;
+        self.btn_arrow.mouseEnabled = false;
+        if (self.btn_arrow.scaleX == -1) {
+            Laya.Tween.to(self.menuBox, { left: -390 }, 350, null, Laya.Handler.create(self, function () {
+                Laya.Tween.clearTween(self.menuBox);
+                self.btn_arrow.mouseEnabled = true;
+                self.btn_arrow.scaleX = 1;
+            }, null, true));
+        }
+        else {
+            Laya.Tween.to(self.menuBox, { left: 0 }, 350, null, Laya.Handler.create(self, function () {
+                Laya.Tween.clearTween(self.menuBox);
+                self.btn_arrow.mouseEnabled = true;
+                self.btn_arrow.scaleX = -1;
+            }, null, true));
+        }
+    };
+    /** 好友互助 */
+    HallScene.prototype.onClickConcur = function () {
+        FriendConcurView.Create(this);
+    };
+    /** 关注 */
+    HallScene.prototype.onClickFollow = function () {
+        FollowRewardView.Create(this, function () {
+        });
+    };
+    //每日签到界面
+    HallScene.prototype.showDaySignView = function () {
+        var _this = this;
+        var that = this;
+        DaySignView.Create(Laya.Handler.create(this, function (view) {
+            if (view) {
+                view.on(DaySignView.REMOVE_FROM_STAGE, _this, function () {
+                    resolveDailyPrizeVisible();
+                });
+            }
+            resolveDailyPrizeVisible();
+            function resolveDailyPrizeVisible() {
+                // if (DaySignView.signData) {
+                //   that.btnDailyPrize.visible = DaySignView.signData.sign.status === 0;
+                // } else {
+                //   that.btnDailyPrize.visible = true;
+                // }
+            }
+        }));
+    };
+    //排行
+    HallScene.prototype.onRanking = function () {
+        var self = this;
+        RankingView.Create(function () {
+            self.showSurpassView();
+        });
+    };
+    HallScene.prototype.updateDiamondTime = function (time) {
+        var self = this;
+        self._diamondTime = time;
+        self.btn_online.mouseEnabled = false;
+        if (self._diamondTime > 0) {
+            self.txt_diamondTime.text = TimeUtil.S2H(self._diamondTime, ":", false);
+            TimerManager.Instance.doTimer(1000, 0, self.onUpdateTime, self);
+        }
+        else if (self._diamondTime <= 0) {
+            self.txt_diamondTime.text = "领取奖励";
+            self.btn_online.mouseEnabled = true;
+        }
+    };
+    HallScene.prototype.onUpdateTime = function () {
+        var self = this;
+        if (self._diamondTime > 0) {
+            self.txt_diamondTime.text = TimeUtil.S2H(self._diamondTime, ":", false);
+            self._diamondTime--;
+        }
+        else {
+            TimerManager.Instance.remove(self.onUpdateTime, self);
+            self.txt_diamondTime.text = "领取奖励";
+            self.btn_online.mouseEnabled = true;
+        }
     };
     return HallScene;
 }(ui.hall.HallSceneUI));
@@ -12649,7 +13105,6 @@ var MoreView = /** @class */ (function (_super) {
         this.ui.btnCustomService.on(Laya.Event.CLICK, this, this.onCustomService);
         this.ui.btnSoundOpend.on(Laya.Event.CLICK, this, this.onSwitchMute);
         this.ui.btnSoundClosed.on(Laya.Event.CLICK, this, this.onSwitchMute);
-        this.ui.imgSubscribe.on(Laya.Event.CLICK, this, this.onSubscribe);
         this.ui.imgClose.on(Laya.Event.CLICK, this, this.removeSelf);
     };
     MoreView.prototype.onSwitchMute = function () {
@@ -12672,9 +13127,6 @@ var MoreView = /** @class */ (function (_super) {
             fail: function (res) {
             }
         });
-    };
-    MoreView.prototype.onSubscribe = function () {
-        MessageUtils.showMsgTips("功能暂未开放");
     };
     return MoreView;
 }(Laya.Component));
@@ -12737,6 +13189,190 @@ var MoreViewListItem = /** @class */ (function (_super) {
     return MoreViewListItem;
 }(Laya.Component));
 //# sourceMappingURL=MoreViewListItem.js.map
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+/*
+* 额外奖励界面;
+*/
+var AdditionalRewardView = /** @class */ (function (_super) {
+    __extends(AdditionalRewardView, _super);
+    function AdditionalRewardView() {
+        var _this = _super.call(this) || this;
+        _this.addEvetns();
+        _this.init();
+        return _this;
+    }
+    //新建并添加到节点
+    AdditionalRewardView.Create = function (_parentNode) {
+        var resList = [
+            { url: "res/atlas/images/randomReward.atlas", type: Laya.Loader.ATLAS }
+        ];
+        Laya.loader.load(resList, Handler.create(null, function () {
+            if (_parentNode) {
+                var nodeView = new AdditionalRewardView();
+                AlignUtils.setToScreenGoldenPos(nodeView);
+                LayerManager.getInstance().subFrameLayer.addChildWithMaskCall(nodeView, nodeView.removeView);
+                nodeView.once(Laya.Event.REMOVED, nodeView, nodeView.removeView);
+            }
+        }));
+    };
+    //初始化
+    AdditionalRewardView.prototype.init = function () {
+        var self = this;
+        self.txt_count.text = RandomUtils.rangeInt(5, 20) + "";
+    };
+    AdditionalRewardView.prototype.addEvetns = function () {
+        var self = this;
+        self.btn_get.on(Laya.Event.CLICK, self, self.onGetReward);
+    };
+    AdditionalRewardView.prototype.removeEvents = function () {
+        var self = this;
+        self.btn_get.off(Laya.Event.CLICK, self, self.onGetReward);
+    };
+    /** 领取奖励 */
+    AdditionalRewardView.prototype.onGetReward = function () {
+        var self = this;
+        userData.toShareAd(function () {
+            self.requestReward(1, function (_res) {
+                if (_res) {
+                    if (_res.code === 1) {
+                        MessageUtils.showMsgTips("奖励领取成功");
+                        self.removeView();
+                    }
+                    else if (_res.code === 2) {
+                        MessageUtils.showMsgTips("领取失败！");
+                    }
+                }
+            });
+        });
+    };
+    AdditionalRewardView.prototype.requestReward = function (itemId, callback) {
+        var that = this;
+        var HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+        HttpReqHelper.request({
+            url: 'v1/task/rewards/' + itemId,
+            success: function (res) {
+                callback && callback(res);
+            },
+            fail: function (res) {
+                console.log(res);
+            }
+        });
+    };
+    AdditionalRewardView.prototype.removeView = function () {
+        var self = this;
+        self.removeSelf();
+        self.removeEvents();
+    };
+    return AdditionalRewardView;
+}(ui.randomReward.AdditionalRewardViewUI));
+//# sourceMappingURL=AdditionalRewardView.js.map
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+/*
+* 英雄升级;
+*/
+var HeroLevelView = /** @class */ (function (_super) {
+    __extends(HeroLevelView, _super);
+    function HeroLevelView(callBack, arg) {
+        var _this = _super.call(this) || this;
+        _this._callback = callBack;
+        _this._arg = arg;
+        _this.addEvetns();
+        _this.init();
+        return _this;
+    }
+    //新建并添加到节点
+    HeroLevelView.Create = function (_parentNode, callBack, closeCallBack) {
+        var arg = [];
+        for (var _i = 3; _i < arguments.length; _i++) {
+            arg[_i - 3] = arguments[_i];
+        }
+        var resList = [
+            { url: "res/atlas/images/randomReward.atlas", type: Laya.Loader.ATLAS }
+        ];
+        Laya.loader.load(resList, Handler.create(null, function () {
+            if (_parentNode) {
+                var nodeView_1 = new HeroLevelView(callBack, arg);
+                AlignUtils.setToScreenGoldenPos(nodeView_1);
+                LayerManager.getInstance().subFrameLayer.addChildWithMaskCall(nodeView_1, function () {
+                    closeCallBack && closeCallBack();
+                    nodeView_1.removeSelf();
+                });
+                nodeView_1.once(Laya.Event.REMOVED, nodeView_1, nodeView_1.removeView);
+            }
+        }));
+    };
+    //初始化
+    HeroLevelView.prototype.init = function () {
+        var self = this;
+        var oldInfo = BattleManager.Instance.getMonsterItem(self._arg[0]);
+        self.oldHero.skin = "images/carImg/" + oldInfo.imgUrl;
+        self.txt_oldLevel.text = (userData.isEvolution() ? oldInfo.id - 1000 : oldInfo.id - 100) + "级";
+        var newInfo = BattleManager.Instance.getMonsterItem(self._arg[1]);
+        self.newHero.skin = "images/carImg/" + newInfo.imgUrl;
+        self.txt_newLevel.text = (userData.isEvolution() ? newInfo.id - 1000 : newInfo.id - 100) + "级";
+    };
+    HeroLevelView.prototype.addEvetns = function () {
+        var self = this;
+        self.btn_level.on(Laya.Event.CLICK, self, self.onHeroLevel);
+    };
+    HeroLevelView.prototype.removeEvents = function () {
+        var self = this;
+        self.btn_level.off(Laya.Event.CLICK, self, self.onHeroLevel);
+    };
+    /** 英雄升级 */
+    HeroLevelView.prototype.onHeroLevel = function () {
+        var self = this;
+        if (GlobalConfig.DEBUG) {
+            if (self._callback)
+                self._callback();
+        }
+        else {
+            var adStage = userData.toShareAd(function () {
+                if (self._callback)
+                    self._callback();
+            }, 12);
+            //没有广告就走分享
+            if (adStage > 0) {
+                userData.toShareAd(function () {
+                    if (self._callback)
+                        self._callback();
+                });
+            }
+        }
+        self.removeView();
+    };
+    HeroLevelView.prototype.removeView = function () {
+        var self = this;
+        self.removeSelf();
+        self.removeEvents();
+    };
+    return HeroLevelView;
+}(ui.randomReward.HeroLevelViewUI));
+//# sourceMappingURL=HeroLevelView.js.map
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||

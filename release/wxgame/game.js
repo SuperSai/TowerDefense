@@ -3,8 +3,12 @@ require("platform.js");
 // require("loading.js");
 require("code.js");
 
-import { Token } from 'utils/token.js';
-import { HttpRequest } from 'utils/httpRequest.js';
+import {
+  Token
+} from 'utils/token.js';
+import {
+  HttpRequest
+} from 'utils/httpRequest.js';
 
 //token校验
 // var AppUrl = 'https://mini.vuggame.cn/api/';
@@ -19,7 +23,19 @@ var httpReq = new HttpRequest(AppUrl);
 wx.onShow(function (_param) {
   console.log("wx.onShow:", _param);
   if (_param) {
-    if (_param.query && _param.query.userId) {
+    //好友互助
+    if (_param.query && _param.query.shareType == "friendConcur") {
+      console.log("好友互助UID:", _param.query.userId);
+      httpReq.request({
+        url: "v1/friend/click/" + _param.query.userId,
+        success: function (res) {
+          console.log(res);
+        },
+        fail: function (res) {
+          console.log(res);
+        }
+      })
+    } else if (_param.query && _param.query.userId) {
       //分享礼包
       httpReq.request({
         url: "v1/share/friend",
@@ -66,14 +82,14 @@ wx.onShow(function (_param) {
 })
 
 //延迟启动分包下载
-setTimeout(()=>{
+setTimeout(() => {
   // loading.onload();
   var curProgress = 0;
-  var loadComplete = function() {
+  var loadComplete = function () {
     wx.postMessage({
       message: "friendRank"
     });
-    
+
     if (curProgress < 1) {
       console.log("dispense with loadSubpackage");
       if (window.platform.onLoading) {
@@ -87,14 +103,14 @@ setTimeout(()=>{
   var loadingProgressList = [0, 0, 0];
   var loadingCount = nameList.length;
   var finishCount = 0;
-  var loadingFun = (_strRes, _index) =>{
+  var loadingFun = (_strRes, _index) => {
     //下载任务
     const loadTask = wx.loadSubpackage({
       name: _strRes, // name 可以填 name 或者 root
       success: function (res) {
         // 分包加载成功后通过 success 回调
         // console.log(res)
-        finishCount ++;
+        finishCount++;
         if (finishCount >= loadingCount) {
           loadComplete();
         }
@@ -128,8 +144,7 @@ setTimeout(()=>{
 }, 3000);
 
 //右上角menu转发
-wx.showShareMenu({
-});
+wx.showShareMenu({});
 wx.onShareAppMessage(function () {
   return {
     title: '春宵苦短日高起，从此君王不早朝',

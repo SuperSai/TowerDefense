@@ -5,6 +5,8 @@
 var UserData = /** @class */ (function () {
     function UserData() {
         this._noviceGroupId = 1; // 新手节点
+        /** 合成次数 */
+        this.synthesisCount = 0;
         /** 金币 */
         this.gold = 2000; //拥有金币
         /** 钻石 */
@@ -718,10 +720,11 @@ var UserData = /** @class */ (function () {
         return this.shareSwitchOpen;
     };
     //请求分享
-    UserData.prototype.toShare = function (_callback, _isTask, _isGroupShare) {
+    UserData.prototype.toShare = function (_callback, _isTask, _isGroupShare, shareType) {
         if (_callback === void 0) { _callback = null; }
         if (_isTask === void 0) { _isTask = false; }
         if (_isGroupShare === void 0) { _isGroupShare = false; }
+        if (shareType === void 0) { shareType = "share"; }
         var that = this;
         var isTask = _isTask;
         var isGroupShare = _isGroupShare;
@@ -736,7 +739,7 @@ var UserData = /** @class */ (function () {
                 queryData = "userId=" + userData.userId + "&shareId=" + shareCfg.id + "&shareType=task";
             }
             else {
-                queryData = "userId=" + userData.userId + "&shareId=" + shareCfg.id + "&shareType=share";
+                queryData = "userId=" + userData.userId + "&shareId=" + shareCfg.id + "&shareType=" + shareType;
             }
             //重返游戏
             var curTime = (new Date()).getTime() / 1000;
@@ -786,7 +789,10 @@ var UserData = /** @class */ (function () {
         //是否优先视频广告
         if (self.getAdTimes(type) > 0) {
             SDKManager.Instance.showVideoAd(function (_res) {
+                // 用户点击了【关闭广告】按钮
+                // 小于 2.1.0 的基础库版本，res 是一个 undefined
                 if (_res && _res.isEnded || _res === undefined) {
+                    // 正常播放结束，可以下发游戏奖励
                     self.decreAdTimes(type);
                     var adKey = "ad";
                     if (type == 10) {
@@ -810,7 +816,20 @@ var UserData = /** @class */ (function () {
             return 0;
         }
         switch (type) {
-            case 10: {
+            case 1:
+                SDKManager.Instance.showVideoAd(function (_res) {
+                    if (_res && _res.isEnded || _res === undefined) {
+                        callback && callback();
+                        HttpManager.Instance.requestShareAdFinish("ad_other", _res);
+                    }
+                }, function () {
+                    //无视频回调
+                    self.hasVideoAd = false;
+                    self.isOpenShareAd = false;
+                    self.toShareAd(callback, 0, isTask, isGroupShare);
+                });
+                break;
+            case 10:
                 //加速
                 if (self.getShareTimes(type) < 1) {
                     return 1;
@@ -821,8 +840,7 @@ var UserData = /** @class */ (function () {
                     callback && callback();
                 }, isTask, isGroupShare);
                 break;
-            }
-            case 11: {
+            case 11:
                 //免费的车
                 if (self.getShareTimes(type) < 1) {
                     MessageUtils.showMsgTips("今日分享次数已用完");
@@ -834,8 +852,7 @@ var UserData = /** @class */ (function () {
                     callback && callback();
                 }, isTask, isGroupShare);
                 break;
-            }
-            case 12: {
+            case 12:
                 //无金币
                 if (self.getShareTimes(type) < 1) {
                     MessageUtils.showMsgTips("今日分享次数已用完");
@@ -850,29 +867,19 @@ var UserData = /** @class */ (function () {
                     HttpManager.Instance.requestShareAdFinish("share_no_money", _res);
                 }, isTask, isGroupShare);
                 break;
-            }
-            case 13: {
+            case 13:
                 // 天降惊喜礼包分享
                 self.toShare(function (res) {
                     callback && callback();
                     HttpManager.Instance.requestShareAdFinish("share_sky_drop", res);
                 }, isTask, isGroupShare);
                 break;
-            }
-            case 1: {
-                SDKManager.Instance.showVideoAd(function (_res) {
-                    if (_res && _res.isEnded || _res === undefined) {
-                        callback && callback();
-                        HttpManager.Instance.requestShareAdFinish("ad_other", _res);
-                    }
-                }, function () {
-                    //无视频回调
-                    self.hasVideoAd = false;
-                    self.isOpenShareAd = false;
-                    self.toShareAd(callback, 0, isTask, isGroupShare);
-                });
+            case 14: //好友互助分享
+                self.toShare(function (res) {
+                    callback && callback();
+                    HttpManager.Instance.requestShareAdFinish("share_friend_concur", res);
+                }, isTask, isGroupShare, "friendConcur");
                 break;
-            }
             //分享无限次数
             default: {
                 self.toShare(function (_res) {
@@ -955,7 +962,7 @@ var UserData = /** @class */ (function () {
                     that.showDailySignRedPoint = res.sign_flag;
                     that.showTaskRedPoint = res.task_flag;
                     that.showLuckPrizeRedPoint = res.roulette_flag;
-                    that.showFollowRedPoint = res.follow_flag;
+                    that.showFollowRedPoint = res.subscribe_flag;
                     that.advert = res.advert;
                     that.diamond_acce_num = res.diamond_acce_num;
                     if (EventsManager.Instance) {
@@ -975,6 +982,7 @@ var UserData = /** @class */ (function () {
                             EventsManager.Instance.event(EventsType.LUCK_PRIZED_RED_POINT, "show");
                         }
                         if (that.isShowFollowRedPoint()) {
+                            console.log("关注红点");
                             EventsManager.Instance.event(EventsType.FOLLOW_RED_POINT, "show");
                         }
                         EventsManager.Instance.event(EventsType.ACCE_CHANGE, "refresh");

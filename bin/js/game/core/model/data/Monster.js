@@ -79,6 +79,9 @@ var MonsterSprite = /** @class */ (function (_super) {
         if (self.isLock())
             return;
         self.monsterId = id;
+        if (BattleManager.Instance.getLevel(self.monsterId) > 70) {
+            return;
+        }
         if ($index >= 0) {
             self.parkIndex = $index; //-1默认不设置
         }

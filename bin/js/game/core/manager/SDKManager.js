@@ -67,16 +67,8 @@ var SDKManager = /** @class */ (function () {
             self._videoAd = videoAd;
             videoAd.load().then(function () { return videoAd.show(); });
             var closeCallback_1 = function (res) {
-                // 用户点击了【关闭广告】按钮
-                // 小于 2.1.0 的基础库版本，res 是一个 undefined
-                if (res && res.isEnded || res === undefined) {
-                    // 正常播放结束，可以下发游戏奖励
-                    callback && callback(res);
-                }
-                else {
-                    // 播放中途退出，不下发游戏奖励
-                    videoAd.offClose(closeCallback_1);
-                }
+                callback && callback(res);
+                videoAd.offClose(closeCallback_1);
                 self._isForbidBannerAd = false;
                 self._videoAd = null;
             };

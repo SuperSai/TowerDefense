@@ -21,4 +21,10 @@
    <item name="images/shop/shop_bg_04.png" type="Image" compress="0" pack="1" quality="80" props="" picType="0" scale="0"/>
    <item name="images/shop/shop_bg_01.png" type="Image" compress="0" pack="1" quality="80" props="" picType="0" scale="0"/>
    <item name="images/component/frame_tips_bg.png" type="Image" compress="0" pack="0" quality="80" props="sizeGrid=34,62,36,71" picType="0" scale="0"/>
+   <item name="images/followReward/followReward_bg.jpg" type="Image" compress="0" pack="1" quality="80" props="" picType="0" scale="0"/>
+   <item name="images/friendConcur/friendConcur_bg.png" type="Image" compress="0" pack="1" quality="80" props="" picType="0" scale="0"/>
+   <item name="images/friendConcur/friendConcur_time_bg.png" type="Image" compress="0" pack="1" quality="80" props="" picType="0" scale="0"/>
+   <item name="images/randomReward" type="" compress="0" pack="1" quality="80" props="" picType="0" scale="0"/>
+   <item name="images/randomReward/randomReward_title_01.png" type="Image" compress="0" pack="1" quality="80" props="" picType="0" scale="0"/>
+   <item name="images/randomReward/randomReward_title_02.png" type="Image" compress="0" pack="1" quality="80" props="" picType="0" scale="0"/>
 </res>

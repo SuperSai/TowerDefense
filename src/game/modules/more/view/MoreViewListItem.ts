@@ -7,7 +7,6 @@ class MoreViewListItem extends Laya.Component {
         super();
         this.ui = new ui.more.MoreItemUI();
         this.addChild(this.ui);
-
         this.addEvents();
     }
 

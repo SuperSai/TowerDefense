@@ -20,6 +20,8 @@ var EventsType = /** @class */ (function () {
     EventsType.LUCK_PRIZED_RED_POINT = "LUCK_PRIZED_RED_POINT";
     EventsType.FOLLOW_RED_POINT = "FOLLOW_RED_POINT";
     EventsType.UPDATE_HALL_DATA = "UPDATE_HALL_DATA";
+    /** 好友助力领奖 */
+    EventsType.FRIEND_CONCUR_GET_REWARD = "FRIEND_CONCUR_GET_REWARD";
     return EventsType;
 }());
 //# sourceMappingURL=EventsType.js.map

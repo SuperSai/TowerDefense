@@ -2,7 +2,7 @@
     "x":0,
     "type":"View",
     "selectedBox":1,
-    "selecteID":24,
+    "selecteID":21,
     "props":{"sceneWidth":750,"sceneHeight":1334,"sceneColor":"#000000","sceneBg":"laya/views/MoreView.jpg"},
     "nodeParent":-1,
     "label":"View",
@@ -141,7 +141,7 @@
         {
             "x":15,
             "type":"Button",
-            "props":{"y":166,"x":93,"var":"btnCustomService","stateNum":"1","skin":"images/more/custom_service.png"},
+            "props":{"y":169,"x":172,"var":"btnCustomService","stateNum":"1","skin":"images/more/custom_service.png"},
             "nodeParent":1,
             "label":"Button(btnCustomService)",
             "isOpen":null,
@@ -167,7 +167,7 @@
         {
             "x":15,
             "type":"Button",
-            "props":{"y":167,"x":302,"var":"btnSoundClosed","stateNum":"1","skin":"images/more/sound_closed.png"},
+            "props":{"y":170,"x":466,"var":"btnSoundClosed","stateNum":"1","skin":"images/more/sound_closed.png"},
             "nodeParent":1,
             "label":"Button(btnSoundClosed)",
             "isOpen":null,
@@ -192,16 +192,17 @@
         {
             "x":15,
             "type":"Button",
-            "props":{"y":166,"x":301,"var":"btnSoundOpend","stateNum":"1","skin":"images/more/sound_opened.png"},
+            "props":{"y":169,"x":465,"var":"btnSoundOpend","stateNum":"1","skin":"images/more/sound_opened.png"},
             "nodeParent":1,
             "label":"Button(btnSoundOpend)",
-            "isOpen":null,
+            "isOpen":true,
             "isDirectory":true,
             "isAniNode":true,
             "hasChild":true,
             "compId":23,
             "child":[
                 {
+                    "x":30,
                     "type":"Label",
                     "props":{"y":80,"x":18,"text":"声音","strokeColor":"#8d5d2e","stroke":3,"fontSize":30,"color":"#ffffff","bold":true,"align":"center"},
                     "nodeParent":23,
@@ -213,32 +214,6 @@
                     "child":[
                         ]
                 }]
-        },
-        {
-            "x":15,
-            "type":"Image",
-            "props":{"y":166,"x":536,"var":"imgSubscribe","skin":"images/more/subscribe.png"},
-            "nodeParent":1,
-            "label":"Image(imgSubscribe)",
-            "isOpen":false,
-            "isDirectory":true,
-            "isAniNode":true,
-            "hasChild":true,
-            "compId":10,
-            "child":[
-                {
-                    "type":"Label",
-                    "props":{"y":80,"x":11,"text":"关注","strokeColor":"#8d5d2e","stroke":3,"fontSize":30,"color":"#ffffff","bold":true,"align":"center"},
-                    "nodeParent":10,
-                    "label":"Label",
-                    "isDirectory":false,
-                    "isAniNode":true,
-                    "hasChild":false,
-                    "compId":16,
-                    "child":[
-                        ]
-                }],
-            "$HIDDEN":false
         },
         {
             "x":15,

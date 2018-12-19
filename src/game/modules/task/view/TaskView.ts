@@ -171,26 +171,21 @@ class TaskView extends ui.task.TaskViewUI {
                                         if (EventsManager.Instance) {
                                             EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, _res);
                                         }
-
                                         _btnObj.visible = false;
                                         _item.task_status = 2;
-
                                         redPointNum--;
-
                                         this.updateTabRetDot(QuestSubView.DAILY_QUEST, redPointNum > 0);
                                         if (redPointNum < 1) {
                                             if (userData) {
                                                 userData.removeTaskRedPoint();
                                             }
                                         }
-
                                         Laya.Tween.to(cell, { x: -cell.displayWidth }, 250, Laya.Ease.quadOut, Handler.create(that, () => {
                                             listData.splice(index, 1);
                                             Laya.timer.once(100, that, () => {
                                                 that.requestTaskInfo();
                                             })
                                         }));
-
                                     } else if (_res.code === 2) {
                                         MessageUtils.showMsgTips("领取失败！");
                                     }

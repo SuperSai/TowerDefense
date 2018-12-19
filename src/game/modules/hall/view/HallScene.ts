@@ -23,6 +23,7 @@ class HallScene extends ui.hall.HallSceneUI {
     let resList = [
       { url: "res/atlas/images.atlas", type: Laya.Loader.ATLAS },
       { url: "res/atlas/images/component.atlas", type: Laya.Loader.ATLAS },
+      { url: "res/atlas/images/hall.atlas", type: Laya.Loader.ATLAS },
       { url: "res/atlas/images/core.atlas", type: Laya.Loader.ATLAS },
       { url: "res/atlas/images/novice.atlas", type: Laya.Loader.ATLAS },
       { url: "sheets/sheet.json", type: Laya.Loader.JSON }
@@ -237,12 +238,15 @@ class HallScene extends ui.hall.HallSceneUI {
       if (userData.isShowLuckPrizeRedPoint()) {
         self.showLuckPrizeRedPoint();
       }
+      //关注红点
+      if (userData.isShowFollowRedPoint()) {
+        self.showFollowRewardRedPoint();
+      }
     }
   }
 
   private addEvents(): void {
     let self = this;
-    self.btnRanking.on(Laya.Event.CLICK, self, self.onRanking);
     self.btnPower.on(Laya.Event.CLICK, self, self.onPowerAcce);
     self.btnShop.on(Laya.Event.CLICK, self, self.onShowCarport);
     self.btnCarStore.on(Laya.Event.CLICK, self, self.onCarStore);
@@ -251,11 +255,15 @@ class HallScene extends ui.hall.HallSceneUI {
     self.btnStrengthen.on(Laya.Event.CLICK, self, self.onStrengthen);
     self.btnStagePrize.on(Laya.Event.CLICK, self, self.onStagePrize);
     self.btnMiniProgram.on(Laya.Event.CLICK, self, self.onMiniProgram);
-    self.btnDailyPrize.on(Laya.Event.CLICK, self, self.showDaySignView);
     self.btnLuckPrize.on(Laya.Event.CLICK, self, self.showLuckPrizeView);
     self.btn_fly.on(Laya.Event.CLICK, self, self.onClickMiniProgram);
     self.btn_block.on(Laya.Event.CLICK, self, self.onClickMiniProgram);
     self.btn_eliminate.on(Laya.Event.CLICK, self, self.onClickMiniProgram);
+    self.btn_arrow.on(Laya.Event.CLICK, self, self.onClickMenuHandler);
+    self.btn_concur.on(Laya.Event.CLICK, self, self.onClickConcur);//好友互助 
+    self.btn_ranking.on(Laya.Event.CLICK, self, self.onRanking);//排行榜
+    self.btn_sign.on(Laya.Event.CLICK, self, self.showDaySignView);//签到
+    self.btn_follow.on(Laya.Event.CLICK, self, self.onClickFollow);//关注
     this.btnMore.on(Laya.Event.CLICK, this, () => {
       M.more.show();
     });
@@ -273,6 +281,7 @@ class HallScene extends ui.hall.HallSceneUI {
     EventsManager.Instance.on(EventsType.ACCE_CHANGE, self, self.onUpdateAccelerateBtnState);//加速按钮状态
     EventsManager.Instance.on(EventsType.LUCK_PRIZE, self, self.onUpdatePrizeState);//更新幸运抽奖状态
     EventsManager.Instance.on(EventsType.STRENGTHEN_RED_POINT, self, self.onUpdateStrengthenRedPoint);//强化红点移除事件
+    EventsManager.Instance.on(EventsType.FOLLOW_RED_POINT, self, self.onFollowRewardRedPoint);//关注红点事件
     EventsManager.Instance.on(EventsType.UPDATE_HALL_DATA, self, self.onUpdateHallData);
   }
 
@@ -419,14 +428,6 @@ class HallScene extends ui.hall.HallSceneUI {
         }
       }
     }
-  }
-
-  //排行
-  private onRanking(): void {
-    let self = this;
-    RankingView.Create(() => {
-      self.showSurpassView();
-    });
   }
 
   private onFriendRanking(): void {
@@ -683,14 +684,14 @@ class HallScene extends ui.hall.HallSceneUI {
   }
 
   private onShowCarport(): void {
-    let that = this;
-    ShopView.Create(that, (_nodeView: ShopView) => {
+    let self = this;
+    ShopView.Create(self, (_nodeView: ShopView) => {
       if (_nodeView) {
         _nodeView.name = "nodeShopView";
-        _nodeView.btnBuyFun = Laya.Handler.create(that, that.onBuyPet, null, false);
-        _nodeView.btnFreeFun = Laya.Handler.create(that, that.onShareFreeCar, null, false);
-        _nodeView.btnDiamondFun = Laya.Handler.create(that, that.onDiamondBuy, null, false);
-        _nodeView.evolutionFun = Laya.Handler.create(that, that.onEvolutionShop, null, false);
+        _nodeView.btnBuyFun = Laya.Handler.create(self, self.onBuyPet, null, false);
+        _nodeView.btnFreeFun = Laya.Handler.create(self, self.onShareFreeCar, null, false);
+        _nodeView.btnDiamondFun = Laya.Handler.create(self, self.onDiamondBuy, null, false);
+        _nodeView.evolutionFun = Laya.Handler.create(self, self.onEvolutionShop, null, false);
         _nodeView.refreshMoney(PlayerManager.Instance.Info.userMoney, PlayerManager.Instance.Info.userDiamond);
       }
     }, () => {
@@ -782,8 +783,8 @@ class HallScene extends ui.hall.HallSceneUI {
   //显示签到红点
   private showDailySignRedPoint(_show: boolean = true): void {
     let that = this;
-    if (that.btnDailyPrize) {
-      let imgRedPoint = that.btnDailyPrize.getChildByName("imgRedPoint") as Laya.Image;
+    if (that.btn_sign) {
+      let imgRedPoint = that.btn_sign.getChildByName("imgRedPoint") as Laya.Image;
       if (imgRedPoint) {
         imgRedPoint.visible = _show;
       }
@@ -794,6 +795,17 @@ class HallScene extends ui.hall.HallSceneUI {
   private showStrengthenRedPoint(show: boolean = true): void {
     let self = this;
     self.strengthenRedPoint.visible = show;
+  }
+
+  /** 显示关注奖励红点 */
+  private showFollowRewardRedPoint(show: boolean = true): void {
+    let self = this;
+    if (self.btn_follow) {
+      let imgRedPoint = self.btn_follow.getChildByName("imgRedPoint") as Laya.Image;
+      if (imgRedPoint) {
+        imgRedPoint.visible = show;
+      }
+    }
   }
 
   //显示任务红点
@@ -904,9 +916,20 @@ class HallScene extends ui.hall.HallSceneUI {
                           MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.08"));
                         } else {
                           let nextCardId = carId + 1;
-                          if (carParkSp.isRunning()) {
-                            carParkSp.setKind(nextCardId, index);
-                            carParkSp.setStage(2);
+                          userData.synthesisCount++;
+                          //随机奖励
+                          if (userData.synthesisCount % 12 == 0) {
+                            if (Math.random() < 0.4) {
+                              AdditionalRewardView.Create(that);
+                            } else {
+                              HeroLevelView.Create(that, () => {
+                                MessageUtils.showMsgTips("升级成功！");
+                                carParkSp.setKind(nextCardId + 2, index);
+                              }, () => {
+                                MessageUtils.showMsgTips("升级失败！");
+                                carParkSp.setKind(nextCardId, index);
+                              }, nextCardId, nextCardId + 2);
+                            }
                           } else {
                             carParkSp.setKind(nextCardId, index);
                           }
@@ -920,7 +943,6 @@ class HallScene extends ui.hall.HallSceneUI {
                           carParkSp.playMergeEffetc(that.mainView, carId);
                           //检测等级刷新
                           if (userData.updateCarLevel(BattleManager.Instance.getLevel(nextCardId))) {
-
                             //显示红点
                             if (userData.isShowCarShopRedPoint() && userData.getCarLevel() == 6) {
                               that.showCarportRedPoint();
@@ -1152,7 +1174,6 @@ class HallScene extends ui.hall.HallSceneUI {
       // 8级之后：随机掉落，最小值：当前金币最高解锁的等级-7，最大值=当前最高金币可购买怪物-4。
       let boxDropCfg = GlobleData.getData(GlobleData.TrainDropVO, userData.getCarLevel());
       let randCarId: number = 101;
-      let curBuyIndex = 1;
       let dropId: number = 100;
       if (!boxDropCfg) {//先不走表的规则去掉落
         let dropCarArray: any = [boxDropCfg.dropHeroLevel3, boxDropCfg.dropHeroLevel2, boxDropCfg.dropHeroLevel1];
@@ -1170,7 +1191,11 @@ class HallScene extends ui.hall.HallSceneUI {
           let monsterInfo = BattleManager.Instance.getUnLockMonster(HallManager.Instance.hallData.buyMonsterType, monsterLevel);
           randCarId = RandomUtils.rangeInt(monsterInfo.id - 6, monsterInfo.id - 4);
         }
-        if (randCarId <= 100) randCarId = 101;
+        if (randCarId <= 100 && !userData.isEvolution()) {
+          randCarId = 101;
+        } else if (randCarId <= 1000 && userData.isEvolution()) {
+          randCarId = 1001;
+        }
         let carParkSp = BattleManager.Instance.createPet(randCarId, true) as MonsterSprite;
         if (carParkSp) {
           carParkSp.dropBoxEffect(self.mainView);
@@ -1254,33 +1279,6 @@ class HallScene extends ui.hall.HallSceneUI {
     }, true);
   }
 
-  //每日签到界面
-  public showDaySignView(): void {
-    const that = this;
-    DaySignView.Create(Laya.Handler.create(this, (view: DaySignView) => {
-      if (view) {
-        view.on(DaySignView.REMOVE_FROM_STAGE, this, () => {
-          resolveDailyPrizeVisible();
-        });
-      }
-
-      resolveDailyPrizeVisible();
-
-      function resolveDailyPrizeVisible(): void {
-        if (DaySignView.signData) {
-          that.btnDailyPrize.visible = DaySignView.signData.sign.status === 0;
-        } else {
-          that.btnDailyPrize.visible = true;
-        }
-        // if(that.btnDailyPrize.visible){
-        //     if (DaySignView.signData.sign.status) {
-        //         that.showDailySignRedPoint();
-        //     }
-        // }
-      }
-    }));
-  }
-
   //幸运抽奖界面
   public showLuckPrizeView(): void {
     LuckPrizeView.Create(null, () => {
@@ -1352,7 +1350,6 @@ class HallScene extends ui.hall.HallSceneUI {
 
   //本地取出怪物
   private getCarStore(_isRemove: boolean = false): number {
-    let that = this;
     let storage = window.localStorage;
     let dataJson = storage.getItem(HallManager.Instance.hallData.monsterStoreKey);
     if (dataJson) {
@@ -1602,6 +1599,17 @@ class HallScene extends ui.hall.HallSceneUI {
     }
   }
 
+  /** 更新关注红点 */
+  private onFollowRewardRedPoint($data: any): void {
+    let self = this;
+    console.log("关注红点 ---- " + $data);
+    if ($data == "show") {
+      self.showFollowRewardRedPoint();
+    } else {
+      self.showFollowRewardRedPoint(false);
+    }
+  }
+
   /** 刷新金币 */
   private onRefreshGold(): void {
     let self = this;
@@ -1677,4 +1685,90 @@ class HallScene extends ui.hall.HallSceneUI {
       }
     });
   }
+
+  /** 功能菜单 */
+  private onClickMenuHandler(): void {
+    let self = this;
+    self.btn_arrow.mouseEnabled = false;
+    if (self.btn_arrow.scaleX == -1) {
+      Laya.Tween.to(self.menuBox, { left: -390 }, 350, null, Laya.Handler.create(self, () => {
+        Laya.Tween.clearTween(self.menuBox);
+        self.btn_arrow.mouseEnabled = true;
+        self.btn_arrow.scaleX = 1;
+      }, null, true));
+    } else {
+      Laya.Tween.to(self.menuBox, { left: 0 }, 350, null, Laya.Handler.create(self, () => {
+        Laya.Tween.clearTween(self.menuBox);
+        self.btn_arrow.mouseEnabled = true;
+        self.btn_arrow.scaleX = -1;
+      }, null, true));
+    }
+  }
+
+  /** 好友互助 */
+  public onClickConcur(): void {
+    FriendConcurView.Create(this);
+  }
+
+  /** 关注 */
+  public onClickFollow(): void {
+    FollowRewardView.Create(this, () => {
+    });
+  }
+
+  //每日签到界面
+  public showDaySignView(): void {
+    const that = this;
+    DaySignView.Create(Laya.Handler.create(this, (view: DaySignView) => {
+      if (view) {
+        view.on(DaySignView.REMOVE_FROM_STAGE, this, () => {
+          resolveDailyPrizeVisible();
+        });
+      }
+      resolveDailyPrizeVisible();
+      function resolveDailyPrizeVisible(): void {
+        // if (DaySignView.signData) {
+        //   that.btnDailyPrize.visible = DaySignView.signData.sign.status === 0;
+        // } else {
+        //   that.btnDailyPrize.visible = true;
+        // }
+      }
+    }));
+  }
+
+  //排行
+  private onRanking(): void {
+    let self = this;
+    RankingView.Create(() => {
+      self.showSurpassView();
+    });
+  }
+
+  /** 更新在线奖励时间 */
+  private _diamondTime: number = 0;
+  private updateDiamondTime(time: number): void {
+    let self = this;
+    self._diamondTime = time;
+    self.btn_online.mouseEnabled = false;
+    if (self._diamondTime > 0) {
+      self.txt_diamondTime.text = TimeUtil.S2H(self._diamondTime, ":", false);
+      TimerManager.Instance.doTimer(1000, 0, self.onUpdateTime, self);
+    } else if (self._diamondTime <= 0) {
+      self.txt_diamondTime.text = "领取奖励";
+      self.btn_online.mouseEnabled = true;
+    }
+  }
+
+  private onUpdateTime(): void {
+    let self = this;
+    if (self._diamondTime > 0) {
+      self.txt_diamondTime.text = TimeUtil.S2H(self._diamondTime, ":", false);
+      self._diamondTime--;
+    } else {
+      TimerManager.Instance.remove(self.onUpdateTime, self);
+      self.txt_diamondTime.text = "领取奖励";
+      self.btn_online.mouseEnabled = true;
+    }
+  }
+
 }
