@@ -16,6 +16,7 @@ var MainLoadingView = /** @class */ (function (_super) {
     function MainLoadingView() {
         var _this = _super.call(this) || this;
         _this.ui = new ui.login.LoginSceneUI();
+        _this.ui.probox.visible = false;
         _this.addChild(_this.ui);
         _this.startCountDown();
         _this.tweenAd();
@@ -48,8 +49,7 @@ var MainLoadingView = /** @class */ (function (_super) {
         });
     };
     MainLoadingView.prototype.startToLoad = function () {
-        this.ui.lblLoadingDesc.visible = true;
-        this.ui.progressBar.visible = true;
+        this.ui.probox.visible = true;
         this.ui.btnStart.visible = false;
         if (Laya.Browser.onMiniGame) {
             this.loadSubPackages();

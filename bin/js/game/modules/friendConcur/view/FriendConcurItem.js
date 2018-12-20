@@ -28,9 +28,9 @@ var FriendConcurItem = /** @class */ (function (_super) {
                 self.txt_time.text = value.create_time;
                 self.rewardGold();
                 if (value.uid == userData.userId) {
-                    self.txt_des0.text = "您点击了";
+                    self.txt_des0.text = "您帮助";
                     self.txt_des1.text = StringUtils.omitStringByByteLen(platform.decode(value.p_nick_name), 10);
-                    self.txt_des2.text = "的分享链接";
+                    self.txt_des2.text = "赢取了金币奖励";
                     self.btn_get.disabled = value.status != 0;
                     self.rewardDiamond(self._data.diamond);
                 }
@@ -77,7 +77,7 @@ var FriendConcurItem = /** @class */ (function (_super) {
     FriendConcurItem.prototype.onGetReward = function () {
         var self = this;
         if (self._data) {
-            self.requestReward(self._data.id, function (res) {
+            HttpManager.Instance.requestReward(self._data.id, function (res) {
                 RewardGetView.Create(self, function () {
                     M.layer.screenEffectLayer.addChild(new FlyEffect().play("rollingCoin", LayerManager.mouseX, LayerManager.mouseY));
                     FriendConcurView.redPointNum--;
@@ -88,23 +88,13 @@ var FriendConcurItem = /** @class */ (function (_super) {
                         FriendConcurView.redPointNum = 0;
                     }
                     EventsManager.Instance.event(EventsType.GLOD_CHANGE, { money: userData.gold += self._gold });
-                    EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: userData.diamond = res.total_diamond });
+                    if (self.diamondBox.visible && self._rewards.length > 1) {
+                        EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: userData.diamond += self._rewards[1] });
+                    }
                     EventsManager.Instance.event(EventsType.FRIEND_CONCUR_GET_REWARD);
                 }, self._rewards);
             });
         }
-    };
-    FriendConcurItem.prototype.requestReward = function (itemId, callback) {
-        var HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
-        HttpReqHelper.request({
-            url: 'v1/activity/friend/reward/' + itemId,
-            success: function (res) {
-                callback && callback(res);
-            },
-            fail: function (res) {
-                console.log(res);
-            }
-        });
     };
     return FriendConcurItem;
 }(ui.friendConcur.FriendConcurItemUI));

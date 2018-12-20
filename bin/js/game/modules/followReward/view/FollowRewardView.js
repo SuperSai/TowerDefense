@@ -48,7 +48,7 @@ var FollowRewardView = /** @class */ (function (_super) {
         that.btnExit.on(Laya.Event.CLICK, that, that.onClickExit);
         that.btnGet.on(Laya.Event.CLICK, that, that.onClickGet);
         that.requestOfficialAccData(function (_res) {
-            if (that.imgBg && _res && _res.image) {
+            if (that.imgBg && _res && _res.image && (_res.image.indexOf(".png") || _res.image.indexOf(".jpg"))) {
                 that.imgBg.skin = _res.image;
             }
         });

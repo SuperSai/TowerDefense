@@ -71,19 +71,28 @@ var HeroLevelView = /** @class */ (function (_super) {
                 self._callback();
         }
         else {
-            SDKManager.Instance.showVideoAd(function (_res) {
-                if (_res && _res.isEnded || _res === undefined) {
-                    if (self._callback)
-                        self._callback();
-                    self.removeView();
-                }
-            }, function () {
+            if (Math.random() < 0.5) {
+                SDKManager.Instance.showVideoAd(function (_res) {
+                    if (_res && _res.isEnded || _res === undefined) {
+                        if (self._callback)
+                            self._callback();
+                        self.removeView();
+                    }
+                }, function () {
+                    userData.toShareAd(function () {
+                        if (self._callback)
+                            self._callback();
+                        self.removeView();
+                    });
+                });
+            }
+            else {
                 userData.toShareAd(function () {
                     if (self._callback)
                         self._callback();
                     self.removeView();
                 });
-            });
+            }
         }
     };
     HeroLevelView.prototype.removeView = function () {

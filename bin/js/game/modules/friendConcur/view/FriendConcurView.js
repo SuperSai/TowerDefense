@@ -42,19 +42,21 @@ var FriendConcurView = /** @class */ (function (_super) {
         self.rewardList.visible = false;
         self.rewardList.itemRender = FriendConcurItem;
         self.rewardList.vScrollBarSkin = "";
-        self.requestReward();
+        HttpManager.Instance.requestFriendConcurList(function (res) {
+            self.refreshRewarList(res);
+        });
     };
     FriendConcurView.prototype.addEvetns = function () {
         var self = this;
         self.btn_exit.on(Laya.Event.CLICK, self, self.removeView);
         self.btn_send.on(Laya.Event.CLICK, self, self.onSendShareHandler);
-        EventsManager.Instance.on(EventsType.FRIEND_CONCUR_GET_REWARD, self, self.requestReward);
+        EventsManager.Instance.on(EventsType.FRIEND_CONCUR_GET_REWARD, self, self.onUpdateFriendList);
     };
     FriendConcurView.prototype.removeEvents = function () {
         var self = this;
         self.btn_exit.off(Laya.Event.CLICK, self, self.removeView);
         self.btn_send.off(Laya.Event.CLICK, self, self.onSendShareHandler);
-        EventsManager.Instance.off(EventsType.FRIEND_CONCUR_GET_REWARD, self, self.requestReward);
+        EventsManager.Instance.off(EventsType.FRIEND_CONCUR_GET_REWARD, self, self.onUpdateFriendList);
     };
     /** 发送分享 */
     FriendConcurView.prototype.onSendShareHandler = function () {
@@ -75,23 +77,21 @@ var FriendConcurView = /** @class */ (function (_super) {
             return pre.status - next.status;
         });
         listData.forEach(function (data, index, list) {
-            FriendConcurView.redPointNum += (data.status == 0 ? 1 : 0);
-            FriendConcurView.redPointNum += (data.p_status == 0 ? 1 : 0);
+            if (data.uid == userData.userId) {
+                FriendConcurView.redPointNum += (data.status == 0 ? 1 : 0);
+            }
+            else {
+                FriendConcurView.redPointNum += (data.p_status == 0 ? 1 : 0);
+            }
         });
         self.rewardList.repeatY = listData.length;
         self.rewardList.array = listData;
     };
-    FriendConcurView.prototype.requestReward = function () {
-        var that = this;
-        var HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
-        HttpReqHelper.request({
-            url: 'v1/activity/friend/help',
-            success: function (res) {
-                that.refreshRewarList(res);
-            },
-            fail: function (res) {
-                console.log(res);
-            }
+    FriendConcurView.prototype.onUpdateFriendList = function () {
+        var self = this;
+        HttpManager.Instance.requestFriendConcurList(function (res) {
+            if (res)
+                self.refreshRewarList(res);
         });
     };
     FriendConcurView.prototype.removeView = function () {
