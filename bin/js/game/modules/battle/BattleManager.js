@@ -139,7 +139,7 @@ var BattleManager = /** @class */ (function (_super) {
             }
             if (skillCfg.attackTwo > 0) { //雷电连击
                 var lineNum = 0;
-                for (var k = 0, len = HallManager.Instance.hallData.monsterArray.length; k < len; k++) {
+                for (var k = 0; k < HallManager.Instance.hallData.monsterArray.length; k++) {
                     var monsterItem = HallManager.Instance.hallData.monsterArray[k];
                     if (monster == monsterItem) {
                         lineNum = skillCfg.attackTwo;

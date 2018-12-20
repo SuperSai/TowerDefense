@@ -71,17 +71,15 @@ var HeroLevelView = /** @class */ (function (_super) {
                 self._callback();
         }
         else {
-            var adStage = userData.toShareAd(function () {
+            SDKManager.Instance.showVideoAd(function (_res) {
                 if (self._callback)
                     self._callback();
-            }, 12);
-            //没有广告就走分享
-            if (adStage > 0) {
+            }, function () {
                 userData.toShareAd(function () {
                     if (self._callback)
                         self._callback();
                 });
-            }
+            });
         }
         self.removeView();
     };

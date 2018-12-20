@@ -7447,7 +7447,7 @@ var BattleManager = /** @class */ (function (_super) {
             }
             if (skillCfg.attackTwo > 0) { //雷电连击
                 var lineNum = 0;
-                for (var k = 0, len = HallManager.Instance.hallData.monsterArray.length; k < len; k++) {
+                for (var k = 0; k < HallManager.Instance.hallData.monsterArray.length; k++) {
                     var monsterItem = HallManager.Instance.hallData.monsterArray[k];
                     if (monster == monsterItem) {
                         lineNum = skillCfg.attackTwo;
@@ -12752,7 +12752,6 @@ var HallScene = /** @class */ (function (_super) {
     HallScene.prototype.updateDiamondTime = function (time) {
         var self = this;
         self._diamondTime = time;
-        self.btn_online.mouseEnabled = false;
         self.btn_online.visible = userData.offlineRewardCount > 0;
         if (self.btn_online.visible) {
             if (self._diamondTime > 0) {
@@ -12761,7 +12760,6 @@ var HallScene = /** @class */ (function (_super) {
             }
             else if (self._diamondTime <= 0) {
                 self.txt_diamondTime.text = "领取奖励";
-                self.btn_online.mouseEnabled = true;
             }
         }
     };
@@ -12774,7 +12772,6 @@ var HallScene = /** @class */ (function (_super) {
         else {
             TimerManager.Instance.remove(self.onUpdateTime, self);
             self.txt_diamondTime.text = "领取奖励";
-            self.btn_online.mouseEnabled = true;
         }
     };
     /** 领取在线奖励 */
@@ -12785,11 +12782,14 @@ var HallScene = /** @class */ (function (_super) {
                 RewardGetView.Create(self, function () {
                     M.layer.screenEffectLayer.addChild(new FlyEffect().play("diamond", LayerManager.mouseX, LayerManager.mouseY, 38, 83));
                     MessageUtils.showMsgTips("获得钻石：" + res.diamond);
-                    EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: userData.diamond += res.diamond });
+                    EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: userData.diamond = res.total_diamond });
                     userData.offlineRewardCount = res.remain_online_num;
                     self.updateDiamondTime(HallManager.Instance.hallData.offlineTotalTime);
                 }, [res.diamond], [2]);
             });
+        }
+        else {
+            MessageUtils.showMsgTips("倒计时结束后，可领取在线奖励!");
         }
     };
     return HallScene;
@@ -13657,17 +13657,15 @@ var HeroLevelView = /** @class */ (function (_super) {
                 self._callback();
         }
         else {
-            var adStage = userData.toShareAd(function () {
+            SDKManager.Instance.showVideoAd(function (_res) {
                 if (self._callback)
                     self._callback();
-            }, 12);
-            //没有广告就走分享
-            if (adStage > 0) {
+            }, function () {
                 userData.toShareAd(function () {
                     if (self._callback)
                         self._callback();
                 });
-            }
+            });
         }
         self.removeView();
     };
