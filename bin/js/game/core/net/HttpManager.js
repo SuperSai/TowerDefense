@@ -315,8 +315,8 @@ var HttpManager = /** @class */ (function () {
                             }
                         }
                     }
+                    _callback && _callback(res);
                 }
-                _callback && _callback(res);
             },
             fail: function (res) {
                 console.log(res);
@@ -348,7 +348,10 @@ var HttpManager = /** @class */ (function () {
             success: function (res) {
                 console.log("requestUserinfoData:", res);
                 if (res) {
-                    userData.gold = MathUtils.parseStringNum(res.money);
+                    // @FREEMAN 金币默认读缓存，如果缓存没有读取成功就按服务器返回的结果
+                    if (!userData.hasCache(CacheKey.GOLD)) {
+                        userData.setMoneySave(MathUtils.parseStringNum(res.money));
+                    }
                     console.log("获取服务器发送过来金币数量：" + userData.gold);
                     userData.carLevel = MathUtils.parseInt(res.car_level);
                     userData.level = MathUtils.parseInt(res.level);

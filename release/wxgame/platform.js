@@ -41,6 +41,7 @@ class WxgamePlatform {
     startLoading(_callback) {
         let that = this;
         that._loadingCallback = _callback;
+        that.loadSubPackage();
     }
     onLoading(_percent, type) {
         let that = this;
@@ -49,14 +50,74 @@ class WxgamePlatform {
         }
     }
 
+    loadSubPackage() {
+        var curProgress = 0;
+        var loadComplete = function() {
+            wx.postMessage({
+                message: "friendRank"
+            });
+
+            if (curProgress < 1) {
+                console.log("dispense with loadSubpackage");
+                if (window.platform.onLoading) {
+                    window.platform.onLoading(100);
+                }
+            }
+        }
+
+        //分包下载
+        var nameList = ['images', 'res', 'musics'];
+        var loadingProgressList = [0, 0, 0];
+        var loadingCount = nameList.length;
+        var finishCount = 0;
+        var loadingFun = (_strRes, _index) =>{
+            //下载任务
+            const loadTask = wx.loadSubpackage({
+                name: _strRes, // name 可以填 name 或者 root
+                success: function (res) {
+                    // 分包加载成功后通过 success 回调
+                    // console.log(res)
+                    finishCount ++;
+                    if (finishCount >= loadingCount) {
+                        loadComplete();
+                    }
+                },
+                fail: function (res) {
+                    // 分包加载失败通过 fail 回调
+                    console.log(res)
+                }
+            })
+            loadTask.onProgressUpdate(res => {
+                // console.log('下载进度' + _strRes + _index, res.progress)
+                // console.log('已经下载的数据长度', res.totalBytesWritten)
+                // console.log('预期需要下载的数据总长度', res.totalBytesExpectedToWrite)
+                loadingProgressList[_index] = res.progress;
+                curProgress = 0;
+                for (var j = 0; j < loadingCount; j++) {
+                    curProgress += loadingProgressList[j];
+                }
+                curProgress = curProgress / loadingCount;
+                if (window.platform.onLoading) {
+                    if (curProgress <= 1) {
+                        curProgress = curProgress * 100;
+                    }
+                    window.platform.onLoading(curProgress);
+                }
+            });
+        }
+        for (var i = 0; i < loadingCount; i++) {
+            loadingFun(nameList[i], i);
+        }
+    }
+
     //授权登录
-    authenticLogin(_callback, _btnVect, _statusCallback = null) {
+	authenticLogin(_callback, _btnVect, _statusCallback=null) {
         var that = this;
         wx.getSetting({
             success: res => {
-                console.log("@FREEMAN: wx.getSetting success res:{", res, "}");
-                // console.log(res)
-                // 获取用户信息
+            // console.log("@FREEMAN: 获取用户授权成功：{", res ,"}");
+            // console.log(res)
+            // 获取用户信息
                 if (that.authenticLoginBtn) {
                     that.authenticLoginBtn.destroy();
                     that.authenticLoginBtn = null;
@@ -66,20 +127,16 @@ class WxgamePlatform {
                     // 已经授权，可以直接调用 getUserInfo 获取头像昵称，不会弹框
                     wx.getUserInfo({
                         success: res2 => {
-                            console.log("@FREEMAN: wx.getUserInfo success res:{", res2, "}");
+                            console.log("@FREEMAN: 获取用户信息成功：{", res2 ,"}");
                             Laya.Browser.window.wxUserInfo = res2.userInfo;
-                            if (res2.userInfo.avatarUrl === "https://wx.qlogo.cn/mmopen/vi_32/gnxH4cvqLauHQC4tq62TpcWNsZTkZsKaicwyHKAAET0uF23s8QibldfGeQYIBYYyu88XBcrNCgfuHD33qmicqrxwg/132") {
+
+                            if(res2.userInfo.avatarUrl === "https://wx.qlogo.cn/mmopen/vi_32/gnxH4cvqLauHQC4tq62TpcWNsZTkZsKaicwyHKAAET0uF23s8QibldfGeQYIBYYyu88XBcrNCgfuHD33qmicqrxwg/132"){
                                 Laya.Browser.onFreeman = true;
                             }
-                            if (res2.userInfo.avatarUrl === "https://wx.qlogo.cn/mmopen/vi_32/EBiaw6xmsmKAz1EJhhXzUIAk5mG2DSqVj9vFWU8p4GE1QhhMArsia9LZiaV3pTOPObZyrllmPlN0VuMpiaw8s1JOag/132") {
+                            if(res2.userInfo.avatarUrl === "https://wx.qlogo.cn/mmopen/vi_32/EBiaw6xmsmKAz1EJhhXzUIAk5mG2DSqVj9vFWU8p4GE1QhhMArsia9LZiaV3pTOPObZyrllmPlN0VuMpiaw8s1JOag/132"){
                                 Laya.Browser.onDavid = true;
                             }
-                            if (res2.userInfo.avatarUrl === "https://wx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTJOWVKpqeMShRw1ngiaLEanOI0noTEp3mU6zs1RJmIASZFib77Ih7nJiahUC05cZ09nv9YexjlVy1cyw/132") {
-                                Laya.Browser.onSong = true;
-                            }
-                            if (res2.userInfo.avatarUrl === "https://wx.qlogo.cn/mmopen/vi_32/Jh6EtkuDZzKJC1ErTicKZlH5vhSfvsxzXqqBLKB4UwWckTJOx8ubGcEjyHsFYAmpdmY1QMH0Ticib4MJlYoz0cqZw/132") {
-                                Laya.Browser.onMing = true;
-                            }
+
                             // 可以将 res 发送给后台解码出 unionId
                             // globalData.userInfo = res.userInfo
                             _statusCallback && _statusCallback(3); //进入游戏
@@ -91,8 +148,8 @@ class WxgamePlatform {
                                 that.authenticLoginBtn = null;
                             }
                         },
-                        fail: res => {
-                            console.log("@FREEMAN: wx.getUserInfo fail res:{", res, "}");
+                        fail: res =>{
+                            console.log("@FREEMAN: wx.getUserInfo fail res:{", res ,"}");
                         }
                     })
                 } else {
@@ -104,8 +161,8 @@ class WxgamePlatform {
                     }
                     // console.log(that.btnGame.x, that.btnGame.y);
 
-                    let systemInfo = wx.getSystemInfoSync();
-                    let pRatio = systemInfo.windowWidth / 750.0;
+                    // let systemInfo = wx.getSystemInfoSync();
+                    // let pRatio = systemInfo.windowWidth/750.0;
 
                     if (!res.authSetting['scope.userInfo']) {
                         // console.log("@FREEMAN: wx.createUserInfoButton()");
@@ -129,13 +186,13 @@ class WxgamePlatform {
                                 borderRadius: 4,
                                 opacity: 0.1
                             },
-                            withCredentials: true
+                            withCredentials:true
                         });
                         button.onTap((res1) => {
                             // console.log("@FREEMAN: wx.createUserInfoButton.onTap res:{", res1 ,"}");
 
                             if (res1.errMsg === "getUserInfo:fail auth deny") {
-
+                                
                             } else {
                                 _statusCallback && _statusCallback(1); //微信登录授权
                             }
@@ -166,7 +223,7 @@ class WxgamePlatform {
                         button.onTap((res1) => {
                             // console.log("@FREEMAN: wx.createOpenSettingButton.onTap res:{", res1 ,"}");
                             // if (res1.errMsg == "getUserInfo:fail auth deny") {
-
+                                
                             // } else {
                             //     _statusCallback && _statusCallback(2); //微信设置授权
                             // }
@@ -179,10 +236,10 @@ class WxgamePlatform {
                 }
             },
             fail: res => {
-                console.log("@FREEMAN: wx.getSetting fail res:{", res, "}");
+                console.log("@FREEMAN: wx.getSetting fail res:{", res ,"}");
             }
         })
-    }
+	}
     hideAuthenticLoginBtn() {
         if (this.authenticLoginBtn) {
             this.authenticLoginBtn.hide();
@@ -190,7 +247,7 @@ class WxgamePlatform {
     }
 
     //投诉建议按钮
-    createFeedbackButton(_btnVect) {
+    createFeedbackButton(_btnVect){
         let systemInfo = wx.getSystemInfoSync();
         let button = wx.createFeedbackButton({
             type: 'text',
@@ -210,7 +267,7 @@ class WxgamePlatform {
             }
         });
     }
-
+    
     //亮屏
     onShow(_callback) {
         wx.onShow(function (_param) {
@@ -229,10 +286,13 @@ class WxgamePlatform {
     }
 
     //获取 http token
-    httpToken(_url, _callback, _forceNew = false) {
+    httpToken(_url, _callback, _forceNew=false){
         //token校验
-        var token = wx.getStorageSync('token');
-        if (token && _forceNew == false) {
+        let token = wx.getStorageSync('token');
+        // if(!token){
+            // token = (M && M.player) ? M.player.token : null;
+        // }
+        if (token && _forceNew==false) {
             _callback && _callback(token);
         } else {
             var vToken = new Token(_url);
@@ -244,23 +304,23 @@ class WxgamePlatform {
         return token;
     }
     //http请求
-    httpRequest(_url, _params, _noToken = false) {
+    httpRequest(_url, _params, _noToken=false) {
         var httpReq = new HttpRequest(_url);
         httpReq.request(_params, _noToken);
         return true;
     }
 
     //分享
-    onShare(_data) {
+    onShare(_data){
         var that = this;
         if (that._isSharing) {
             return
         }
         that._isSharing = true;
-        setTimeout(() => {
+        setTimeout(()=>{
             that._isSharing = false;
         }, 350)
-
+        
         // 群分享设置withShareTicket:true 
         if (_data.isGroupShare) {
             wx.updateShareMenu({
@@ -275,8 +335,8 @@ class WxgamePlatform {
             wx.shareAppMessage({
                 title: _data.title,
                 imageUrl: _data.imageUrl,
-                query: _data.query, //"必须是 key1=val1&key2=val2 的格式"
-                success: function (res) {
+                query:_data.query, //"必须是 key1=val1&key2=val2 的格式"
+                success: function(res){
                     // _data.success && _data.success(res)
                     if (_data.isGroupShare) {
                         wx.getSystemInfo({
@@ -319,19 +379,19 @@ class WxgamePlatform {
                         _data.success && _data.success(res)
                     }
                 },
-                fail: function (res) {
+                fail: function(res){
                     _data.fail && _data.fail(res)
                 },
-                complete: function (res) {
+                complete: function(res){
                     that._isSharing = true;
-                    setTimeout(() => {
+                    setTimeout(()=>{
                         that._isSharing = false;
                     }, 350)
-                }
+                } 
             })
         }, 1)
     }
-    isSharing() {
+    isSharing(){
         return this._isSharing;
     }
 
@@ -341,9 +401,9 @@ class WxgamePlatform {
     }
 
     //banner广告
-    createBannerAd(_param) {
+    createBannerAd(_param){
         let systemInfo = wx.getSystemInfoSync();
-        let pRatio = systemInfo.windowWidth / 750.0;
+        let pRatio = systemInfo.windowWidth/750.0;
         // if (_param.style.top) {
         //     _param.style.top *= pRatio;
         // }
@@ -362,17 +422,17 @@ class WxgamePlatform {
         // if (_param.style.height) {
         //     _param.style.height *= pRatio;
         // }
-
+        
         let bannerY = 1334 * pRatio;
-        // if (_param.top) {
-        //     bannerY = _param.top * pRatio;
-        // }
+        if (_param.top) {
+            bannerY = _param.top * pRatio;
+        }
         let bannerAd = wx.createBannerAd({
             adUnitId: _param.adUnitId,
             style: {
-                left: (systemInfo.screenWidth - 300) / 2,
+                left: (systemInfo.screenWidth-300)/2,
                 // top: systemInfo.screenHeight -100,
-                top: bannerY - 100,
+                top: bannerY -100,
                 width: 300,
                 height: 100,
             }
@@ -384,7 +444,7 @@ class WxgamePlatform {
                 if (isResize == false) {
                     isResize = true;
                     // bannerAd.style.top = systemInfo.screenHeight - res.height;
-                    bannerAd.style.top = bannerY - res.height + _param.top;
+                    bannerAd.style.top = bannerY - res.height;
                 }
             });
         }
@@ -393,8 +453,8 @@ class WxgamePlatform {
         return bannerAd;
     }
     //视频广告
-    createRewardedVideoAd(_param) {
-        let video1 = wx.createRewardedVideoAd({ adUnitId: _param.adUnitId })
+    createRewardedVideoAd(_param){
+        let video1 = wx.createRewardedVideoAd({adUnitId: _param.adUnitId})
         // video1.show();
         // video1.hide();
         return video1;
@@ -406,15 +466,15 @@ class WxgamePlatform {
     }
 
     //开放数据
-    setUserCloudStorage(_kvDataList) {
+    setUserCloudStorage(_kvDataList){
         wx.setUserCloudStorage({
-            KVDataList: _kvDataList,
-            success: function (src) {
-                console.log("setUserCloudStorage success", src)
-            },
-            fail: function (src) {
-                console.log("setUserCloudStorage fail", src)
-            }
+        KVDataList: _kvDataList,
+        success: function (src) {
+            console.log("setUserCloudStorage success", src)
+        },
+        fail: function (src) {
+            console.log("setUserCloudStorage fail", src)
+        }
         })
     }
     getOpenDataContext() {
@@ -423,7 +483,7 @@ class WxgamePlatform {
     postMessage(_data) {
         wx.postMessage(_data);
     }
-
+    
     //编码（名字表情）
     encode(_txt) {
         return escape(_txt);

@@ -69,6 +69,9 @@ var FriendConcurView = /** @class */ (function (_super) {
         self.rewardList.visible = true;
         var listData = data;
         listData.sort(function (pre, next) {
+            if (pre.static == 1 && next.static == 1) {
+                return pre.p_status - next.p_status;
+            }
             return pre.status - next.status;
         });
         listData.forEach(function (data, index, list) {

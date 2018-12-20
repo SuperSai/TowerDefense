@@ -1,0 +1,26 @@
+
+class LoginView extends Laya.Component {
+
+    public static SUBMIT: string = "SUBMIT";
+    public ui: ui.login.LoginUI;
+
+    constructor() {
+        super();
+        this.ui = new ui.login.LoginUI();
+        this.addChild(this.ui);
+        this.addEvents();
+    }
+
+
+    private addEvents() {
+        this.ui.btnSubmit.on(Laya.Event.CLICK, this, () => {
+            const account: string = this.ui.inputAccount.text;
+            const pwd: string = this.ui.inputPwd.text;
+            if (!account || !pwd) {
+                alert("帐号或密码不能为空！")
+            } else {
+                this.event(LoginView.SUBMIT, { account, pwd });
+            }
+        })
+    }
+}

@@ -34,6 +34,8 @@ hallScene.label.txt.23:单次抽奖将消耗钻石x{0}
 hallScene.label.txt.24:免费
 hallScene.label.txt.25:免费抽奖剩余时间：{0}
 hallScene.label.txt.26:下一次免费抽奖倒计时：{0}
+hallScene.label.txt.27:在线5分钟，才能领取奖励哟~
+hallScene.label.txt.28:领取奖励
 
 
 

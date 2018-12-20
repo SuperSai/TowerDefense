@@ -97,7 +97,6 @@ var HallScene = /** @class */ (function (_super) {
         M.novice.start();
         BuffController.getInstance().init(self.viewBuffContainer);
         SkyDropController.getInstance().init(self.viewSkyDropContainer);
-        M.more.initModel();
         Laya.timer.once(1e3, this, function () {
             if (Laya.Browser.window.wxUserInfo) {
                 PlayerManager.Instance.Info.wxUserInfo = Laya.Browser.window.wxUserInfo;
@@ -141,6 +140,7 @@ var HallScene = /** @class */ (function (_super) {
                 }
             });
         }
+        self.navToMiniAni.play(0, true);
         /** 初始化用户数据 */
         self.initUserData();
         self.initCarUI();
@@ -1840,7 +1840,7 @@ var HallScene = /** @class */ (function (_super) {
                 TimerManager.Instance.doTimer(1000, 0, self.onUpdateTime, self);
             }
             else if (self._diamondTime <= 0) {
-                self.txt_diamondTime.text = "领取奖励";
+                self.txt_diamondTime.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.28");
             }
         }
     };
@@ -1852,7 +1852,7 @@ var HallScene = /** @class */ (function (_super) {
         }
         else {
             TimerManager.Instance.remove(self.onUpdateTime, self);
-            self.txt_diamondTime.text = "领取奖励";
+            self.txt_diamondTime.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.28");
         }
     };
     /** 领取在线奖励 */
@@ -1862,7 +1862,7 @@ var HallScene = /** @class */ (function (_super) {
             HttpManager.Instance.requestGetOffLineReward(function (res) {
                 RewardGetView.Create(self, function () {
                     M.layer.screenEffectLayer.addChild(new FlyEffect().play("diamond", LayerManager.mouseX, LayerManager.mouseY, 38, 83));
-                    MessageUtils.showMsgTips("获得钻石：" + res.diamond);
+                    MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.20", "钻石", res.diamond));
                     EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: userData.diamond = res.total_diamond });
                     userData.offlineRewardCount = res.remain_online_num;
                     self.updateDiamondTime(HallManager.Instance.hallData.offlineTotalTime);
@@ -1870,7 +1870,7 @@ var HallScene = /** @class */ (function (_super) {
             });
         }
         else {
-            MessageUtils.showMsgTips("倒计时结束后，可领取在线奖励!");
+            MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.27"));
         }
     };
     return HallScene;

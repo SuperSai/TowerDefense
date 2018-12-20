@@ -72,16 +72,19 @@ var HeroLevelView = /** @class */ (function (_super) {
         }
         else {
             SDKManager.Instance.showVideoAd(function (_res) {
-                if (self._callback)
-                    self._callback();
+                if (_res && _res.isEnded || _res === undefined) {
+                    if (self._callback)
+                        self._callback();
+                    self.removeView();
+                }
             }, function () {
                 userData.toShareAd(function () {
                     if (self._callback)
                         self._callback();
+                    self.removeView();
                 });
             });
         }
-        self.removeView();
     };
     HeroLevelView.prototype.removeView = function () {
         var self = this;
