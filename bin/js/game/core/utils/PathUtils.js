@@ -1,21 +1,18 @@
-var PathUtils = /** @class */ (function () {
-    function PathUtils() {
-    }
-    PathUtils.CreateBezierPoints = function (anchorpoints, pointsAmount) {
-        if (pointsAmount === void 0) { pointsAmount = 120; }
-        var points = [];
-        for (var i = 0; i < pointsAmount; i++) {
-            var point = this.MultiPointBezier(anchorpoints, i / pointsAmount);
+class PathUtils {
+    static CreateBezierPoints(anchorpoints, pointsAmount = 120) {
+        const points = [];
+        for (let i = 0; i < pointsAmount; i++) {
+            const point = this.MultiPointBezier(anchorpoints, i / pointsAmount);
             points.push(point);
         }
         return points;
-    };
-    PathUtils.MultiPointBezier = function (points, t) {
-        var len = points.length;
-        var x = 0;
-        var y = 0;
-        for (var i = 0; i < len; i++) {
-            var point = points[i];
+    }
+    static MultiPointBezier(points, t) {
+        const len = points.length;
+        let x = 0;
+        let y = 0;
+        for (let i = 0; i < len; i++) {
+            const point = points[i];
             x +=
                 point.x *
                     Math.pow(1 - t, len - 1 - i) *
@@ -28,10 +25,10 @@ var PathUtils = /** @class */ (function () {
                     this.erxiangshi(len - 1, i);
         }
         return new Point(x, y);
-    };
-    PathUtils.erxiangshi = function (start, end) {
-        var cs = 1;
-        var bcs = 1;
+    }
+    static erxiangshi(start, end) {
+        let cs = 1;
+        let bcs = 1;
         while (end > 0) {
             cs *= start;
             bcs *= end;
@@ -39,7 +36,6 @@ var PathUtils = /** @class */ (function () {
             end--;
         }
         return cs / bcs;
-    };
-    return PathUtils;
-}());
+    }
+}
 //# sourceMappingURL=PathUtils.js.map

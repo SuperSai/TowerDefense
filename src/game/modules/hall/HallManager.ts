@@ -122,6 +122,7 @@ class HallManager extends Laya.EventDispatcher {
         return false;
     }
 
+
     set hallData(value: HallModel) { this._model = value; }
     /** 大厅中的数据 */
     get hallData(): HallModel { return this._model; }

@@ -1,60 +1,32 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var MoreModel = /** @class */ (function (_super) {
-    __extends(MoreModel, _super);
-    function MoreModel() {
-        var _this = _super.call(this) || this;
-        _this.init();
-        return _this;
+class MoreModel extends Laya.EventDispatcher {
+    get mute() {
+        return this._mute;
     }
-    Object.defineProperty(MoreModel.prototype, "mute", {
-        get: function () {
-            return this._mute;
-        },
-        set: function (value) {
-            this._mute = value;
-            userData.setCache(CacheKey.SOUND_MUTE, this._mute);
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(MoreModel.prototype, "subscribable", {
-        get: function () {
-            return this._subscribable;
-        },
-        set: function (value) {
-            this._subscribable = value;
-            this.event(MoreEvent.SUBSCRIBE_STATUS, value);
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(MoreModel.prototype, "itemList", {
-        get: function () {
-            return this._itemList;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    MoreModel.prototype.init = function () {
+    set mute(value) {
+        this._mute = value;
+        userData.setCache(CacheKey.SOUND_MUTE, this._mute);
+    }
+    get subscribable() {
+        return this._subscribable;
+    }
+    set subscribable(value) {
+        this._subscribable = value;
+        this.event(MoreEvent.SUBSCRIBE_STATUS, value);
+    }
+    get itemList() {
+        return this._itemList;
+    }
+    constructor() {
+        super();
+        this.init();
+    }
+    init() {
         this._itemList = [];
         // this._itemList.push(new MoreViewListItemVO());
         // this._itemList.push(new MoreViewListItemVO());
         // this._itemList.push(new MoreViewListItemVO());
         // this._itemList.push(new MoreViewListItemVO());
         // this._itemList.push(new MoreViewListItemVO());
-    };
-    return MoreModel;
-}(Laya.EventDispatcher));
+    }
+}
 //# sourceMappingURL=MoreModel.js.map

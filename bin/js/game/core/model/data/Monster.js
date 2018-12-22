@@ -1,62 +1,47 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /*
  * terry 2018/10/24;
  * 怪物精灵
  */
-var MonsterSprite = /** @class */ (function (_super) {
-    __extends(MonsterSprite, _super);
-    function MonsterSprite() {
-        var _this = _super.call(this) || this;
-        _this.monsterId = 0;
-        _this.monsterStage = 0; //0未停车/1在车位/2在跑道/3拖动/4宝箱
-        _this.parkIndex = -1; //车位编号
-        _this._boxEffectNode = null; //宝箱掉落效果
-        _this._isLock = false; //是否上锁
-        _this._isLight = false; //是否高亮
-        _this.animPreKey = ''; //独立动作名前缀
-        _this._state = -1; //默认0步行，1为攻击
-        _this._moveLoopFun = null; //移动函数
-        _this._moveSpeedRatio = 1; //移动速度倍率
-        _this._moveAccelerate = 1; //移动速度加速
-        _this._moveBaseSpeed = 1; //基础移动速度
-        _this._atkAccelerate = 1; //攻击加速
-        _this._aniStandFrameStart = 0; //站立
-        _this.yun_key = "yun_img"; //缓存池管理
-        _this.yun_key_acce = "yun_img_acce"; //加速度
-        _this.bornDelayFun = null; //出生延迟函数
-        _this.curBlood = 1; //当前血量
-        _this.maxBlood = 1; //最大血量
-        _this.preHurtBlood = 0; //预扣血量，攻击时恢复为当前血量
-        _this._isDeath = false; //是否死亡
-        _this.money = 0; //可掉落金钱
-        _this.atkValue = 1; //攻击力
-        _this.atkSpeedValue = 1; //攻击速度
-        _this.skillId = 0; //技能id
-        _this._isAtkEnabled = true; //是否有攻击能力
-        _this.dropMoneyFun = null; //掉落金币回调
-        _this.calcuteNextMovePosFun = null; //计算下一步移动坐标
-        _this._level = [12, 14, 16, 18, 20, 22, 24, 26, 28, 30];
-        _this._isLoadComplete = false;
-        return _this;
+class MonsterSprite extends Laya.Sprite {
+    constructor() {
+        super();
+        this.monsterId = 0;
+        this.monsterStage = 0; //0未停车/1在车位/2在跑道/3拖动/4宝箱
+        this.parkIndex = -1; //车位编号
+        this._boxEffectNode = null; //宝箱掉落效果
+        this._isLock = false; //是否上锁
+        this._isLight = false; //是否高亮
+        this.animPreKey = ''; //独立动作名前缀
+        this._state = -1; //默认0步行，1为攻击
+        this._moveLoopFun = null; //移动函数
+        this._moveSpeedRatio = 1; //移动速度倍率
+        this._moveAccelerate = 1; //移动速度加速
+        this._moveBaseSpeed = 1; //基础移动速度
+        this._atkAccelerate = 1; //攻击加速
+        this._aniStandFrameStart = 0; //站立
+        this.yun_key = "yun_img"; //缓存池管理
+        this.yun_key_acce = "yun_img_acce"; //加速度
+        this.bornDelayFun = null; //出生延迟函数
+        this.curBlood = 1; //当前血量
+        this.maxBlood = 1; //最大血量
+        this.preHurtBlood = 0; //预扣血量，攻击时恢复为当前血量
+        this._isDeath = false; //是否死亡
+        this.money = 0; //可掉落金钱
+        this.atkValue = 1; //攻击力
+        this.atkSpeedValue = 1; //攻击速度
+        this.skillId = 0; //技能id
+        this._isAtkEnabled = true; //是否有攻击能力
+        this.dropMoneyFun = null; //掉落金币回调
+        this.calcuteNextMovePosFun = null; //计算下一步移动坐标
+        this._level = [12, 14, 16, 18, 20, 22, 24, 26, 28, 30];
+        this._isLoadComplete = false;
     }
     //出生
-    MonsterSprite.prototype.setBornDelayFun = function (parentNode, _delayTime, _callback) {
-        var that = this;
+    setBornDelayFun(parentNode, _delayTime, _callback) {
+        let that = this;
         if (that.bornDelayFun == null) {
             that._parentNode = parentNode;
-            that.bornDelayFun = function () {
+            that.bornDelayFun = () => {
                 _callback && _callback();
                 if (that.bornDelayFun) {
                     that.bornDelayFun = null;
@@ -64,18 +49,17 @@ var MonsterSprite = /** @class */ (function (_super) {
             };
             that.timerOnce(_delayTime, that, that.bornDelayFun);
         }
-    };
-    MonsterSprite.prototype.clearBornDelayFun = function () {
-        var that = this;
+    }
+    clearBornDelayFun() {
+        let that = this;
         if (that.bornDelayFun) {
             that.clearTimer(that, that.bornDelayFun);
             that.bornDelayFun = null;
         }
-    };
+    }
     //设置车类型
-    MonsterSprite.prototype.setKind = function (id, $index) {
-        if ($index === void 0) { $index = -1; }
-        var self = this;
+    setKind(id, $index = -1) {
+        let self = this;
         if (self.isLock())
             return;
         self.monsterId = id;
@@ -92,45 +76,45 @@ var MonsterSprite = /** @class */ (function (_super) {
             self.atkSpeedValue = self._monsterInfo.ias;
             self.skillId = self._monsterInfo.ability;
             self._moveBaseSpeed = self._monsterInfo.mMoveSpeed;
-            var aniPath_1 = self._monsterInfo.modelImgUrl;
-            var aniFrameKey_1 = self._monsterInfo.modelImgKey;
-            self.animPreKey = aniPath_1 + "/" + aniFrameKey_1;
-            var anim_1 = self.getChildByName(MonsterSprite.roleKey);
-            if (anim_1 == null) {
+            let aniPath = self._monsterInfo.modelImgUrl;
+            let aniFrameKey = self._monsterInfo.modelImgKey;
+            self.animPreKey = aniPath + "/" + aniFrameKey;
+            let anim = self.getChildByName(MonsterSprite.roleKey);
+            if (anim == null) {
                 //创建动画实例
-                anim_1 = Laya.Pool.getItemByClass(userData.ANIMATION_POOL_NAME, Laya.Animation);
-                anim_1.name = MonsterSprite.roleKey;
-                anim_1.pivot(self._monsterInfo.pivotX, self._monsterInfo.pivotY);
-                self.addChild(anim_1);
+                anim = Laya.Pool.getItemByClass(userData.ANIMATION_POOL_NAME, Laya.Animation);
+                anim.name = MonsterSprite.roleKey;
+                anim.pivot(self._monsterInfo.pivotX, self._monsterInfo.pivotY);
+                self.addChild(anim);
             }
             // 加载动画图集,加载成功后执行回调方法
-            var aniAtlas = PathConfig.MonsterUrl.replace("{0}", aniPath_1);
+            let aniAtlas = PathConfig.MonsterUrl.replace("{0}", aniPath);
             self._isLoadComplete = false;
-            anim_1.loadAtlas(aniAtlas, Handler.create(self, function () {
+            anim.loadAtlas(aniAtlas, Handler.create(self, () => {
                 //创建动画模板dizziness
                 self._aniStandFrameStart = self._monsterInfo.modelImgWait - (self._monsterInfo.modelImgWait - self._monsterInfo.modelImgAtk);
                 if (self._monsterInfo.type == MONSTER_TYPE.MONSTER || self._monsterInfo.type == MONSTER_TYPE.BOSS) {
                     self._aniStandFrameStart = 0;
                 }
-                Laya.Animation.createFrames(AnimationUtils.heroAniUrls(aniFrameKey_1, self._aniStandFrameStart, self._monsterInfo.modelImgWait, aniPath_1 + '/', true), (self.animPreKey + MonsterSprite.standAnimKey));
-                Laya.Animation.createFrames(AnimationUtils.heroAniUrls(aniFrameKey_1, 0, self._monsterInfo.modelImgAtk, aniPath_1 + '/'), (self.animPreKey + MonsterSprite.atkAnimKey));
+                Laya.Animation.createFrames(AnimationUtils.heroAniUrls(aniFrameKey, self._aniStandFrameStart, self._monsterInfo.modelImgWait, aniPath + '/', true), (self.animPreKey + MonsterSprite.standAnimKey));
+                Laya.Animation.createFrames(AnimationUtils.heroAniUrls(aniFrameKey, 0, self._monsterInfo.modelImgAtk, aniPath + '/'), (self.animPreKey + MonsterSprite.atkAnimKey));
                 //设置坐标
-                if (anim_1.frames) {
-                    var aniGraphics = anim_1.frames[1];
+                if (anim.frames) {
+                    let aniGraphics = anim.frames[1];
                     if (aniGraphics) {
-                        var aniBounds = aniGraphics.getBounds();
+                        let aniBounds = aniGraphics.getBounds();
                         if (self._monsterInfo.type == MONSTER_TYPE.HERO || self._monsterInfo.type == MONSTER_TYPE.SUPER_HERO) { //英雄
-                            anim_1.scaleX = -1;
-                            var heroPos = self.getChildByName('heroPos');
+                            anim.scaleX = -1;
+                            let heroPos = self.getChildByName('heroPos');
                             if (heroPos) {
-                                anim_1.pos(heroPos.x, heroPos.y);
+                                anim.pos(heroPos.x, heroPos.y);
                             }
                         }
                         else if (self._monsterInfo.type == MONSTER_TYPE.BOSS_HERO) { //守护
-                            anim_1.pos((self.width - aniBounds.width) / 2, (self.height - aniBounds.width) / 2 - 60);
+                            anim.pos((self.width - aniBounds.width) / 2, (self.height - aniBounds.width) / 2 - 60);
                         }
                         else { //敌人
-                            anim_1.pos(0, 0);
+                            anim.pos(0, 0);
                         }
                     }
                 }
@@ -147,28 +131,24 @@ var MonsterSprite = /** @class */ (function (_super) {
         else {
             self.setStage(0);
         }
-    };
+    }
     //状态
-    MonsterSprite.prototype.playAnimation = function (state, hero, monster, attackValue) {
-        if (state === void 0) { state = 0; }
-        if (hero === void 0) { hero = null; }
-        if (monster === void 0) { monster = null; }
-        if (attackValue === void 0) { attackValue = 0; }
-        var self = this;
+    playAnimation(state = 0, hero = null, monster = null, attackValue = 0) {
+        let self = this;
         if (self._state == state || !self._isLoadComplete) {
             return;
         }
         self._state = state;
-        var animName = (self.animPreKey + MonsterSprite.standAnimKey);
-        var isLoop = true;
-        var aniInterval = 100 * self._atkAccelerate;
+        let animName = (self.animPreKey + MonsterSprite.standAnimKey);
+        let isLoop = true;
+        let aniInterval = 100 * self._atkAccelerate;
         if (self._state == 1) {
             animName = (self.animPreKey + MonsterSprite.atkAnimKey);
             isLoop = false;
             aniInterval = aniInterval / 4;
             //自动复位站立
             if (hero) {
-                self.timerOnce(aniInterval * hero.monsterInfo.modelImgAtk, self, function () {
+                self.timerOnce(aniInterval * hero.monsterInfo.modelImgAtk, self, () => {
                     self.playAnimation(0);
                 });
                 //攻击回调
@@ -177,15 +157,15 @@ var MonsterSprite = /** @class */ (function (_super) {
             //暂停攻击能力
             if (self.atkSpeedValue > 0) {
                 self._isAtkEnabled = false;
-                var buff = 1 / (1 + BuffController.getInstance().getBuffValueById(BuffSheet.ATTACK_SPEED_INCREASE));
-                self.timerOnce(self.atkSpeedValue * 1000 * (self._atkAccelerate * buff), self, function () {
+                const buff = 1 / (1 + BuffController.getInstance().getBuffValueById(BuffSheet.ATTACK_SPEED_INCREASE));
+                self.timerOnce(self.atkSpeedValue * 1000 * (self._atkAccelerate * buff), self, () => {
                     //恢复攻击能力
                     self._isAtkEnabled = true;
                 });
             }
         }
         //英雄
-        var roleAni = self.getChildByName(MonsterSprite.roleKey);
+        let roleAni = self.getChildByName(MonsterSprite.roleKey);
         if (roleAni) {
             roleAni.interval = aniInterval;
             if (animName == (self.animPreKey + MonsterSprite.standAnimKey)) {
@@ -195,26 +175,26 @@ var MonsterSprite = /** @class */ (function (_super) {
                 roleAni.play(0, isLoop, animName);
             }
         }
-    };
-    MonsterSprite.prototype.onAttack = function (hero, monster, attackValue) {
+    }
+    onAttack(hero, monster, attackValue) {
         BattleManager.Instance.doPetAttack(hero, monster, attackValue);
         Laya.SoundManager.playSound("musics/atk.mp3");
-    };
+    }
     //设置车状态(0未停车/1在车位/2在跑道/3拖动)
-    MonsterSprite.prototype.setStage = function (_stage) {
-        var that = this;
+    setStage(_stage) {
+        let that = this;
         if (that.isLock())
             return;
-        var imgCar = that.getChildByName('imgCar');
+        let imgCar = that.getChildByName('imgCar');
         if (imgCar) {
             imgCar.alpha = 1;
         }
         //carId
-        var imgLevel = that.getChildByName('imgLevel');
+        let imgLevel = that.getChildByName('imgLevel');
         if (imgLevel) {
             imgLevel.visible = true;
             imgLevel.zOrder = 10;
-            var txtLevel = imgLevel.getChildByName('txtLevel');
+            let txtLevel = imgLevel.getChildByName('txtLevel');
             if (txtLevel) {
                 txtLevel.changeText('' + BattleManager.Instance.getLevel(that.monsterId));
             }
@@ -227,15 +207,15 @@ var MonsterSprite = /** @class */ (function (_super) {
             }
         }
         else if (_stage == 2) {
-            var imgCar_1 = that.getChildByName('imgCar');
-            if (imgCar_1) {
-                imgCar_1.alpha = 0.6;
+            let imgCar = that.getChildByName('imgCar');
+            if (imgCar) {
+                imgCar.alpha = 0.6;
             }
         }
         else if (_stage == 3) {
-            var imgCar_2 = that.getChildByName('imgCar');
-            if (imgCar_2) {
-                imgCar_2.alpha = 0.4;
+            let imgCar = that.getChildByName('imgCar');
+            if (imgCar) {
+                imgCar.alpha = 0.4;
             }
         }
         else if (_stage == 4) {
@@ -246,39 +226,38 @@ var MonsterSprite = /** @class */ (function (_super) {
             that.showCar(false);
         }
         that.monsterStage = _stage;
-    };
+    }
     //显示或隐藏车
-    MonsterSprite.prototype.showCar = function (_show) {
-        if (_show === void 0) { _show = true; }
+    showCar(_show = true) {
         this.visible = _show;
-    };
+    }
     //已放入跑道
-    MonsterSprite.prototype.isRunning = function () {
+    isRunning() {
         return (this.monsterStage == 2);
-    };
+    }
     //可使用
-    MonsterSprite.prototype.isEnabled = function () {
+    isEnabled() {
         return (this.monsterStage == 1);
-    };
+    }
     //是否空车位
-    MonsterSprite.prototype.isEmpty = function () {
+    isEmpty() {
         return (this.monsterStage < 1);
-    };
+    }
     //是否顶级
-    MonsterSprite.prototype.isMaxLevel = function () {
-        var that = this;
+    isMaxLevel() {
+        let that = this;
         return BattleManager.Instance.getLevel(that.monsterId) >= BattleManager.Instance.model.monsterMaxLevel;
-    };
+    }
     //宝箱(不可交换/合并)
-    MonsterSprite.prototype.isBox = function () {
+    isBox() {
         return (this.monsterStage == 4);
-    };
+    }
     //设置锁
-    MonsterSprite.prototype.setLock = function (_lock, index) {
-        var that = this;
-        var imgLock = that.getChildByName('imgLock');
+    setLock(_lock, index) {
+        let that = this;
+        let imgLock = that.getChildByName('imgLock');
         if (imgLock) {
-            var unlockImg = that.getChildByName('txt_openLevel');
+            let unlockImg = that.getChildByName('txt_openLevel');
             imgLock.visible = unlockImg.visible = _lock;
             if (imgLock.visible) {
                 if (unlockImg && index >= 10) {
@@ -287,51 +266,51 @@ var MonsterSprite = /** @class */ (function (_super) {
             }
         }
         that._isLock = _lock;
-    };
+    }
     //是否上锁
-    MonsterSprite.prototype.isLock = function () {
+    isLock() {
         return this._isLock;
-    };
+    }
     //设置锁
-    MonsterSprite.prototype.setLight = function (_light) {
-        var that = this;
-        var imgLight = that.getChildByName('imgLight');
+    setLight(_light) {
+        let that = this;
+        let imgLight = that.getChildByName('imgLight');
         if (imgLight) {
             imgLight.visible = _light;
         }
         that._isLight = _light;
-    };
+    }
     //是否上锁
-    MonsterSprite.prototype.isLight = function () {
+    isLight() {
         return this._isLight;
-    };
+    }
     //播放两车合并效果
-    MonsterSprite.prototype.playMergeEffetc = function (_parentNode, _carId) {
+    playMergeEffetc(_parentNode, _carId) {
         var that = this;
         //基础节点
-        var effectNode = new Laya.Sprite();
+        let effectNode = new Laya.Sprite();
         _parentNode.addChild(effectNode);
-        var pos = that.localToGlobal(new Laya.Point(that.width / 2, that.height / 2));
+        let pos = that.localToGlobal(new Laya.Point(that.width / 2, that.height / 2));
         pos = _parentNode.globalToLocal(pos);
         effectNode.pos(pos.x, pos.y);
         that.showCar(false);
-        var offsetX = 70;
-        var parkcarLeftSp = ObjectPool.pop(MonsterSprite, "NewMonsterSprite");
+        let offsetX = 70;
+        let parkcarLeftSp = ObjectPool.pop(MonsterSprite, "NewMonsterSprite");
         effectNode.addChild(parkcarLeftSp);
         parkcarLeftSp.setKind(_carId);
         parkcarLeftSp.anim.pos(0, 0);
         parkcarLeftSp.pos(0, 0);
         Laya.Tween.to(parkcarLeftSp, {
             x: -offsetX
-        }, 300, Laya.Ease.elasticOut, Laya.Handler.create(that, function () {
+        }, 300, Laya.Ease.elasticOut, Laya.Handler.create(that, () => {
             Laya.Tween.to(parkcarLeftSp, {
                 x: 0
-            }, 100, Laya.Ease.linearIn, Laya.Handler.create(that, function () {
+            }, 100, Laya.Ease.linearIn, Laya.Handler.create(that, () => {
                 effectNode.removeChildren();
                 EffectUtils.playCoinEffect(effectNode, 'images/star2.png', {
                     x: 0,
                     y: 0
-                }, function () {
+                }, () => {
                     effectNode.removeSelf();
                 });
                 if (that.monsterId > 0) {
@@ -343,7 +322,7 @@ var MonsterSprite = /** @class */ (function (_super) {
             }, null, true));
         }));
         //复制品
-        var parkcarCopy = ObjectPool.pop(MonsterSprite, "NewMonsterSprite");
+        let parkcarCopy = ObjectPool.pop(MonsterSprite, "NewMonsterSprite");
         parkcarLeftSp.addChild(parkcarCopy);
         parkcarCopy.setKind(_carId);
         parkcarCopy.anim.pos(0, 0);
@@ -351,48 +330,48 @@ var MonsterSprite = /** @class */ (function (_super) {
         parkcarCopy.anim.scaleX = -1;
         Laya.Tween.to(parkcarCopy, {
             x: offsetX * 2
-        }, 300, Laya.Ease.elasticOut, Laya.Handler.create(that, function () {
+        }, 300, Laya.Ease.elasticOut, Laya.Handler.create(that, () => {
             Laya.Tween.to(parkcarCopy, {
                 x: 0
-            }, 100, Laya.Ease.linearIn, Laya.Handler.create(that, function () {
+            }, 100, Laya.Ease.linearIn, Laya.Handler.create(that, () => {
                 Laya.Tween.clearTween(parkcarCopy);
                 ObjectPool.push(parkcarCopy);
                 parkcarCopy.removeSelf();
             }, null, true));
         }));
-    };
+    }
     //掉落宝箱
-    MonsterSprite.prototype.dropBoxEffect = function (_parentNode) {
+    dropBoxEffect(_parentNode) {
         var that = this;
         //基础节点
-        var effectNode = new Laya.Sprite();
+        let effectNode = new Laya.Sprite();
         _parentNode.addChild(effectNode);
-        var pos = that.localToGlobal(new Laya.Point(0, 0));
+        let pos = that.localToGlobal(new Laya.Point(0, 0));
         pos = _parentNode.globalToLocal(pos);
         effectNode.pos(pos.x + that.width / 2, pos.y + that.height / 2 - 2);
         that.setStage(4);
-        var parkcarSp = new MonsterSprite();
+        let parkcarSp = new MonsterSprite();
         effectNode.addChild(parkcarSp);
         parkcarSp.loadImage("images/drop_box.png", 0, 0, 60, 60);
         parkcarSp.pivot(parkcarSp.width / 2, parkcarSp.height / 2);
-        EffectUtils.playBoxDropEffect(effectNode, function () {
-            parkcarSp.frameOnce(60, that, function () {
+        EffectUtils.playBoxDropEffect(effectNode, () => {
+            parkcarSp.frameOnce(60, that, () => {
                 that.openBoxEffect();
             });
         });
         that._boxEffectNode = effectNode;
-    };
+    }
     //打开宝箱
-    MonsterSprite.prototype.openBoxEffect = function () {
+    openBoxEffect() {
         var that = this;
         var effectNode = that._boxEffectNode;
         if (effectNode) {
-            EffectUtils.playBoxShakeEffect(effectNode, function () {
+            EffectUtils.playBoxShakeEffect(effectNode, () => {
                 effectNode.removeChildren();
                 EffectUtils.playCoinEffect(effectNode, 'images/star2.png', {
                     x: 0,
                     y: 0
-                }, function () {
+                }, () => {
                     effectNode.removeChildren();
                     effectNode.removeSelf();
                 });
@@ -400,40 +379,38 @@ var MonsterSprite = /** @class */ (function (_super) {
             });
             that._boxEffectNode = null;
         }
-    };
+    }
     //获取车配置信息
-    MonsterSprite.prototype.getBuyPrice = function () {
-        var carInfo = BattleManager.Instance.getMonsterItem(this.monsterId);
+    getBuyPrice() {
+        let carInfo = BattleManager.Instance.getMonsterItem(this.monsterId);
         if (carInfo) {
             return carInfo.buyPrice;
         }
         return 0;
-    };
-    MonsterSprite.prototype.getSellPrice = function () {
+    }
+    getSellPrice() {
         return this.getBuyPrice() * 0.8;
-    };
-    MonsterSprite.prototype.getIncomePerSecond = function () {
+    }
+    getIncomePerSecond() {
         // let carInfo = BattleManager.Instance.getMonsterItem(this.monsterId);
         // if (carInfo) {
         //     return carInfo.PerSecCoin;
         // }
         return 0;
-    };
+    }
     //是否相同等级
-    MonsterSprite.prototype.isSameLevel = function (_carId) {
-        var that = this;
-        var mLevel = BattleManager.Instance.getLevel(that.monsterId);
+    isSameLevel(_carId) {
+        let that = this;
+        let mLevel = BattleManager.Instance.getLevel(that.monsterId);
         if (mLevel > 0) {
             return mLevel == BattleManager.Instance.getLevel(_carId);
         }
         return false;
-    };
+    }
     //显示血量(_hurtBlood:伤害血量, _maxBlood:总血量)
-    MonsterSprite.prototype.updateBlood = function (_hurtBlood, _maxBlood, _isDoubleHurt) {
-        if (_maxBlood === void 0) { _maxBlood = 0; }
-        if (_isDoubleHurt === void 0) { _isDoubleHurt = false; }
-        var self = this;
-        var hurtBlood = _hurtBlood;
+    updateBlood(_hurtBlood, _maxBlood = 0, _isDoubleHurt = false) {
+        let self = this;
+        let hurtBlood = _hurtBlood;
         if (_isDoubleHurt) {
             hurtBlood *= 2;
         }
@@ -448,8 +425,8 @@ var MonsterSprite = /** @class */ (function (_super) {
             }
         }
         self.resetLeftBlood();
-        var bloodBarKey = "bloodBar";
-        var bloodBar = self.getChildByName(bloodBarKey);
+        let bloodBarKey = "bloodBar";
+        let bloodBar = self.getChildByName(bloodBarKey);
         if (bloodBar == null) {
             bloodBar = new Laya.ProgressBar("images/game_blood.png");
             bloodBar.name = bloodBarKey;
@@ -459,7 +436,7 @@ var MonsterSprite = /** @class */ (function (_super) {
         }
         bloodBar.value = self.curBlood / self.maxBlood;
         bloodBar.visible = self.curBlood < self.maxBlood;
-        var isDeath = self.curBlood <= 0;
+        let isDeath = self.curBlood <= 0;
         if (self._isDeath == false && isDeath) {
             //死亡状态切换
             self._isDeath = isDeath;
@@ -475,30 +452,29 @@ var MonsterSprite = /** @class */ (function (_super) {
         }
         //被击效果
         // that.playBehitEffect();
-    };
+    }
     //预扣血量,判断是否有剩余
-    MonsterSprite.prototype.isLeftBlood = function (_hurtBlood) {
-        var that = this;
+    isLeftBlood(_hurtBlood) {
+        let that = this;
         if (that.preHurtBlood > 0) {
             that.preHurtBlood -= _hurtBlood;
             return true;
         }
         return false;
-    };
-    MonsterSprite.prototype.resetLeftBlood = function () {
-        var that = this;
+    }
+    resetLeftBlood() {
+        let that = this;
         that.preHurtBlood = that.curBlood;
-    };
+    }
     //显示冰冻减速
-    MonsterSprite.prototype.reduceMoveSpeed = function (_ratio, _keepTime) {
-        if (_keepTime === void 0) { _keepTime = 1; }
-        var that = this;
+    reduceMoveSpeed(_ratio, _keepTime = 1) {
+        let that = this;
         if (that._moveSpeedRatio < 1) {
             return;
         }
         that._moveSpeedRatio = _ratio;
-        var effectKey = "iceKey";
-        var effectSp = that.getChildByName(effectKey);
+        let effectKey = "iceKey";
+        let effectSp = that.getChildByName(effectKey);
         if (effectSp == null) {
             effectSp = Laya.Pool.getItemByClass("layaImage", Laya.Image);
             effectSp.skin = "images/effect_water002.png";
@@ -507,17 +483,17 @@ var MonsterSprite = /** @class */ (function (_super) {
             effectSp.pos(-110 / 2, -120 / 2);
             effectSp.zOrder = -1;
         }
-        effectSp.timerOnce(_keepTime * 1000, that, function () {
+        effectSp.timerOnce(_keepTime * 1000, that, () => {
             Laya.Pool.recover("layaImage", effectSp);
             effectSp.removeSelf();
             that._moveSpeedRatio = 1;
         });
-    };
+    }
     //显示中毒效果
-    MonsterSprite.prototype.showDrug = function (_hurtValue, _hurtTimes) {
-        var that = this;
-        var effectKey = "drugKey";
-        var effectSp = that.getChildByName(effectKey);
+    showDrug(_hurtValue, _hurtTimes) {
+        let that = this;
+        let effectKey = "drugKey";
+        let effectSp = that.getChildByName(effectKey);
         if (effectSp == null) {
             effectSp = Laya.Pool.getItemByClass("layaImage", Laya.Image);
             effectSp.skin = "images/effect_drug002.png";
@@ -525,23 +501,23 @@ var MonsterSprite = /** @class */ (function (_super) {
             that.addChild(effectSp);
             effectSp.pos(-75 / 2, -170 / 2);
             //特效
-            var actionSp = effectSp;
+            let actionSp = effectSp;
             if (actionSp) {
-                var timeLine_1 = Laya.Pool.getItemByClass("timeLine", Laya.TimeLine);
-                timeLine_1.addLabel("tl1", 0).to(actionSp, {
+                let timeLine = Laya.Pool.getItemByClass("timeLine", Laya.TimeLine);
+                timeLine.addLabel("tl1", 0).to(actionSp, {
                     alpha: 0.8
                 }, 100, Laya.Ease.linearNone)
                     .addLabel("tl2", 100).to(actionSp, {
                     alpha: 1
                 }, 200, Laya.Ease.linearNone);
-                timeLine_1.once(Laya.Event.COMPLETE, actionSp, function () {
-                    timeLine_1.destroy();
-                    timeLine_1 = null;
+                timeLine.once(Laya.Event.COMPLETE, actionSp, () => {
+                    timeLine.destroy();
+                    timeLine = null;
                 });
-                timeLine_1.play(0, true);
+                timeLine.play(0, true);
             }
         }
-        effectSp.timerOnce(1000, that, function (_hurtTimes2) {
+        effectSp.timerOnce(1000, that, (_hurtTimes2) => {
             that.updateBlood(_hurtValue);
             Laya.Pool.recover("layaImage", effectSp);
             effectSp.removeSelf();
@@ -549,83 +525,80 @@ var MonsterSprite = /** @class */ (function (_super) {
                 that.showDrug(_hurtValue, _hurtTimes2);
             }
         }, [_hurtTimes - 1]);
-    };
+    }
     //被击效果
-    MonsterSprite.prototype.playBehitEffect = function () {
-        var that = this;
+    playBehitEffect() {
+        let that = this;
         //特效
-        var actionSp = that;
+        let actionSp = that;
         if (actionSp) {
-            var timeLine = Laya.Pool.getItemByClass("timeLine", Laya.TimeLine);
+            let timeLine = Laya.Pool.getItemByClass("timeLine", Laya.TimeLine);
             timeLine.addLabel("tl1", 0).to(actionSp, {
                 scaleX: 0.9
             }, 100, Laya.Ease.linearNone)
                 .addLabel("tl2", 100).to(actionSp, {
                 scaleX: 1
             }, 200, Laya.Ease.linearNone);
-            timeLine.once(Laya.Event.COMPLETE, actionSp, function () {
+            timeLine.once(Laya.Event.COMPLETE, actionSp, () => {
                 // actionSp.removeSelf();
             });
             timeLine.play(0, false);
         }
-    };
+    }
     //是否活着
-    MonsterSprite.prototype.isLiving = function () {
-        var that = this;
+    isLiving() {
+        let that = this;
         return (that.monsterId > 0) && (that.isDeath() == false);
-    };
+    }
     //是否死亡
-    MonsterSprite.prototype.isDeath = function () {
-        var that = this;
+    isDeath() {
+        let that = this;
         return that._isDeath;
-    };
-    MonsterSprite.prototype.getBloodValue = function () {
-        var that = this;
+    }
+    getBloodValue() {
+        let that = this;
         return that.curBlood;
-    };
-    MonsterSprite.prototype.getAtkValue = function () {
-        var that = this;
+    }
+    getAtkValue() {
+        let that = this;
         return that.atkValue;
-    };
-    MonsterSprite.prototype.isAtkEnabled = function () {
-        var that = this;
+    }
+    isAtkEnabled() {
+        let that = this;
         return (that.monsterId > 0 && that._isAtkEnabled);
-    };
-    MonsterSprite.prototype.getSkillId = function () {
-        var that = this;
+    }
+    getSkillId() {
+        let that = this;
         return that.skillId;
-    };
+    }
     //重置攻击频率
-    MonsterSprite.prototype.setAtkSpeedValue = function (_value) {
-        var that = this;
+    setAtkSpeedValue(_value) {
+        let that = this;
         that.atkSpeedValue = _value;
-    };
+    }
     //清空状态数据
-    MonsterSprite.prototype.clearStage = function () {
+    clearStage() {
         this.setKind(0);
         this.setStage(0);
         this.showCar(false);
-    };
+    }
     //设置拖动
-    MonsterSprite.prototype.onStartDrag = function (_isUpRemove) {
-        var _this = this;
-        if (_isUpRemove === void 0) { _isUpRemove = false; }
+    onStartDrag(_isUpRemove = false) {
         this.startDrag();
         if (_isUpRemove) {
-            this.on(Laya.Event.MOUSE_UP, this, function (e) {
-                if (e === void 0) { e = null; }
-                _this.removeSelf();
+            this.on(Laya.Event.MOUSE_UP, this, (e = null) => {
+                this.removeSelf();
             });
         }
-    };
+    }
     //移动
-    MonsterSprite.prototype.playMoveAction = function () {
-        var that = this;
-        var spPos = {
+    playMoveAction() {
+        let that = this;
+        let spPos = {
             x: that.x,
             y: that.y
         };
-        var targetPosArray = [{
+        let targetPosArray = [{
                 x: spPos.x + 140,
                 y: spPos.y
             },
@@ -651,19 +624,19 @@ var MonsterSprite = /** @class */ (function (_super) {
             }
         ];
         //移动速度
-        var moveSpeed = that._moveBaseSpeed * 0.04;
+        let moveSpeed = that._moveBaseSpeed * 0.04;
         that._targetIndex = 0;
-        var zOrderTime = 60; //层刷新时间
-        var moveTime = zOrderTime - 1; //移动时间
-        that._moveLoopFun = function () {
+        let zOrderTime = 60; //层刷新时间
+        let moveTime = zOrderTime - 1; //移动时间
+        that._moveLoopFun = () => {
             if (that._targetIndex >= targetPosArray.length)
                 return;
-            var targetPos = targetPosArray[that._targetIndex];
-            var curPos = new Laya.Point(that.x, that.y);
-            var disX = targetPos.x - curPos.x;
-            var disY = targetPos.y - curPos.y;
-            var distance = curPos.distance(targetPos.x, targetPos.y);
-            var ratio = moveSpeed / distance * that._moveSpeedRatio * that._moveAccelerate;
+            let targetPos = targetPosArray[that._targetIndex];
+            let curPos = new Laya.Point(that.x, that.y);
+            let disX = targetPos.x - curPos.x;
+            let disY = targetPos.y - curPos.y;
+            let distance = curPos.distance(targetPos.x, targetPos.y);
+            let ratio = moveSpeed / distance * that._moveSpeedRatio * that._moveAccelerate;
             if (distance < (ratio + 1)) {
                 that._targetIndex++;
                 return;
@@ -679,8 +652,8 @@ var MonsterSprite = /** @class */ (function (_super) {
                     that.scaleX = 1;
                     break;
             }
-            var movePosX = disX * ratio;
-            var movePosY = disY * ratio;
+            let movePosX = disX * ratio;
+            let movePosY = disY * ratio;
             that.pos(curPos.x + movePosX, curPos.y + movePosY);
             //zorder
             if (moveTime > zOrderTime) {
@@ -693,104 +666,92 @@ var MonsterSprite = /** @class */ (function (_super) {
         };
         that.timerLoop(10, that, that._moveLoopFun);
         //计算下一步移动坐标
-        that.calcuteNextMovePosFun = function () {
+        that.calcuteNextMovePosFun = () => {
             if (that._targetIndex >= targetPosArray.length) {
                 return new Laya.Point(that.x, that.y);
             }
-            var targetPos = targetPosArray[that._targetIndex];
-            var curPos = new Laya.Point(that.x, that.y);
-            var disX = targetPos.x - curPos.x;
-            var disY = targetPos.y - curPos.y;
-            var distance = curPos.distance(targetPos.x, targetPos.y);
-            var ratio = moveSpeed / distance * that._moveSpeedRatio * that._moveAccelerate;
-            var movePosX = disX * ratio;
-            var movePosY = disY * ratio;
+            let targetPos = targetPosArray[that._targetIndex];
+            let curPos = new Laya.Point(that.x, that.y);
+            let disX = targetPos.x - curPos.x;
+            let disY = targetPos.y - curPos.y;
+            let distance = curPos.distance(targetPos.x, targetPos.y);
+            let ratio = moveSpeed / distance * that._moveSpeedRatio * that._moveAccelerate;
+            let movePosX = disX * ratio;
+            let movePosY = disY * ratio;
             return new Laya.Point(curPos.x + movePosX, curPos.y + movePosY);
         };
-    };
+    }
     /** 更改血量的方向 */
-    MonsterSprite.prototype.changeBloodBarDir = function () {
-        var that = this;
-        var bloodBar = that.getChildByName("bloodBar");
+    changeBloodBarDir() {
+        let that = this;
+        let bloodBar = that.getChildByName("bloodBar");
         bloodBar.scaleX = -1;
         bloodBar.x = (-76 / 2) + bloodBar.width;
-    };
+    }
     //停止移动
-    MonsterSprite.prototype.stopMoveAction = function () {
-        var that = this;
+    stopMoveAction() {
+        let that = this;
         if (that._moveLoopFun) {
             that.clearTimer(that, that._moveLoopFun);
             that._moveLoopFun = null;
         }
         Laya.Pool.clearBySign(that.yun_key);
         Laya.Pool.clearBySign(that.yun_key_acce);
-    };
-    MonsterSprite.prototype.setMoveSpeedRatio = function (_value) {
+    }
+    setMoveSpeedRatio(_value) {
         this._moveSpeedRatio = _value * 0.13;
-    };
-    MonsterSprite.prototype.setMoveAccelerate = function (_value) {
-        var that = this;
+    }
+    setMoveAccelerate(_value) {
+        let that = this;
         that._moveAccelerate = _value;
-    };
-    MonsterSprite.prototype.setAtkAccelerate = function (_value) {
-        var that = this;
+    }
+    setAtkAccelerate(_value) {
+        let that = this;
         that._atkAccelerate = 1.0 / _value;
-    };
-    MonsterSprite.prototype.setDropMoneyFun = function (_fun) {
+    }
+    setDropMoneyFun(_fun) {
         this.dropMoneyFun = _fun;
-    };
-    MonsterSprite.prototype.setDropMoney = function (_money) {
+    }
+    setDropMoney(_money) {
         this.money = _money;
-    };
-    Object.defineProperty(MonsterSprite.prototype, "monsterInfo", {
-        get: function () {
-            return this._monsterInfo;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(MonsterSprite.prototype, "anim", {
-        get: function () {
-            return this.getChildByName(MonsterSprite.roleKey);
-        },
-        set: function (value) {
-            var heroAnim = this.getChildByName(MonsterSprite.roleKey);
-            heroAnim = value;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(MonsterSprite.prototype, "targetIndex", {
-        get: function () {
-            return this._targetIndex;
-        },
-        set: function (value) {
-            this._targetIndex = value;
-        },
-        enumerable: true,
-        configurable: true
-    });
+    }
+    get monsterInfo() {
+        return this._monsterInfo;
+    }
+    get anim() {
+        return this.getChildByName(MonsterSprite.roleKey);
+    }
+    set anim(value) {
+        let heroAnim = this.getChildByName(MonsterSprite.roleKey);
+        heroAnim = value;
+    }
+    get targetIndex() {
+        return this._targetIndex;
+    }
+    set targetIndex(value) {
+        this._targetIndex = value;
+    }
     //##贝塞尔曲线#################################
     // 以控制点cp计算曲线点
-    MonsterSprite.prototype.CalculateBeizer = function (cp, numOfPoints) {
+    CalculateBeizer(cp, numOfPoints) {
         var t = 1.0 / (numOfPoints - 1);
         var curve = [];
         for (var i = 0; i < numOfPoints; i++) {
             curve[i] = this.PointOnCubicBezier(cp, i * t);
         }
         return curve;
-    };
+    }
     // 参数1: 4个点坐标(起点，控制点1，控制点2，终点)  
     // 参数2: 0 <= t <= 1   
-    MonsterSprite.prototype.PointOnCubicBezier = function (cp, t) {
+    PointOnCubicBezier(cp, t) {
         var tPoint_x = this.MetaComputing(cp[0].x, cp[1].x, cp[2].x, cp[3].x, t);
         var tPoint_y = this.MetaComputing(cp[0].y, cp[1].y, cp[2].y, cp[3].y, t);
         return {
             x: tPoint_x,
             y: tPoint_y
         };
-    };
-    MonsterSprite.prototype.MetaComputing = function (p0, p1, p2, p3, t) {
+    }
+    MetaComputing(p0, p1, p2, p3, t) {
         // 方法一:  
         var a, b, c;
         var tSquare, tCube;
@@ -805,13 +766,12 @@ var MonsterSprite = /** @class */ (function (_super) {
         // 方法二: 原始的三次方公式
         //  number n = 1.0 - t;
         //  return n*n*n*p0 + 3.0*p1*t*n*n + 3.0*p2*t*t*n + p3*t*t*t;
-    };
-    //模型
-    MonsterSprite.roleKey = "role_key";
-    MonsterSprite.standAnimKey = 'stand'; //站立动画key
-    MonsterSprite.atkAnimKey = 'attack'; //攻击动画key
-    return MonsterSprite;
-}(Laya.Sprite));
+    }
+}
+//模型
+MonsterSprite.roleKey = "role_key";
+MonsterSprite.standAnimKey = 'stand'; //站立动画key
+MonsterSprite.atkAnimKey = 'attack'; //攻击动画key
 var MONSTER_TYPE;
 (function (MONSTER_TYPE) {
     MONSTER_TYPE[MONSTER_TYPE["HERO"] = 1] = "HERO";

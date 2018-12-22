@@ -1,13 +1,11 @@
 /*
 * 数值工具类;
 */
-var MathUtils = /** @class */ (function () {
-    function MathUtils() {
-    }
+class MathUtils {
     //计算两点角度
-    MathUtils.calulatePointAnagle = function (_startX, _startY, _endX, _endY) {
+    static calulatePointAnagle(_startX, _startY, _endX, _endY) {
         //除数不能为0
-        var tanAngle = Math.atan(Math.abs((_endY - _startY) / (_endX - _startX))) * 180 / Math.PI;
+        let tanAngle = Math.atan(Math.abs((_endY - _startY) / (_endX - _startX))) * 180 / Math.PI;
         if (_endX > _startX && _endY > _startY) { //第一象限
             tanAngle = -tanAngle;
         }
@@ -21,35 +19,34 @@ var MathUtils = /** @class */ (function () {
             tanAngle = 180 - tanAngle;
         }
         return -tanAngle;
-    };
+    }
     //字符串转数字
-    MathUtils.parseStringNum = function (_strNum) {
-        var intNum = parseFloat(_strNum);
+    static parseStringNum(_strNum) {
+        let intNum = parseFloat(_strNum);
         if (intNum) {
             return intNum;
         }
         return 0;
-    };
+    }
     //字符串转整形
-    MathUtils.parseInt = function (_strNum) {
-        var intNum = parseFloat(_strNum);
+    static parseInt(_strNum) {
+        let intNum = parseFloat(_strNum);
         if (intNum) {
             return Math.floor(intNum);
         }
         return 0;
-    };
+    }
     //字符串转数字
-    MathUtils.numToPercent = function (_num) {
-        var perNum = _num * 100;
-        var intBit = Math.floor(perNum); //取整数部分
+    static numToPercent(_num) {
+        let perNum = _num * 100;
+        let intBit = Math.floor(perNum); //取整数部分
         if (perNum > intBit) {
             return perNum.toFixed(1) + "%";
         }
         return intBit + "%";
-    };
+    }
     //单位转换
-    MathUtils.bytesToSize = function (bytes, isBlood) {
-        if (isBlood === void 0) { isBlood = false; }
+    static bytesToSize(bytes, isBlood = false) {
         if (bytes < 10000) {
             return Math.floor(bytes).toString();
         }
@@ -74,7 +71,6 @@ var MathUtils = /** @class */ (function () {
         else {
             return (bytes / Math.pow(k, i)).toPrecision(3) + ' ' + unit;
         }
-    };
-    return MathUtils;
-}());
+    }
+}
 //# sourceMappingURL=MathUtils.js.map

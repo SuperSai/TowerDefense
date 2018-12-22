@@ -1,77 +1,56 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /*
 * terry 2018/11/07;
 */
-var ResultView = /** @class */ (function (_super) {
-    __extends(ResultView, _super);
-    function ResultView(_stage) {
-        if (_stage === void 0) { _stage = -1; }
-        var _this = _super.call(this) || this;
-        _this.prizeList = null;
-        _this.curStage = 0;
-        _this.lastStage = 0;
-        _this.init(_stage);
-        return _this;
+class ResultView extends ui.settlement.ResultViewUI {
+    constructor(_stage = -1) {
+        super();
+        this.prizeList = null;
+        this.curStage = 0;
+        this.lastStage = 0;
+        this.init(_stage);
     }
     //新建并添加到节点
-    ResultView.Create = function (_callback, _removeCallback, _stage) {
-        if (_callback === void 0) { _callback = null; }
-        if (_removeCallback === void 0) { _removeCallback = null; }
-        if (_stage === void 0) { _stage = -1; }
-        var resList = [
+    static Create(_callback = null, _removeCallback = null, _stage = -1) {
+        let resList = [
             { url: "res/atlas/images/ClearanceReward.atlas", type: Laya.Loader.ATLAS }
         ];
-        Laya.loader.load(resList, Handler.create(null, function () {
-            var nodeView = new ResultView(_stage);
+        Laya.loader.load(resList, Handler.create(null, () => {
+            let nodeView = new ResultView(_stage);
             nodeView.removeCallback = _removeCallback;
-            M.layer.frameLayer.addChildWithMaskCall(nodeView, function () {
+            M.layer.frameLayer.addChildWithMaskCall(nodeView, () => {
                 nodeView.removeSelf();
             });
             _callback && _callback(nodeView);
         }));
-    };
+    }
     //初始化
-    ResultView.prototype.init = function (_stage) {
-        var that = this;
+    init(_stage) {
+        let that = this;
         that.curStage = _stage;
-    };
-    ResultView.prototype.removeSelf = function () {
+    }
+    removeSelf() {
         this.removeCallback && this.removeCallback();
-        return _super.prototype.removeSelf.call(this);
-    };
+        return super.removeSelf();
+    }
     //显示成功奖励界面
-    ResultView.prototype.showPrizeUI = function (_prizeList, _callback) {
-        var _this = this;
-        if (_callback === void 0) { _callback = null; }
-        var that = this;
+    showPrizeUI(_prizeList, _callback = null) {
+        let that = this;
         that.prizeList = _prizeList;
-        var imgBg = that.mainView.getChildByName("imgBg");
+        let imgBg = that.mainView.getChildByName("imgBg");
         if (imgBg) {
             imgBg.visible = true;
-            var btnExit = imgBg.getChildByName("btnExit");
+            let btnExit = imgBg.getChildByName("btnExit");
             if (btnExit) {
                 btnExit.offAll(Laya.Event.CLICK);
-                btnExit.on(Laya.Event.CLICK, btnExit, function () {
-                    DisplayUtils.removeAllChildren(_this.hbox);
+                btnExit.on(Laya.Event.CLICK, btnExit, () => {
+                    DisplayUtils.removeAllChildren(this.hbox);
                     that.removeSelf();
                 });
             }
-            var btnShare = imgBg.getChildByName("btnShare");
+            let btnShare = imgBg.getChildByName("btnShare");
             if (btnShare) {
                 btnShare.offAll(Laya.Event.CLICK);
-                btnShare.on(Laya.Event.CLICK, btnShare, function () {
+                btnShare.on(Laya.Event.CLICK, btnShare, () => {
                     if (GlobalConfig.DEBUG) {
                         that.prizeList.pop(); //移除最后一个
                         _callback && _callback(that.lastStage);
@@ -79,36 +58,36 @@ var ResultView = /** @class */ (function (_super) {
                             that.showPrizeUI(that.prizeList, _callback);
                         }
                         else {
-                            DisplayUtils.removeAllChildren(_this.hbox);
+                            DisplayUtils.removeAllChildren(this.hbox);
                             that.removeSelf();
                         }
                     }
                     else {
-                        userData.toShareAd(function () {
-                            that.prizeList.pop(); //移除最后一个
-                            _callback && _callback(that.lastStage);
-                            if (that.prizeList.length > 0) {
-                                that.showPrizeUI(that.prizeList, _callback);
-                            }
-                            else {
-                                DisplayUtils.removeAllChildren(_this.hbox);
-                                that.removeSelf();
-                            }
-                        });
+                        // userData.toShareAd(() => {
+                        that.prizeList.pop(); //移除最后一个
+                        _callback && _callback(that.lastStage);
+                        if (that.prizeList.length > 0) {
+                            that.showPrizeUI(that.prizeList, _callback);
+                        }
+                        else {
+                            DisplayUtils.removeAllChildren(this.hbox);
+                            that.removeSelf();
+                        }
+                        // });
                     }
                 });
             }
-            var imgItemBg = imgBg.getChildByName("imgItemBg");
+            let imgItemBg = imgBg.getChildByName("imgItemBg");
             if (imgItemBg) {
                 this.hbox.removeChildren();
                 imgItemBg.removeChildren();
                 //可奖励关卡
-                var prizeCount = _prizeList.length;
+                let prizeCount = _prizeList.length;
                 for (var index = 0; index < prizeCount; index++) {
-                    var stageValue = _prizeList[index];
-                    var itemPos = { x: imgItemBg.width / 2 + (index - (prizeCount - 1) / 2) * 120, y: -70 };
-                    var imgItemKey = "imgStage" + index;
-                    var imgItem = imgItemBg.getChildByName(imgItemKey);
+                    let stageValue = _prizeList[index];
+                    let itemPos = { x: imgItemBg.width / 2 + (index - (prizeCount - 1) / 2) * 120, y: -70 };
+                    let imgItemKey = "imgStage" + index;
+                    let imgItem = imgItemBg.getChildByName(imgItemKey);
                     if (imgItem == null) {
                         imgItem = new Laya.Button("images/component/tab_02.png");
                         imgItem.stateNum = 2;
@@ -120,7 +99,7 @@ var ResultView = /** @class */ (function (_super) {
                         imgItem.selected = true;
                         imgItem.mouseEnabled = false;
                         //关数
-                        var txtStage = imgItem.addChild(new Laya.Label("images/component/frame_9calce_03.png"));
+                        let txtStage = imgItem.addChild(new Laya.Label("images/component/frame_9calce_03.png"));
                         txtStage.text = '' + stageValue;
                         txtStage.bold = true;
                         txtStage.font = "SimHei";
@@ -140,26 +119,25 @@ var ResultView = /** @class */ (function (_super) {
                     that.lastStage = stageValue;
                 }
                 //当前奖励物品
-                var stagePrizeCfg = GlobleData.getData(GlobleData.BarrierRewardVO, that.lastStage);
+                let stagePrizeCfg = GlobleData.getData(GlobleData.BarrierRewardVO, that.lastStage);
                 if (stagePrizeCfg == null)
                     return;
-                var bossM = MathUtils.parseStringNum(stagePrizeCfg.bossM);
-                var gold = BattleManager.Instance.getBarrierRewardToGold(that.lastStage, MathUtils.parseStringNum(stagePrizeCfg.gold));
-                var gem = MathUtils.parseStringNum(stagePrizeCfg.gem);
-                var itemArray = [
+                let bossM = MathUtils.parseStringNum(stagePrizeCfg.bossM);
+                let gold = BattleManager.Instance.getBarrierRewardToGold(that.lastStage, MathUtils.parseStringNum(stagePrizeCfg.gold));
+                let gem = MathUtils.parseStringNum(stagePrizeCfg.gem);
+                let itemArray = [
                     { img: "images/ClearanceReward/result_prize_item2.png", value: gold },
                     { img: "images/ClearanceReward/result_prize_item3.png", value: gem },
                     { img: "images/ClearanceReward/result_prize_item4.png", value: bossM }
                 ];
                 for (var index = 0, len = itemArray.length; index < len; index++) {
-                    var cfgData = itemArray[index];
-                    var rewardItem = ObjectPool.pop(RewardItem, "RewardItem");
+                    let cfgData = itemArray[index];
+                    let rewardItem = ObjectPool.pop(RewardItem, "RewardItem");
                     rewardItem.create(cfgData.img, cfgData.value);
                     this.hbox.addChild(rewardItem);
                 }
             }
         }
-    };
-    return ResultView;
-}(ui.settlement.ResultViewUI));
+    }
+}
 //# sourceMappingURL=ResultView.js.map

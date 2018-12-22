@@ -1,11 +1,10 @@
-var ManagerShortcuts = /** @class */ (function () {
-    function ManagerShortcuts() {
+class ManagerShortcuts {
+    constructor() {
         this.novice = NoviceManager.getInstance();
         this.layer = LayerManager.getInstance();
         this.more = MoreController.getInstance();
         this.player = PlayerManager.Instance;
         this.hall = HallManager.Instance;
     }
-    return ManagerShortcuts;
-}());
+}
 //# sourceMappingURL=ManagerShortcuts.js.map

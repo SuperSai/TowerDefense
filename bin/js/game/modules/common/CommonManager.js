@@ -1,21 +1,16 @@
 /*
 * name;
 */
-var CommonManager = /** @class */ (function () {
-    function CommonManager() {
+class CommonManager {
+    constructor() {
     }
-    Object.defineProperty(CommonManager, "Instance", {
-        get: function () {
-            if (!CommonManager._instance) {
-                CommonManager._instance = new CommonManager();
-            }
-            return CommonManager._instance;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    return CommonManager;
-}());
+    static get Instance() {
+        if (!CommonManager._instance) {
+            CommonManager._instance = new CommonManager();
+        }
+        return CommonManager._instance;
+    }
+}
 var DILOG_TYPE;
 (function (DILOG_TYPE) {
     /** 英雄 */

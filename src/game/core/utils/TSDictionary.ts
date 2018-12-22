@@ -16,6 +16,18 @@ class TSDictionary<KT, VT>{
     private _len: number = 0;
     public constructor() { }
 
+    public toJsonObject(): any {
+        const result: any = {};
+        result.keys = this.keys;
+        result.values = this.values;
+        return result;
+    }
+
+    public fromJsonObject(obj: any): void {
+        this.keys = obj.keys;
+        this.values = obj.values;
+    }
+
     public Add(key: any, value: any) {
         let self = this;
         self.keys.push(key);

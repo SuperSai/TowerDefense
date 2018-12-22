@@ -25,12 +25,12 @@ class FlyEffect extends Sprite {
 		this._animNum++;
 		let anim: Laya.Animation = ObjectPool.pop(Laya.Animation, "FLY_ANIMATION");// PoolManager.getInstance().get(Laya.Animation, this._animationName);
 		// @ts-ignore
-		if (!anim.url_loaded) {
-			// @ts-ignore
-			anim.url_loaded = true;
-			anim.loadAtlas("images/effect/" + this._animationName + ".json");
-			anim.interval = 25;
-		}
+		// if (!anim.url_loaded) {
+		// @ts-ignore
+		// anim.url_loaded = true;
+		anim.loadAtlas("images/effect/" + this._animationName + ".json");
+		anim.interval = 25;
+		// }
 
 		const scale: number = Math.random() * 0.15 + 0.65;
 		anim.pivot(30, 30).pos(fromX + RandomUtils.rangeInt(5, 10), fromY + RandomUtils.rangeInt(5, 10)).scale(scale, scale);

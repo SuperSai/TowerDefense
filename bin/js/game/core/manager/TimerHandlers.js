@@ -1,5 +1,5 @@
-var TimerHandlers = /** @class */ (function () {
-    function TimerHandlers() {
+class TimerHandlers {
+    constructor() {
         /**执行间隔*/
         this.delay = 0;
         /**重复执行次数*/
@@ -10,12 +10,11 @@ var TimerHandlers = /** @class */ (function () {
         this.dealTime = 0;
     }
     /**清理*/
-    TimerHandlers.prototype.clear = function () {
+    clear() {
         this.method = null;
         this.handerObj = null;
         this.complateMethod = null;
         this.complateMethodObj = null;
-    };
-    return TimerHandlers;
-}());
+    }
+}
 //# sourceMappingURL=TimerHandlers.js.map

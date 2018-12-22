@@ -1,12 +1,12 @@
 /**
  * Timer管理类
  */
-var TimerManager = /** @class */ (function () {
+class TimerManager {
     /**
      * 构造函数
      */
-    function TimerManager() {
-        var self = this;
+    constructor() {
+        let self = this;
         self._handlers = new Array();
         self._delHandlers = new Array();
         self._currTime = new Date().getTime();
@@ -19,14 +19,14 @@ var TimerManager = /** @class */ (function () {
      * 设置时间参数
      * @param timeScale
      */
-    TimerManager.prototype.setTimeScale = function (timeScale) {
+    setTimeScale(timeScale) {
         this._timeScale = timeScale;
-    };
+    }
     /**
      * 每帧执行函数
      * @param frameTime
      */
-    TimerManager.prototype.onEnterFrame = function () {
+    onEnterFrame() {
         this._currFrame++;
         this._currTime = new Date().getTime();
         for (var i = 0; i < this._count; i++) {
@@ -53,8 +53,8 @@ var TimerManager = /** @class */ (function () {
             var handler = this._delHandlers.pop();
             this.remove(handler.method, handler.handerObj);
         }
-    };
-    TimerManager.prototype.create = function (useFrame, delay, repeatCount, method, methodObj, complateMethod, complateMethodObj) {
+    }
+    create(useFrame, delay, repeatCount, method, methodObj, complateMethod, complateMethodObj) {
         //参数监测
         if (delay < 0 || repeatCount < 0 || method == null) {
             return;
@@ -75,7 +75,7 @@ var TimerManager = /** @class */ (function () {
         handler.dealTime = this._currTime;
         this._handlers.push(handler);
         this._count++;
-    };
+    }
     /**
      *
      * 定时执行
@@ -87,11 +87,9 @@ var TimerManager = /** @class */ (function () {
      * @param complateMethodObj 完成执行函数所属对象
      *
      */
-    TimerManager.prototype.doTimer = function (delay, repeatCount, method, methodObj, complateMethod, complateMethodObj) {
-        if (complateMethod === void 0) { complateMethod = null; }
-        if (complateMethodObj === void 0) { complateMethodObj = null; }
+    doTimer(delay, repeatCount, method, methodObj, complateMethod = null, complateMethodObj = null) {
         this.create(false, delay, repeatCount, method, methodObj, complateMethod, complateMethodObj);
-    };
+    }
     /**
      *
      * 定时执行
@@ -103,29 +101,23 @@ var TimerManager = /** @class */ (function () {
      * @param complateMethodObj 完成执行函数所属对象
      *
      */
-    TimerManager.prototype.doFrame = function (delay, repeatCount, method, methodObj, complateMethod, complateMethodObj) {
-        if (complateMethod === void 0) { complateMethod = null; }
-        if (complateMethodObj === void 0) { complateMethodObj = null; }
+    doFrame(delay, repeatCount, method, methodObj, complateMethod = null, complateMethodObj = null) {
         this.create(true, delay, repeatCount, method, methodObj, complateMethod, complateMethodObj);
-    };
-    Object.defineProperty(TimerManager.prototype, "count", {
-        /**
-         * 定时器执行数量
-         * @return
-         *
-         */
-        get: function () {
-            return this._count;
-        },
-        enumerable: true,
-        configurable: true
-    });
+    }
+    /**
+     * 定时器执行数量
+     * @return
+     *
+     */
+    get count() {
+        return this._count;
+    }
     /**
      * 清理
      * @param method 要移除的函数
      * @param methodObj 要移除的函数对应的对象
      */
-    TimerManager.prototype.remove = function (method, methodObj) {
+    remove(method, methodObj) {
         for (var i = 0; i < this._count; i++) {
             var handler = this._handlers[i];
             if (handler.method == method && handler.handerObj == methodObj) {
@@ -135,12 +127,12 @@ var TimerManager = /** @class */ (function () {
                 break;
             }
         }
-    };
+    }
     /**
      * 清理
      * @param methodObj 要移除的函数对应的对象
      */
-    TimerManager.prototype.removeAll = function (methodObj) {
+    removeAll(methodObj) {
         for (var i = 0; i < this._count; i++) {
             var handler = this._handlers[i];
             if (handler.handerObj == methodObj) {
@@ -150,14 +142,14 @@ var TimerManager = /** @class */ (function () {
                 i--;
             }
         }
-    };
+    }
     /**
      * 检测是否已经存在
      * @param method
      * @param methodObj
      *
      */
-    TimerManager.prototype.isExists = function (method, methodObj) {
+    isExists(method, methodObj) {
         for (var i = 0; i < this._count; i++) {
             var handler = this._handlers[i];
             if (handler.method == method && handler.handerObj == methodObj) {
@@ -165,17 +157,12 @@ var TimerManager = /** @class */ (function () {
             }
         }
         return false;
-    };
-    Object.defineProperty(TimerManager, "Instance", {
-        get: function () {
-            if (!this._instance) {
-                this._instance = new TimerManager();
-            }
-            return this._instance;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    return TimerManager;
-}());
+    }
+    static get Instance() {
+        if (!this._instance) {
+            this._instance = new TimerManager();
+        }
+        return this._instance;
+    }
+}
 //# sourceMappingURL=TimerManager.js.map

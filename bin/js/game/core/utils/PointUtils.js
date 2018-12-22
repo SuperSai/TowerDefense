@@ -1,6 +1,4 @@
-var PointUtils = /** @class */ (function () {
-    function PointUtils() {
-    }
+class PointUtils {
     /**
      * 按位置取得两个点之间连线上某个点的位置
      * @param startPt 起始点
@@ -9,9 +7,9 @@ var PointUtils = /** @class */ (function () {
      * @return
      *
      */
-    PointUtils.interpolate = function (startPt, endPt, position) {
+    static interpolate(startPt, endPt, position) {
         return new Point(startPt.x + (endPt.x - startPt.x) * position, startPt.y + (endPt.y - startPt.y) * position);
-    };
+    }
     /**
      * 计算两个点之间的距离
      * @param p1 第一个点
@@ -19,9 +17,9 @@ var PointUtils = /** @class */ (function () {
      * @return 距离
      *
      */
-    PointUtils.distance = function (p1, p2) {
+    static distance(p1, p2) {
         return Math.sqrt((p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y));
-    };
+    }
     /**
      * 计算两组坐标之间的距离
      * @param x1 第一个点的x坐标
@@ -31,9 +29,9 @@ var PointUtils = /** @class */ (function () {
      * @return 距离
      *
      */
-    PointUtils.distanceByAxis = function (x1, y1, x2, y2) {
+    static distanceByAxis(x1, y1, x2, y2) {
         return Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
-    };
+    }
     /**
      * 获得从p1至p2的朝向，当p1在左侧时返回1，当p1在右侧时返回-1
      * @param p1
@@ -41,7 +39,7 @@ var PointUtils = /** @class */ (function () {
      * @return
      *
      */
-    PointUtils.getDirection = function (p1, p2) {
+    static getDirection(p1, p2) {
         if (p1.x <= p2.x) {
             return 1;
         }
@@ -49,7 +47,7 @@ var PointUtils = /** @class */ (function () {
             return -1;
         }
         return 1;
-    };
+    }
     /**
      * 获得target在LayerManager的全局坐标
      * @param target
@@ -57,9 +55,9 @@ var PointUtils = /** @class */ (function () {
      * @return
      *
      */
-    PointUtils.localToGlobal = function (target, moveRightNow) {
-        var pt = new Point(target.x, target.y);
-        var parent = target.parent;
+    static localToGlobal(target, moveRightNow) {
+        const pt = new Point(target.x, target.y);
+        let parent = target.parent;
         while (parent && !(parent instanceof Layer)) {
             pt.x += parent.x - parent.pivotX - (parent.scrollRect ? parent.scrollRect.x : 0);
             pt.y += parent.y - parent.pivotY - (parent.scrollRect ? parent.scrollRect.y : 0);
@@ -69,7 +67,7 @@ var PointUtils = /** @class */ (function () {
             target.pos(pt.x, pt.y);
         }
         return pt;
-    };
+    }
     /**
      * 保持target对象的全局位置不变的情况下，计算target显示对象在新的显示对象容器中的本地坐标位置
      * @param target
@@ -78,10 +76,10 @@ var PointUtils = /** @class */ (function () {
      * @return
      *
      */
-    PointUtils.parentToParent = function (target, newParent, moveRightNow) {
-        var pt = PointUtils.localToGlobal(target);
-        var zeroPt = new Point();
-        var parent = newParent;
+    static parentToParent(target, newParent, moveRightNow) {
+        const pt = PointUtils.localToGlobal(target);
+        const zeroPt = new Point();
+        let parent = newParent;
         while (parent && !(parent instanceof Layer)) {
             zeroPt.x += parent.x;
             zeroPt.y += parent.y;
@@ -93,7 +91,6 @@ var PointUtils = /** @class */ (function () {
             target.pos(pt.x, pt.y);
         }
         return pt;
-    };
-    return PointUtils;
-}());
+    }
+}
 //# sourceMappingURL=PointUtils.js.map

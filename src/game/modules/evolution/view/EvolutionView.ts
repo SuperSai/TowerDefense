@@ -122,6 +122,8 @@ class EvolutionView extends ui.evolution.EvolutionViewUI {
                 self.diamondBox.pos(32, 507);
             }
 
+            self.nameHbox.refresh();
+
             self.btnUpdate.on(Laya.Event.CLICK, self, () => {
                 if (diamond >= needDiamond) {
                     HttpManager.Instance.requestUpdateKingLevel(EvolutionView.kingEvolutionType, kingLevel, needDiamond, (_res: any) => {

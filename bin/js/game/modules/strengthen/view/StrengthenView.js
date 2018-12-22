@@ -1,37 +1,18 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /*
 * 强化界面
 */
-var StrengthenView = /** @class */ (function (_super) {
-    __extends(StrengthenView, _super);
-    function StrengthenView(_stage) {
-        if (_stage === void 0) { _stage = -1; }
-        var _this = _super.call(this) || this;
-        _this.indexArray = [10, 1, 3, 2];
-        _this.init(_stage);
-        return _this;
+class StrengthenView extends ui.strengthen.StrengthenViewUI {
+    constructor(_stage = -1) {
+        super();
+        this.indexArray = [10, 1, 3, 2];
+        this.init(_stage);
     }
     //新建并添加到节点
-    StrengthenView.Create = function (_parentNode, _callback, _removeCallback, _stage) {
-        if (_callback === void 0) { _callback = null; }
-        if (_removeCallback === void 0) { _removeCallback = null; }
-        if (_stage === void 0) { _stage = -1; }
-        var resList = [
+    static Create(_parentNode, _callback = null, _removeCallback = null, _stage = -1) {
+        let resList = [
             { url: "res/atlas/images/strengthen.atlas", type: Laya.Loader.ATLAS }
         ];
-        Laya.loader.load(resList, Handler.create(null, function () {
+        Laya.loader.load(resList, Handler.create(null, () => {
             if (_parentNode) {
                 if (StrengthenView.isOpen) {
                     return;
@@ -39,90 +20,90 @@ var StrengthenView = /** @class */ (function (_super) {
             }
             else {
                 StrengthenView.isOpen = true;
-                var nodeView_1 = new StrengthenView(_stage);
-                AlignUtils.setToScreenGoldenPos(nodeView_1);
-                LayerManager.getInstance().frameLayer.addChildWithMaskCall(nodeView_1, nodeView_1.removeSelf);
-                _callback && _callback(nodeView_1);
-                nodeView_1.once(Laya.Event.REMOVED, nodeView_1, function () {
+                let nodeView = new StrengthenView(_stage);
+                AlignUtils.setToScreenGoldenPos(nodeView);
+                LayerManager.getInstance().frameLayer.addChildWithMaskCall(nodeView, nodeView.removeSelf);
+                _callback && _callback(nodeView);
+                nodeView.once(Laya.Event.REMOVED, nodeView, () => {
                     StrengthenView.isOpen = false;
-                    nodeView_1.removeUI();
+                    nodeView.removeUI();
                     SDKManager.Instance.closeBannerAd(true);
                     _removeCallback && _removeCallback();
                 });
             }
         }));
-    };
+    }
     //初始化
-    StrengthenView.prototype.init = function (_stage) {
-        var self = this;
+    init(_stage) {
+        let self = this;
         SDKManager.Instance.showBannerAd(true);
         //界面初始化
-        var imgBg = self.mainView.getChildByName("imgBg");
+        let imgBg = self.mainView.getChildByName("imgBg");
         if (imgBg) {
-            var btnExit = imgBg.getChildByName("btnExit");
+            let btnExit = imgBg.getChildByName("btnExit");
             if (btnExit) {
                 btnExit.offAll(Laya.Event.CLICK);
-                btnExit.on(Laya.Event.CLICK, btnExit, function () {
+                btnExit.on(Laya.Event.CLICK, btnExit, () => {
                     self.removeSelf();
                 });
             }
         }
         //box
         for (var index = 0; index < 4; index++) {
-            var skillId = self.indexArray[index];
+            let skillId = self.indexArray[index];
             self.refreshBoxUI(skillId);
         }
         //精华碎片刷新
         self.setEssence(userData.essence);
-        EventsManager.Instance.on(EventsType.ESSENCE_CHANGE, self, function (_data) {
+        EventsManager.Instance.on(EventsType.ESSENCE_CHANGE, self, (_data) => {
             self.setEssence(userData.essence);
         });
         HttpManager.Instance.requestEssenceData();
-    };
+    }
     //移除界面
-    StrengthenView.prototype.removeUI = function () {
+    removeUI() {
         EventsManager.Instance.offAll(EventsType.ESSENCE_CHANGE);
-    };
+    }
     //刷新精华碎片数
-    StrengthenView.prototype.setEssence = function (_value) {
-        var that = this;
+    setEssence(_value) {
+        let that = this;
         if (that.txtEssence) {
             that.txtEssence.changeText(MathUtils.bytesToSize(_value).toString());
         }
-    };
+    }
     //设置强化数据
-    StrengthenView.prototype.refreshBoxUI = function ($skillId) {
-        var that = this;
+    refreshBoxUI($skillId) {
+        let that = this;
         for (var index = 0; index < 4; index++) {
-            var skillId = that.indexArray[index];
+            let skillId = that.indexArray[index];
             if ($skillId == skillId) {
-                var strengthenLevel = userData.querySkillAddition($skillId);
-                var curProbability = SkillManager.Instance.getSkillStrengthenLevelProbability($skillId, strengthenLevel);
-                var probability = SkillManager.Instance.getSkillStrengthenProbability(skillId, 1);
-                var price = SkillManager.Instance.getSkillStrengthenCost($skillId, strengthenLevel + 1);
-                var imgBg = that.mainView.getChildByName("imgBg");
+                let strengthenLevel = userData.querySkillAddition($skillId);
+                let curProbability = SkillManager.Instance.getSkillStrengthenLevelProbability($skillId, strengthenLevel);
+                let probability = SkillManager.Instance.getSkillStrengthenProbability(skillId, 1);
+                let price = SkillManager.Instance.getSkillStrengthenCost($skillId, strengthenLevel + 1);
+                let imgBg = that.mainView.getChildByName("imgBg");
                 if (imgBg) {
-                    var strBoxKey = "boxItem" + (index + 1);
-                    var boxItem = imgBg.getChildByName(strBoxKey);
+                    let strBoxKey = "boxItem" + (index + 1);
+                    let boxItem = imgBg.getChildByName(strBoxKey);
                     if (boxItem) {
                         //加成
-                        var txtAdd = boxItem.getChildByName("txtAdd");
+                        let txtAdd = boxItem.getChildByName("txtAdd");
                         if (txtAdd) {
                             txtAdd.text = (MathUtils.numToPercent(curProbability));
                         }
                         //价格
-                        var imgEssence = boxItem.getChildByName("imgEssence");
+                        let imgEssence = boxItem.getChildByName("imgEssence");
                         if (imgEssence) {
-                            var txtEssence = imgEssence.getChildByName("txtEssence");
+                            let txtEssence = imgEssence.getChildByName("txtEssence");
                             if (txtEssence) {
                                 txtEssence.text = ("" + price);
                             }
                         }
                         //按钮
-                        var btnStrengthen = boxItem.getChildByName("btnStrengthen");
+                        let btnStrengthen = boxItem.getChildByName("btnStrengthen");
                         if (btnStrengthen) {
                             btnStrengthen.offAll(Laya.Event.CLICK);
-                            btnStrengthen.on(Laya.Event.CLICK, that, function (_btnObj, _btnInfo) {
+                            btnStrengthen.on(Laya.Event.CLICK, that, (_btnObj, _btnInfo) => {
                                 if (userData.essence < _btnInfo.price) {
                                     MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.17"));
                                     return;
@@ -130,7 +111,7 @@ var StrengthenView = /** @class */ (function (_super) {
                                 if (userData.querySkillAddition(_btnInfo.skillId) >= 50) {
                                     return MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.16"));
                                 }
-                                that.requestSkillStrengthen(_btnInfo.skillId, 1, _btnInfo.price, 1, function (_res) {
+                                that.requestSkillStrengthen(_btnInfo.skillId, 1, _btnInfo.price, 1, (_res) => {
                                     if (_res && _res.type) {
                                         userData.refreshSkillAddition(_btnInfo.skillId);
                                         that.refreshBoxUI(_btnInfo.skillId);
@@ -143,22 +124,21 @@ var StrengthenView = /** @class */ (function (_super) {
                                     }
                                 });
                             }, [btnStrengthen, { skillId: skillId, price: price }]);
-                            var txtAdd_1 = btnStrengthen.getChildByName("txtAdd");
-                            if (txtAdd_1) {
-                                txtAdd_1.changeText(MathUtils.numToPercent(probability));
+                            let txtAdd = btnStrengthen.getChildByName("txtAdd");
+                            if (txtAdd) {
+                                txtAdd.changeText(MathUtils.numToPercent(probability));
                             }
                         }
                     }
                 }
             }
         }
-    };
+    }
     //请求技能强化
-    StrengthenView.prototype.requestSkillStrengthen = function (_id, _level, _price, _coinType, _callback) {
-        if (_callback === void 0) { _callback = null; }
-        var that = this;
-        var dataString = 'type=' + _id + '&value=' + _level + '&price=' + _price + '&unit=' + "essence";
-        var HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+    requestSkillStrengthen(_id, _level, _price, _coinType, _callback = null) {
+        let that = this;
+        let dataString = 'type=' + _id + '&value=' + _level + '&price=' + _price + '&unit=' + "essence";
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/intensify',
             method: 'Post',
@@ -170,8 +150,7 @@ var StrengthenView = /** @class */ (function (_super) {
                 console.log(res);
             }
         });
-    };
-    StrengthenView.isOpen = false;
-    return StrengthenView;
-}(ui.strengthen.StrengthenViewUI));
+    }
+}
+StrengthenView.isOpen = false;
 //# sourceMappingURL=StrengthenView.js.map

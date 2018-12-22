@@ -1,105 +1,85 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var MainLoadingView = /** @class */ (function (_super) {
-    __extends(MainLoadingView, _super);
-    function MainLoadingView() {
-        var _this = _super.call(this) || this;
-        _this.ui = new ui.login.LoginSceneUI();
-        _this.ui.probox.visible = false;
-        _this.addChild(_this.ui);
-        _this.startCountDown();
-        _this.tweenAd();
-        return _this;
+class MainLoadingView extends Laya.Sprite {
+    constructor() {
+        super();
+        this.ui = new ui.login.LoginSceneUI();
+        this.ui.probox.visible = false;
+        this.addChild(this.ui);
+        this.tweenAd();
     }
-    MainLoadingView.prototype.startCountDown = function () {
-        var _this = this;
-        Laya.timer.once(15e3, this, function () {
-            _this.ui.btnRefresh.visible = true;
-            _this.ui.btnRefresh.on(Laya.Event.CLICK, _this, function () {
-                _this.prepareAccount();
+    startCountDown() {
+        Laya.timer.once(15e3, this, () => {
+            this.ui.btnRefresh.visible = true;
+            this.ui.btnRefresh.on(Laya.Event.CLICK, this, () => {
+                this.prepareAccount();
             });
         });
-    };
-    MainLoadingView.prototype.prepareAccount = function () {
+    }
+    prepareAccount() {
         if (Laya.Browser.onMiniGame) {
             this.checkAuthority();
         }
         else {
             this.loadCache();
         }
-    };
-    MainLoadingView.prototype.loadCache = function (complete) {
-        var _this = this;
+    }
+    loadCache(complete) {
         userData.loadCache();
-        GlobleData.Instance.setup(function () {
-            userData.loadStorage(function () {
-                _this.startToLoad();
+        GlobleData.Instance.setup(() => {
+            userData.loadStorage(() => {
+                this.startToLoad();
             });
         });
-    };
-    MainLoadingView.prototype.startToLoad = function () {
+    }
+    startToLoad() {
         this.ui.probox.visible = true;
         this.ui.btnStart.visible = false;
+        this.startCountDown();
         if (Laya.Browser.onMiniGame) {
             this.loadSubPackages();
         }
         else {
             this.loadRemoteRes();
         }
-    };
-    MainLoadingView.prototype.loadSubPackages = function () {
-        var self = this;
-        platform.startLoading(function (percentage) {
+    }
+    loadSubPackages() {
+        const self = this;
+        platform.startLoading((percentage) => {
             self.updateLoadingProgress(percentage, 1);
             if (percentage >= 100) {
                 self.loadRemoteRes();
             }
         });
-    };
+    }
     // private _time:number = 0;
-    MainLoadingView.prototype.loadRemoteRes = function () {
+    loadRemoteRes() {
         // if(this._time == 0){
         //     this._time++;
         //     return;
         // }
-        // let resList = BattleManager.Instance.getStartLoadPetData();
-        // if(resList.length){
-        // Laya.loader.load(resList,
-        //     Handler.create(this, () => {
-        //         GameView.Create(M.layer.renderLayer);
-        //     }),
-        //     Handler.create(this, (percentage: number) => {
-        //         this.updateLoadingProgress(percentage * 100, 2);
-        //     }, null, false));
-        // } else {
-        this.updateLoadingProgress(100, 2);
-        HallScene.Create(M.layer.renderLayer);
-        Laya.timer.clearAll(this);
-        // }
-    };
-    MainLoadingView.prototype.checkAuthority = function () {
-        var _this = this;
-        var curStatus = 0;
-        var rect = LayerManager.getRealStageRect(this.ui.btnStart);
-        platform.authenticLogin(function (res) {
+        let resList = BattleManager.Instance.getStartLoadPetData();
+        if (resList.length) {
+            console.log("@David 预加载英雄资源，数量：" + resList.length);
+            Laya.loader.load(resList, Handler.create(this, () => {
+                this.startGame();
+            }), Handler.create(this, (percentage) => {
+                this.updateLoadingProgress(percentage * 100, 2);
+            }, null, false));
+        }
+        else {
+            this.startGame();
+        }
+    }
+    checkAuthority() {
+        let curStatus = 0;
+        const rect = LayerManager.getRealStageRect(this.ui.btnStart);
+        platform.authenticLogin((res) => {
             if (res) {
-                new Token().verify(Laya.Handler.create(_this, function () {
-                    userData.versionCheck(function () {
+                new Token().verify(Laya.Handler.create(this, () => {
+                    userData.versionCheck(() => {
                         if (res && res.userInfo) {
                             M.player.account = res.userInfo.nickName;
                             HttpManager.Instance.requestSaveWxUserinfoData(platform.encode(res.userInfo.nickName), res.userInfo.avatarUrl, res.userInfo.city, res.userInfo.gender);
-                            _this.loadCache();
+                            this.loadCache();
                         }
                     });
                 }));
@@ -107,7 +87,7 @@ var MainLoadingView = /** @class */ (function (_super) {
         }, {
             x: rect.x, y: rect.y,
             width: rect.width, height: rect.height
-        }, function (_status) {
+        }, (_status) => {
             if (curStatus == _status) {
                 return;
             }
@@ -121,9 +101,9 @@ var MainLoadingView = /** @class */ (function (_super) {
                 EffectUtils.stopWaitEffect();
             }
         });
-    };
-    MainLoadingView.prototype.updateLoadingProgress = function (percentage, type) {
-        var percent = Math.floor(percentage);
+    }
+    updateLoadingProgress(percentage, type) {
+        let percent = Math.floor(percentage);
         percent = percent < 0 ? 0 : percent > 100 ? 100 : percent;
         this.ui.lblProgress.visible = this.ui.progressBar.visible = this.ui.lblLoadingDesc.visible = percent < 100;
         this.ui.imgBar.width = 284 * percent / 100;
@@ -136,19 +116,22 @@ var MainLoadingView = /** @class */ (function (_super) {
             // 加载远程资源
             this.ui.lblLoadingDesc.changeText("正在召唤英雄... ");
         }
-    };
-    MainLoadingView.prototype.tweenAd = function () {
-        var _this = this;
+    }
+    tweenAd() {
         if (this.ui.imgStart) {
             console.log("@FREEMAN：广告屏切换开始");
             this.ui.imgStart.visible = true;
-            Laya.Tween.to(this.ui.imgStart, { alpha: 0 }, 300, Laya.Ease.linearNone, Laya.Handler.create(this, function () {
+            Laya.Tween.to(this.ui.imgStart, { alpha: 0 }, 300, Laya.Ease.linearNone, Laya.Handler.create(this, () => {
                 console.log("@FREEMAN：广告屏切换结束");
-                _this.ui.imgStart.destroy();
-                _this.prepareAccount();
+                this.ui.imgStart.destroy();
+                this.prepareAccount();
             }), 1e3);
         }
-    };
-    return MainLoadingView;
-}(Laya.Sprite));
+    }
+    startGame() {
+        HallScene.Create(M.layer.renderLayer);
+        Laya.timer.clearAll(this);
+        this.destroy();
+    }
+}
 //# sourceMappingURL=MainLoadingView.js.map

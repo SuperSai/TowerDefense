@@ -1,7 +1,4 @@
-var MoreEvent = /** @class */ (function () {
-    function MoreEvent() {
-    }
-    MoreEvent.SUBSCRIBE_STATUS = "SUBSCRIBE_STATUS";
-    return MoreEvent;
-}());
+class MoreEvent {
+}
+MoreEvent.SUBSCRIBE_STATUS = "SUBSCRIBE_STATUS";
 //# sourceMappingURL=MoreEvent.js.map

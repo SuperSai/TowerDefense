@@ -1,13 +1,12 @@
 //数据缓存
 var requestCache = {};
-var HttpRequestHelper = /** @class */ (function () {
-    function HttpRequestHelper(_url) {
+class HttpRequestHelper {
+    constructor(_url) {
         this.baseUrl = null;
         this.baseUrl = _url;
     }
     //http请求
-    HttpRequestHelper.prototype.request = function (_params, _noToken) {
-        if (_noToken === void 0) { _noToken = false; }
+    request(_params, _noToken = false) {
         console.log("http request==>>", _params.url);
         var that = this;
         if (!_params.method) {
@@ -26,14 +25,14 @@ var HttpRequestHelper = /** @class */ (function () {
         }
         ;
         var hr = new HttpRequest();
-        hr.on(Laya.Event.PROGRESS, that, function (e) {
+        hr.on(Laya.Event.PROGRESS, that, (e) => {
             console.log(e);
         });
-        hr.once(Laya.Event.ERROR, that, function (e) {
+        hr.once(Laya.Event.ERROR, that, (e) => {
             console.log("Laya.Event.ERROR:", e);
             if (e.indexOf('401') > 0) {
                 if (!_noToken) {
-                    platform.httpToken(that.baseUrl, function (_token) {
+                    platform.httpToken(that.baseUrl, (_token) => {
                         that.request(_params, true);
                     }, true);
                 }
@@ -45,12 +44,12 @@ var HttpRequestHelper = /** @class */ (function () {
                 }
             }
         });
-        hr.once(Laya.Event.COMPLETE, that, function (e) {
+        hr.once(Laya.Event.COMPLETE, that, (e) => {
             // console.log("Laya.Event.COMPLETE:" + hr.data);
             var res = hr.data;
             if (res == '401') {
                 if (!_noToken) {
-                    platform.httpToken(that.baseUrl, function (_token) {
+                    platform.httpToken(that.baseUrl, (_token) => {
                         that.request(_params);
                     }, true);
                 }
@@ -71,7 +70,7 @@ var HttpRequestHelper = /** @class */ (function () {
             }
             ;
         });
-        var token = platform.httpToken(that.baseUrl, function (_token) {
+        var token = platform.httpToken(that.baseUrl, (_token) => {
             // console.log("httpToken:", _token);
         }, false);
         var header = ["Content-Type", "application/x-www-form-urlencoded;charset=utf-8", "token", token];
@@ -85,9 +84,9 @@ var HttpRequestHelper = /** @class */ (function () {
             // console.log("header---", header)
             hr.send(that.baseUrl + _params.url, null, 'GET', 'jsonp', header);
         }
-    };
+    }
     //文件上传
-    HttpRequestHelper.prototype.uploadFile = function (_params, _noToken) {
+    uploadFile(_params, _noToken) {
         // var that = this;
         // wx.uploadFile({
         // 	url: that.baseUrl+_params.url,
@@ -113,7 +112,6 @@ var HttpRequestHelper = /** @class */ (function () {
         // 		};
         // 	}
         // })
-    };
-    return HttpRequestHelper;
-}());
+    }
+}
 //# sourceMappingURL=HttpRequestHelper.js.map

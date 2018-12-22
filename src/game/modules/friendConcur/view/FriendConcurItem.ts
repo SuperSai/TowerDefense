@@ -46,8 +46,14 @@ class FriendConcurItem extends ui.friendConcur.FriendConcurItemUI {
         let monsterType: number = userData.isEvolution() ? 2 : 1;
         let monsterInfo = BattleManager.Instance.getUnLockMonster(monsterType, userData.getCarLevel());
         if (monsterInfo) {
-            let curPrice = BattleManager.Instance.getMonsterPrice(monsterInfo.buyPrice, userData.queryBuyRecord(monsterInfo.id));
-            self._gold = curPrice * 0.4;
+            if (HallManager.Instance.hallData.concurGoldDic.ContainsKey(self._data.id)) {
+                self._gold = HallManager.Instance.hallData.concurGoldDic.TryGetValue(self._data.id);
+            } else {
+                let curPrice = BattleManager.Instance.getMonsterPrice(monsterInfo.buyPrice, userData.queryBuyRecord(monsterInfo.id));
+                self._gold = curPrice * 0.4;
+                HallManager.Instance.hallData.concurGoldDic.Add(self._data.id, self._gold);
+                userData.setCache(CacheKey.CONCUR, HallManager.Instance.hallData.concurGoldDic.toJsonObject());
+            }
             self.txt_gold.text = MathUtils.bytesToSize(self._gold) + "";
             self._rewards.push(self._gold);
         }

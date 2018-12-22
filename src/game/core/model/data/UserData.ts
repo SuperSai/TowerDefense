@@ -6,6 +6,8 @@
 class CacheKey {
     static GOLD = "gold";
     static SOUND_MUTE = "sound_mute";
+    /** 好友互助 */
+    static CONCUR = "concur";
 }
 
 class UserData {
@@ -592,8 +594,6 @@ class UserData {
     public loadStorage(_callback: any): void {
         let that = this;
         that._isLoadStorage = true;
-        GameEnterManager.Instance.init();
-        LanguageManager.Instance.loadLanguage();
         if (GlobalConfig.DEBUG) {
             if (GlobalConfig.USER) {
                 M.player.account = GlobalConfig.USER;
@@ -605,8 +605,7 @@ class UserData {
         }
 
         let storage = window.localStorage;
-        let dataJson = null;
-        // let dataJson = storage.getItem(M.player.account);
+        let dataJson = null;// storage.getItem(M.player.account);
         if (dataJson) {
             let jsonObj = JSON.parse(dataJson);
             if (jsonObj) {
@@ -622,47 +621,46 @@ class UserData {
                 }
             }
             _callback && _callback(true);
-        } else {
-            //从服务器同步数据
-            let serverDataProgress = 4;
-            HttpManager.Instance.requestCarparkData((_res: any) => {
-                serverDataProgress--;
-                if (serverDataProgress < 1) {
-                    _callback && _callback(true);
-                }
-            });
-
-            HttpManager.Instance.requestCarshopData((_res: any) => {
-                if (_res) that.carBuyRecordArray = _res;
-                serverDataProgress--;
-                if (serverDataProgress < 1) {
-                    _callback && _callback(true);
-                }
-            });
-
-            HttpManager.Instance.requestUserinfoData((_res: any) => {
-                serverDataProgress--;
-                if (serverDataProgress < 1) {
-                    _callback && _callback(true);
-                }
-            });
-
-            HttpManager.Instance.requestSkillAddtionData((_res: any) => {
-                if (_res) that.skillAdditionArray = _res;
-                serverDataProgress--;
-                if (serverDataProgress < 1) {
-                    _callback && _callback(true);
-                }
-            });
-
-            //超时尝试重新请求
-            Laya.stage.timerOnce(12000, that, () => {
-                console.log("serverDataProgress:", serverDataProgress);
-                if (serverDataProgress > 0) {
-                    that.loadStorage(_callback);
-                }
-            });
         }
+        //从服务器同步数据
+        let serverDataProgress = 4;
+        HttpManager.Instance.requestCarparkData((_res: any) => {
+            serverDataProgress--;
+            if (serverDataProgress < 1) {
+                _callback && _callback(true);
+            }
+        });
+
+        HttpManager.Instance.requestCarshopData((_res: any) => {
+            if (_res) that.carBuyRecordArray = _res;
+            serverDataProgress--;
+            if (serverDataProgress < 1) {
+                _callback && _callback(true);
+            }
+        });
+
+        HttpManager.Instance.requestUserinfoData((_res: any) => {
+            serverDataProgress--;
+            if (serverDataProgress < 1) {
+                _callback && _callback(true);
+            }
+        });
+
+        HttpManager.Instance.requestSkillAddtionData((_res: any) => {
+            if (_res) that.skillAdditionArray = _res;
+            serverDataProgress--;
+            if (serverDataProgress < 1) {
+                _callback && _callback(true);
+            }
+        });
+
+        //超时尝试重新请求
+        Laya.stage.timerOnce(12000, that, () => {
+            console.log("serverDataProgress:", serverDataProgress);
+            if (serverDataProgress > 0) {
+                that.loadStorage(_callback);
+            }
+        });
 
         //请求分享开关
         HttpManager.Instance.requestShareFlag();
@@ -784,7 +782,7 @@ class UserData {
         let that = this;
         let isTask: boolean = _isTask;
         let isGroupShare: boolean = _isGroupShare;
-        HttpManager.Instance.requestShareSubject((_res) => {
+        HttpManager.Instance.requestShareSubject(shareType, (_res) => {
             if (!_res) {
                 MessageUtils.showMsgTips("今日分享次数已用完");
                 return;
@@ -928,7 +926,7 @@ class UserData {
                 self.toShare((res) => {
                     callback && callback();
                     HttpManager.Instance.requestShareAdFinish("share_friend_concur", res);
-                }, isTask, isGroupShare, "friendConcur");
+                }, isTask, isGroupShare, "help");
                 break;
             //分享无限次数
             default: {
@@ -1109,6 +1107,8 @@ class UserData {
     }
 
     public loadCache(): void {
+        GameEnterManager.Instance.init();
+        LanguageManager.Instance.loadLanguage();
         const storage = window.localStorage;
         if (storage) {
             const jsonStr: string = storage.getItem("F_" + M.player.account);
@@ -1119,6 +1119,7 @@ class UserData {
                         this._cache = cache;
                         // 有缓存才赋值
                         cache.hasOwnProperty(CacheKey.GOLD) && (this.gold = cache[CacheKey.GOLD]);
+                        cache.hasOwnProperty(CacheKey.CONCUR) && (HallManager.Instance.hallData.concurGoldDic.fromJsonObject(cache[CacheKey.CONCUR]));
                         // 不管有没有缓存都需要赋值
                         M.more.model.mute = cache.hasOwnProperty(CacheKey.SOUND_MUTE) ? cache[CacheKey.SOUND_MUTE] : false;
                     }

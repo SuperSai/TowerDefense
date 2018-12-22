@@ -1,8 +1,8 @@
 {
     "x":0,
     "type":"View",
-    "selectedBox":2,
-    "selecteID":147,
+    "selectedBox":151,
+    "selecteID":156,
     "props":{"sceneWidth":750,"sceneHeight":1373,"sceneColor":"#000000","sceneBg":"laya/views/EvolutionView.png"},
     "nodeParent":-1,
     "label":"View",
@@ -159,29 +159,40 @@
                                 },
                                 {
                                     "x":60,
-                                    "type":"Label",
-                                    "props":{"y":13,"x":218,"var":"txtNeedItem","text":"0/1","fontSize":28,"color":"#9a8d00","align":"left"},
+                                    "type":"HBox",
+                                    "props":{"y":11,"x":32,"var":"nameHbox","space":5,"align":"middle"},
                                     "nodeParent":151,
-                                    "label":"Label(txtNeedItem)",
-                                    "isDirectory":false,
+                                    "label":"HBox(nameHbox)",
+                                    "isOpen":null,
+                                    "isDirectory":true,
                                     "isAniNode":true,
-                                    "hasChild":false,
-                                    "compId":110,
+                                    "hasChild":true,
+                                    "compId":156,
                                     "child":[
-                                        ]
-                                },
-                                {
-                                    "x":60,
-                                    "type":"Label",
-                                    "props":{"y":11,"x":29,"var":"txtItemName","text":"刺王龙 Lv11:","fontSize":30,"color":"#9a2525","align":"left"},
-                                    "nodeParent":151,
-                                    "label":"Label(txtItemName)",
-                                    "isDirectory":false,
-                                    "isAniNode":true,
-                                    "hasChild":false,
-                                    "compId":109,
-                                    "child":[
-                                        ]
+                                        {
+                                            "type":"Label",
+                                            "props":{"y":2,"x":179,"var":"txtNeedItem","text":"0/1","fontSize":28,"color":"#9a8d00","align":"left"},
+                                            "nodeParent":156,
+                                            "label":"Label(txtNeedItem)",
+                                            "isDirectory":false,
+                                            "isAniNode":true,
+                                            "hasChild":false,
+                                            "compId":110,
+                                            "child":[
+                                                ]
+                                        },
+                                        {
+                                            "type":"Label",
+                                            "props":{"var":"txtItemName","text":"刺王龙 Lv11:","fontSize":30,"color":"#9a2525","align":"left"},
+                                            "nodeParent":156,
+                                            "label":"Label(txtItemName)",
+                                            "isDirectory":false,
+                                            "isAniNode":true,
+                                            "hasChild":false,
+                                            "compId":109,
+                                            "child":[
+                                                ]
+                                        }]
                                 }]
                         },
                         {

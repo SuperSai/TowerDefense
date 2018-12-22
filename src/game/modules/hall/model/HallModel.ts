@@ -47,7 +47,9 @@ class HallModel {
 
     public offlineTotalTime: number = 5 * 60 * 1000;
 
-    constructor() {
+    public concurGoldDic: TSDictionary<number, number>;
 
+    constructor() {
+        this.concurGoldDic = new TSDictionary<number, number>();
     }
 }

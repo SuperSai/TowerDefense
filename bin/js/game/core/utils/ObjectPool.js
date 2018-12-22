@@ -1,57 +1,53 @@
 /*
 * 对象池类;
 */
-var ObjectPool = /** @class */ (function () {
+class ObjectPool {
     /**
      * 构造函数
      */
-    function ObjectPool() {
+    constructor() {
         this._objs = new Array();
     }
     /**
      * 放回一个对象
      * @param obj
      */
-    ObjectPool.prototype.pushObj = function (obj) {
+    pushObj(obj) {
         this._objs.push(obj);
-    };
+    }
     /**
      * 取出一个对象
      * @returns {*}
      */
-    ObjectPool.prototype.popObj = function () {
+    popObj() {
         if (this._objs.length > 0) {
             return this._objs.pop();
         }
         else {
             return null;
         }
-    };
+    }
     /**
      * 清除所有缓存对象
      */
-    ObjectPool.prototype.clear = function () {
+    clear() {
         while (this._objs.length > 0) {
             this._objs.pop();
         }
-    };
+    }
     /**
      * 取出一个对象
      * @param classZ Class
      * @return Object
      *
      */
-    ObjectPool.pop = function (classZ, classKey) {
-        var args = [];
-        for (var _i = 2; _i < arguments.length; _i++) {
-            args[_i - 2] = arguments[_i];
-        }
+    static pop(classZ, classKey, ...args) {
         if (!ObjectPool._content[classKey]) {
             ObjectPool._content[classKey] = [];
         }
         var list = ObjectPool._content[classKey];
         if (list.length) {
-            var item = list.pop();
+            let item = list.pop();
             if ((item instanceof Laya.Image) && args.length > 0) {
                 item.skin = args[0];
             }
@@ -81,14 +77,14 @@ var ObjectPool = /** @class */ (function () {
             obj.ObjectPoolKey = classKey;
             return obj;
         }
-    };
+    }
     /**
      * 取出一个对象
      * @param refKey Class
      * @param extraKey 标识值
      * @returns {any}
      */
-    ObjectPool.popWithExtraKey = function (refKey, extraKey) {
+    static popWithExtraKey(refKey, extraKey) {
         if (!ObjectPool._content[refKey]) {
             ObjectPool._content[refKey] = [];
         }
@@ -110,13 +106,13 @@ var ObjectPool = /** @class */ (function () {
             obj.ObjectPoolKey = refKey;
         }
         return obj;
-    };
+    }
     /**
      * 放入一个对象
      * @param obj
      *
      */
-    ObjectPool.push = function (obj) {
+    static push(obj) {
         if (obj == null) {
             return false;
         }
@@ -127,20 +123,19 @@ var ObjectPool = /** @class */ (function () {
         }
         ObjectPool._content[refKey].push(obj);
         return true;
-    };
+    }
     /**
      * 清除所有对象
      */
-    ObjectPool.clear = function () {
+    static clear() {
         ObjectPool._content = {};
-    };
+    }
     /**
      * 清除某一类对象
      * @param classZ Class
      * @param clearFuncName 清除对象需要执行的函数
      */
-    ObjectPool.clearClass = function (classKey, clearFuncName) {
-        if (clearFuncName === void 0) { clearFuncName = null; }
+    static clearClass(classKey, clearFuncName = null) {
         var list = ObjectPool._content[classKey];
         while (list && list.length) {
             var obj = list.pop();
@@ -151,13 +146,13 @@ var ObjectPool = /** @class */ (function () {
         }
         ObjectPool._content[classKey] = null;
         delete ObjectPool._content[classKey];
-    };
+    }
     /**
      * 缓存中对象统一执行一个函数
      * @param classZ Class
      * @param dealFuncName 要执行的函数名称
      */
-    ObjectPool.dealFunc = function (refKey, dealFuncName) {
+    static dealFunc(refKey, dealFuncName) {
         var list = ObjectPool._content[refKey];
         if (list == null) {
             return;
@@ -167,8 +162,7 @@ var ObjectPool = /** @class */ (function () {
         for (i; i < len; i++) {
             list[i][dealFuncName]();
         }
-    };
-    ObjectPool._content = {};
-    return ObjectPool;
-}());
+    }
+}
+ObjectPool._content = {};
 //# sourceMappingURL=ObjectPool.js.map

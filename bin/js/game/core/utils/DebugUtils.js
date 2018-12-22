@@ -1,8 +1,8 @@
 /**
  * Debuf调试工具
  */
-var DebugUtils = /** @class */ (function () {
-    function DebugUtils() {
+class DebugUtils {
+    constructor() {
         DebugUtils._startTimes = {};
     }
     /**
@@ -10,32 +10,32 @@ var DebugUtils = /** @class */ (function () {
      * @param flag
      *
      */
-    DebugUtils.isOpen = function (flag) {
+    static isOpen(flag) {
         this._isOpen = flag;
-    };
+    }
     /**
      * 是否是调试模式
      * @returns {boolean}
      */
-    DebugUtils.isDebug = function () {
+    static isDebug() {
         return this._isOpen;
-    };
+    }
     /**
      * 开始
      * @param key 标识
      * @param minTime 最小时间
      *
      */
-    DebugUtils.start = function (key) {
+    static start(key) {
         if (!this._isOpen) {
             return;
         }
         this._startTimes[key] = new Date().getTime();
-    };
+    }
     /**
      * 停止
      */
-    DebugUtils.stop = function (key) {
+    static stop(key) {
         if (!this._isOpen) {
             return 0;
         }
@@ -47,15 +47,14 @@ var DebugUtils = /** @class */ (function () {
             // Log.trace(key + ": " + cha);
         }
         return cha;
-    };
+    }
     /**
      * 设置时间间隔阈值
      * @param value
      */
-    DebugUtils.setThreshold = function (value) {
+    static setThreshold(value) {
         this._threshold = value;
-    };
-    DebugUtils._threshold = 3;
-    return DebugUtils;
-}());
+    }
+}
+DebugUtils._threshold = 3;
 //# sourceMappingURL=DebugUtils.js.map

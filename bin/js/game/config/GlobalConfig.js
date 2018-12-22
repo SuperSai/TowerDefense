@@ -1,37 +1,22 @@
-var GlobalConfig = /** @class */ (function () {
-    function GlobalConfig() {
+class GlobalConfig {
+    static get DEBUG() {
+        if (Laya.Browser.onPC
+            || Laya.Browser.onFreeman
+            || Laya.Browser.onDavid
+            || Laya.Browser.onSong
+            || Laya.Browser.onMing) {
+            return true;
+        }
+        return false;
     }
-    Object.defineProperty(GlobalConfig, "DEBUG", {
-        get: function () {
-            if (Laya.Browser.onPC
-                || Laya.Browser.onFreeman
-                || Laya.Browser.onDavid
-                || Laya.Browser.onSong
-                || Laya.Browser.onMing) {
-                return true;
-            }
-            return false;
-        },
-        enumerable: true,
-        configurable: true
-    });
     ;
-    Object.defineProperty(GlobalConfig, "NEW_ACCOUNT", {
-        get: function () {
-            return false;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(GlobalConfig, "USER", {
-        get: function () {
-            return "DAVID";
-            // return "FREEMAN";
-            // return null;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    return GlobalConfig;
-}());
+    static get NEW_ACCOUNT() {
+        return false;
+    }
+    static get USER() {
+        return "DAVID";
+        // return "FREEMAN";
+        // return null;
+    }
+}
 //# sourceMappingURL=GlobalConfig.js.map

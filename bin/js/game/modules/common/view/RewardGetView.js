@@ -1,78 +1,60 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /*
 * 奖励领取界面;
 */
-var RewardGetView = /** @class */ (function (_super) {
-    __extends(RewardGetView, _super);
-    function RewardGetView(values, items) {
-        var _this = _super.call(this) || this;
-        _this._items = [1, 2];
-        _this._values = values;
-        _this._items = items;
-        _this.init();
-        return _this;
+class RewardGetView extends ui.common.view.RewardGetViewUI {
+    constructor(values, items) {
+        super();
+        this._items = [1, 2];
+        this._values = values;
+        this._items = items;
+        this.init();
     }
     //新建并添加到节点
-    RewardGetView.Create = function (_parentNode, callback, values, items) {
-        if (callback === void 0) { callback = null; }
-        if (items === void 0) { items = [1, 2]; }
-        var resList = [
+    static Create(_parentNode, callback = null, values, items = [1, 2]) {
+        let resList = [
             { url: "res/atlas/images.atlas", type: Laya.Loader.ATLAS }
         ];
-        Laya.loader.load(resList, Handler.create(null, function () {
+        Laya.loader.load(resList, Handler.create(null, () => {
             if (_parentNode) {
-                var nodeView_1 = new RewardGetView(values, items);
-                AlignUtils.setToScreenGoldenPos(nodeView_1);
-                LayerManager.getInstance().subFrameLayer.addChildWithMaskCall(nodeView_1, nodeView_1.removeSelf);
-                nodeView_1.once(Laya.Event.REMOVED, nodeView_1, function () {
+                let nodeView = new RewardGetView(values, items);
+                AlignUtils.setToScreenGoldenPos(nodeView);
+                LayerManager.getInstance().subFrameLayer.addChildWithMaskCall(nodeView, nodeView.removeSelf);
+                nodeView.once(Laya.Event.REMOVED, nodeView, () => {
                     callback && callback();
-                    nodeView_1.removeView();
+                    nodeView.removeView();
                 });
             }
         }));
-    };
+    }
     //初始化
-    RewardGetView.prototype.init = function () {
-        var self = this;
+    init() {
+        let self = this;
         self._tween = EffectUtils.objectRotate(self.imgLight);
-        for (var index = 0, len = this._values.length; index < len; index++) {
-            var price = this._values[index];
-            var itemInfo = GlobleData.getData(GlobleData.ItemVO, self._items[index]);
-            var rewardItem = ObjectPool.pop(RewardItem, "RewardItem");
-            var url = PathConfig.ItemUrl.replace("{0}", itemInfo.bigIcon);
+        for (let index = 0, len = this._values.length; index < len; index++) {
+            let price = this._values[index];
+            let itemInfo = GlobleData.getData(GlobleData.ItemVO, self._items[index]);
+            let rewardItem = ObjectPool.pop(RewardItem, "RewardItem");
+            let url = PathConfig.ItemUrl.replace("{0}", itemInfo.bigIcon);
             rewardItem.create(url, price);
             self.hbox.addChild(rewardItem);
         }
         self.hbox.refresh();
         self.addEvents();
-    };
-    RewardGetView.prototype.addEvents = function () {
-        var self = this;
+    }
+    addEvents() {
+        let self = this;
         self.btn_get.on(Laya.Event.CLICK, self, self.removeSelf);
-    };
-    RewardGetView.prototype.removeEvents = function () {
-        var self = this;
+    }
+    removeEvents() {
+        let self = this;
         self.btn_get.off(Laya.Event.CLICK, self, self.removeSelf);
-    };
-    RewardGetView.prototype.removeView = function () {
-        var self = this;
+    }
+    removeView() {
+        let self = this;
         self._tween && (Laya.Tween.clear(self._tween));
         self._tween = null;
         self.removeSelf();
         self.removeEvents();
-    };
-    return RewardGetView;
-}(ui.common.view.RewardGetViewUI));
+    }
+}
 //# sourceMappingURL=RewardGetView.js.map

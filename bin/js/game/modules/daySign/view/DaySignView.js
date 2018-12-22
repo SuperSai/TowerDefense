@@ -1,49 +1,33 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /*
 * TER0821-每日签到;
 */
-var DaySignView = /** @class */ (function (_super) {
-    __extends(DaySignView, _super);
-    function DaySignView() {
-        var _this = _super.call(this) || this;
-        var that = _this;
-        that.frameOnce(1, that, function () {
+class DaySignView extends ui.daySign.DaySignViewUI {
+    constructor() {
+        super();
+        var that = this;
+        that.frameOnce(1, that, () => {
             that.init();
         });
-        return _this;
     }
     //新建并添加到节点
-    DaySignView.Create = function (onAddHandler) {
-        var _this = this;
-        var resList = [
+    static Create(onAddHandler) {
+        let resList = [
             { url: "res/atlas/images/dailySign.atlas", type: Laya.Loader.ATLAS },
             { url: "images/dailySign/item_bg_7th_day.png", type: Laya.Loader.IMAGE },
         ];
-        Laya.loader.load(resList, Handler.create(null, function () {
-            if (!_this._view) {
-                _this._view = new DaySignView();
-                _this._view.requestCompleteHandler = onAddHandler;
-                AlignUtils.setToScreenGoldenPos(_this._view);
+        Laya.loader.load(resList, Handler.create(null, () => {
+            if (!this._view) {
+                this._view = new DaySignView();
+                this._view.requestCompleteHandler = onAddHandler;
+                AlignUtils.setToScreenGoldenPos(this._view);
             }
             else {
-                M.layer.frameLayer.addChildWithMaskCall(_this._view, _this._view.removeSelf);
+                M.layer.frameLayer.addChildWithMaskCall(this._view, this._view.removeSelf);
             }
         }));
-    };
+    }
     //初始化
-    DaySignView.prototype.init = function () {
+    init() {
         var that = this;
         //按钮事件
         if (DaySignView.signData) {
@@ -53,7 +37,7 @@ var DaySignView = /** @class */ (function (_super) {
             that.btnExit.on(Laya.Event.CLICK, that, that.removeSelf);
             that.btnGet.on(Laya.Event.CLICK, that, that.onClickGet);
             if (!M.novice.isRunning) {
-                that.requestSignInfo(function (_data) {
+                that.requestSignInfo((_data) => {
                     if (_data) {
                         DaySignView.signData = _data;
                         that.refreshList(_data);
@@ -73,26 +57,25 @@ var DaySignView = /** @class */ (function (_super) {
         else {
             console.log("@FREEMAN: 不在微信小游戏环境下，不请求签到数据！");
         }
-    };
-    DaySignView.prototype.removeSelf = function () {
+    }
+    removeSelf() {
         this.event(DaySignView.REMOVE_FROM_STAGE);
-        return _super.prototype.removeSelf.call(this);
-    };
-    DaySignView.prototype.onClickGet = function () {
-        var _this = this;
-        var that = this;
+        return super.removeSelf();
+    }
+    onClickGet() {
+        let that = this;
         AnimationUtils.lockBtnStage(that.btnGet);
         if (DaySignView.signData && DaySignView.signData.sign) {
-            var day_1 = DaySignView.signData.sign.day;
-            that.requestPrize(day_1, function (_res) {
+            let day = DaySignView.signData.sign.day;
+            that.requestPrize(day, (_res) => {
                 if (_res) {
                     if (_res.code === 1) {
                         MessageUtils.showMsgTips("领取成功");
-                        MessageUtils.shopMsgByObj(that.btnGet, " +" + DaySignView.signData.prize['day_' + day_1]["diamond"], EFFECT_TYPE.DIAMOND);
-                        var essenceNum_1 = DaySignView.signData.prize['day_' + day_1]["essence"];
-                        if (essenceNum_1) {
-                            Laya.timer.once(Time.SEC_IN_MILI, _this, function () {
-                                MessageUtils.shopMsgByObj(that.btnGet, " +" + essenceNum_1, EFFECT_TYPE.ESSENCE);
+                        MessageUtils.shopMsgByObj(that.btnGet, " +" + DaySignView.signData.prize['day_' + day]["diamond"], EFFECT_TYPE.DIAMOND);
+                        const essenceNum = DaySignView.signData.prize['day_' + day]["essence"];
+                        if (essenceNum) {
+                            Laya.timer.once(Time.SEC_IN_MILI, this, () => {
+                                MessageUtils.shopMsgByObj(that.btnGet, " +" + essenceNum, EFFECT_TYPE.ESSENCE);
                             });
                         }
                         DaySignView.signData.sign.status = 1;
@@ -109,39 +92,39 @@ var DaySignView = /** @class */ (function (_super) {
                 }
             });
         }
-    };
+    }
     //初始化list
-    DaySignView.prototype.refreshList = function (_data) {
+    refreshList(_data) {
         if (_data == null) {
             return;
         }
-        var that = this;
-        var dayIndex = _data.sign.day; //1~7
-        var status = _data.sign.status; //0未领取,1已领取
-        var prizeData = _data.prize;
-        var listDatas = [1, 2, 3, 4, 5, 6]; //_data.prize;
+        let that = this;
+        let dayIndex = _data.sign.day; //1~7
+        let status = _data.sign.status; //0未领取,1已领取
+        let prizeData = _data.prize;
+        let listDatas = [1, 2, 3, 4, 5, 6]; //_data.prize;
         that.signItemList.vScrollBarSkin = '';
         that.signItemList.repeatY = 3;
         that.signItemList.array = listDatas;
-        that.signItemList.renderHandler = new Laya.Handler(that, function (cell, index) {
+        that.signItemList.renderHandler = new Laya.Handler(that, (cell, index) => {
             if (index > listDatas.length) {
                 return;
             }
             // console.log(cell, index);
-            var item = listDatas[index];
+            let item = listDatas[index];
             if (item == null) {
                 return;
             }
-            var cellIndex = index + 1;
-            var txtTitle = cell.getChildByName('txtTitle');
+            let cellIndex = index + 1;
+            let txtTitle = cell.getChildByName('txtTitle');
             if (txtTitle) {
                 txtTitle.changeText('第' + cellIndex + '天');
             }
-            var imgIcon = cell.getChildByName("imgIcon");
+            const imgIcon = cell.getChildByName("imgIcon");
             if (imgIcon) {
                 imgIcon.skin = "images/dailySign/icon_day_" + cellIndex + ".png";
             }
-            var txtDiamond = cell.getChildByName('txtDiamond');
+            let txtDiamond = cell.getChildByName('txtDiamond');
             if (txtDiamond) {
                 txtDiamond.changeText('钻石x' + prizeData['day_' + cellIndex]["diamond"]);
             }
@@ -160,7 +143,7 @@ var DaySignView = /** @class */ (function (_super) {
             }
             else if (cellIndex === dayIndex) {
                 if (status === 0) {
-                    var btnBox = cell.getChildByName('btnBox');
+                    const btnBox = cell.getChildByName('btnBox');
                     if (btnBox) {
                         btnBox.skin = "images/dailySign/item_bg_obtainable.png";
                     }
@@ -171,24 +154,24 @@ var DaySignView = /** @class */ (function (_super) {
             }
             function setObtainedState() {
                 // 已经领取的
-                var obtainMark = cell.getChildByName('imgObtainedMark');
+                const obtainMark = cell.getChildByName('imgObtainedMark');
                 obtainMark && (obtainMark.visible = true);
-                var mask = cell.getChildByName('imgMask');
+                const mask = cell.getChildByName('imgMask');
                 mask && (mask.visible = true);
             }
         });
-        var cell = that.lastItemBox;
+        let cell = that.lastItemBox;
         if (cell) {
-            var cellIndex = 7;
-            var txtTitle = cell.getChildByName('txtTitle');
+            let cellIndex = 7;
+            let txtTitle = cell.getChildByName('txtTitle');
             if (txtTitle) {
                 txtTitle.changeText('第' + cellIndex + '天');
             }
-            var txtDiamond = cell.getChildByName('txtDiamond');
+            let txtDiamond = cell.getChildByName('txtDiamond');
             if (txtDiamond) {
                 txtDiamond.changeText(prizeData['day_' + cellIndex]["diamond"]);
             }
-            var lblEssense = cell.getChildByName('lblEssence');
+            let lblEssense = cell.getChildByName('lblEssence');
             if (lblEssense) {
                 lblEssense.changeText(prizeData['day_' + cellIndex]["essence"]);
             }
@@ -200,18 +183,18 @@ var DaySignView = /** @class */ (function (_super) {
                     // }
                     // } else {
                     // 已经领取的
-                    var obtainMark = cell.getChildByName('imgObtainedMark');
+                    const obtainMark = cell.getChildByName('imgObtainedMark');
                     obtainMark && (obtainMark.visible = true);
-                    var mask = cell.getChildByName('imgMask');
+                    const mask = cell.getChildByName('imgMask');
                     mask && (mask.visible = true);
                 }
             }
         }
-    };
+    }
     //拉取签到信息
-    DaySignView.prototype.requestSignInfo = function (_callback) {
-        var that = this;
-        var HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+    requestSignInfo(_callback) {
+        let that = this;
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/sign/info',
             success: function (res) {
@@ -222,11 +205,11 @@ var DaySignView = /** @class */ (function (_super) {
                 console.log(res);
             }
         });
-    };
+    }
     //拉取奖励
-    DaySignView.prototype.requestPrize = function (_itemId, _callback) {
-        var that = this;
-        var HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+    requestPrize(_itemId, _callback) {
+        let that = this;
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/sign/commit/' + _itemId,
             success: function (res) {
@@ -237,9 +220,8 @@ var DaySignView = /** @class */ (function (_super) {
                 console.log(res);
             }
         });
-    };
-    DaySignView.REMOVE_FROM_STAGE = "REMOVE_FROM_STAGE";
-    DaySignView.signData = null;
-    return DaySignView;
-}(ui.daySign.DaySignViewUI));
+    }
+}
+DaySignView.REMOVE_FROM_STAGE = "REMOVE_FROM_STAGE";
+DaySignView.signData = null;
 //# sourceMappingURL=DaySignView.js.map

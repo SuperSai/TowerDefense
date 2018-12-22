@@ -1,7 +1,4 @@
-var Align = /** @class */ (function () {
-    function Align() {
-    }
-    Align.CENTER = "center";
-    return Align;
-}());
+class Align {
+}
+Align.CENTER = "center";
 //# sourceMappingURL=Align.js.map

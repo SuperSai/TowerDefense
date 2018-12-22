@@ -1,15 +1,13 @@
 /**
  * CSV解析类
  */
-var CSVParser = /** @class */ (function () {
-    function CSVParser() {
-    }
+class CSVParser {
     //用json替换csv,json解析文件
-    CSVParser.ParseJsonData = function (infoClass, sourceText) {
-        var self = this;
+    static ParseJsonData(infoClass, sourceText) {
+        let self = this;
         var result = new TSDictionary();
         sourceText = sourceText.trim();
-        var obj = JSON.parse(sourceText);
+        let obj = JSON.parse(sourceText);
         var keyList = null;
         var typeList = null;
         var dataList = null;
@@ -29,14 +27,13 @@ var CSVParser = /** @class */ (function () {
         }
         sourceText = null;
         return result;
-    };
-    CSVParser.ParseRecord = function (keyList, itemList, record) {
-        var self = this;
+    }
+    static ParseRecord(keyList, itemList, record) {
+        let self = this;
         var n = itemList.length;
         for (var i = 0; i < n; i++) {
             record[keyList[i]] = itemList[i];
         }
-    };
-    return CSVParser;
-}());
+    }
+}
 //# sourceMappingURL=CSVParser.js.map

@@ -1,69 +1,47 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var MoreController = /** @class */ (function (_super) {
-    __extends(MoreController, _super);
-    function MoreController() {
-        var _this = _super.call(this) || this;
-        _this.init();
-        return _this;
-    }
-    MoreController.getInstance = function () {
+class MoreController extends Laya.EventDispatcher {
+    static getInstance() {
         if (!this._instance) {
             this._instance = new MoreController();
         }
         return this._instance;
-    };
-    Object.defineProperty(MoreController.prototype, "model", {
-        get: function () {
-            return this._model;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    MoreController.prototype.init = function () {
+    }
+    get model() {
+        return this._model;
+    }
+    constructor() {
+        super();
+        this.init();
+    }
+    init() {
         this._model = new MoreModel();
         this.addEvents();
-    };
-    MoreController.prototype.addEvents = function () {
-        var _this = this;
-        this.on(MoreEvent.SUBSCRIBE_STATUS, this, function (flag) {
-            _this._model.subscribable = flag;
+    }
+    addEvents() {
+        this.on(MoreEvent.SUBSCRIBE_STATUS, this, (flag) => {
+            this._model.subscribable = flag;
         });
-    };
-    MoreController.prototype.show = function () {
-        var _this = this;
+    }
+    show() {
         if (this._view) {
             M.layer.frameLayer.addChildWithMaskCall(this._view, this._view.removeSelf);
         }
         else {
-            var assets = [
+            const assets = [
                 { url: "res/atlas/images/more.atlas", type: Laya.Loader.ATLAS }
             ];
             EffectUtils.showWaitEffect();
-            Laya.loader.load(assets, Handler.create(this, function () {
+            Laya.loader.load(assets, Handler.create(this, () => {
                 EffectUtils.stopWaitEffect();
-                _this._view = new MoreView(_this, _this._model);
-                _this.show();
+                this._view = new MoreView(this, this._model);
+                this.show();
             }));
         }
-    };
-    MoreController.prototype.switchMute = function () {
+    }
+    switchMute() {
         this._model.mute = !this._model.mute;
         this.applyMute(this._model.mute);
-    };
-    MoreController.prototype.applyMute = function (mute) {
-        var _this = this;
+    }
+    applyMute(mute) {
         if (!mute) {
             if (this._model.mute === undefined) {
                 return;
@@ -74,15 +52,14 @@ var MoreController = /** @class */ (function (_super) {
         Laya.SoundManager.soundMuted = mute;
         if (!mute) {
             if (!this._bgChannel) {
-                Laya.loader.load("musics/bgmusic.mp3", Laya.Handler.create(this, function () {
-                    _this._bgChannel = Laya.SoundManager.playMusic("musics/bgmusic.mp3", 0);
+                Laya.loader.load("musics/bgmusic.mp3", Laya.Handler.create(this, () => {
+                    this._bgChannel = Laya.SoundManager.playMusic("musics/bgmusic.mp3", 0);
                 }));
             }
             else {
                 this._bgChannel.play();
             }
         }
-    };
-    return MoreController;
-}(Laya.EventDispatcher));
+    }
+}
 //# sourceMappingURL=MoreController.js.map

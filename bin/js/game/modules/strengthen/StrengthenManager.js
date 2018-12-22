@@ -1,18 +1,18 @@
 /*
 * 强化;
 */
-var StrengthenManager = /** @class */ (function () {
-    function StrengthenManager() {
+class StrengthenManager {
+    constructor() {
         this.skillArr = [10, 1, 3, 2];
     }
     /** 检查是否需要出现强化红点 */
-    StrengthenManager.prototype.checkRedPoint = function () {
-        var self = this;
-        var value = false;
-        for (var i = 0, len = self.skillArr.length; i < len; i++) {
-            var skillId = self.skillArr[i];
-            var strengthenLevel = userData.querySkillAddition(skillId);
-            var price = SkillManager.Instance.getSkillStrengthenCost(skillId, strengthenLevel + 1);
+    checkRedPoint() {
+        let self = this;
+        let value = false;
+        for (let i = 0, len = self.skillArr.length; i < len; i++) {
+            let skillId = self.skillArr[i];
+            let strengthenLevel = userData.querySkillAddition(skillId);
+            let price = SkillManager.Instance.getSkillStrengthenCost(skillId, strengthenLevel + 1);
             if (userData.essence >= price) {
                 value = true;
                 break;
@@ -24,17 +24,12 @@ var StrengthenManager = /** @class */ (function () {
         else {
             userData.removeStrengthenRedPoint();
         }
-    };
-    Object.defineProperty(StrengthenManager, "Instance", {
-        get: function () {
-            if (StrengthenManager._instance == null) {
-                StrengthenManager._instance = new StrengthenManager();
-            }
-            return StrengthenManager._instance;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    return StrengthenManager;
-}());
+    }
+    static get Instance() {
+        if (StrengthenManager._instance == null) {
+            StrengthenManager._instance = new StrengthenManager();
+        }
+        return StrengthenManager._instance;
+    }
+}
 //# sourceMappingURL=StrengthenManager.js.map

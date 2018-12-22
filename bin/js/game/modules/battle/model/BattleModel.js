@@ -1,8 +1,8 @@
 /*
 * name;
 */
-var BattleModel = /** @class */ (function () {
-    function BattleModel() {
+class BattleModel {
+    constructor() {
         /** 定时上传数据时间 */
         this.saveTime = 0;
         /** 刷新广告时间 */
@@ -22,6 +22,5 @@ var BattleModel = /** @class */ (function () {
         /** 钻石初始消费价格 */
         this.monsterBaseDiamondPrice = 36;
     }
-    return BattleModel;
-}());
+}
 //# sourceMappingURL=BattleModel.js.map

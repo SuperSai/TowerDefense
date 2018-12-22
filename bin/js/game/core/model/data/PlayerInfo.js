@@ -1,8 +1,8 @@
 /*
 * name;
 */
-var PlayerInfo = /** @class */ (function () {
-    function PlayerInfo() {
+class PlayerInfo {
+    constructor() {
         /** 拥有金币 */
         this.userMoney = 0;
         /** 拥有钻石 */
@@ -20,6 +20,5 @@ var PlayerInfo = /** @class */ (function () {
         /** 关卡开放等级 */
         this.levelOffect = 2;
     }
-    return PlayerInfo;
-}());
+}
 //# sourceMappingURL=PlayerInfo.js.map

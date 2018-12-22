@@ -1,6 +1,6 @@
 xiaoduo = window.xiaoduo;
-var M = new ManagerShortcuts();
-var userData = new UserData();
+const M = new ManagerShortcuts();
+const userData = new UserData();
 platform.onShow(function (e) {
     EventsManager.Instance.event(EventsType.BACK_GAME);
     M.more.applyMute();
@@ -27,10 +27,10 @@ platform.onHide(function () {
         console.log("@FREEMAN: 在保存离线数据期间发生了错误：", e);
     }
 });
-var Main = /** @class */ (function () {
-    function Main() {
+class Main {
+    constructor() {
         Laya.MiniAdpter.init();
-        Laya.MiniAdpter['getUrlEncode'] = function (url, type) {
+        Laya.MiniAdpter['getUrlEncode'] = (url, type) => {
             if (url.indexOf(".fnt") != -1 || url.indexOf("sheet.json") != -1 || url.indexOf("language.txt") != -1 || url.indexOf(".json") != -1) {
                 return "utf8";
             }
@@ -57,38 +57,34 @@ var Main = /** @class */ (function () {
             Laya.ResourceVersion.enable("version.json", Handler.create(null, this.beginLoad), Laya.ResourceVersion.FILENAME_VERSION);
         }
     }
-    Main.prototype.onLoginSubmit = function (_a) {
-        var _this = this;
-        var account = _a.account, pwd = _a.pwd;
+    onLoginSubmit({ account, pwd }) {
         EffectUtils.showWaitEffect();
-        var HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/token/user',
             method: "Post",
             data: StringUtils.toUrlQueryString({ userName: account, password: pwd }),
-            success: function (res) {
-                console.log("@FREEMAN: 请求帐号密码登录:", { account: account, pwd: pwd }, res);
+            success: res => {
+                console.log("@FREEMAN: 请求帐号密码登录:", { account, pwd }, res);
                 M.player.account = account;
                 M.player.token = res.token;
-                Laya.ResourceVersion.enable("version.json", Handler.create(null, _this.beginLoad), Laya.ResourceVersion.FILENAME_VERSION);
+                Laya.ResourceVersion.enable("version.json", Handler.create(null, this.beginLoad), Laya.ResourceVersion.FILENAME_VERSION);
             },
-            fail: function (_a) {
-                var error_code = _a.error_code, msg = _a.msg;
-                console.log("@FREEMAN: 帐号或密码错误:", { error_code: error_code, msg: msg });
+            fail: ({ error_code, msg }) => {
+                console.log("@FREEMAN: 帐号或密码错误:", { error_code, msg });
                 EffectUtils.stopWaitEffect();
                 MessageUtils.showMsgTips(msg);
             }
         });
-    };
-    Main.prototype.beginLoad = function () {
-        Laya.loader.load(["loading/start_bg.jpg", "loading/start_btn.png", "loading/tip_bg.png", "loading/loading01.png", "loading/loading02.png", "loading/tip_symbol_01.png"], Handler.create(this, function () {
+    }
+    beginLoad() {
+        Laya.loader.load(["loading/start_bg.jpg", "loading/start_btn.png", "loading/tip_bg.png", "loading/loading01.png", "loading/loading02.png", "loading/tip_symbol_01.png"], Handler.create(this, () => {
             EffectUtils.stopWaitEffect();
             M.layer.renderLayer.addChild(new MainLoadingView());
         }));
-    };
-    return Main;
-}());
-setTimeout(function () {
+    }
+}
+setTimeout(() => {
     new Main();
 }, 1e3);
 //# sourceMappingURL=Main.js.map

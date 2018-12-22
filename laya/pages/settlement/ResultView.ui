@@ -1,8 +1,8 @@
 {
     "x":0,
     "type":"View",
-    "selectedBox":28,
-    "selecteID":11,
+    "selectedBox":2,
+    "selecteID":6,
     "props":{"sceneWidth":750,"sceneHeight":1334,"sceneColor":"#000000","mouseThrough":true,"mouseEnabled":true},
     "nodeParent":-1,
     "label":"View",
@@ -81,7 +81,7 @@
                         {
                             "x":45,
                             "type":"Button",
-                            "props":{"y":438,"x":203,"strokeColors":"#946430","stateNum":"1","skin":"images/component/normal_btn.png","name":"btnShare","labelStroke":5,"labelSize":50,"labelColors":"#fff4e1","labelBold":true,"label":"炫耀领取"},
+                            "props":{"y":438,"x":203,"strokeColors":"#946430","stateNum":"1","skin":"images/component/normal_btn.png","name":"btnShare","labelStroke":5,"labelSize":50,"labelColors":"#fff4e1","labelBold":true,"label":"领取"},
                             "nodeParent":2,
                             "label":"Button(btnShare)",
                             "isOpen":false,

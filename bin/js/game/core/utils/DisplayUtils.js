@@ -1,20 +1,19 @@
 /*
 * 显示对象工具类;
 */
-var DisplayUtils = /** @class */ (function () {
-    function DisplayUtils() {
+class DisplayUtils {
+    constructor() {
     }
-    DisplayUtils.mouseEnabled = function (display, value) {
+    static mouseEnabled(display, value) {
         display.mouseEnabled = value;
         if (display.numChildren > 0) {
-            for (var _i = 0, _a = display._childs; _i < _a.length; _i++) {
-                var child = _a[_i];
+            for (const child of display._childs) {
                 this.mouseEnabled(child, value);
             }
         }
-    };
+    }
     /** 设置滤镜变灰 */
-    DisplayUtils.setFilters = function (component) {
+    static setFilters(component) {
         if (component) {
             //颜色矩阵数组
             var colorMatrix = [
@@ -26,10 +25,9 @@ var DisplayUtils = /** @class */ (function () {
             var colorFlilter = new Laya.ColorFilter(colorMatrix);
             component.filters = [colorFlilter];
         }
-    };
+    }
     /** 颜色滤镜 */
-    DisplayUtils.createColorFilter = function (index) {
-        if (index === void 0) { index = 0; }
+    static createColorFilter(index = 0) {
         if (index == 1) {
             //变暗
             var colorV = 0.6;
@@ -57,13 +55,13 @@ var DisplayUtils = /** @class */ (function () {
             return [colorFilter];
         }
         return [];
-    };
+    }
     /**
      * 设置文本颜色
      * @param component 字体
      * @param flag true 有钱的颜色  false 没钱的颜色
      */
-    DisplayUtils.setLabelColor = function (component, flag) {
+    static setLabelColor(component, flag) {
         if (component) {
             if (flag) {
                 component.color = "#FFFFFF";
@@ -72,15 +70,15 @@ var DisplayUtils = /** @class */ (function () {
                 component.color = "#FF802C";
             }
         }
-    };
-    DisplayUtils.removeFromArray = function (target, array) {
-        var index = array.indexOf(target);
+    }
+    static removeFromArray(target, array) {
+        let index = array.indexOf(target);
         if (index >= 0)
             array.splice(index, 1);
         return array;
-    };
+    }
     /** 移除所有子对象并回收 */
-    DisplayUtils.removeAllChildren = function (container) {
+    static removeAllChildren(container) {
         if (!container)
             return;
         if (container && container.numChildren) {
@@ -95,7 +93,6 @@ var DisplayUtils = /** @class */ (function () {
                 }
             }
         }
-    };
-    return DisplayUtils;
-}());
+    }
+}
 //# sourceMappingURL=DisplayUtils.js.map

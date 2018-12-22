@@ -136,6 +136,9 @@ class WxgamePlatform {
                             if(res2.userInfo.avatarUrl === "https://wx.qlogo.cn/mmopen/vi_32/EBiaw6xmsmKAz1EJhhXzUIAk5mG2DSqVj9vFWU8p4GE1QhhMArsia9LZiaV3pTOPObZyrllmPlN0VuMpiaw8s1JOag/132"){
                                 Laya.Browser.onDavid = true;
                             }
+                            if(res2.userInfo.avatarUrl === "https://wx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTJOWVKpqeMShRw1ngiaLEanOI0noTEp3mU6zs1RJmIASZFib77Ih7nJiahUC05cZ09nv9YexjlVy1cyw/132"){
+                                Laya.Browser.onSong = true;
+                            }
 
                             // 可以将 res 发送给后台解码出 unionId
                             // globalData.userInfo = res.userInfo

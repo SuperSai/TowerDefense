@@ -1,8 +1,8 @@
 {
     "x":0,
     "type":"View",
-    "selectedBox":24,
-    "selecteID":23,
+    "selectedBox":1,
+    "selecteID":21,
     "props":{"width":723,"sceneColor":"#000000","height":600},
     "nodeParent":-1,
     "label":"View",
@@ -42,7 +42,7 @@
                 {
                     "x":30,
                     "type":"Image",
-                    "props":{"y":35,"x":266,"skin":"images/rewardGold/rewardGold_title.png","name":"imgBg2"},
+                    "props":{"y":30,"x":256,"skin":"images/rewardGold/rewardGold_title.png","name":"imgBg2"},
                     "nodeParent":21,
                     "label":"Image(imgBg2)",
                     "isOpen":true,

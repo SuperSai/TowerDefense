@@ -1,24 +1,17 @@
 /*
 * Manager初始化类
 */
-var GameEnterManager = /** @class */ (function () {
-    function GameEnterManager() {
-    }
-    GameEnterManager.prototype.init = function () {
+class GameEnterManager {
+    init() {
         HallManager.Instance.setup();
         PlayerManager.Instance.setup();
         BattleManager.Instance.setup();
-    };
-    Object.defineProperty(GameEnterManager, "Instance", {
-        get: function () {
-            if (!GameEnterManager._instance) {
-                GameEnterManager._instance = new GameEnterManager();
-            }
-            return GameEnterManager._instance;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    return GameEnterManager;
-}());
+    }
+    static get Instance() {
+        if (!GameEnterManager._instance) {
+            GameEnterManager._instance = new GameEnterManager();
+        }
+        return GameEnterManager._instance;
+    }
+}
 //# sourceMappingURL=GameEnterManager.js.map

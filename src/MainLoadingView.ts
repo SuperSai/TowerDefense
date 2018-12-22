@@ -8,7 +8,7 @@ class MainLoadingView extends Laya.Sprite {
         this.ui.probox.visible = false;
         this.addChild(this.ui);
 
-        this.startCountDown();
+        
         this.tweenAd();
     }
 
@@ -41,6 +41,7 @@ class MainLoadingView extends Laya.Sprite {
     private startToLoad(): void {
         this.ui.probox.visible = true;
         this.ui.btnStart.visible = false;
+        this.startCountDown();
         if (Laya.Browser.onMiniGame) {
             this.loadSubPackages();
         } else {
@@ -64,21 +65,17 @@ class MainLoadingView extends Laya.Sprite {
         //     this._time++;
         //     return;
         // }
-        // let resList = BattleManager.Instance.getStartLoadPetData();
-        // if(resList.length){
-        // Laya.loader.load(resList,
-        //     Handler.create(this, () => {
-        //         GameView.Create(M.layer.renderLayer);
-        //     }),
-        //     Handler.create(this, (percentage: number) => {
-        //         this.updateLoadingProgress(percentage * 100, 2);
-        //     }, null, false));
-        // } else {
-
-        this.updateLoadingProgress(100, 2);
-        HallScene.Create(M.layer.renderLayer);
-        Laya.timer.clearAll(this);
-        // }
+        let resList = BattleManager.Instance.getStartLoadPetData();
+        if (resList.length) {
+            console.log("@David 预加载英雄资源，数量：" + resList.length);
+            Laya.loader.load(resList, Handler.create(this, () => {
+                this.startGame();
+            }), Handler.create(this, (percentage: number) => {
+                this.updateLoadingProgress(percentage * 100, 2);
+            }, null, false));
+        } else {
+            this.startGame();
+        }
     }
 
     private checkAuthority(): void {
@@ -139,5 +136,11 @@ class MainLoadingView extends Laya.Sprite {
                 this.prepareAccount();
             }), 1e3);
         }
+    }
+
+    private startGame():void{
+        HallScene.Create(M.layer.renderLayer);
+        Laya.timer.clearAll(this);
+        this.destroy();
     }
 }

@@ -1,10 +1,7 @@
-var NoviceGuide = /** @class */ (function () {
-    function NoviceGuide() {
-    }
-    NoviceGuide.getSheetByIndex = function (index) { return NoviceGuide.dataArr[index]; };
-    NoviceGuide.getSheetById = function (id) { return NoviceGuide.dataObj[id]; };
-    NoviceGuide.getSheetByFieldValue = function (fieldName, value) { var result = []; for (var _i = 0, _a = NoviceGuide.dataArr; _i < _a.length; _i++) {
-        var sheet = _a[_i];
+class NoviceGuide {
+    static getSheetByIndex(index) { return NoviceGuide.dataArr[index]; }
+    static getSheetById(id) { return NoviceGuide.dataObj[id]; }
+    static getSheetByFieldValue(fieldName, value) { const result = []; for (const sheet of NoviceGuide.dataArr) {
         if (typeof value === 'string') {
             if (sheet[this._keys[fieldName]].trim() === value) {
                 result.push(sheet);
@@ -20,116 +17,54 @@ var NoviceGuide = /** @class */ (function () {
     }
     else {
         return result;
-    } };
-    NoviceGuide.initData = function (data) { var sheetLen = data.length; for (var i = 0; i < sheetLen; i++) {
+    } }
+    static initData(data) { const sheetLen = data.length; for (let i = 0; i < sheetLen; i++) {
         NoviceGuide.dataArr[i] = new NoviceGuide();
-        for (var _i = 0, _a = Object.keys(this._keys); _i < _a.length; _i++) {
-            var key = _a[_i];
+        for (const key of Object.keys(this._keys)) {
             NoviceGuide.dataArr[i][key] = data[i][this._keys[key]];
         }
         NoviceGuide.dataObj[data[i][this._keys.id]] = NoviceGuide.dataArr[i];
-    } };
-    Object.defineProperty(NoviceGuide.prototype, "id", {
-        get: function () { return this.b; },
-        set: function (value) { this.b = value; },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(NoviceGuide.prototype, "groupId", {
-        get: function () { return this.c; },
-        set: function (value) { this.c = value; },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(NoviceGuide.prototype, "stepId", {
-        get: function () { return this.d; },
-        set: function (value) { this.d = value; },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(NoviceGuide.prototype, "completed", {
-        get: function () { return this.e; },
-        set: function (value) { this.e = value; },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(NoviceGuide.prototype, "type", {
-        get: function () { return this.f; },
-        set: function (value) { this.f = value; },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(NoviceGuide.prototype, "activateType", {
-        get: function () { return this.g; },
-        set: function (value) { this.g = value; },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(NoviceGuide.prototype, "activateValue", {
-        get: function () { return this.h; },
-        set: function (value) { this.h = value; },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(NoviceGuide.prototype, "eventName", {
-        get: function () { return this.i; },
-        set: function (value) { this.i = value; },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(NoviceGuide.prototype, "eventParam", {
-        get: function () { return this.j; },
-        set: function (value) { this.j = value; },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(NoviceGuide.prototype, "position", {
-        get: function () { return this.k; },
-        set: function (value) { this.k = value; },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(NoviceGuide.prototype, "interactPosition", {
-        get: function () { return this.l; },
-        set: function (value) { this.l = value; },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(NoviceGuide.prototype, "fingerPosition", {
-        get: function () { return this.m; },
-        set: function (value) { this.m = value; },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(NoviceGuide.prototype, "specialInteractArea", {
-        get: function () { return this.n; },
-        set: function (value) { this.n = value; },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(NoviceGuide.prototype, "script", {
-        get: function () { return this.o; },
-        set: function (value) { this.o = value; },
-        enumerable: true,
-        configurable: true
-    });
-    NoviceGuide.dataArr = [];
-    NoviceGuide.dataObj = {};
-    NoviceGuide._keys = { id: "b", groupId: "c", stepId: "d", completed: "e", type: "f", activateType: "g", activateValue: "h", eventName: "i", eventParam: "j", position: "k", interactPosition: "l", fingerPosition: "m", specialInteractArea: "n", script: "o" };
-    return NoviceGuide;
-}()); // prettier-ignore
-var Sheet = /** @class */ (function () {
-    function Sheet() {
-    }
-    Sheet.initSheets = function (data) { var classInstance = { NoviceGuide: NoviceGuide }; for (var _i = 0, data_1 = data; _i < data_1.length; _i++) {
-        var sheet = data_1[_i];
-        var sheetClass = classInstance[sheet.sheetName];
+    } }
+    get id() { return this.b; }
+    set id(value) { this.b = value; }
+    get groupId() { return this.c; }
+    set groupId(value) { this.c = value; }
+    get stepId() { return this.d; }
+    set stepId(value) { this.d = value; }
+    get completed() { return this.e; }
+    set completed(value) { this.e = value; }
+    get type() { return this.f; }
+    set type(value) { this.f = value; }
+    get activateType() { return this.g; }
+    set activateType(value) { this.g = value; }
+    get activateValue() { return this.h; }
+    set activateValue(value) { this.h = value; }
+    get eventName() { return this.i; }
+    set eventName(value) { this.i = value; }
+    get eventParam() { return this.j; }
+    set eventParam(value) { this.j = value; }
+    get position() { return this.k; }
+    set position(value) { this.k = value; }
+    get interactPosition() { return this.l; }
+    set interactPosition(value) { this.l = value; }
+    get fingerPosition() { return this.m; }
+    set fingerPosition(value) { this.m = value; }
+    get specialInteractArea() { return this.n; }
+    set specialInteractArea(value) { this.n = value; }
+    get script() { return this.o; }
+    set script(value) { this.o = value; }
+} // prettier-ignore
+NoviceGuide.dataArr = [];
+NoviceGuide.dataObj = {};
+NoviceGuide._keys = { id: "b", groupId: "c", stepId: "d", completed: "e", type: "f", activateType: "g", activateValue: "h", eventName: "i", eventParam: "j", position: "k", interactPosition: "l", fingerPosition: "m", specialInteractArea: "n", script: "o" };
+class Sheet {
+    static initSheets(data) { const classInstance = { NoviceGuide }; for (const sheet of data) {
+        const sheetClass = classInstance[sheet.sheetName];
         if (!sheetClass) {
             console.error('找不到表{', sheet.sheetName + '}');
             continue;
         }
         sheetClass.initData(sheet.data);
-    } };
-    return Sheet;
-}()); // prettier-ignore
+    } }
+} // prettier-ignore
 //# sourceMappingURL=Sheet.js.map

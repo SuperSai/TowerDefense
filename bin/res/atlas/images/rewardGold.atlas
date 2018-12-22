@@ -1,1 +1,1 @@
-{"frames":{"rewardGold_title.png":{"frame":{"h":54,"idx":0,"w":200,"x":0,"y":0},"sourceSize":{"h":54,"w":200},"spriteSourceSize":{"x":0,"y":0}}},"meta":{"image":"rewardGold.png","prefix":"images/rewardGold/"}}
+{"frames":{"rewardGold_title.png":{"frame":{"h":68,"idx":0,"w":208,"x":0,"y":0},"sourceSize":{"h":70,"w":210},"spriteSourceSize":{"x":1,"y":1}}},"meta":{"image":"rewardGold.png","prefix":"images/rewardGold/"}}

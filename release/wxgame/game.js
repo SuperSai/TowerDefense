@@ -12,7 +12,7 @@ wx.onShow(function (_param) {
     if (_param) {
         _param.scene = Math.floor(_param.scene);
         //好友互助
-        if (_param.query && _param.query.shareType == "friendConcur") {
+        if (_param.query && _param.query.shareType == "help") {
           console.log("好友互助UID:", _param.query.userId);
           httpReq.request({
             url: "v1/activity/help/click/" + _param.query.userId,

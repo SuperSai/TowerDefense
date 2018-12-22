@@ -928,16 +928,18 @@ class HallScene extends ui.hall.HallSceneUI {
                           let nextCardId = carId + 1;
                           userData.synthesisCount++;
                           //随机奖励
-                          if (userData.synthesisCount % 12 == 0) {
+                          if (userData.synthesisCount % 48 == 0) {
                             let randomNum: number = Math.random();
                             if (randomNum < 0.4) {
                               that.showRandomDiamondReward();
+                              carParkSp.setKind(nextCardId, index);
                             } else {
                               let upLevel: number = nextCardId + 2;
                               let kingLevel: number = userData.isEvolution() ? userData.getKingLevel() - 30 : userData.getKingLevel();
                               let heroLv: number = BattleManager.Instance.getLevel(upLevel);
                               if (heroLv > kingLevel) {
                                 that.showRandomDiamondReward();
+                                carParkSp.setKind(nextCardId, index);
                               } else {
                                 HeroLevelView.Create(that, () => {
                                   MessageUtils.showMsgTips("升级成功！");
@@ -1259,35 +1261,35 @@ class HallScene extends ui.hall.HallSceneUI {
               if (that.btnStagePrize) {
                 that.showStagePrize(HallManager.Instance.hallData.stagePrizeList.length > 0);
               }
-              MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.09"));
-              Laya.timer.once(3000, that, () => {
-                if (userData) {
-                  //显示获得的奖品
-                  let stagePrizeCfg: any = GlobleData.getData(GlobleData.BarrierRewardVO, lastStage);
-                  if (stagePrizeCfg) {
-                    //发送奖励
-                    let bossM: number = MathUtils.parseStringNum(stagePrizeCfg.bossM);
-                    let gold: number = BattleManager.Instance.getBarrierRewardToGold(lastStage, MathUtils.parseStringNum(stagePrizeCfg.gold));
-                    let gem: number = MathUtils.parseStringNum(stagePrizeCfg.gem);
-                    HttpManager.Instance.requestStagePrizeDiamond(lastStage, gem, bossM, (_res: any) => {
-                      let stage = _res as number;
-                      if (stage > 0) {
-                        _nodeView.removeSelf();
-                        ClearanceRewardView.Create(that, null, () => {
-                          if (that.btnStagePrize.visible) {
-                            that.showPassStageResult(HallManager.Instance.hallData.passStage, null, true);
-                          }
-                        }, stage);
-                        HttpManager.Instance.requestDiamondData();
-                        HttpManager.Instance.requestEssenceData();
-                      }
-                    });
-                    if (gold > 0) {//金币礼包
-                      that.updateGold(PlayerManager.Instance.Info.userMoney + gold);
+              // MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.09"));
+              // Laya.timer.once(3000, that, () => {
+              if (userData) {
+                //显示获得的奖品
+                let stagePrizeCfg: any = GlobleData.getData(GlobleData.BarrierRewardVO, lastStage);
+                if (stagePrizeCfg) {
+                  //发送奖励
+                  let bossM: number = MathUtils.parseStringNum(stagePrizeCfg.bossM);
+                  let gold: number = BattleManager.Instance.getBarrierRewardToGold(lastStage, MathUtils.parseStringNum(stagePrizeCfg.gold));
+                  let gem: number = MathUtils.parseStringNum(stagePrizeCfg.gem);
+                  HttpManager.Instance.requestStagePrizeDiamond(lastStage, gem, bossM, (_res: any) => {
+                    let stage = _res as number;
+                    if (stage > 0) {
+                      _nodeView.removeSelf();
+                      ClearanceRewardView.Create(that, null, () => {
+                        if (that.btnStagePrize.visible) {
+                          that.showPassStageResult(HallManager.Instance.hallData.passStage, null, true);
+                        }
+                      }, stage);
+                      HttpManager.Instance.requestDiamondData();
+                      HttpManager.Instance.requestEssenceData();
                     }
+                  });
+                  if (gold > 0) {//金币礼包
+                    that.updateGold(PlayerManager.Instance.Info.userMoney + gold);
                   }
                 }
-              });
+              }
+              // });
             });
           }
         }

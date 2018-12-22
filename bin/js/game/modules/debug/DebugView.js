@@ -1,55 +1,41 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var DebugView = /** @class */ (function (_super) {
-    __extends(DebugView, _super);
-    function DebugView() {
-        var _this = _super.call(this) || this;
-        _this.mouseThrough = true;
-        _this.ui = new ui.common.view.DebugViewUI();
-        _this.addChild(_this.ui);
-        _this._switches = [];
-        Laya.Browser.onFreeman && (_this._switches.push("onFreeman"));
-        Laya.Browser.onDavid && (_this._switches.push("onDavid"));
-        Laya.Browser.onSong && (_this._switches.push("onSong"));
-        Laya.Browser.onMing && (_this._switches.push("onMing"));
-        Laya.timer.once(3000, _this, function () {
-            _this.ui.btnUid.label = "UID: " + userData.userId;
+class DebugView extends Laya.View {
+    constructor() {
+        super();
+        this.mouseThrough = true;
+        this.ui = new ui.common.view.DebugViewUI();
+        this.addChild(this.ui);
+        this._switches = [];
+        Laya.Browser.onFreeman && (this._switches.push("onFreeman"));
+        Laya.Browser.onDavid && (this._switches.push("onDavid"));
+        Laya.Browser.onSong && (this._switches.push("onSong"));
+        Laya.Browser.onMing && (this._switches.push("onMing"));
+        Laya.timer.once(3000, this, () => {
+            this.ui.btnUid.label = "UID: " + userData.userId;
         });
-        _this.ui.btnUid.on(Laya.Event.CLICK, _this, function () {
-            _this.ui.btnUid.label = "UID: " + userData.userId;
+        this.ui.btnUid.on(Laya.Event.CLICK, this, () => {
+            this.ui.btnUid.label = "UID: " + userData.userId;
             console.log("@FREEMAN: UserData =>", userData);
             HttpManager.Instance.requestUserinfoData(null);
         });
-        var b = 0;
-        _this.ui.btnShowStats.on(Laya.Event.CLICK, _this, function () {
+        let b = 0;
+        this.ui.btnShowStats.on(Laya.Event.CLICK, this, () => {
             b ^= 1;
             b && Laya.Stat.show(LayerManager.left, LayerManager.top);
             !b && Laya.Stat.hide();
         });
-        _this.ui.btnCompleteNovice.on(Laya.Event.CLICK, _this, function () {
+        this.ui.btnCompleteNovice.on(Laya.Event.CLICK, this, () => {
             M.novice.complete();
         });
-        _this.ui.btnResetKingLevel.on(Laya.Event.CLICK, _this, function () {
+        this.ui.btnResetKingLevel.on(Laya.Event.CLICK, this, () => {
             DebugView.GameView.setKingLevel(1);
         });
-        _this.ui.btnAddGold.on(Laya.Event.CLICK, _this, function () {
+        this.ui.btnAddGold.on(Laya.Event.CLICK, this, () => {
             EventsManager.Instance.event(EventsType.GLOD_CHANGE, { money: userData.gold += (userData.gold * 2) + 1e100 });
         });
-        _this.ui.btnAddDiamond.on(Laya.Event.CLICK, _this, function () {
+        this.ui.btnAddDiamond.on(Laya.Event.CLICK, this, () => {
             EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: userData.diamond += 1000 });
         });
-        _this.ui.btnCrearStorage.on(Laya.Event.CLICK, _this, function () {
+        this.ui.btnCrearStorage.on(Laya.Event.CLICK, this, () => {
             userData.clearLocalData();
             Laya.stage.renderingEnabled = false;
             Laya.timer.clearAll(DebugView.GameView);
@@ -57,31 +43,29 @@ var DebugView = /** @class */ (function (_super) {
                 Laya.Browser.window.wx.exitMiniProgram();
             }
         });
-        _this.ui.btnExitGame.on(Laya.Event.CLICK, _this, function () {
+        this.ui.btnExitGame.on(Laya.Event.CLICK, this, () => {
             if (Laya.Browser.onMiniGame) {
                 Laya.Browser.window.wx.exitMiniProgram();
             }
         });
-        _this.ui.viewStackArrow.selectedIndex = 0;
-        _this.ui.viewStackArrow._childs.forEach(function (child, index, children) {
-            child.on(Laya.Event.CLICK, _this, function () {
-                _this._switches.map(function (key) {
+        this.ui.viewStackArrow.selectedIndex = 0;
+        this.ui.viewStackArrow._childs.forEach((child, index, children) => {
+            child.on(Laya.Event.CLICK, this, () => {
+                this._switches.map((key) => {
                     Laya.Browser[key] = !Laya.Browser[key];
                 });
-                _this.ui.viewStackArrow.selectedIndex ^= 1;
-                Laya.Tween.clearAll(_this.ui.viewBtnContainer);
-                if (_this.ui.viewStackArrow.selectedIndex) {
-                    Laya.Tween.to(_this.ui.viewBtnContainer, { x: 180 }, 500, Laya.Ease.quadOut);
+                this.ui.viewStackArrow.selectedIndex ^= 1;
+                Laya.Tween.clearAll(this.ui.viewBtnContainer);
+                if (this.ui.viewStackArrow.selectedIndex) {
+                    Laya.Tween.to(this.ui.viewBtnContainer, { x: 180 }, 500, Laya.Ease.quadOut);
                 }
                 else {
-                    Laya.Tween.to(_this.ui.viewBtnContainer, { x: 0 }, 500, Laya.Ease.quadOut);
+                    Laya.Tween.to(this.ui.viewBtnContainer, { x: 0 }, 500, Laya.Ease.quadOut);
                 }
             });
         });
-        return _this;
     }
-    DebugView.prototype.hide = function () {
-    };
-    return DebugView;
-}(Laya.View));
+    hide() {
+    }
+}
 //# sourceMappingURL=DebugView.js.map

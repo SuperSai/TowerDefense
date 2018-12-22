@@ -1,8 +1,8 @@
 /*
 * name;
 */
-var HallModel = /** @class */ (function () {
-    function HallModel() {
+class HallModel {
+    constructor() {
         /** 游戏关卡 */
         this.passStage = 1;
         /** 游戏章节 */
@@ -46,7 +46,7 @@ var HallModel = /** @class */ (function () {
         /** 守卫是否可以升级 */
         this.isUpdate = false;
         this.offlineTotalTime = 5 * 60 * 1000;
+        this.concurGoldDic = new TSDictionary();
     }
-    return HallModel;
-}());
+}
 //# sourceMappingURL=HallModel.js.map

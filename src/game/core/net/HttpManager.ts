@@ -207,11 +207,11 @@ class HttpManager {
     }
 
     /** 获取分享主题 */
-    public requestShareSubject(_callback: any): void {
+    public requestShareSubject(type: string, _callback: any): void {
         let that = this;
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
-            url: 'v1/share/to',
+            url: 'v1/share/to?type=' + type,
             success: function (res) {
                 console.log(res);
                 _callback && _callback(res);

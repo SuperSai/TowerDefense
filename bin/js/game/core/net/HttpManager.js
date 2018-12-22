@@ -1,14 +1,14 @@
 /*
 * name;
 */
-var HttpManager = /** @class */ (function () {
-    function HttpManager() {
+class HttpManager {
+    constructor() {
     }
     /** 请求通关奖励 */
-    HttpManager.prototype.requestStagePrizeDiamond = function (_stage, _diamond, _essence, _callback) {
-        var that = this;
-        var dataString = 'stage=' + _stage + '&diamond=' + _diamond + '&essence=' + _essence;
-        var HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+    requestStagePrizeDiamond(_stage, _diamond, _essence, _callback) {
+        let that = this;
+        let dataString = 'stage=' + _stage + '&diamond=' + _diamond + '&essence=' + _essence;
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/stage/post',
             method: 'Post',
@@ -21,10 +21,9 @@ var HttpManager = /** @class */ (function () {
                 console.log(res);
             }
         });
-    };
+    }
     /** 请求奖励未领取的关卡 */
-    HttpManager.prototype.requestStagePrizeData = function (_callback) {
-        if (_callback === void 0) { _callback = null; }
+    requestStagePrizeData(_callback = null) {
         var that = this;
         var HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
@@ -37,12 +36,12 @@ var HttpManager = /** @class */ (function () {
                 console.log(res);
             }
         });
-    };
+    }
     /** 钻石购怪物 */
-    HttpManager.prototype.requestDiamondBuy = function (_order_id, _callback) {
+    requestDiamondBuy(_order_id, _callback) {
         console.log("钻石购怪物", _order_id);
-        var that = this;
-        var HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+        let that = this;
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/diamond/buy_car/' + _order_id,
             success: function (res) {
@@ -53,12 +52,12 @@ var HttpManager = /** @class */ (function () {
                 console.log(res);
             }
         });
-    };
+    }
     /** 请求等级奖励钻石 */
-    HttpManager.prototype.requestLevelPrizeDiamond = function (_level, _diamond, _callback) {
-        var that = this;
-        var dataString = 'level=' + _level + '&diamond=' + _diamond;
-        var HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+    requestLevelPrizeDiamond(_level, _diamond, _callback) {
+        let that = this;
+        let dataString = 'level=' + _level + '&diamond=' + _diamond;
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/userinfo/upgrade_reward_diamond',
             method: 'Post',
@@ -71,17 +70,16 @@ var HttpManager = /** @class */ (function () {
                 console.log(res);
             }
         });
-    };
+    }
     /** 钻石购怪物下单 */
-    HttpManager.prototype.requestDiamondBuyOrder = function (_diamond, _callback, _kind) {
-        if (_kind === void 0) { _kind = 0; }
+    requestDiamondBuyOrder(_diamond, _callback, _kind = 0) {
         console.log("钻石购怪物订单", _diamond);
-        var that = this;
-        var strKind = 'buy_car';
+        let that = this;
+        let strKind = 'buy_car';
         if (_kind == 1) {
             strKind = 'diamond_acce';
         }
-        var HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/diamond/order/' + _diamond + '/' + strKind,
             success: function (res) {
@@ -92,13 +90,12 @@ var HttpManager = /** @class */ (function () {
                 console.log(res);
             }
         });
-    };
+    }
     /** 请求钻石升级 */
-    HttpManager.prototype.requestUpdateKingLevel = function (_id, _level, _price, _callback) {
-        if (_callback === void 0) { _callback = null; }
-        var that = this;
-        var dataString = 'type=' + _id + '&value=' + _level + '&price=' + _price + '&unit=' + "diamond";
-        var HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+    requestUpdateKingLevel(_id, _level, _price, _callback = null) {
+        let that = this;
+        let dataString = 'type=' + _id + '&value=' + _level + '&price=' + _price + '&unit=' + "diamond";
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/intensify',
             method: 'Post',
@@ -111,11 +108,11 @@ var HttpManager = /** @class */ (function () {
                 console.log(res);
             }
         });
-    };
+    }
     /** 每日任务 */
-    HttpManager.prototype.requestDailyTaskData = function (_taskId) {
-        var that = this;
-        var HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+    requestDailyTaskData(_taskId) {
+        let that = this;
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/task/progress/' + _taskId,
             success: function (res) {
@@ -125,11 +122,11 @@ var HttpManager = /** @class */ (function () {
                 console.log(res);
             }
         });
-    };
+    }
     /** 新老版本清理回调 */
-    HttpManager.prototype.requestVersionClear = function (_callback) {
-        var that = this;
-        var HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+    requestVersionClear(_callback) {
+        let that = this;
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/clear/user_data',
             success: function (res) {
@@ -140,11 +137,11 @@ var HttpManager = /** @class */ (function () {
                 console.log(res);
             }
         });
-    };
+    }
     /** 新老版本更新检测（防止老数据覆盖） */
-    HttpManager.prototype.requestVersionCheck = function (_callback) {
-        var that = this;
-        var HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+    requestVersionCheck(_callback) {
+        let that = this;
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/check/version',
             success: function (res) {
@@ -159,13 +156,12 @@ var HttpManager = /** @class */ (function () {
                 console.log(res);
             }
         });
-    };
+    }
     /** 分享广告完成 */
-    HttpManager.prototype.requestShareAdFinish = function (_kind, shareId) {
-        if (shareId === void 0) { shareId = 0; }
-        var that = this;
-        var dataString = 'type=' + _kind + '&share_id=' + shareId;
-        var HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+    requestShareAdFinish(_kind, shareId = 0) {
+        let that = this;
+        let dataString = 'type=' + _kind + '&share_id=' + shareId;
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/operational/post_info',
             method: 'Post',
@@ -177,15 +173,12 @@ var HttpManager = /** @class */ (function () {
                 console.log(res);
             }
         });
-    };
+    }
     /** 分享完成 */
-    HttpManager.prototype.requestShareFinish = function (_shareId, _encryptedData, _iv, _callback) {
-        if (_encryptedData === void 0) { _encryptedData = ''; }
-        if (_iv === void 0) { _iv = ''; }
-        if (_callback === void 0) { _callback = null; }
-        var that = this;
-        var dataString = 'share_id=' + _shareId + '&encryptedData=' + _encryptedData + '&iv=' + _iv;
-        var HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+    requestShareFinish(_shareId, _encryptedData = '', _iv = '', _callback = null) {
+        let that = this;
+        let dataString = 'share_id=' + _shareId + '&encryptedData=' + _encryptedData + '&iv=' + _iv;
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/share/finish',
             method: 'Post',
@@ -198,13 +191,13 @@ var HttpManager = /** @class */ (function () {
                 console.log(res);
             }
         });
-    };
+    }
     /** 获取分享主题 */
-    HttpManager.prototype.requestShareSubject = function (_callback) {
-        var that = this;
-        var HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+    requestShareSubject(type, _callback) {
+        let that = this;
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
-            url: 'v1/share/to',
+            url: 'v1/share/to?type=' + type,
             success: function (res) {
                 console.log(res);
                 _callback && _callback(res);
@@ -213,11 +206,11 @@ var HttpManager = /** @class */ (function () {
                 console.log(res);
             }
         });
-    };
+    }
     /** 通知服务器已领取离线收益 */
-    HttpManager.prototype.requestNotifyServerPrize = function () {
-        var that = this;
-        var HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+    requestNotifyServerPrize() {
+        let that = this;
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/userinfo/reward',
             success: function (res) {
@@ -227,11 +220,11 @@ var HttpManager = /** @class */ (function () {
                 console.log(res);
             }
         });
-    };
+    }
     /** 技能强化 */
-    HttpManager.prototype.requestSkillAddtionData = function (_callback) {
-        var that = this;
-        var HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+    requestSkillAddtionData(_callback) {
+        let that = this;
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/get/intensify',
             success: function (res) {
@@ -243,11 +236,11 @@ var HttpManager = /** @class */ (function () {
                 MessageUtils.showMsgTips("网络异常");
             }
         });
-    };
+    }
     /** 英雄商店数据 */
-    HttpManager.prototype.requestCarshopData = function (_callback) {
-        var that = this;
-        var HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+    requestCarshopData(_callback) {
+        let that = this;
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/shop/get',
             success: function (res) {
@@ -259,11 +252,11 @@ var HttpManager = /** @class */ (function () {
                 MessageUtils.showMsgTips("网络异常");
             }
         });
-    };
+    }
     /** 用户精华碎片 */
-    HttpManager.prototype.requestEssenceData = function () {
-        var that = this;
-        var HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+    requestEssenceData() {
+        let that = this;
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/userinfo/get_essence',
             success: function (res) {
@@ -278,11 +271,11 @@ var HttpManager = /** @class */ (function () {
                 console.log(res);
             }
         });
-    };
+    }
     /** 用户钻石 */
-    HttpManager.prototype.requestDiamondData = function () {
-        var that = this;
-        var HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+    requestDiamondData() {
+        let that = this;
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/userinfo/get_diamond',
             success: function (res) {
@@ -297,11 +290,11 @@ var HttpManager = /** @class */ (function () {
                 console.log(res);
             }
         });
-    };
+    }
     /** 坑位数据 */
-    HttpManager.prototype.requestCarparkData = function (_callback) {
-        var that = this;
-        var HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+    requestCarparkData(_callback) {
+        let that = this;
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/seat/get',
             success: function (res) {
@@ -324,11 +317,11 @@ var HttpManager = /** @class */ (function () {
                 MessageUtils.showMsgTips("网络异常");
             }
         });
-    };
+    }
     /** 分享/广告可点击次数(广告->ad; 分享免费得车->free_car; 买车金币不足得金币->no_money; 加速->acce;) */
-    HttpManager.prototype.requestShareAdTimes = function () {
-        var that = this;
-        var HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+    requestShareAdTimes() {
+        let that = this;
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/operational/get_num',
             success: function (res) {
@@ -338,11 +331,11 @@ var HttpManager = /** @class */ (function () {
                 console.log(res);
             }
         });
-    };
+    }
     /** 用户信息金币 */
-    HttpManager.prototype.requestUserinfoData = function (_callback) {
-        var that = this;
-        var HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+    requestUserinfoData(_callback) {
+        let that = this;
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/userinfo/get',
             success: function (res) {
@@ -387,13 +380,13 @@ var HttpManager = /** @class */ (function () {
                 this.requestUserinfoData(_callback);
             }
         });
-    };
+    }
     /** 提交用户名称位置等信息 */
-    HttpManager.prototype.requestSaveWxUserinfoData = function (_nickName, _avatarUrl, _city, _gender) {
-        var that = this;
-        var dataString = 'nickName=' + _nickName + '&avatarUrl=' + _avatarUrl + '&city=' + _city + '&gender=' + _gender;
+    requestSaveWxUserinfoData(_nickName, _avatarUrl, _city, _gender) {
+        let that = this;
+        let dataString = 'nickName=' + _nickName + '&avatarUrl=' + _avatarUrl + '&city=' + _city + '&gender=' + _gender;
         console.log("requestSaveWxUserinfoData:", dataString);
-        var HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/userinfo/update',
             method: 'Post',
@@ -405,13 +398,13 @@ var HttpManager = /** @class */ (function () {
                 console.log(res);
             }
         });
-    };
+    }
     /** 强化数据 */
-    HttpManager.prototype.requestSaveSkillAdditionData = function () {
-        var dataJson = JSON.stringify(userData.skillAdditionArray);
-        var dataString = 'info=' + dataJson;
+    requestSaveSkillAdditionData() {
+        let dataJson = JSON.stringify(userData.skillAdditionArray);
+        let dataString = 'info=' + dataJson;
         console.log("requestSaveSkillAdditionData:", dataString);
-        var HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/update/intensify',
             method: 'Post',
@@ -423,15 +416,15 @@ var HttpManager = /** @class */ (function () {
                 console.log(res);
             }
         });
-    };
+    }
     /** 用户基础数据 */
-    HttpManager.prototype.requestSaveUserinfoData = function () {
-        var that = this;
-        var dataString = 'money=' + userData.gold + '&car_level=' + userData.carLevel;
+    requestSaveUserinfoData() {
+        let that = this;
+        let dataString = 'money=' + userData.gold + '&car_level=' + userData.carLevel;
         dataString += '&stage=' + userData.getPassStage();
         dataString += '&king_level=' + userData.getKingLevel();
         console.log("requestSaveUserinfoData:", dataString);
-        var HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/userinfo/post',
             method: 'Post',
@@ -448,18 +441,18 @@ var HttpManager = /** @class */ (function () {
                 console.log("@FREEMAN: 请求心跳保存数据：", res);
             }
         });
-    };
+    }
     /** 保存坑位数据 */
-    HttpManager.prototype.requestSaveCarparkData = function () {
-        var that = this;
-        var dataJson = JSON.stringify(userData.parkcarInfoArray);
+    requestSaveCarparkData() {
+        let that = this;
+        let dataJson = JSON.stringify(userData.parkcarInfoArray);
         //非法数据过滤
         if (dataJson == null || dataJson.length < 1 || userData.parkcarInfoArray.length < 1 || userData.carparkJsonRecord == dataJson) {
             return;
         }
         userData.carparkJsonRecord = dataJson;
-        var dataString = 'info=' + dataJson;
-        var HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+        let dataString = 'info=' + dataJson;
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/seat/post',
             method: 'Post',
@@ -471,18 +464,18 @@ var HttpManager = /** @class */ (function () {
                 console.log(res);
             }
         });
-    };
+    }
     /** 保存英雄商店数据 */
-    HttpManager.prototype.requestSaveCarshopData = function () {
-        var that = this;
-        var dataJson = JSON.stringify(userData.carBuyRecordArray);
+    requestSaveCarshopData() {
+        let that = this;
+        let dataJson = JSON.stringify(userData.carBuyRecordArray);
         //非法数据过滤
         if (dataJson == null || dataJson.length < 1 || userData.carBuyRecordArray.length < 1 || userData.carshopJsonRecord == dataJson) {
             return;
         }
         userData.carshopJsonRecord = dataJson;
-        var dataString = 'info=' + dataJson;
-        var HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+        let dataString = 'info=' + dataJson;
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/shop/post',
             method: 'Post',
@@ -494,10 +487,10 @@ var HttpManager = /** @class */ (function () {
                 console.log(res);
             }
         });
-    };
+    }
     /** 分享标志 */
-    HttpManager.prototype.requestShareFlag = function () {
-        var HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+    requestShareFlag() {
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/share/flag',
             success: function (res) {
@@ -511,10 +504,10 @@ var HttpManager = /** @class */ (function () {
                 console.log(res);
             }
         });
-    };
+    }
     /** 随机钻石奖励请求 */
-    HttpManager.prototype.requestShowRandomRewardDiamond = function (callback) {
-        var HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+    requestShowRandomRewardDiamond(callback) {
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/activity/rand/diamond',
             success: function (res) {
@@ -524,10 +517,10 @@ var HttpManager = /** @class */ (function () {
                 console.log(res);
             }
         });
-    };
+    }
     /** 随机钻石奖励请求 */
-    HttpManager.prototype.requestRandomRewardDiamond = function (diamond, callback) {
-        var HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+    requestRandomRewardDiamond(diamond, callback) {
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/activity/rand/diamond/reward/' + diamond,
             success: function (res) {
@@ -537,10 +530,10 @@ var HttpManager = /** @class */ (function () {
                 console.log(res);
             }
         });
-    };
+    }
     /** 领取在线奖励 */
-    HttpManager.prototype.requestGetOffLineReward = function (callback) {
-        var HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+    requestGetOffLineReward(callback) {
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/activity/online/reward',
             success: function (res) {
@@ -550,10 +543,10 @@ var HttpManager = /** @class */ (function () {
                 console.log(res);
             }
         });
-    };
+    }
     /** 好友互助奖励领取 */
-    HttpManager.prototype.requestReward = function (itemId, callback) {
-        var HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+    requestReward(itemId, callback) {
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/activity/help/reward/' + itemId,
             success: function (res) {
@@ -563,11 +556,11 @@ var HttpManager = /** @class */ (function () {
                 console.log(res);
             }
         });
-    };
+    }
     /** 请求好友互助列表 */
-    HttpManager.prototype.requestFriendConcurList = function (callback) {
-        var that = this;
-        var HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+    requestFriendConcurList(callback) {
+        let that = this;
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/activity/help/list',
             success: function (res) {
@@ -577,17 +570,12 @@ var HttpManager = /** @class */ (function () {
                 console.log(res);
             }
         });
-    };
-    Object.defineProperty(HttpManager, "Instance", {
-        get: function () {
-            if (HttpManager._instance == null) {
-                HttpManager._instance = new HttpManager();
-            }
-            return HttpManager._instance;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    return HttpManager;
-}());
+    }
+    static get Instance() {
+        if (HttpManager._instance == null) {
+            HttpManager._instance = new HttpManager();
+        }
+        return HttpManager._instance;
+    }
+}
 //# sourceMappingURL=HttpManager.js.map

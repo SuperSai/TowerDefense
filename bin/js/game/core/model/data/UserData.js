@@ -2,15 +2,14 @@
 * terry 2018/7/16;
 * 用户数据本地存储
 */
-var CacheKey = /** @class */ (function () {
-    function CacheKey() {
-    }
-    CacheKey.GOLD = "gold";
-    CacheKey.SOUND_MUTE = "sound_mute";
-    return CacheKey;
-}());
-var UserData = /** @class */ (function () {
-    function UserData() {
+class CacheKey {
+}
+CacheKey.GOLD = "gold";
+CacheKey.SOUND_MUTE = "sound_mute";
+/** 好友互助 */
+CacheKey.CONCUR = "concur";
+class UserData {
+    constructor() {
         this._noviceGroupId = 1; // 新手节点
         /** 合成次数 */
         this.synthesisCount = 0;
@@ -66,7 +65,7 @@ var UserData = /** @class */ (function () {
         this.carshopJsonRecord = ''; //防止提交相同数据给服务器
         this.menuRedPointCount = 0;
         //初始化车位
-        for (var index = 0; index < 20; index++) {
+        for (let index = 0; index < 20; index++) {
             this.parkcarInfoArray[index] = { id: index, carId: 0, isRunning: false };
         }
         //分享广告
@@ -74,52 +73,43 @@ var UserData = /** @class */ (function () {
         this.shareAdStage[11] = true;
         this.shareAdStage[12] = true;
     }
-    Object.defineProperty(UserData.prototype, "noviceGroupId", {
-        get: function () {
-            return this._noviceGroupId;
-        },
-        set: function (value) {
-            this._noviceGroupId = value;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(UserData.prototype, "dayGetGoldCount", {
-        get: function () {
-            return PlayerManager.Instance.Info.dayGetGoldCount;
-        },
-        set: function (value) {
-            PlayerManager.Instance.Info.dayGetGoldCount = value;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    UserData.prototype.getUserId = function () {
-        var that = this;
+    get noviceGroupId() {
+        return this._noviceGroupId;
+    }
+    set noviceGroupId(value) {
+        this._noviceGroupId = value;
+    }
+    get dayGetGoldCount() {
+        return PlayerManager.Instance.Info.dayGetGoldCount;
+    }
+    set dayGetGoldCount(value) {
+        PlayerManager.Instance.Info.dayGetGoldCount = value;
+    }
+    getUserId() {
+        let that = this;
         return ("user_" + that.userId);
-    };
-    UserData.prototype.saveNovice = function (groupId) {
-        var HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+    }
+    saveNovice(groupId) {
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/novice/' + groupId,
-            success: function (res) {
+            success: (res) => {
                 console.log("@FREEMAN: saveNovice: success, currGroupId =>", groupId);
             },
-            fail: function (res) {
+            fail: (res) => {
                 console.log("@FREEMAN: saveNovice: fail, currGroupId =>", groupId);
             }
         });
         this.noviceGroupId = groupId;
         this.saveLocal();
-    };
+    }
     /** 刷新购买记录 */
-    UserData.prototype.refreshBuyRecord = function (_carId, _isDiamond) {
-        if (_isDiamond === void 0) { _isDiamond = false; }
-        var that = this;
-        var mLevel = BattleManager.Instance.getLevel(_carId);
-        var isNew = true;
-        for (var key in that.carBuyRecordArray) {
-            var element = that.carBuyRecordArray[key];
+    refreshBuyRecord(_carId, _isDiamond = false) {
+        let that = this;
+        let mLevel = BattleManager.Instance.getLevel(_carId);
+        let isNew = true;
+        for (let key in that.carBuyRecordArray) {
+            let element = that.carBuyRecordArray[key];
             if (element && element.carId == mLevel) {
                 if (_isDiamond) {
                     that.carBuyRecordArray[key].diamondBuyTimes++;
@@ -140,14 +130,13 @@ var UserData = /** @class */ (function () {
             }
         }
         Laya.timer.callLater(that, that.saveLocal, [true, { petShop: true }]);
-    };
+    }
     /** 查询购买记录 */
-    UserData.prototype.queryBuyRecord = function (_carId, _isDiamond) {
-        if (_isDiamond === void 0) { _isDiamond = false; }
-        var that = this;
-        var mLevel = BattleManager.Instance.getLevel(_carId);
-        for (var key in that.carBuyRecordArray) {
-            var element = that.carBuyRecordArray[key];
+    queryBuyRecord(_carId, _isDiamond = false) {
+        let that = this;
+        let mLevel = BattleManager.Instance.getLevel(_carId);
+        for (let key in that.carBuyRecordArray) {
+            let element = that.carBuyRecordArray[key];
             if (element) {
                 if (element.carId == mLevel) {
                     if (_isDiamond) {
@@ -160,13 +149,13 @@ var UserData = /** @class */ (function () {
             }
         }
         return 0;
-    };
+    }
     /** 刷新技能加成 */
-    UserData.prototype.refreshSkillAddition = function (_skillId) {
-        var that = this;
-        var isNew = true;
-        for (var key in that.skillAdditionArray) {
-            var element = that.skillAdditionArray[key];
+    refreshSkillAddition(_skillId) {
+        let that = this;
+        let isNew = true;
+        for (let key in that.skillAdditionArray) {
+            let element = that.skillAdditionArray[key];
             if (element && element.skillId == _skillId) {
                 that.skillAdditionArray[key].buyTimes++;
                 isNew = false;
@@ -179,12 +168,12 @@ var UserData = /** @class */ (function () {
         //保存数据
         // userData.saveLocal();
         Laya.timer.callLater(that, that.saveLocal, [true, { skill: true }]);
-    };
+    }
     /** 查询技能加成 */
-    UserData.prototype.querySkillAddition = function (_skillId) {
-        var that = this;
-        for (var key in that.skillAdditionArray) {
-            var element = that.skillAdditionArray[key];
+    querySkillAddition(_skillId) {
+        let that = this;
+        for (let key in that.skillAdditionArray) {
+            let element = that.skillAdditionArray[key];
             if (element) {
                 if (element.skillId == _skillId) {
                     return that.skillAdditionArray[key].buyTimes;
@@ -192,19 +181,19 @@ var UserData = /** @class */ (function () {
             }
         }
         return 0;
-    };
+    }
     /** 获取技能加成或触发几率 */
-    UserData.prototype.getSkillAdditionProbability = function (_skillId) {
-        var that = this;
-        var strengthenLevel = that.querySkillAddition(_skillId);
+    getSkillAdditionProbability(_skillId) {
+        let that = this;
+        let strengthenLevel = that.querySkillAddition(_skillId);
         if (strengthenLevel == 0)
             return 0;
-        var probability = SkillManager.Instance.getSkillStrengthenLevelProbability(_skillId, strengthenLevel);
+        let probability = SkillManager.Instance.getSkillStrengthenLevelProbability(_skillId, strengthenLevel);
         return probability;
-    };
+    }
     /** 升级车辆等级 */
-    UserData.prototype.updateCarLevel = function (_level) {
-        var that = this;
+    updateCarLevel(_level) {
+        let that = this;
         if (that.carLevel < that.carLevelMax()) {
             if (that.carLevel < _level) {
                 that.carLevel = _level;
@@ -219,33 +208,33 @@ var UserData = /** @class */ (function () {
             console.log("已达到最高等级");
         }
         return false;
-    };
-    UserData.prototype.getCarLevel = function () {
+    }
+    getCarLevel() {
         return this.carLevel;
-    };
-    UserData.prototype.carLevelMax = function () {
+    }
+    carLevelMax() {
         return BattleManager.Instance.model.monsterMaxLevel;
-    };
-    UserData.prototype.resetMonsterLevel = function () {
+    }
+    resetMonsterLevel() {
         this.carLevel = 1;
-    };
+    }
     //设置金币并保存
-    UserData.prototype.setGoldSave = function ($gold) {
+    setGoldSave($gold) {
         this.gold = Math.floor($gold);
         Laya.timer.callLater(this, this.saveLocal);
-    };
+    }
     /** 设置钻石 */
-    UserData.prototype.setDiamond = function (_value) {
+    setDiamond(_value) {
         this.diamond = Math.floor(_value);
         Laya.timer.callLater(this, this.saveLocal);
-    };
+    }
     /** 设置精华 */
-    UserData.prototype.setEssence = function (_value) {
+    setEssence(_value) {
         this.essence = Math.floor(_value);
-    };
+    }
     /** 升级森林王等级 */
-    UserData.prototype.updateKingLevel = function (_level) {
-        var that = this;
+    updateKingLevel(_level) {
+        let that = this;
         if (that.kingLevel < that.kingLevelMax()) {
             if (that.kingLevel < _level) {
                 that.kingLevel = _level;
@@ -261,16 +250,16 @@ var UserData = /** @class */ (function () {
             console.log("已达到最高等级");
         }
         return false;
-    };
-    UserData.prototype.getKingLevel = function () {
+    }
+    getKingLevel() {
         return this.kingLevel;
-    };
-    UserData.prototype.kingLevelMax = function () {
+    }
+    kingLevelMax() {
         return 60;
-    };
+    }
     /** 升级森林王等级 */
-    UserData.prototype.updateEvolutionLevel = function (_level) {
-        var that = this;
+    updateEvolutionLevel(_level) {
+        let that = this;
         if (that.evolutionLevel < that.evolutionLevelMax()) {
             if (that.evolutionLevel < _level) {
                 that.evolutionLevel = _level;
@@ -282,24 +271,23 @@ var UserData = /** @class */ (function () {
             console.log("已达到最高等级");
         }
         return false;
-    };
-    UserData.prototype.getEvolutionLevel = function () {
+    }
+    getEvolutionLevel() {
         return this.evolutionLevel;
-    };
-    UserData.prototype.evolutionLevelMax = function () {
+    }
+    evolutionLevelMax() {
         return 2;
-    };
+    }
     //是否已进化
-    UserData.prototype.isEvolution = function () {
+    isEvolution() {
         return (this.evolutionLevel > 1);
-    };
+    }
     //设置车位并保存
-    UserData.prototype.setCarparkSave = function (_carParkSp, _carParkSp2) {
-        if (_carParkSp2 === void 0) { _carParkSp2 = null; }
-        var that = this;
+    setCarparkSave(_carParkSp, _carParkSp2 = null) {
+        let that = this;
         if (that.parkcarInfoArray) {
-            for (var key in that.parkcarInfoArray) {
-                var element = that.parkcarInfoArray[key];
+            for (let key in that.parkcarInfoArray) {
+                let element = that.parkcarInfoArray[key];
                 if (_carParkSp) {
                     if (element && element.id == _carParkSp.parkIndex) {
                         element.carId = _carParkSp.monsterId;
@@ -317,28 +305,28 @@ var UserData = /** @class */ (function () {
         }
         Laya.timer.callLater(that, that.saveLocal);
         Laya.timer.once(3e3, that, HttpManager.Instance.requestSaveCarparkData);
-    };
+    }
     //通关的游戏关卡
-    UserData.prototype.updatePassStage = function (_value) {
-        var that = this;
+    updatePassStage(_value) {
+        let that = this;
         that.passStage = _value;
         Laya.timer.callLater(that, that.saveLocal, [true]);
-    };
-    UserData.prototype.getPassStage = function () {
+    }
+    getPassStage() {
         return this.passStage;
-    };
+    }
     //通过的游戏章节
-    UserData.prototype.updatePassSection = function (_value) {
-        var that = this;
+    updatePassSection(_value) {
+        let that = this;
         that.passSection = _value;
         Laya.timer.callLater(that, that.saveLocal, [true]);
-    };
-    UserData.prototype.getPassSection = function () {
+    }
+    getPassSection() {
         return this.passSection;
-    };
+    }
     //分享广告可点击次数
-    UserData.prototype.getAdTimes = function (_kind) {
-        var that = this;
+    getAdTimes(_kind) {
+        let that = this;
         if (that.shareAdTimes && that.hasVideoAd) {
             if (_kind == 10) {
                 return that.shareAdTimes.ad_acce_num;
@@ -351,9 +339,9 @@ var UserData = /** @class */ (function () {
             }
         }
         return 0;
-    };
-    UserData.prototype.getShareTimes = function (_kind) {
-        var that = this;
+    }
+    getShareTimes(_kind) {
+        let that = this;
         if (that.shareAdTimes) {
             if (_kind == 10) {
                 return that.shareAdTimes.share_acce_num;
@@ -366,10 +354,10 @@ var UserData = /** @class */ (function () {
             }
         }
         return 0;
-    };
+    }
     //减少分享广告可点击次数
-    UserData.prototype.decreAdTimes = function (_kind) {
-        var that = this;
+    decreAdTimes(_kind) {
+        let that = this;
         if (that.shareAdTimes) {
             if (_kind == 10) {
                 that.shareAdTimes.ad_acce_num--;
@@ -384,9 +372,9 @@ var UserData = /** @class */ (function () {
                 that.shareAdTimes.ad_num--;
             }
         }
-    };
-    UserData.prototype.decreShareTimes = function (_kind) {
-        var that = this;
+    }
+    decreShareTimes(_kind) {
+        let that = this;
         if (that.shareAdTimes) {
             if (_kind == 10) {
                 that.shareAdTimes.share_acce_num--;
@@ -399,144 +387,142 @@ var UserData = /** @class */ (function () {
             }
         }
         console.log("decreShareTimes", that.shareAdTimes);
-    };
+    }
     //分享或广告开关
-    UserData.prototype.isAdStage = function (_kind) {
-        var that = this;
+    isAdStage(_kind) {
+        let that = this;
         return (that.getAdTimes(_kind) > 0);
-    };
+    }
     //显示分享礼包红点
-    UserData.prototype.isShowShareGiftRedPoint = function () {
+    isShowShareGiftRedPoint() {
         return this.showShareGiftRedPoint;
-    };
+    }
     //移除分享礼包红点
-    UserData.prototype.removeShareGiftRedPoint = function () {
+    removeShareGiftRedPoint() {
         this.showShareGiftRedPoint = false;
         if (EventsManager.Instance) {
             EventsManager.Instance.event(EventsType.SHARE_GIFT_RED_POINT, "remove");
         }
-    };
+    }
     //显示每日签到红点
-    UserData.prototype.isShowDailySignRedPoint = function () {
+    isShowDailySignRedPoint() {
         return this.showDailySignRedPoint;
-    };
+    }
     //移除红点
-    UserData.prototype.removeDailySignRedPoint = function () {
+    removeDailySignRedPoint() {
         this.showDailySignRedPoint = false;
         if (EventsManager.Instance) {
             this.menuRedPointCount--;
             EventsManager.Instance.event(EventsType.DAY_SIGN_RED_POINT, "remove");
         }
-    };
+    }
     //显示强化红点
-    UserData.prototype.isShowStrengthenRedPoint = function () {
+    isShowStrengthenRedPoint() {
         return this.showStrengthenRedPoint;
-    };
+    }
     //移除红点
-    UserData.prototype.removeStrengthenRedPoint = function () {
+    removeStrengthenRedPoint() {
         this.showStrengthenRedPoint = false;
         if (EventsManager.Instance) {
             EventsManager.Instance.event(EventsType.STRENGTHEN_RED_POINT, "remove");
         }
-    };
+    }
     //显示车商店红点
-    UserData.prototype.isShowCarShopRedPoint = function () {
-        var that = this;
+    isShowCarShopRedPoint() {
+        let that = this;
         return ((that.getAdTimes(11) + that.getShareTimes(11)) > 0) && (that.carLevel >= 6 && that.carLevel < 30);
-    };
+    }
     //移除车商店红点
-    UserData.prototype.removeCarShopRedPoin = function () {
+    removeCarShopRedPoin() {
         if (EventsManager.Instance) {
             EventsManager.Instance.event(EventsType.HERO_SHOP_RED_POINT, "remove");
         }
-    };
+    }
     //显示任务红点
-    UserData.prototype.isShowTaskRedPoint = function () {
+    isShowTaskRedPoint() {
         return this.showTaskRedPoint;
-    };
+    }
     //移除红点
-    UserData.prototype.removeTaskRedPoint = function () {
+    removeTaskRedPoint() {
         this.showTaskRedPoint = false;
         if (EventsManager.Instance) {
             EventsManager.Instance.event(EventsType.TASK_RED_POINT, "remove");
         }
-    };
+    }
     //显示转盘红点
-    UserData.prototype.isShowLuckPrizeRedPoint = function () {
+    isShowLuckPrizeRedPoint() {
         return this.showLuckPrizeRedPoint;
-    };
+    }
     //移除红点
-    UserData.prototype.removeLuckPrizeRedPoint = function () {
+    removeLuckPrizeRedPoint() {
         this.showLuckPrizeRedPoint = false;
         if (EventsManager.Instance) {
             EventsManager.Instance.event(EventsType.LUCK_PRIZED_RED_POINT, "remove");
         }
-    };
+    }
     //显示关注红点
-    UserData.prototype.isShowFollowRedPoint = function () {
+    isShowFollowRedPoint() {
         return this.showFollowRedPoint;
-    };
+    }
     //移除红点
-    UserData.prototype.removeFollowRedPoint = function () {
+    removeFollowRedPoint() {
         this.showFollowRedPoint = false;
         if (EventsManager.Instance) {
             this.menuRedPointCount--;
             EventsManager.Instance.event(EventsType.FOLLOW_RED_POINT, "remove");
         }
-    };
+    }
     //显示好友互助红点
-    UserData.prototype.isShowFriendConcurRedPoint = function () {
+    isShowFriendConcurRedPoint() {
         return this.showFriendConcurRedPoint;
-    };
+    }
     //移除好友互助红点
-    UserData.prototype.removeFriendConcurRedPoint = function () {
+    removeFriendConcurRedPoint() {
         this.showFriendConcurRedPoint = false;
         if (EventsManager.Instance) {
             this.menuRedPointCount--;
             EventsManager.Instance.event(EventsType.FRIEND_CONCUR_RED_POINT, "remove");
         }
-    };
+    }
     //是否新手
-    UserData.prototype.isGuide = function () {
-        var that = this;
+    isGuide() {
+        let that = this;
         return false;
-    };
+    }
     //小程序跳转
-    UserData.prototype.miniCode = function () {
-        var that = this;
+    miniCode() {
+        let that = this;
         if (that.advert && that.advert[0]) {
             return that.advert[0].url;
         }
         return "wx57ab0ba00d80503a";
-    };
-    UserData.prototype.miniPagePath = function () {
-        var that = this;
+    }
+    miniPagePath() {
+        let that = this;
         if (that.advert && that.advert[0]) {
             return that.advert[0].jump_path;
         }
         return "";
-    };
-    UserData.prototype.miniImageUrl = function () {
-        var that = this;
+    }
+    miniImageUrl() {
+        let that = this;
         if (that.advert && that.advert[0]) {
             return that.advert[0].icon;
         }
         return "";
-    };
+    }
     //每日元宝加速次数
-    UserData.prototype.diamondAcceTimes = function (_isAdd) {
-        if (_isAdd === void 0) { _isAdd = false; }
-        var that = this;
-        var diamondAcceTimes = that.diamond_acce_num;
+    diamondAcceTimes(_isAdd = false) {
+        let that = this;
+        let diamondAcceTimes = that.diamond_acce_num;
         if (_isAdd) {
             that.diamond_acce_num++;
         }
         return diamondAcceTimes;
-    };
+    }
     //保存本地
-    UserData.prototype.saveLocal = function (_upload, saveOptions) {
-        if (_upload === void 0) { _upload = false; }
-        var that = this;
+    saveLocal(_upload = false, saveOptions) {
+        let that = this;
         if (that._isLoadStorage == false) {
             console.log("未同步本地/服务器数据");
             return;
@@ -545,14 +531,14 @@ var UserData = /** @class */ (function () {
             console.log("新手引导不保存");
             return;
         }
-        var localData = {};
+        let localData = {};
         ["gold", "diamond", "parkcarInfoArray", "carBuyRecordArray", "skillAdditionArray", "kingLevel", "evolutionLevel",
-            "carLevel", "level", "exp", "userId", "shareAdStage", "passStage", "noviceGroupId", "dayGetGoldCount"].forEach(function (element) {
+            "carLevel", "level", "exp", "userId", "shareAdStage", "passStage", "noviceGroupId", "dayGetGoldCount"].forEach(element => {
             localData[element] = that[element];
         });
-        var dataJson = JSON.stringify(localData);
+        let dataJson = JSON.stringify(localData);
         if (dataJson) {
-            var storage = window.localStorage;
+            let storage = window.localStorage;
             storage.setItem(M.player.account, dataJson);
         }
         if (_upload) {
@@ -561,13 +547,11 @@ var UserData = /** @class */ (function () {
             saveOptions && saveOptions.petShop && HttpManager.Instance.requestSaveCarshopData();
             saveOptions && saveOptions.skill && HttpManager.Instance.requestSaveSkillAdditionData();
         }
-    };
+    }
     //取出本地数据
-    UserData.prototype.loadStorage = function (_callback) {
-        var that = this;
+    loadStorage(_callback) {
+        let that = this;
         that._isLoadStorage = true;
-        GameEnterManager.Instance.init();
-        LanguageManager.Instance.loadLanguage();
         if (GlobalConfig.DEBUG) {
             if (GlobalConfig.USER) {
                 M.player.account = GlobalConfig.USER;
@@ -577,14 +561,13 @@ var UserData = /** @class */ (function () {
                 return;
             }
         }
-        var storage = window.localStorage;
-        var dataJson = null;
-        // let dataJson = storage.getItem(M.player.account);
+        let storage = window.localStorage;
+        let dataJson = null; // storage.getItem(M.player.account);
         if (dataJson) {
-            var jsonObj = JSON.parse(dataJson);
+            let jsonObj = JSON.parse(dataJson);
             if (jsonObj) {
                 console.log("@FREEMAN: 本地缓存 {" + M.player.account + "} 读取成功：{", jsonObj, "}");
-                for (var key in jsonObj) {
+                for (let key in jsonObj) {
                     if (jsonObj.hasOwnProperty(key)) {
                         // console.log(key, jsonObj[key]);
                         // if (key !="hasOfflinePrize" && key !="diamond" && key !="_isLoadStorage") {
@@ -596,141 +579,138 @@ var UserData = /** @class */ (function () {
             }
             _callback && _callback(true);
         }
-        else {
-            //从服务器同步数据
-            var serverDataProgress_1 = 4;
-            HttpManager.Instance.requestCarparkData(function (_res) {
-                serverDataProgress_1--;
-                if (serverDataProgress_1 < 1) {
-                    _callback && _callback(true);
-                }
-            });
-            HttpManager.Instance.requestCarshopData(function (_res) {
-                if (_res)
-                    that.carBuyRecordArray = _res;
-                serverDataProgress_1--;
-                if (serverDataProgress_1 < 1) {
-                    _callback && _callback(true);
-                }
-            });
-            HttpManager.Instance.requestUserinfoData(function (_res) {
-                serverDataProgress_1--;
-                if (serverDataProgress_1 < 1) {
-                    _callback && _callback(true);
-                }
-            });
-            HttpManager.Instance.requestSkillAddtionData(function (_res) {
-                if (_res)
-                    that.skillAdditionArray = _res;
-                serverDataProgress_1--;
-                if (serverDataProgress_1 < 1) {
-                    _callback && _callback(true);
-                }
-            });
-            //超时尝试重新请求
-            Laya.stage.timerOnce(12000, that, function () {
-                console.log("serverDataProgress:", serverDataProgress_1);
-                if (serverDataProgress_1 > 0) {
-                    that.loadStorage(_callback);
-                }
-            });
-        }
+        //从服务器同步数据
+        let serverDataProgress = 4;
+        HttpManager.Instance.requestCarparkData((_res) => {
+            serverDataProgress--;
+            if (serverDataProgress < 1) {
+                _callback && _callback(true);
+            }
+        });
+        HttpManager.Instance.requestCarshopData((_res) => {
+            if (_res)
+                that.carBuyRecordArray = _res;
+            serverDataProgress--;
+            if (serverDataProgress < 1) {
+                _callback && _callback(true);
+            }
+        });
+        HttpManager.Instance.requestUserinfoData((_res) => {
+            serverDataProgress--;
+            if (serverDataProgress < 1) {
+                _callback && _callback(true);
+            }
+        });
+        HttpManager.Instance.requestSkillAddtionData((_res) => {
+            if (_res)
+                that.skillAdditionArray = _res;
+            serverDataProgress--;
+            if (serverDataProgress < 1) {
+                _callback && _callback(true);
+            }
+        });
+        //超时尝试重新请求
+        Laya.stage.timerOnce(12000, that, () => {
+            console.log("serverDataProgress:", serverDataProgress);
+            if (serverDataProgress > 0) {
+                that.loadStorage(_callback);
+            }
+        });
         //请求分享开关
         HttpManager.Instance.requestShareFlag();
         that.requestUserBaseData();
-    };
-    UserData.prototype.isLoadStorage = function () {
+    }
+    isLoadStorage() {
         return this._isLoadStorage;
-    };
-    UserData.prototype.clearLocalData = function () {
-        var that = this;
-        var storage = window.localStorage;
+    }
+    clearLocalData() {
+        let that = this;
+        let storage = window.localStorage;
         if (storage) {
             storage.removeItem(M.player.account);
             console.log("@FREEMAN: 本地缓存{" + M.player.account + "}已清除。");
         }
-    };
+    }
     //离线奖励
-    UserData.prototype.offlinePrize = function () {
-        var that = this;
-        var storage = window.localStorage;
-        var dataJson = storage.getItem(that.s_offlinePrize_time);
-        var offlineTime = MathUtils.parseInt(dataJson);
+    offlinePrize() {
+        let that = this;
+        let storage = window.localStorage;
+        let dataJson = storage.getItem(that.s_offlinePrize_time);
+        let offlineTime = MathUtils.parseInt(dataJson);
         if (offlineTime > 0) {
             storage.removeItem(that.s_offlinePrize_time);
         }
         return offlineTime;
-    };
+    }
     //保存离线时间
-    UserData.prototype.saveOfflineTime = function () {
-        var that = this;
-        var storage = window.localStorage;
-        var offlineServerTime = that.serverTime();
+    saveOfflineTime() {
+        let that = this;
+        let storage = window.localStorage;
+        let offlineServerTime = that.serverTime();
         storage.setItem(that.s_offline_time, offlineServerTime.toString());
-    };
+    }
     //保存加速剩余时间
-    UserData.prototype.saveAcceLeftTime = function (_acceLeftTime) {
-        var that = this;
-        var storage = window.localStorage;
+    saveAcceLeftTime(_acceLeftTime) {
+        let that = this;
+        let storage = window.localStorage;
         if (_acceLeftTime > 0) {
             storage.setItem(that.s_acceLeft_time, _acceLeftTime.toString());
         }
         else {
             storage.removeItem(that.s_acceLeft_time);
         }
-    };
+    }
     //获取加速剩余时间
-    UserData.prototype.getAcceLeftTime = function () {
-        var that = this;
-        var storage = window.localStorage;
-        var dataJson = storage.getItem(that.s_acceLeft_time);
+    getAcceLeftTime() {
+        let that = this;
+        let storage = window.localStorage;
+        let dataJson = storage.getItem(that.s_acceLeft_time);
         if (dataJson) {
-            var acceLeftTime = MathUtils.parseInt(dataJson);
+            let acceLeftTime = MathUtils.parseInt(dataJson);
             storage.removeItem(that.s_acceLeft_time);
             return acceLeftTime;
         }
         return 0;
-    };
+    }
     //获取本地与服务器时间差(s减c)
-    UserData.prototype.csDiffTime = function () {
-        var that = this;
+    csDiffTime() {
+        let that = this;
         return that.cs_time_diff;
-    };
+    }
     //获取服务器当前时间
-    UserData.prototype.serverTime = function () {
-        var that = this;
-        var cur_time = (new Date()).getTime() / 1000;
+    serverTime() {
+        let that = this;
+        let cur_time = (new Date()).getTime() / 1000;
         return (cur_time + that.csDiffTime());
-    };
+    }
     //获取上次离线服务器时间
-    UserData.prototype.offlineServerTime = function () {
-        var that = this;
-        var storage = window.localStorage;
-        var dataJson = storage.getItem(that.s_offline_time);
+    offlineServerTime() {
+        let that = this;
+        let storage = window.localStorage;
+        let dataJson = storage.getItem(that.s_offline_time);
         console.log("获取上次离线服务器时间:", dataJson);
         if (dataJson) {
-            var offlineServerTime = MathUtils.parseInt(dataJson); //上次离线时间
+            let offlineServerTime = MathUtils.parseInt(dataJson); //上次离线时间
             if (offlineServerTime > 0) {
                 return offlineServerTime;
             }
         }
         return 0;
-    };
+    }
     //保存商城红点开始时间
-    UserData.prototype.saveShopRedpointTime = function (_checkTime) {
-        var that = this;
-        var storage = window.localStorage;
-        var nextCheckTime = that.serverTime() + _checkTime;
+    saveShopRedpointTime(_checkTime) {
+        let that = this;
+        let storage = window.localStorage;
+        let nextCheckTime = that.serverTime() + _checkTime;
         storage.setItem(that.s_shopRedPoint_time, nextCheckTime.toString());
-    };
-    UserData.prototype.shiftShopRedpointTime = function (_isRemove) {
-        if (_isRemove === void 0) { _isRemove = true; }
-        var that = this;
-        var storage = window.localStorage;
-        var dataJson = storage.getItem(that.s_shopRedPoint_time);
-        var saveServerTime = MathUtils.parseInt(dataJson);
+    }
+    shiftShopRedpointTime(_isRemove = true) {
+        let that = this;
+        let storage = window.localStorage;
+        let dataJson = storage.getItem(that.s_shopRedPoint_time);
+        let saveServerTime = MathUtils.parseInt(dataJson);
         if (saveServerTime > 0) {
-            var leftTime = saveServerTime - that.serverTime();
+            let leftTime = saveServerTime - that.serverTime();
             if (_isRemove) {
                 storage.removeItem(that.s_shopRedPoint_time);
             }
@@ -739,26 +719,22 @@ var UserData = /** @class */ (function () {
             }
         }
         return 0;
-    };
-    UserData.prototype.isShareEnable = function () {
+    }
+    isShareEnable() {
         return this.shareSwitchOpen;
-    };
+    }
     //请求分享
-    UserData.prototype.toShare = function (_callback, _isTask, _isGroupShare, shareType) {
-        if (_callback === void 0) { _callback = null; }
-        if (_isTask === void 0) { _isTask = false; }
-        if (_isGroupShare === void 0) { _isGroupShare = false; }
-        if (shareType === void 0) { shareType = "share"; }
-        var that = this;
-        var isTask = _isTask;
-        var isGroupShare = _isGroupShare;
-        HttpManager.Instance.requestShareSubject(function (_res) {
+    toShare(_callback = null, _isTask = false, _isGroupShare = false, shareType = "share") {
+        let that = this;
+        let isTask = _isTask;
+        let isGroupShare = _isGroupShare;
+        HttpManager.Instance.requestShareSubject(shareType, (_res) => {
             if (!_res) {
                 MessageUtils.showMsgTips("今日分享次数已用完");
                 return;
             }
-            var shareCfg = { imageUrl: _res.image, content: _res.describe, id: _res.id };
-            var queryData = null;
+            let shareCfg = { imageUrl: _res.image, content: _res.describe, id: _res.id };
+            let queryData = null;
             if (isTask) {
                 queryData = "userId=" + userData.userId + "&shareId=" + shareCfg.id + "&shareType=task";
             }
@@ -766,11 +742,11 @@ var UserData = /** @class */ (function () {
                 queryData = "userId=" + userData.userId + "&shareId=" + shareCfg.id + "&shareType=" + shareType;
             }
             //重返游戏
-            var curTime = (new Date()).getTime() / 1000;
-            var isAutoShare = true;
-            EventsManager.Instance.once(EventsType.BACK_GAME, that, function (_data) {
-                var backTime = (new Date()).getTime() / 1000;
-                var leaveTime = backTime - curTime;
+            let curTime = (new Date()).getTime() / 1000;
+            let isAutoShare = true;
+            EventsManager.Instance.once(EventsType.BACK_GAME, that, (_data) => {
+                let backTime = (new Date()).getTime() / 1000;
+                let leaveTime = backTime - curTime;
                 if (isAutoShare && leaveTime > 2.3) {
                     if (true) {
                         that.shareFailedTimes = 0;
@@ -796,29 +772,25 @@ var UserData = /** @class */ (function () {
             });
             // }))
         });
-    };
+    }
     //请求分享/视频
-    UserData.prototype.toShareAd = function (callback, type, isTask, isGroupShare) {
-        if (callback === void 0) { callback = null; }
-        if (type === void 0) { type = 0; }
-        if (isTask === void 0) { isTask = false; }
-        if (isGroupShare === void 0) { isGroupShare = false; }
-        var self = this;
+    toShareAd(callback = null, type = 0, isTask = false, isGroupShare = false) {
+        let self = this;
         if (self.isOpenShareAd)
             return 0;
         self.isOpenShareAd = true;
-        Laya.stage.timerOnce(1000, self, function () {
+        Laya.stage.timerOnce(1000, self, () => {
             self.isOpenShareAd = false;
         });
         //是否优先视频广告
         if (self.getAdTimes(type) > 0) {
-            SDKManager.Instance.showVideoAd(function (_res) {
+            SDKManager.Instance.showVideoAd((_res) => {
                 // 用户点击了【关闭广告】按钮
                 // 小于 2.1.0 的基础库版本，res 是一个 undefined
                 if (_res && _res.isEnded || _res === undefined) {
                     // 正常播放结束，可以下发游戏奖励
                     self.decreAdTimes(type);
-                    var adKey = "ad";
+                    let adKey = "ad";
                     if (type == 10) {
                         adKey = "ad_acce";
                     }
@@ -831,7 +803,7 @@ var UserData = /** @class */ (function () {
                     HttpManager.Instance.requestShareAdFinish(adKey);
                     callback && callback();
                 }
-            }, function () {
+            }, () => {
                 //无视频回调
                 self.hasVideoAd = false;
                 self.isOpenShareAd = false;
@@ -841,12 +813,12 @@ var UserData = /** @class */ (function () {
         }
         switch (type) {
             case 1:
-                SDKManager.Instance.showVideoAd(function (_res) {
+                SDKManager.Instance.showVideoAd((_res) => {
                     if (_res && _res.isEnded || _res === undefined) {
                         callback && callback();
                         HttpManager.Instance.requestShareAdFinish("ad_other", _res);
                     }
-                }, function () {
+                }, () => {
                     //无视频回调
                     self.hasVideoAd = false;
                     self.isOpenShareAd = false;
@@ -858,7 +830,7 @@ var UserData = /** @class */ (function () {
                 if (self.getShareTimes(type) < 1) {
                     return 1;
                 }
-                self.toShare(function (_res) {
+                self.toShare((_res) => {
                     self.decreShareTimes(type);
                     HttpManager.Instance.requestShareAdFinish("share_acce", _res);
                     callback && callback();
@@ -870,7 +842,7 @@ var UserData = /** @class */ (function () {
                     MessageUtils.showMsgTips("今日分享次数已用完");
                     return 1;
                 }
-                self.toShare(function (_res) {
+                self.toShare((_res) => {
                     self.decreShareTimes(type);
                     HttpManager.Instance.requestShareAdFinish("share_shop_car", _res);
                     callback && callback();
@@ -882,9 +854,9 @@ var UserData = /** @class */ (function () {
                     MessageUtils.showMsgTips("今日分享次数已用完");
                     return 1;
                 }
-                self.toShare(function (_res) {
+                self.toShare((_res) => {
                     MessageUtils.showMsgTips("求助已发出");
-                    Laya.timer.once(30000, self, function () {
+                    Laya.timer.once(30000, self, () => {
                         callback && callback();
                     });
                     self.decreShareTimes(type);
@@ -893,20 +865,20 @@ var UserData = /** @class */ (function () {
                 break;
             case 13:
                 // 天降惊喜礼包分享
-                self.toShare(function (res) {
+                self.toShare((res) => {
                     callback && callback();
                     HttpManager.Instance.requestShareAdFinish("share_sky_drop", res);
                 }, isTask, isGroupShare);
                 break;
             case 14: //好友互助分享
-                self.toShare(function (res) {
+                self.toShare((res) => {
                     callback && callback();
                     HttpManager.Instance.requestShareAdFinish("share_friend_concur", res);
-                }, isTask, isGroupShare, "friendConcur");
+                }, isTask, isGroupShare, "help");
                 break;
             //分享无限次数
             default: {
-                self.toShare(function (_res) {
+                self.toShare((_res) => {
                     callback && callback();
                     HttpManager.Instance.requestShareAdFinish("share_other", _res);
                 }, isTask, isGroupShare);
@@ -916,25 +888,25 @@ var UserData = /** @class */ (function () {
             callback && callback();
         }
         return 0;
-    };
+    }
     //计算精灵个数
-    UserData.prototype.caculateMonsterCount = function (_id) {
-        var num = 0;
+    caculateMonsterCount(_id) {
+        let num = 0;
         if (this.parkcarInfoArray) {
-            this.parkcarInfoArray.forEach(function (element) {
+            this.parkcarInfoArray.forEach(element => {
                 if (element && element.carId == _id) {
                     num++;
                 }
             });
         }
         return num;
-    };
+    }
     //上传腾讯云
-    UserData.prototype.setUserCloudStorage = function () {
-        var that = this;
+    setUserCloudStorage() {
+        let that = this;
         //上传微信云
-        var money = Math.floor(that.getPassStage()).toString();
-        var kvDataList = [{
+        let money = Math.floor(that.getPassStage()).toString();
+        let kvDataList = [{
                 key: "score",
                 value: money
             }, {
@@ -945,22 +917,22 @@ var UserData = /** @class */ (function () {
                 value: that.getUserId()
             }];
         platform.setUserCloudStorage(kvDataList);
-    };
+    }
     //新老版本更新检测（防止老数据覆盖）
-    UserData.prototype.versionCheck = function (_callback) {
-        var that = this;
-        var storage = window.localStorage;
-        HttpManager.Instance.requestVersionCheck(function (_res) {
+    versionCheck(_callback) {
+        let that = this;
+        let storage = window.localStorage;
+        HttpManager.Instance.requestVersionCheck((_res) => {
             if (_res && _res.clear_flag) {
                 //清理老数据
                 storage.setItem(that.s_version_clear, 'true');
             }
         });
         //上一次记录清理
-        var dataJson = storage.getItem(that.s_version_clear);
+        let dataJson = storage.getItem(that.s_version_clear);
         if (dataJson) {
             //需要清理数据
-            HttpManager.Instance.requestVersionClear(function (_res) {
+            HttpManager.Instance.requestVersionClear((_res) => {
                 storage.removeItem(that.s_version_clear);
                 that.clearLocalData();
                 _callback && _callback();
@@ -969,12 +941,11 @@ var UserData = /** @class */ (function () {
         else {
             _callback && _callback();
         }
-    };
+    }
     //用户基础数据
-    UserData.prototype.requestUserBaseData = function (_callback) {
-        if (_callback === void 0) { _callback = null; }
-        var self = this;
-        var HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+    requestUserBaseData(_callback = null) {
+        let self = this;
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/user/info',
             success: function (res) {
@@ -1025,24 +996,24 @@ var UserData = /** @class */ (function () {
                 console.log(res);
             }
         });
-    };
+    }
     //查询离线奖励
-    UserData.prototype.requestOfflinePrizeData = function () {
-        var that = this;
-        var HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+    requestOfflinePrizeData() {
+        let that = this;
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/login',
             success: function (res) {
-                var offlineTime = MathUtils.parseInt(res.time); //离线时长
-                var login_time = MathUtils.parseInt(res.login_time); //登录当前服务器时间
-                var cur_time = (new Date()).getTime() / 1000;
+                let offlineTime = MathUtils.parseInt(res.time); //离线时长
+                let login_time = MathUtils.parseInt(res.login_time); //登录当前服务器时间
+                let cur_time = (new Date()).getTime() / 1000;
                 that.cs_time_diff = login_time - cur_time;
-                var storage = window.localStorage;
-                var dataJson = storage.getItem(that.s_offline_time);
+                let storage = window.localStorage;
+                let dataJson = storage.getItem(that.s_offline_time);
                 console.log("读取本地离线:", dataJson);
                 if (dataJson) {
                     offlineTime = 0;
-                    var last_logout_time = MathUtils.parseInt(dataJson); //上次离线时间
+                    let last_logout_time = MathUtils.parseInt(dataJson); //上次离线时间
                     console.log(login_time, cur_time, last_logout_time, (login_time - last_logout_time), that.cs_time_diff);
                     if (!isNaN(last_logout_time) && login_time > last_logout_time) {
                         offlineTime = login_time - last_logout_time;
@@ -1061,31 +1032,34 @@ var UserData = /** @class */ (function () {
                 console.log(res);
             }
         });
-    };
-    UserData.prototype.setCache = function (key, value) {
+    }
+    setCache(key, value) {
         this._cache[key] = value;
-        var storage = window.localStorage;
+        const storage = window.localStorage;
         if (storage) {
             storage.setItem("F_" + M.player.account, JSON.stringify(this._cache));
         }
-    };
-    UserData.prototype.getCache = function (key) {
+    }
+    getCache(key) {
         return this._cache[key];
-    };
-    UserData.prototype.hasCache = function (key) {
+    }
+    hasCache(key) {
         return this._cache.hasOwnProperty(key);
-    };
-    UserData.prototype.loadCache = function () {
-        var storage = window.localStorage;
+    }
+    loadCache() {
+        GameEnterManager.Instance.init();
+        LanguageManager.Instance.loadLanguage();
+        const storage = window.localStorage;
         if (storage) {
-            var jsonStr = storage.getItem("F_" + M.player.account);
+            const jsonStr = storage.getItem("F_" + M.player.account);
             if (jsonStr) {
                 if (jsonStr) {
-                    var cache = JSON.parse(jsonStr);
+                    const cache = JSON.parse(jsonStr);
                     if (cache) {
                         this._cache = cache;
                         // 有缓存才赋值
                         cache.hasOwnProperty(CacheKey.GOLD) && (this.gold = cache[CacheKey.GOLD]);
+                        cache.hasOwnProperty(CacheKey.CONCUR) && (HallManager.Instance.hallData.concurGoldDic.fromJsonObject(cache[CacheKey.CONCUR]));
                         // 不管有没有缓存都需要赋值
                         M.more.model.mute = cache.hasOwnProperty(CacheKey.SOUND_MUTE) ? cache[CacheKey.SOUND_MUTE] : false;
                     }
@@ -1096,21 +1070,20 @@ var UserData = /** @class */ (function () {
             console.log("@FREEMAN: 缓存数据为空或有异常，缓存：{ " + "F_" + M.player.account + " }");
             this._cache = {};
         }
-    };
-    UserData.prototype.clearCache = function () {
+    }
+    clearCache() {
         this._cache = {};
-        var storage = window.localStorage;
+        const storage = window.localStorage;
         if (storage) {
             storage.removeItem("F_" + M.player.account);
             console.log("@FREEMAN: 本地缓存{" + "F_" + M.player.account + "}已清除。");
         }
-    };
+    }
     //设置金币并保存
-    UserData.prototype.setMoneySave = function (money) {
+    setMoneySave(money) {
         this.gold = Math.floor(money);
         this.setCache(CacheKey.GOLD, money);
         Laya.timer.callLater(this, this.saveLocal);
-    };
-    return UserData;
-}());
+    }
+}
 //# sourceMappingURL=UserData.js.map

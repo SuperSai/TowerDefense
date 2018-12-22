@@ -1,84 +1,73 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /*
 * 好友互助Item;
 */
-var FriendConcurItem = /** @class */ (function (_super) {
-    __extends(FriendConcurItem, _super);
-    function FriendConcurItem() {
-        return _super.call(this) || this;
+class FriendConcurItem extends ui.friendConcur.FriendConcurItemUI {
+    constructor() {
+        super();
     }
-    Object.defineProperty(FriendConcurItem.prototype, "dataSource", {
-        set: function (value) {
-            var self = this;
-            if (value) {
-                self._data = value;
-                self._rewards = [];
-                self.txt_time.text = value.create_time;
-                self.rewardGold();
-                if (value.uid == userData.userId) {
-                    self.txt_des0.text = "您帮助";
-                    self.txt_des1.text = StringUtils.omitStringByByteLen(platform.decode(value.p_nick_name), 10);
-                    self.txt_des2.text = "赢取了金币奖励";
-                    self.btn_get.disabled = value.status != 0;
-                    self.rewardDiamond(self._data.diamond);
-                }
-                else {
-                    self.txt_des0.text = "有位好友";
-                    self.txt_des1.text = StringUtils.omitStringByByteLen(platform.decode(value.nick_name), 10);
-                    self.txt_des2.text = "为我助力";
-                    self.btn_get.disabled = value.p_status != 0;
-                    self.rewardDiamond(self._data.p_diamond);
-                }
-                if (self.btn_get.disabled) {
-                    self.btn_get.label = "已领取";
-                }
-                else {
-                    self.btn_get.label = "可领取";
-                }
-                self.hbox.refresh();
-                this.btn_get.on(Laya.Event.CLICK, this, this.onGetReward);
+    set dataSource(value) {
+        let self = this;
+        if (value) {
+            self._data = value;
+            self._rewards = [];
+            self.txt_time.text = value.create_time;
+            self.rewardGold();
+            if (value.uid == userData.userId) {
+                self.txt_des0.text = "您帮助";
+                self.txt_des1.text = StringUtils.omitStringByByteLen(platform.decode(value.p_nick_name), 10);
+                self.txt_des2.text = "赢取了金币奖励";
+                self.btn_get.disabled = value.status != 0;
+                self.rewardDiamond(self._data.diamond);
             }
-        },
-        enumerable: true,
-        configurable: true
-    });
-    FriendConcurItem.prototype.rewardGold = function () {
-        var self = this;
-        var monsterType = userData.isEvolution() ? 2 : 1;
-        var monsterInfo = BattleManager.Instance.getUnLockMonster(monsterType, userData.getCarLevel());
+            else {
+                self.txt_des0.text = "有位好友";
+                self.txt_des1.text = StringUtils.omitStringByByteLen(platform.decode(value.nick_name), 10);
+                self.txt_des2.text = "为我助力";
+                self.btn_get.disabled = value.p_status != 0;
+                self.rewardDiamond(self._data.p_diamond);
+            }
+            if (self.btn_get.disabled) {
+                self.btn_get.label = "已领取";
+            }
+            else {
+                self.btn_get.label = "可领取";
+            }
+            self.hbox.refresh();
+            this.btn_get.on(Laya.Event.CLICK, this, this.onGetReward);
+        }
+    }
+    rewardGold() {
+        let self = this;
+        let monsterType = userData.isEvolution() ? 2 : 1;
+        let monsterInfo = BattleManager.Instance.getUnLockMonster(monsterType, userData.getCarLevel());
         if (monsterInfo) {
-            var curPrice = BattleManager.Instance.getMonsterPrice(monsterInfo.buyPrice, userData.queryBuyRecord(monsterInfo.id));
-            self._gold = curPrice * 0.4;
+            if (HallManager.Instance.hallData.concurGoldDic.ContainsKey(self._data.id)) {
+                self._gold = HallManager.Instance.hallData.concurGoldDic.TryGetValue(self._data.id);
+            }
+            else {
+                let curPrice = BattleManager.Instance.getMonsterPrice(monsterInfo.buyPrice, userData.queryBuyRecord(monsterInfo.id));
+                self._gold = curPrice * 0.4;
+                HallManager.Instance.hallData.concurGoldDic.Add(self._data.id, self._gold);
+                userData.setCache(CacheKey.CONCUR, HallManager.Instance.hallData.concurGoldDic.toJsonObject());
+            }
             self.txt_gold.text = MathUtils.bytesToSize(self._gold) + "";
             self._rewards.push(self._gold);
         }
-    };
-    FriendConcurItem.prototype.rewardDiamond = function (diamond) {
-        var self = this;
+    }
+    rewardDiamond(diamond) {
+        let self = this;
         self.diamondBox.visible = Number(diamond) > 0;
         if (self.diamondBox.visible) {
             self.txt_diamond.text = diamond;
             self._rewards.push(Number(diamond));
         }
-    };
+    }
     /** 领取奖励 */
-    FriendConcurItem.prototype.onGetReward = function () {
-        var self = this;
+    onGetReward() {
+        let self = this;
         if (self._data) {
-            HttpManager.Instance.requestReward(self._data.id, function (res) {
-                RewardGetView.Create(self, function () {
+            HttpManager.Instance.requestReward(self._data.id, (res) => {
+                RewardGetView.Create(self, () => {
                     M.layer.screenEffectLayer.addChild(new FlyEffect().play("rollingCoin", LayerManager.mouseX, LayerManager.mouseY));
                     FriendConcurView.redPointNum--;
                     if (FriendConcurView.redPointNum < 1) {
@@ -95,7 +84,6 @@ var FriendConcurItem = /** @class */ (function (_super) {
                 }, self._rewards);
             });
         }
-    };
-    return FriendConcurItem;
-}(ui.friendConcur.FriendConcurItemUI));
+    }
+}
 //# sourceMappingURL=FriendConcurItem.js.map

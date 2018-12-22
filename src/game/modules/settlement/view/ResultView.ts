@@ -68,16 +68,16 @@ class ResultView extends ui.settlement.ResultViewUI {
                             that.removeSelf();
                         }
                     } else {
-                        userData.toShareAd(() => {
-                            that.prizeList.pop();//移除最后一个
-                            _callback && _callback(that.lastStage);
-                            if (that.prizeList.length > 0) {
-                                that.showPrizeUI(that.prizeList, _callback);
-                            } else {
-                                DisplayUtils.removeAllChildren(this.hbox);
-                                that.removeSelf();
-                            }
-                        });
+                        // userData.toShareAd(() => {
+                        that.prizeList.pop();//移除最后一个
+                        _callback && _callback(that.lastStage);
+                        if (that.prizeList.length > 0) {
+                            that.showPrizeUI(that.prizeList, _callback);
+                        } else {
+                            DisplayUtils.removeAllChildren(this.hbox);
+                            that.removeSelf();
+                        }
+                        // });
                     }
                 });
             }

@@ -1,64 +1,30 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var NoviceManager = /** @class */ (function (_super) {
-    __extends(NoviceManager, _super);
-    function NoviceManager() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    NoviceManager.getInstance = function () {
+class NoviceManager extends EventDispatcher {
+    static getInstance() {
         if (!this._instance) {
             this._instance = new NoviceManager();
         }
         return this._instance;
-    };
+    }
     // private _targetCircleAnim: Animation;
-    NoviceManager.prototype.init = function (groupId) {
-        if (groupId === void 0) { groupId = 1; }
+    init(groupId = 1) {
         this._currGroupId = groupId;
         this._finalGroupId =
             NoviceGuide.dataArr[NoviceGuide.dataArr.length - 1].groupId;
         this._activateTargets = [];
-    };
-    Object.defineProperty(NoviceManager.prototype, "isComplete", {
-        get: function () {
-            return this._currGroupId > this._finalGroupId;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(NoviceManager.prototype, "isRunning", {
-        get: function () {
-            return this.ui && this.ui.parent && this.ui.visible;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(NoviceManager.prototype, "currGroupId", {
-        get: function () {
-            return this._currGroupId;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(NoviceManager.prototype, "saveFunc", {
-        set: function (func) {
-            this._saveFunc = func;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    NoviceManager.prototype.start = function (container) {
+    }
+    get isComplete() {
+        return this._currGroupId > this._finalGroupId;
+    }
+    get isRunning() {
+        return this.ui && this.ui.parent && this.ui.visible;
+    }
+    get currGroupId() {
+        return this._currGroupId;
+    }
+    set saveFunc(func) {
+        this._saveFunc = func;
+    }
+    start(container) {
         NoviceManager.isComplete = this.isComplete;
         if (NoviceManager.isComplete) {
             return;
@@ -80,11 +46,11 @@ var NoviceManager = /** @class */ (function (_super) {
         this.ui.btnReturnNovice2.on(Laya.Event.CLICK, this, this.onCompleteNovice);
         this._container.addChild(this.ui);
         Laya.timer.frameOnce(10, this, this.nextStep);
-    };
-    NoviceManager.prototype.onCompleteNovice = function () {
+    }
+    onCompleteNovice() {
         M.novice.complete();
-    };
-    NoviceManager.prototype.nextGroup = function () {
+    }
+    nextGroup() {
         this._currGroupId++;
         this.saveGroupId(this._currGroupId);
         if (!this.isComplete) {
@@ -105,15 +71,15 @@ var NoviceManager = /** @class */ (function (_super) {
             this.ui.destroy();
             this.ui = null;
         }
-    };
-    NoviceManager.prototype.nextStep = function () {
+    }
+    nextStep() {
         Laya.Tween.clearAll(this.ui.imgFinger);
         this.ui.visible = true;
         this.ui.viewInteract.visible = false;
         this._currStepId++;
         if (this._currGroupSheets &&
             this._currStepId <= this._currGroupSheets.length) {
-            var sheet = this._currGroupSheets[this._currStepId - 1];
+            const sheet = this._currGroupSheets[this._currStepId - 1];
             this._currSheet = sheet;
             if (sheet.activateType !== 0) {
                 this._currStepId = 0;
@@ -129,7 +95,7 @@ var NoviceManager = /** @class */ (function (_super) {
                 this.saveGroupId(this._currGroupId + 1);
             }
             this._currStepType = sheet.type;
-            var position = StringUtils.splitStringToPoint(sheet.position);
+            const position = StringUtils.splitStringToPoint(sheet.position);
             if (this._currStepType === NoviceType.DEFAULT) {
                 // 剧情对话
                 M.layer.guideLayer.maskEnabled = true;
@@ -146,7 +112,7 @@ var NoviceManager = /** @class */ (function (_super) {
                 this.updateDisplay(sheet, position.x, position.y);
                 // 手指位置更新，手指位置注册点是图片左上角，坐标系的零点是点击区域的中间
                 if (sheet.fingerPosition) {
-                    var fingerPos = StringUtils.splitStringToPoint(sheet.fingerPosition);
+                    const fingerPos = StringUtils.splitStringToPoint(sheet.fingerPosition);
                     this.ui.imgFinger.pos(fingerPos.x, fingerPos.y);
                 }
                 else {
@@ -163,7 +129,7 @@ var NoviceManager = /** @class */ (function (_super) {
                 this.updateDisplay(sheet, position.x, position.y);
                 this.updateSpecialInteractArea(sheet);
                 if (sheet.fingerPosition) {
-                    var points = StringUtils.splitStringToKV(sheet.fingerPosition);
+                    const points = StringUtils.splitStringToKV(sheet.fingerPosition);
                     this.doDragAnimation(parseInt(points[0].key), parseInt(points[0].value), parseInt(points[1].key), parseInt(points[1].value));
                 }
                 this.manuallyEventOut();
@@ -175,52 +141,49 @@ var NoviceManager = /** @class */ (function (_super) {
         else {
             this.nextGroup();
         }
-    };
-    NoviceManager.prototype.manuallyEventOut = function () {
-        var _this = this;
+    }
+    manuallyEventOut() {
         if (this._currSheet) {
-            Laya.timer.once(Time.SEC_IN_MILI * 0.05, this, function () {
-                _this.event(NoviceEvent.ACTIVATE_TARGET, _this._currSheet.eventParam);
+            Laya.timer.once(Time.SEC_IN_MILI * 0.05, this, () => {
+                this.event(NoviceEvent.ACTIVATE_TARGET, this._currSheet.eventParam);
             });
         }
-    };
-    NoviceManager.prototype.sendWaitingEvent = function () {
-        var _this = this;
+    }
+    sendWaitingEvent() {
         if (this._currSheet) {
-            Laya.timer.once(Time.SEC_IN_MILI * 0.05, this, function () {
-                _this.event(NoviceEvent.WAITING, { type: _this._currSheet.activateType, value: _this._currSheet.activateValue });
+            Laya.timer.once(Time.SEC_IN_MILI * 0.05, this, () => {
+                this.event(NoviceEvent.WAITING, { type: this._currSheet.activateType, value: this._currSheet.activateValue });
             });
         }
-    };
-    NoviceManager.prototype.complete = function () {
+    }
+    complete() {
         if (!this.isComplete) {
             this._currGroupId = 999;
             this.nextStep();
         }
-    };
-    NoviceManager.prototype.activateTargets = function (targetObjs) {
+    }
+    activateTargets(targetObjs) {
         if (targetObjs) {
-            for (var _i = 0, targetObjs_1 = targetObjs; _i < targetObjs_1.length; _i++) {
-                var targetObj = targetObjs_1[_i];
-                var childIdx = targetObj.parent.getChildIndex(targetObj.target);
+            for (const targetObj of targetObjs) {
+                const childIdx = targetObj.parent.getChildIndex(targetObj.target);
                 targetObj.childIdx = childIdx;
                 PointUtils.parentToParent(targetObj.target, this.ui.viewClickTargetContainer, true);
                 this.ui.viewClickTargetContainer.addChild(targetObj.target);
                 this._activateTargets.push(targetObj);
             }
         }
-    };
+    }
     // prettier-ignore
-    NoviceManager.prototype.activateClickTarget = function (target, targetName, parent, subTargets) {
+    activateClickTarget(target, targetName, parent, subTargets) {
         this.activateTargets(subTargets);
-        var childIdx = parent.getChildIndex(target);
+        const childIdx = parent.getChildIndex(target);
         target.on(Laya.Event.CLICK, this, this.onTargetClick, [target, targetName, parent, childIdx, subTargets]);
         PointUtils.parentToParent(target, this.ui.viewClickTargetContainer, true);
         this.ui.viewClickTargetContainer.addChild(target);
-        this._activateTargets.push({ target: target, parent: parent, childIdx: childIdx });
-    };
+        this._activateTargets.push({ target, parent, childIdx });
+    }
     // prettier-ignore
-    NoviceManager.prototype.onTargetClick = function (target, targetName, parent, childIdx, subTargets) {
+    onTargetClick(target, targetName, parent, childIdx, subTargets) {
         if (!this._currSheet || !this._currSheet.eventParam)
             return;
         if (targetName === this._currSheet.eventParam) {
@@ -229,15 +192,15 @@ var NoviceManager = /** @class */ (function (_super) {
             this.recoverTargets();
             this.nextStep();
         }
-    };
-    NoviceManager.prototype.recoverTargets = function () {
+    }
+    recoverTargets() {
         while (this._activateTargets.length) {
-            var targetObj = this._activateTargets.pop();
+            const targetObj = this._activateTargets.pop();
             PointUtils.parentToParent(targetObj.target, targetObj.parent, true);
             targetObj.parent.addChildAt(targetObj.target, targetObj.childIdx);
         }
-    };
-    NoviceManager.prototype.updateDisplay = function (sheet, sx, sy) {
+    }
+    updateDisplay(sheet, sx, sy) {
         // 对话位置，注册点是角色的左上角
         this.ui.imgDialogCharacter.pos(sx, sy);
         this.ui.imgClickCharacter.pos(sx, sy);
@@ -246,51 +209,48 @@ var NoviceManager = /** @class */ (function (_super) {
         this.ui.lblClickScript.text = sheet.script;
         // 蒙板抠图位置更新
         if (sheet.interactPosition) {
-            var maskPos = StringUtils.splitStringToPoint(sheet.interactPosition);
+            const maskPos = StringUtils.splitStringToPoint(sheet.interactPosition);
             this.ui.viewInteractArea.pos(maskPos.x, maskPos.y);
         }
         else {
             this.ui.viewInteractArea.pos(0, 0);
         }
-    };
-    NoviceManager.prototype.updateSpecialInteractArea = function (sheet) {
+    }
+    updateSpecialInteractArea(sheet) {
         if (sheet && sheet.specialInteractArea) {
-            var rect = StringUtils.splitStringToArr(sheet.specialInteractArea);
+            const rect = StringUtils.splitStringToArr(sheet.specialInteractArea);
             this.ui.imgTop.pos(0, 0).size(LayerManager.stageDesignWidth, parseInt(rect[1]));
             this.ui.imgRight.pos(parseInt(rect[0]) + parseInt(rect[2]), parseInt(rect[1])).size((LayerManager.stageDesignWidth - (parseInt(rect[0]) + parseInt(rect[2]))), parseInt(rect[3]));
             this.ui.imgBottom.pos(0, parseInt(rect[1]) + parseInt(rect[3])).size(LayerManager.stageDesignWidth, (LayerManager.stageDesignHeight - (parseInt(rect[1]) + parseInt(rect[3]))));
             this.ui.imgLeft.pos(0, parseInt(rect[1])).size(parseInt(rect[0]), parseInt(rect[3]));
         }
-    };
-    NoviceManager.prototype.doDragAnimation = function (sx, sy, tx, ty) {
-        var _this = this;
+    }
+    doDragAnimation(sx, sy, tx, ty) {
         this.ui.imgFinger.pos(sx, sy);
-        Laya.Tween.to(this.ui.imgFinger, { x: tx, y: ty }, 500, null, Laya.Handler.create(this, function () {
-            Laya.timer.once(500, _this, _this.doDragAnimation, [sx, sy, tx, ty]);
+        Laya.Tween.to(this.ui.imgFinger, { x: tx, y: ty }, 500, null, Laya.Handler.create(this, () => {
+            Laya.timer.once(500, this, this.doDragAnimation, [sx, sy, tx, ty]);
         }), 500);
-    };
-    NoviceManager.prototype.activateMaskClick = function () {
-        var _this = this;
-        Laya.timer.once(Time.SEC_IN_MILI * 0.05, this, function () {
+    }
+    activateMaskClick() {
+        Laya.timer.once(Time.SEC_IN_MILI * 0.05, this, () => {
             // prettier-ignore
-            M.layer.guideLayer.on(Laya.Event.CLICK, _this, _this.onMaskClick);
+            M.layer.guideLayer.on(Laya.Event.CLICK, this, this.onMaskClick);
         });
-    };
-    NoviceManager.prototype.onMaskClick = function () {
+    }
+    onMaskClick() {
         if (this._currStepType === NoviceType.DEFAULT) {
             M.layer.guideLayer.off(Laya.Event.CLICK, this, this.onMaskClick);
             this.nextStep();
         }
-    };
-    NoviceManager.prototype.saveGroupId = function (groupId) {
+    }
+    saveGroupId(groupId) {
         if (this._saveFunc) {
             this._saveFunc(groupId);
         }
-    };
-    NoviceManager.isComplete = false;
-    NoviceManager.cache = {};
-    return NoviceManager;
-}(EventDispatcher));
+    }
+}
+NoviceManager.isComplete = false;
+NoviceManager.cache = {};
 var NoviceType;
 (function (NoviceType) {
     NoviceType[NoviceType["NONE"] = 0] = "NONE";
@@ -304,23 +264,17 @@ var NoviceActivateType;
     NoviceActivateType[NoviceActivateType["LEVEL"] = 1] = "LEVEL";
     NoviceActivateType[NoviceActivateType["SYNTHESIS_LEVEL"] = 2] = "SYNTHESIS_LEVEL";
 })(NoviceActivateType || (NoviceActivateType = {}));
-var NoviceTarget = /** @class */ (function () {
-    function NoviceTarget() {
-    }
-    NoviceTarget.QUICK_PURCHASE_MONSTER = "QUICK_PURCHASE_MONSTER";
-    NoviceTarget.FOREST_KING = "FOREST_KING";
-    NoviceTarget.FOREST_KING_UPGRADE = "FOREST_KING_UPGRADE";
-    NoviceTarget.FOREST_KING_CLOSE = "FOREST_KING_CLOSE";
-    NoviceTarget.MONSTER_CELL_2 = "MONSTER_CELL_2";
-    return NoviceTarget;
-}());
-var NoviceEvent = /** @class */ (function () {
-    function NoviceEvent() {
-    }
-    NoviceEvent.ACTIVATE_TARGET = "ACTIVATE_TARGET";
-    NoviceEvent.WAITING = "WAITING";
-    NoviceEvent.DEFAULT = "DEFAULT";
-    NoviceEvent.CLICK = "CLICK";
-    return NoviceEvent;
-}());
+class NoviceTarget {
+}
+NoviceTarget.QUICK_PURCHASE_MONSTER = "QUICK_PURCHASE_MONSTER";
+NoviceTarget.FOREST_KING = "FOREST_KING";
+NoviceTarget.FOREST_KING_UPGRADE = "FOREST_KING_UPGRADE";
+NoviceTarget.FOREST_KING_CLOSE = "FOREST_KING_CLOSE";
+NoviceTarget.MONSTER_CELL_2 = "MONSTER_CELL_2";
+class NoviceEvent {
+}
+NoviceEvent.ACTIVATE_TARGET = "ACTIVATE_TARGET";
+NoviceEvent.WAITING = "WAITING";
+NoviceEvent.DEFAULT = "DEFAULT";
+NoviceEvent.CLICK = "CLICK";
 //# sourceMappingURL=NoviceManager.js.map
