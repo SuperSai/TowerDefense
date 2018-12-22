@@ -59,26 +59,25 @@ class RankingView extends ui.rank.RankingUI {
             this.openFriendRankingView();
         }
     }
-    openWorldRankingView(_data) {
+    openWorldRankingView(data) {
         var that = this;
         var listDatas = [];
         //移除收益为0或以下的数据
-        if (_data) {
-            _data.forEach(element => {
+        if (data) {
+            data.forEach(element => {
                 let asset = MathUtils.parseStringNum(element.stage);
                 if (asset > 0) {
                     listDatas.push(element);
                 }
             });
         }
-        that.worldRankingList.vScrollBarSkin = null;
+        that.worldRankingList.vScrollBarSkin = "";
         that.worldRankingList.repeatY = 5;
         that.worldRankingList.array = listDatas;
         that.worldRankingList.renderHandler = new Laya.Handler(that, (cell, index) => {
-            if (index > that.worldRankingList.array.length) {
+            if (index > that.worldRankingList.array.length)
                 return;
-            }
-            let item = listDatas[index];
+            let item = that.worldRankingList.array[index];
             if (item) {
                 const cellBar = cell.getChildByName("cellBar");
                 if (cellBar) {
@@ -127,7 +126,7 @@ class RankingView extends ui.rank.RankingUI {
                     txtScore.changeText(MathUtils.bytesToSize(asset));
                 }
             }
-        });
+        }, null, false);
         let txtHint = that.viewStackRanking.selection.getChildByName('txtHint');
         if (txtHint) {
             txtHint.visible = that.worldRankingList.array.length < 1;

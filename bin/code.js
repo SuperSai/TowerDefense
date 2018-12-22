@@ -1403,32 +1403,43 @@ class StringUtils {
      * 将超出字符存储长度的字符串裁剪成按存储长度加上“...”的方式显示，这里1个中文字符等于3个英文字符的Byte长度，但是一般文本显示的时候一个中文字符一般等于2个英文字符的宽度，故使用此方法时，传入的len参数应该按中文占两位长度来计算。
      */
     static omitStringByByteLen(str, len = 14, omitSymbol = "...") {
+        if (!str)
+            return str;
         let result = str.concat();
         let resultLen = 0;
         let lastSymbolLen = 0;
         const bytes = new Laya.Byte();
-        bytes.writeUTFBytes(result);
-        bytes.pos = 0;
-        while (bytes.bytesAvailable) {
-            const byte = bytes.readByte();
-            if (byte >= 0) {
-                lastSymbolLen = 1;
-                resultLen++;
+        try {
+            bytes.writeUTFBytes(result);
+            bytes.pos = 0;
+            while (bytes.bytesAvailable) {
+                const byte = bytes.readByte();
+                if (byte >= 0) {
+                    lastSymbolLen = 1;
+                    resultLen++;
+                }
+                else {
+                    let loop = 2;
+                    lastSymbolLen = 1;
+                    while (bytes.bytesAvailable && loop) {
+                        bytes.readByte();
+                        resultLen++;
+                        lastSymbolLen++;
+                        loop--;
+                    }
+                }
+                if (resultLen >= len) {
+                    break;
+                }
             }
-            else {
-                bytes.readByte();
-                bytes.readByte();
-                lastSymbolLen = 3;
-                resultLen += 2;
-            }
-            if (resultLen >= len) {
-                break;
+            if (bytes.bytesAvailable > 0) {
+                const end = bytes.length - bytes.bytesAvailable - lastSymbolLen;
+                bytes.pos = 0;
+                result = bytes.readUTFBytes(end) + omitSymbol;
             }
         }
-        if (bytes.bytesAvailable > 0) {
-            const end = bytes.length - bytes.bytesAvailable - lastSymbolLen;
-            bytes.pos = 0;
-            result = bytes.readUTFBytes(end) + omitSymbol;
+        catch (e) {
+            console.error("@FREEMAN: StringTools.omitStringByByteLen:", e);
         }
         return result;
     }
@@ -9297,7 +9308,7 @@ class FriendConcurItem extends ui.friendConcur.FriendConcurItemUI {
                 self.btn_get.label = "已领取";
             }
             else {
-                self.btn_get.label = "可领取";
+                self.btn_get.label = "领取";
             }
             self.hbox.refresh();
             this.btn_get.on(Laya.Event.CLICK, this, this.onGetReward);
@@ -12501,26 +12512,25 @@ class RankingView extends ui.rank.RankingUI {
             this.openFriendRankingView();
         }
     }
-    openWorldRankingView(_data) {
+    openWorldRankingView(data) {
         var that = this;
         var listDatas = [];
         //移除收益为0或以下的数据
-        if (_data) {
-            _data.forEach(element => {
+        if (data) {
+            data.forEach(element => {
                 let asset = MathUtils.parseStringNum(element.stage);
                 if (asset > 0) {
                     listDatas.push(element);
                 }
             });
         }
-        that.worldRankingList.vScrollBarSkin = null;
+        that.worldRankingList.vScrollBarSkin = "";
         that.worldRankingList.repeatY = 5;
         that.worldRankingList.array = listDatas;
         that.worldRankingList.renderHandler = new Laya.Handler(that, (cell, index) => {
-            if (index > that.worldRankingList.array.length) {
+            if (index > that.worldRankingList.array.length)
                 return;
-            }
-            let item = listDatas[index];
+            let item = that.worldRankingList.array[index];
             if (item) {
                 const cellBar = cell.getChildByName("cellBar");
                 if (cellBar) {
@@ -12569,7 +12579,7 @@ class RankingView extends ui.rank.RankingUI {
                     txtScore.changeText(MathUtils.bytesToSize(asset));
                 }
             }
-        });
+        }, null, false);
         let txtHint = that.viewStackRanking.selection.getChildByName('txtHint');
         if (txtHint) {
             txtHint.visible = that.worldRankingList.array.length < 1;

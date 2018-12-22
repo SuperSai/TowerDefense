@@ -30,7 +30,7 @@ class FriendConcurItem extends ui.friendConcur.FriendConcurItemUI {
                 self.btn_get.label = "已领取";
             }
             else {
-                self.btn_get.label = "可领取";
+                self.btn_get.label = "领取";
             }
             self.hbox.refresh();
             this.btn_get.on(Laya.Event.CLICK, this, this.onGetReward);
