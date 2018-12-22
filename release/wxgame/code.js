@@ -11647,8 +11647,7 @@ class HallScene extends ui.hall.HallSceneUI {
     updateDiamondTime(time) {
         let self = this;
         self._diamondTime = time;
-        self.btn_online.visible = userData.offlineRewardCount > 0;
-        if (self.btn_online.visible) {
+        if (userData.offlineRewardCount > 0) {
             if (self._diamondTime > 0) {
                 self.txt_diamondTime.text = TimeUtil.S2H(self._diamondTime, ":", false);
                 TimerManager.Instance.doTimer(1000, 0, self.onUpdateTime, self);
@@ -11656,6 +11655,9 @@ class HallScene extends ui.hall.HallSceneUI {
             else if (self._diamondTime <= 0) {
                 self.txt_diamondTime.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.28");
             }
+        }
+        else {
+            self.txt_diamondTime.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.29");
         }
     }
     onUpdateTime() {
@@ -11684,7 +11686,12 @@ class HallScene extends ui.hall.HallSceneUI {
             });
         }
         else {
-            MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.27"));
+            if (userData.offlineRewardCount <= 0) {
+                MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.30"));
+            }
+            else {
+                MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.27"));
+            }
         }
     }
 }
@@ -13191,7 +13198,7 @@ class ShopView extends ui.shop.ShopViewUI {
 class StrengthenView extends ui.strengthen.StrengthenViewUI {
     constructor(_stage = -1) {
         super();
-        this.indexArray = [10, 1, 3, 2];
+        this.indexArray = [10, 2, 1, 3];
         this.init(_stage);
     }
     //新建并添加到节点

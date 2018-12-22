@@ -36,7 +36,8 @@ hallScene.label.txt.25:免费抽奖剩余时间：{0}
 hallScene.label.txt.26:下一次免费抽奖倒计时：{0}
 hallScene.label.txt.27:在线5分钟，才能领取奖励哟~
 hallScene.label.txt.28:领取奖励
-
+hallScene.label.txt.29:今日已满
+hallScene.label.txt.30:今日在线奖励已领取完毕哟~
 
 
 
