@@ -47,6 +47,13 @@ class StrengthenView extends ui.strengthen.StrengthenViewUI {
                     self.removeSelf();
                 });
             }
+            let btnSkill = imgBg.getChildByName("btn_skill");
+            if (btnSkill) {
+                btnSkill.offAll(Laya.Event.CLICK);
+                btnSkill.on(Laya.Event.CLICK, btnSkill, () => {
+                    SkillExplainView.Create(self);
+                });
+            }
         }
         //box
         for (var index = 0; index < 4; index++) {

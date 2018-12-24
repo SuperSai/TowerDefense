@@ -162,6 +162,7 @@ class HallScene extends ui.hall.HallSceneUI {
     self.checkKingIsUpdate();
     StrengthenManager.Instance.checkRedPoint();
     self.showStagePrize(true);
+    SDKManager.Instance.createBanner(false);
   }
 
   /** 初始化用户数据 */

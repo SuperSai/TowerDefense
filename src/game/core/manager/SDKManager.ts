@@ -43,7 +43,7 @@ class SDKManager {
         }
     }
 
-    private createBanner(isShow: boolean = true): void {
+    public createBanner(isShow: boolean = true): void {
         let self = this;
         if (isShow && self._bannerAd) {
             self._bannerAd.show();

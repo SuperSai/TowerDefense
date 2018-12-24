@@ -119,19 +119,6 @@
                 },
                 {
                     "x":30,
-                    "type":"Label",
-                    "props":{"y":848,"x":214,"text":"点击空白处关闭","fontSize":30,"color":"#ffffff"},
-                    "nodeParent":12,
-                    "label":"Label",
-                    "isDirectory":false,
-                    "isAniNode":true,
-                    "hasChild":false,
-                    "compId":13,
-                    "child":[
-                        ]
-                },
-                {
-                    "x":30,
                     "type":"Button",
                     "props":{"y":718,"x":109,"width":182,"var":"btn_exit","stateNum":"1","skin":"images/component/frame_btn_small_blue.png","labelStrokeColor":"#946430","labelStroke":2,"labelSize":30,"labelColors":"#FFFFFF,#FFFFFF,#FFFFFF,#FFFFFF","labelBold":true,"label":"取消","height":62},
                     "nodeParent":12,

@@ -73,6 +73,7 @@ class SkyDropController extends Laya.EventDispatcher {
                 this._skyDropFrame = new SkyDropView();
                 this._skyDropFrame.renew(sheet);
             }
+            AlignUtils.setToScreenGoldenPos(this._skyDropFrame);
             M.layer.subFrameLayer.addChildWithMaskCall(this._skyDropFrame, this._skyDropFrame.removeSelf);
         } else {
             if (!this._skyDropObtainFrame) {
@@ -216,6 +217,8 @@ class SkyDropView extends Laya.View {
         const numStr: string = (sheet.num * 100).toString() + "%";
         this.ui.lblNum.text = numStr;
         this.ui.lblDuration.text = (sheet.duration * 0.001).toString();
+        this.ui.hbox1.refresh();
+        this.ui.hbox2.refresh();
     }
 
     protected onHelpBtnClick() {

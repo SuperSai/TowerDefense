@@ -1,8 +1,8 @@
 {
     "x":0,
     "type":"View",
-    "selectedBox":1,
-    "selecteID":19,
+    "selectedBox":2,
+    "selecteID":98,
     "props":{"width":714,"sceneWidth":750,"sceneHeight":1334,"sceneColor":"#000000","height":1018},
     "nodeParent":-1,
     "label":"View",
@@ -135,14 +135,13 @@
                             "props":{"y":226,"x":73,"name":"boxItem1"},
                             "nodeParent":2,
                             "label":"Box(boxItem1)",
-                            "isOpen":true,
+                            "isOpen":false,
                             "isDirectory":true,
                             "isAniNode":true,
                             "hasChild":true,
                             "compId":26,
                             "child":[
                                 {
-                                    "x":60,
                                     "type":"Image",
                                     "props":{"skin":"images/strengthen/strengthen_item_bg.png","name":"imgItemBg"},
                                     "nodeParent":26,
@@ -155,7 +154,6 @@
                                         ]
                                 },
                                 {
-                                    "x":60,
                                     "type":"Image",
                                     "props":{"y":69,"x":48,"skin":"images/strengthen/strengthen_item3.png","name":"imgItem","centerX":5},
                                     "nodeParent":26,
@@ -168,7 +166,6 @@
                                         ]
                                 },
                                 {
-                                    "x":60,
                                     "type":"Label",
                                     "props":{"y":13,"x":23,"text":"金币加成","name":"txtDes","fontSize":30,"color":"#b13c0e","bold":true,"align":"right"},
                                     "nodeParent":26,
@@ -181,7 +178,6 @@
                                         ]
                                 },
                                 {
-                                    "x":60,
                                     "type":"Label",
                                     "props":{"y":14,"x":157,"width":82,"text":"+0%","name":"txtAdd","fontSize":30,"color":"#b13c0e","bold":true,"align":"right"},
                                     "nodeParent":26,
@@ -194,7 +190,6 @@
                                         ]
                                 },
                                 {
-                                    "x":60,
                                     "type":"Image",
                                     "props":{"y":220,"x":52,"skin":"images/strengthen/strengthen_frame_bar.png","name":"imgEssence"},
                                     "nodeParent":26,
@@ -206,7 +201,6 @@
                                     "compId":49,
                                     "child":[
                                         {
-                                            "x":75,
                                             "type":"Image",
                                             "props":{"y":-3,"x":-13,"skin":"images/strengthen/strengthen_item_shitou.png","name":"imgIcon"},
                                             "nodeParent":49,
@@ -220,7 +214,6 @@
                                                 ]
                                         },
                                         {
-                                            "x":75,
                                             "type":"Label",
                                             "props":{"y":3,"x":30,"text":"0","strokeColor":"#946430","stroke":4,"name":"txtEssence","fontSize":26,"color":"#ffffff","bold":true,"align":"left"},
                                             "nodeParent":49,
@@ -234,7 +227,6 @@
                                         }]
                                 },
                                 {
-                                    "x":60,
                                     "type":"Button",
                                     "props":{"y":281,"x":39,"stateNum":"1","skin":"images/component/frame_btn_small_yellow.png","name":"btnStrengthen","labelStrokeColor":"#e5ad1e","labelStroke":2,"labelSize":30,"labelColors":"#ffffff","labelBold":true},
                                     "nodeParent":26,
@@ -246,7 +238,6 @@
                                     "compId":41,
                                     "child":[
                                         {
-                                            "x":75,
                                             "type":"Label",
                                             "props":{"y":18,"x":33,"text":"强化","strokeColor":"#946430","stroke":4,"name":"txtBtn","fontSize":28,"color":"#ffffff","bold":true,"align":"left"},
                                             "nodeParent":41,
@@ -259,7 +250,6 @@
                                                 ]
                                         },
                                         {
-                                            "x":75,
                                             "type":"Label",
                                             "props":{"y":18,"x":94,"text":"+2%","strokeColor":"#946430","stroke":4,"name":"txtAdd","fontSize":28,"color":"#ffffff","bold":true,"align":"left"},
                                             "nodeParent":41,
@@ -272,7 +262,6 @@
                                                 ]
                                         },
                                         {
-                                            "x":75,
                                             "type":"Script",
                                             "source":"laya/pages/ScaleAnimScript.script",
                                             "props":{"y":0,"x":0},
@@ -293,14 +282,13 @@
                             "props":{"y":224,"x":383,"name":"boxItem2"},
                             "nodeParent":2,
                             "label":"Box(boxItem2)",
-                            "isOpen":true,
+                            "isOpen":false,
                             "isDirectory":true,
                             "isAniNode":true,
                             "hasChild":true,
                             "compId":68,
                             "child":[
                                 {
-                                    "x":60,
                                     "type":"Image",
                                     "props":{"skin":"images/strengthen/strengthen_item_bg.png","name":"imgItemBg"},
                                     "nodeParent":68,
@@ -314,7 +302,6 @@
                                     "$LOCKED":true
                                 },
                                 {
-                                    "x":60,
                                     "type":"Image",
                                     "props":{"y":67,"x":48,"skin":"images/core/skill_01.png","name":"imgItem","centerX":2},
                                     "nodeParent":68,
@@ -327,7 +314,6 @@
                                         ]
                                 },
                                 {
-                                    "x":60,
                                     "type":"Label",
                                     "props":{"y":13,"x":21,"text":"雷神之怒","name":"txtDes","fontSize":30,"color":"#b13c0e","bold":true,"align":"right"},
                                     "nodeParent":68,
@@ -340,7 +326,6 @@
                                         ]
                                 },
                                 {
-                                    "x":60,
                                     "type":"Label",
                                     "props":{"y":13,"x":151,"width":82,"text":"+6%","name":"txtAdd","height":30,"fontSize":30,"color":"#b13c0e","bold":true,"align":"right"},
                                     "nodeParent":68,
@@ -354,7 +339,6 @@
                                     "$HIDDEN":false
                                 },
                                 {
-                                    "x":60,
                                     "type":"Image",
                                     "props":{"y":221,"x":56,"skin":"images/strengthen/strengthen_frame_bar.png","name":"imgEssence"},
                                     "nodeParent":68,
@@ -366,7 +350,6 @@
                                     "compId":72,
                                     "child":[
                                         {
-                                            "x":75,
                                             "type":"Image",
                                             "props":{"y":-5,"x":-14,"skin":"images/strengthen/strengthen_item_shitou.png","name":"imgIcon"},
                                             "nodeParent":72,
@@ -380,7 +363,6 @@
                                                 ]
                                         },
                                         {
-                                            "x":75,
                                             "type":"Label",
                                             "props":{"y":4,"x":30,"text":"0","strokeColor":"#946430","stroke":4,"name":"txtEssence","fontSize":26,"color":"#ffffff","bold":true,"align":"left"},
                                             "nodeParent":72,
@@ -394,7 +376,6 @@
                                         }]
                                 },
                                 {
-                                    "x":60,
                                     "type":"Button",
                                     "props":{"y":284,"x":39,"stateNum":"1","skin":"images/component/frame_btn_small_yellow.png","name":"btnStrengthen","labelStrokeColor":"#e5ad1e","labelStroke":2,"labelSize":30,"labelColors":"#ffffff","labelBold":true},
                                     "nodeParent":68,
@@ -406,7 +387,6 @@
                                     "compId":78,
                                     "child":[
                                         {
-                                            "x":75,
                                             "type":"Label",
                                             "props":{"y":17,"x":35,"text":"强化","strokeColor":"#946430","stroke":4,"name":"txtBtn","fontSize":30,"color":"#ffffff","bold":true,"align":"left"},
                                             "nodeParent":78,
@@ -419,7 +399,6 @@
                                                 ]
                                         },
                                         {
-                                            "x":75,
                                             "type":"Label",
                                             "props":{"y":20,"x":100,"text":"+1%","strokeColor":"#946430","stroke":4,"name":"txtAdd","fontSize":24,"color":"#ffffff","bold":true,"align":"left"},
                                             "nodeParent":78,
@@ -432,7 +411,6 @@
                                                 ]
                                         },
                                         {
-                                            "x":75,
                                             "type":"Script",
                                             "source":"laya/pages/ScaleAnimScript.script",
                                             "props":{"y":0,"x":0},
@@ -453,14 +431,13 @@
                             "props":{"y":587,"x":71,"name":"boxItem3"},
                             "nodeParent":2,
                             "label":"Box(boxItem3)",
-                            "isOpen":true,
+                            "isOpen":false,
                             "isDirectory":true,
                             "isAniNode":true,
                             "hasChild":true,
                             "compId":60,
                             "child":[
                                 {
-                                    "x":60,
                                     "type":"Image",
                                     "props":{"skin":"images/strengthen/strengthen_item_bg.png","name":"imgItemBg"},
                                     "nodeParent":60,
@@ -473,7 +450,6 @@
                                         ]
                                 },
                                 {
-                                    "x":60,
                                     "type":"Image",
                                     "props":{"y":66,"skin":"images/core/skill_02.png","name":"imgItem","centerX":-1},
                                     "nodeParent":60,
@@ -486,7 +462,6 @@
                                         ]
                                 },
                                 {
-                                    "x":60,
                                     "type":"Label",
                                     "props":{"y":13,"x":27,"text":"冰冻之触","name":"txtDes","fontSize":30,"color":"#b13c0e","bold":true,"align":"right"},
                                     "nodeParent":60,
@@ -499,7 +474,6 @@
                                         ]
                                 },
                                 {
-                                    "x":60,
                                     "type":"Label",
                                     "props":{"y":13,"x":156,"width":82,"text":"+6%","name":"txtAdd","fontSize":30,"color":"#b13c0e","bold":true,"align":"right"},
                                     "nodeParent":60,
@@ -513,7 +487,6 @@
                                     "$HIDDEN":false
                                 },
                                 {
-                                    "x":60,
                                     "type":"Image",
                                     "props":{"y":222,"x":49,"skin":"images/strengthen/strengthen_frame_bar.png","name":"imgEssence"},
                                     "nodeParent":60,
@@ -525,7 +498,6 @@
                                     "compId":64,
                                     "child":[
                                         {
-                                            "x":75,
                                             "type":"Image",
                                             "props":{"y":-1,"x":-15,"skin":"images/strengthen/strengthen_item_shitou.png","name":"imgIcon"},
                                             "nodeParent":64,
@@ -539,7 +511,6 @@
                                                 ]
                                         },
                                         {
-                                            "x":75,
                                             "type":"Label",
                                             "props":{"y":3,"x":30,"text":"0","strokeColor":"#946430","stroke":4,"name":"txtEssence","fontSize":26,"color":"#ffffff","bold":true,"align":"left"},
                                             "nodeParent":64,
@@ -553,7 +524,6 @@
                                         }]
                                 },
                                 {
-                                    "x":60,
                                     "type":"Button",
                                     "props":{"y":281,"x":39,"stateNum":"1","skin":"images/component/frame_btn_small_yellow.png","name":"btnStrengthen","labelStrokeColor":"#e5ad1e","labelStroke":2,"labelSize":30,"labelColors":"#ffffff","labelBold":true},
                                     "nodeParent":60,
@@ -565,7 +535,6 @@
                                     "compId":81,
                                     "child":[
                                         {
-                                            "x":75,
                                             "type":"Label",
                                             "props":{"y":17,"x":32,"text":"强化","strokeColor":"#946430","stroke":4,"name":"txtBtn","fontSize":30,"color":"#ffffff","bold":true,"align":"left"},
                                             "nodeParent":81,
@@ -578,7 +547,6 @@
                                                 ]
                                         },
                                         {
-                                            "x":75,
                                             "type":"Label",
                                             "props":{"y":20,"x":97,"text":"+1%","strokeColor":"#946430","stroke":4,"name":"txtAdd","fontSize":24,"color":"#ffffff","bold":true,"align":"left"},
                                             "nodeParent":81,
@@ -591,7 +559,6 @@
                                                 ]
                                         },
                                         {
-                                            "x":75,
                                             "type":"Script",
                                             "source":"laya/pages/ScaleAnimScript.script",
                                             "props":{"y":0,"x":0},
@@ -612,14 +579,13 @@
                             "props":{"y":587,"x":384,"name":"boxItem4"},
                             "nodeParent":2,
                             "label":"Box(boxItem4)",
-                            "isOpen":true,
+                            "isOpen":false,
                             "isDirectory":true,
                             "isAniNode":true,
                             "hasChild":true,
                             "compId":52,
                             "child":[
                                 {
-                                    "x":60,
                                     "type":"Image",
                                     "props":{"skin":"images/strengthen/strengthen_item_bg.png","name":"imgItemBg"},
                                     "nodeParent":52,
@@ -632,7 +598,6 @@
                                         ]
                                 },
                                 {
-                                    "x":60,
                                     "type":"Image",
                                     "props":{"y":65,"x":53,"skin":"images/core/skill_03.png","name":"imgItem","centerX":0},
                                     "nodeParent":52,
@@ -645,7 +610,6 @@
                                         ]
                                 },
                                 {
-                                    "x":60,
                                     "type":"Label",
                                     "props":{"y":13,"x":27,"text":"幽冥毒液","name":"txtDes","fontSize":30,"color":"#b13c0e","bold":true,"align":"right"},
                                     "nodeParent":52,
@@ -658,7 +622,6 @@
                                         ]
                                 },
                                 {
-                                    "x":60,
                                     "type":"Label",
                                     "props":{"y":13,"x":158,"width":82,"text":"+6%","name":"txtAdd","fontSize":30,"color":"#b13c0e","bold":true,"align":"right"},
                                     "nodeParent":52,
@@ -672,7 +635,6 @@
                                     "$HIDDEN":false
                                 },
                                 {
-                                    "x":60,
                                     "type":"Image",
                                     "props":{"y":220,"x":55,"skin":"images/strengthen/strengthen_frame_bar.png","name":"imgEssence"},
                                     "nodeParent":52,
@@ -684,7 +646,6 @@
                                     "compId":56,
                                     "child":[
                                         {
-                                            "x":75,
                                             "type":"Image",
                                             "props":{"y":-2,"x":-16,"skin":"images/strengthen/strengthen_item_shitou.png","name":"imgIcon"},
                                             "nodeParent":56,
@@ -698,7 +659,6 @@
                                                 ]
                                         },
                                         {
-                                            "x":75,
                                             "type":"Label",
                                             "props":{"y":3,"x":30,"text":"0","strokeColor":"#946430","stroke":4,"name":"txtEssence","fontSize":26,"color":"#ffffff","bold":true,"align":"left"},
                                             "nodeParent":56,
@@ -712,7 +672,6 @@
                                         }]
                                 },
                                 {
-                                    "x":60,
                                     "type":"Button",
                                     "props":{"y":279,"x":39,"stateNum":"1","skin":"images/component/frame_btn_small_yellow.png","name":"btnStrengthen","labelStrokeColor":"#e5ad1e","labelStroke":2,"labelSize":30,"labelColors":"#ffffff","labelBold":true},
                                     "nodeParent":52,
@@ -724,7 +683,6 @@
                                     "compId":84,
                                     "child":[
                                         {
-                                            "x":75,
                                             "type":"Label",
                                             "props":{"y":17,"x":31,"text":"强化","strokeColor":"#946430","stroke":4,"name":"txtBtn","fontSize":30,"color":"#ffffff","bold":true,"align":"left"},
                                             "nodeParent":84,
@@ -737,7 +695,6 @@
                                                 ]
                                         },
                                         {
-                                            "x":75,
                                             "type":"Label",
                                             "props":{"y":17,"x":96,"text":"+1%","strokeColor":"#946430","stroke":4,"name":"txtAdd","fontSize":30,"color":"#ffffff","bold":true,"align":"left"},
                                             "nodeParent":84,
@@ -750,7 +707,6 @@
                                                 ]
                                         },
                                         {
-                                            "x":75,
                                             "type":"Script",
                                             "source":"laya/pages/ScaleAnimScript.script",
                                             "props":{"y":0,"x":0},
@@ -764,6 +720,20 @@
                                                 ]
                                         }]
                                 }]
+                        },
+                        {
+                            "x":45,
+                            "type":"Button",
+                            "props":{"y":140,"x":514,"stateNum":"1","skin":"images/shop/shop_skill_btn.png","name":"btn_skill"},
+                            "nodeParent":2,
+                            "label":"Button(btn_skill)",
+                            "isOpen":true,
+                            "isDirectory":false,
+                            "isAniNode":true,
+                            "hasChild":false,
+                            "compId":98,
+                            "child":[
+                                ]
                         },
                         {
                             "x":45,
