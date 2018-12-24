@@ -4501,16 +4501,8 @@ class SDKManager {
         if (self._isForbidBannerAd && force == false) {
             return;
         }
-        self.closeBannerAd();
-        let bannerAd = platform.createBannerAd({
-            adUnitId: 'adunit-439fc3b5508c60cc',
-            top: LayerManager.clientTop
-        });
-        if (bannerAd) {
-            bannerAd.show();
-        }
-        self._bannerAd = bannerAd;
-        return bannerAd;
+        self.createBanner();
+        return self._bannerAd;
     }
     /**
      *  关闭banner广告
@@ -4523,9 +4515,32 @@ class SDKManager {
             self._isForbidBannerAd = true;
         }
         if (self._bannerAd) {
-            self._bannerAd.hide();
-            self._bannerAd.destroy();
-            self._bannerAd = null;
+            self.createBanner(false);
+        }
+    }
+    createBanner(isShow = true) {
+        let self = this;
+        if (isShow && self._bannerAd) {
+            self._bannerAd.show();
+            return;
+        }
+        else if (!isShow || !self._bannerAd) {
+            self._bannerAd && self._bannerAd.destroy();
+            self._bannerAd = platform.createBannerAd({
+                adUnitId: 'adunit-439fc3b5508c60cc',
+                top: LayerManager.clientTop
+            });
+        }
+        if (self._bannerAd) {
+            self._bannerAd.onError(err => {
+                console.log(err);
+            });
+            if (isShow) {
+                self._bannerAd.show();
+            }
+            else {
+                self._bannerAd.hide();
+            }
         }
     }
     /**
@@ -8128,7 +8143,7 @@ var ui;
                 this.createView(ui.randomReward.HeroLevelViewUI.uiView);
             }
         }
-        HeroLevelViewUI.uiView = { "type": "View", "props": {}, "child": [{ "type": "Box", "props": { "y": 0, "x": 0, "width": 638, "height": 836 }, "child": [{ "type": "Image", "props": { "y": 334, "x": 318, "var": "imgLight", "skin": "images/core/light_01.png", "anchorY": 0.5, "anchorX": 0.5 } }, { "type": "Image", "props": { "x": 25, "skin": "images/randomReward/randomReward_title_01.png" } }, { "type": "Image", "props": { "y": 518, "x": 241, "skin": "images/component/frame_9calce_03.png", "scaleY": 1.2, "scaleX": 1.2, "sizeGrid": "26,31,23,28" } }, { "type": "Image", "props": { "y": 258, "x": 241, "skin": "images/component/frame_9calce_03.png", "scaleY": 1.2, "scaleX": 1.2, "sizeGrid": "26,31,23,28" } }, { "type": "Image", "props": { "y": 429, "x": 281, "skin": "images/randomReward/randomReward_arrow.png" } }, { "type": "Image", "props": { "y": 663, "x": 320, "var": "oldHero", "skin": "images/carImg/hero_d1_18.png", "anchorY": 1, "anchorX": 0.5 } }, { "type": "Image", "props": { "y": 402, "x": 321, "var": "newHero", "skin": "images/carImg/hero_d1_18.png", "anchorY": 1, "anchorX": 0.5 } }, { "type": "Label", "props": { "y": 848, "x": 214, "text": "点击空白处关闭", "fontSize": 30, "color": "#ffffff" } }, { "type": "Button", "props": { "y": 718, "x": 156, "var": "btn_level", "stateNum": 1, "skin": "images/component/yellow_btn.png", "labelStrokeColor": "#946430", "labelStroke": 2, "labelSize": 40, "labelPadding": "0,0,0,-30", "labelColors": "#FFFFFF,#FFFFFF,#FFFFFF,#FFFFFF", "labelBold": true, "label": "升级" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }, { "type": "Image", "props": { "y": 34, "x": 189, "skin": "images/randomReward/randomReward_share.png" } }] }, { "type": "Label", "props": { "y": 635, "x": 255, "width": 129, "var": "txt_oldLevel", "text": "1级", "strokeColor": "#946430", "stroke": 2, "height": 26, "fontSize": 26, "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "y": 375, "x": 255, "width": 129, "var": "txt_newLevel", "text": "1级", "strokeColor": "#946430", "stroke": 2, "height": 26, "fontSize": 26, "color": "#ffffff", "align": "center" } }] }] };
+        HeroLevelViewUI.uiView = { "type": "View", "props": {}, "child": [{ "type": "Box", "props": { "y": 0, "x": 0, "width": 638, "height": 836 }, "child": [{ "type": "Image", "props": { "y": 334, "x": 318, "var": "imgLight", "skin": "images/core/light_01.png", "anchorY": 0.5, "anchorX": 0.5 } }, { "type": "Image", "props": { "x": 25, "skin": "images/randomReward/randomReward_title_01.png" } }, { "type": "Image", "props": { "y": 518, "x": 241, "skin": "images/component/frame_9calce_03.png", "scaleY": 1.2, "scaleX": 1.2, "sizeGrid": "26,31,23,28" } }, { "type": "Image", "props": { "y": 258, "x": 241, "skin": "images/component/frame_9calce_03.png", "scaleY": 1.2, "scaleX": 1.2, "sizeGrid": "26,31,23,28" } }, { "type": "Image", "props": { "y": 429, "x": 281, "skin": "images/randomReward/randomReward_arrow.png" } }, { "type": "Image", "props": { "y": 663, "x": 320, "var": "oldHero", "skin": "images/carImg/hero_d1_18.png", "anchorY": 1, "anchorX": 0.5 } }, { "type": "Image", "props": { "y": 402, "x": 321, "var": "newHero", "skin": "images/carImg/hero_d1_18.png", "anchorY": 1, "anchorX": 0.5 } }, { "type": "Label", "props": { "y": 848, "x": 214, "text": "点击空白处关闭", "fontSize": 30, "color": "#ffffff" } }, { "type": "Button", "props": { "y": 718, "x": 109, "width": 182, "var": "btn_exit", "stateNum": 1, "skin": "images/component/frame_btn_small_blue.png", "labelStrokeColor": "#946430", "labelStroke": 2, "labelSize": 30, "labelColors": "#FFFFFF,#FFFFFF,#FFFFFF,#FFFFFF", "labelBold": true, "label": "取消", "height": 62, "sizeGrid": "0,32,0,34" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }, { "type": "Label", "props": { "y": 635, "x": 255, "width": 129, "var": "txt_oldLevel", "text": "1级", "strokeColor": "#946430", "stroke": 2, "height": 26, "fontSize": 26, "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "y": 375, "x": 255, "width": 129, "var": "txt_newLevel", "text": "1级", "strokeColor": "#946430", "stroke": 2, "height": 26, "fontSize": 26, "color": "#ffffff", "align": "center" } }, { "type": "Button", "props": { "y": 719, "x": 354, "var": "btn_level", "stateNum": 1, "skin": "images/component/frame_btn_small_yellow.png", "labelStrokeColor": "#946430", "labelStroke": 2, "labelSize": 30, "labelPadding": "0,0,0,-20", "labelColors": "#FFFFFF,#FFFFFF,#FFFFFF,#FFFFFF", "labelBold": true, "label": "升级" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }, { "type": "Image", "props": { "y": 12, "x": 105, "skin": "images/randomReward/randomReward_share.png", "scaleY": 0.8, "scaleX": 0.8 } }] }] }] };
         randomReward.HeroLevelViewUI = HeroLevelViewUI;
     })(randomReward = ui.randomReward || (ui.randomReward = {}));
 })(ui || (ui = {}));
@@ -8544,7 +8559,7 @@ class RewardGoldView extends ui.common.view.RewardGoldViewUI {
     init() {
         let self = this;
         SDKManager.Instance.showBannerAd(true);
-        self.txt_share.visible = PlayerManager.Instance.Info.dayGetGoldCount != 6 && PlayerManager.Instance.Info.dayGetGoldCount != 2;
+        self.txt_share.visible = false; // PlayerManager.Instance.Info.dayGetGoldCount != 6 && PlayerManager.Instance.Info.dayGetGoldCount != 2;
         self.advBox.visible = !self.txt_share.visible;
         self.txt_lastCount.text = "今天剩余" + PlayerManager.Instance.Info.dayGetGoldCount + "次";
         let monsterType = userData.isEvolution() ? 2 : 1;
@@ -8553,9 +8568,6 @@ class RewardGoldView extends ui.common.view.RewardGoldViewUI {
         if (monsterInfo) {
             let curPrice = BattleManager.Instance.getMonsterPrice(monsterInfo.buyPrice, userData.queryBuyRecord(monsterInfo.id));
             self._money = curPrice * 0.8;
-        }
-        else {
-            console.log("精灵不存在");
         }
         self.txt_gold.text = MathUtils.bytesToSize(self._money);
         self.addEvents();
@@ -8577,26 +8589,25 @@ class RewardGoldView extends ui.common.view.RewardGoldViewUI {
                 self._callback(self._money);
         }
         else {
-            if (self.txt_share.visible) {
-                userData.toShareAd(() => {
-                    if (self._callback)
-                        self._callback(self._money);
-                });
+            // if (self.txt_share.visible) {
+            //     userData.toShareAd(() => {
+            //         if (self._callback) self._callback(self._money);
+            //     });
+            // } else 
+            // if (self.advBox.visible) {
+            let adStage = userData.toShareAd(() => {
+                if (self._callback)
+                    self._callback(self._money);
+            }, 12);
+            //没有广告就走分享
+            if (adStage > 0) {
+                MessageUtils.showMsgTips("今日广告已经观看完毕!");
+                FriendConcurView.Create(self);
+                // userData.toShareAd(() => {
+                //     if (self._callback) self._callback(self._money);
+                // });
             }
-            else if (self.advBox.visible) {
-                let adStage = userData.toShareAd(() => {
-                    if (self._callback)
-                        self._callback(self._money);
-                }, 12);
-                //没有广告就走分享
-                if (adStage > 0) {
-                    MessageUtils.showMsgTips("广告看完了");
-                    userData.toShareAd(() => {
-                        if (self._callback)
-                            self._callback(self._money);
-                    });
-                }
-            }
+            // }
         }
         self.onCloseHandler();
     }
@@ -10340,6 +10351,7 @@ class HallScene extends ui.hall.HallSceneUI {
             }
             else {
                 MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.19"));
+                FriendConcurView.Create(self);
             }
         }
     }
@@ -12392,11 +12404,9 @@ class HeroLevelView extends ui.randomReward.HeroLevelViewUI {
         Laya.loader.load(resList, Handler.create(null, () => {
             if (_parentNode) {
                 let nodeView = new HeroLevelView(callBack, arg);
+                nodeView._closeCallback = closeCallBack;
                 AlignUtils.setToScreenGoldenPos(nodeView);
-                LayerManager.getInstance().subFrameLayer.addChildWithMaskCall(nodeView, () => {
-                    closeCallBack && closeCallBack();
-                    nodeView.removeSelf();
-                });
+                LayerManager.getInstance().subFrameLayer.addChild(nodeView);
                 nodeView.once(Laya.Event.REMOVED, nodeView, nodeView.removeView);
             }
         }));
@@ -12414,10 +12424,12 @@ class HeroLevelView extends ui.randomReward.HeroLevelViewUI {
     addEvetns() {
         let self = this;
         self.btn_level.on(Laya.Event.CLICK, self, self.onHeroLevel);
+        self.btn_exit.on(Laya.Event.CLICK, self, self.onCancelHandler);
     }
     removeEvents() {
         let self = this;
         self.btn_level.off(Laya.Event.CLICK, self, self.onHeroLevel);
+        self.btn_exit.off(Laya.Event.CLICK, self, self.onCancelHandler);
     }
     /** 英雄升级 */
     onHeroLevel() {
@@ -12450,6 +12462,11 @@ class HeroLevelView extends ui.randomReward.HeroLevelViewUI {
                 });
             }
         }
+    }
+    onCancelHandler() {
+        let self = this;
+        self._closeCallback && self._closeCallback();
+        self.removeSelf();
     }
     removeView() {
         let self = this;

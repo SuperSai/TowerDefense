@@ -16,16 +16,8 @@ class SDKManager {
         if (self._isForbidBannerAd && force == false) {
             return;
         }
-        self.closeBannerAd();
-        let bannerAd = platform.createBannerAd({
-            adUnitId: 'adunit-439fc3b5508c60cc',
-            top: LayerManager.clientTop
-        });
-        if (bannerAd) {
-            bannerAd.show();
-        }
-        self._bannerAd = bannerAd;
-        return bannerAd;
+        self.createBanner();
+        return self._bannerAd;
     }
     /**
      *  关闭banner广告
@@ -38,9 +30,32 @@ class SDKManager {
             self._isForbidBannerAd = true;
         }
         if (self._bannerAd) {
-            self._bannerAd.hide();
-            self._bannerAd.destroy();
-            self._bannerAd = null;
+            self.createBanner(false);
+        }
+    }
+    createBanner(isShow = true) {
+        let self = this;
+        if (isShow && self._bannerAd) {
+            self._bannerAd.show();
+            return;
+        }
+        else if (!isShow || !self._bannerAd) {
+            self._bannerAd && self._bannerAd.destroy();
+            self._bannerAd = platform.createBannerAd({
+                adUnitId: 'adunit-439fc3b5508c60cc',
+                top: LayerManager.clientTop
+            });
+        }
+        if (self._bannerAd) {
+            self._bannerAd.onError(err => {
+                console.log(err);
+            });
+            if (isShow) {
+                self._bannerAd.show();
+            }
+            else {
+                self._bannerAd.hide();
+            }
         }
     }
     /**

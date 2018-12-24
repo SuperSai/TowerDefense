@@ -17,11 +17,9 @@ class HeroLevelView extends ui.randomReward.HeroLevelViewUI {
         Laya.loader.load(resList, Handler.create(null, () => {
             if (_parentNode) {
                 let nodeView = new HeroLevelView(callBack, arg);
+                nodeView._closeCallback = closeCallBack;
                 AlignUtils.setToScreenGoldenPos(nodeView);
-                LayerManager.getInstance().subFrameLayer.addChildWithMaskCall(nodeView, () => {
-                    closeCallBack && closeCallBack();
-                    nodeView.removeSelf();
-                });
+                LayerManager.getInstance().subFrameLayer.addChild(nodeView);
                 nodeView.once(Laya.Event.REMOVED, nodeView, nodeView.removeView);
             }
         }));
@@ -39,10 +37,12 @@ class HeroLevelView extends ui.randomReward.HeroLevelViewUI {
     addEvetns() {
         let self = this;
         self.btn_level.on(Laya.Event.CLICK, self, self.onHeroLevel);
+        self.btn_exit.on(Laya.Event.CLICK, self, self.onCancelHandler);
     }
     removeEvents() {
         let self = this;
         self.btn_level.off(Laya.Event.CLICK, self, self.onHeroLevel);
+        self.btn_exit.off(Laya.Event.CLICK, self, self.onCancelHandler);
     }
     /** 英雄升级 */
     onHeroLevel() {
@@ -75,6 +75,11 @@ class HeroLevelView extends ui.randomReward.HeroLevelViewUI {
                 });
             }
         }
+    }
+    onCancelHandler() {
+        let self = this;
+        self._closeCallback && self._closeCallback();
+        self.removeSelf();
     }
     removeView() {
         let self = this;

@@ -26,7 +26,7 @@ class RewardGoldView extends ui.common.view.RewardGoldViewUI {
     init() {
         let self = this;
         SDKManager.Instance.showBannerAd(true);
-        self.txt_share.visible = PlayerManager.Instance.Info.dayGetGoldCount != 6 && PlayerManager.Instance.Info.dayGetGoldCount != 2;
+        self.txt_share.visible = false; // PlayerManager.Instance.Info.dayGetGoldCount != 6 && PlayerManager.Instance.Info.dayGetGoldCount != 2;
         self.advBox.visible = !self.txt_share.visible;
         self.txt_lastCount.text = "今天剩余" + PlayerManager.Instance.Info.dayGetGoldCount + "次";
         let monsterType = userData.isEvolution() ? 2 : 1;
@@ -35,9 +35,6 @@ class RewardGoldView extends ui.common.view.RewardGoldViewUI {
         if (monsterInfo) {
             let curPrice = BattleManager.Instance.getMonsterPrice(monsterInfo.buyPrice, userData.queryBuyRecord(monsterInfo.id));
             self._money = curPrice * 0.8;
-        }
-        else {
-            console.log("精灵不存在");
         }
         self.txt_gold.text = MathUtils.bytesToSize(self._money);
         self.addEvents();
@@ -59,26 +56,25 @@ class RewardGoldView extends ui.common.view.RewardGoldViewUI {
                 self._callback(self._money);
         }
         else {
-            if (self.txt_share.visible) {
-                userData.toShareAd(() => {
-                    if (self._callback)
-                        self._callback(self._money);
-                });
+            // if (self.txt_share.visible) {
+            //     userData.toShareAd(() => {
+            //         if (self._callback) self._callback(self._money);
+            //     });
+            // } else 
+            // if (self.advBox.visible) {
+            let adStage = userData.toShareAd(() => {
+                if (self._callback)
+                    self._callback(self._money);
+            }, 12);
+            //没有广告就走分享
+            if (adStage > 0) {
+                MessageUtils.showMsgTips("今日广告已经观看完毕!");
+                FriendConcurView.Create(self);
+                // userData.toShareAd(() => {
+                //     if (self._callback) self._callback(self._money);
+                // });
             }
-            else if (self.advBox.visible) {
-                let adStage = userData.toShareAd(() => {
-                    if (self._callback)
-                        self._callback(self._money);
-                }, 12);
-                //没有广告就走分享
-                if (adStage > 0) {
-                    MessageUtils.showMsgTips("广告看完了");
-                    userData.toShareAd(() => {
-                        if (self._callback)
-                            self._callback(self._money);
-                    });
-                }
-            }
+            // }
         }
         self.onCloseHandler();
     }

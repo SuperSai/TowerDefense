@@ -472,6 +472,7 @@ class HallScene extends ui.hall.HallSceneUI {
             }
             else {
                 MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.19"));
+                FriendConcurView.Create(self);
             }
         }
     }
