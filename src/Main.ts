@@ -44,6 +44,7 @@ class Main {
         Laya.init(750, 1334, Laya.WebGL);
         Laya.stage.scaleMode = Laya.Stage.SCALE_NOSCALE;
         M.layer.initLayer(Laya.stage, 750, 1334);
+        LayerMgr.Instance.initLayer(Laya.stage, 750, 1334);
 
         if (!Laya.Browser.onMiniGame) {
             if (GlobalConfig.DEBUG) {

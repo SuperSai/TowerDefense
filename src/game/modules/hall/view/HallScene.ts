@@ -4,7 +4,6 @@
 class HallScene extends ui.hall.HallSceneUI {
   private parkMonsterModelSp: MonsterSprite = null;
   private curMonsterSprite: MonsterSprite = null;
-  private imgCarNumTimeLine: Laya.TimeLine = null; //兵营满席动画
   private _levelReward: Laya.Animation;//等级奖励
   private _giveCarTime: number = 0; //定时赠送怪物
   private _giveTempTime: number = 0; //定时赠送怪物
@@ -1773,8 +1772,9 @@ class HallScene extends ui.hall.HallSceneUI {
 
   /** 关注 */
   public onClickFollow(): void {
-    FollowRewardView.Create(this, () => {
-    });
+    ViewMgr.Ins.open(ViewConst.FollowRewardView);
+    // FollowRewardView.Create(this, () => {
+    // });
   }
 
   //每日签到界面
