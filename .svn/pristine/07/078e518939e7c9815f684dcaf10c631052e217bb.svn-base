@@ -3291,7 +3291,6 @@ class ViewRegisterMgr {
     initRegisterView() {
         ViewMgr.Ins.register(ViewConst.FollowRewardView, new FollowRewardView());
         ViewMgr.Ins.register(ViewConst.StrengthenView, new StrengthenView());
-        ViewMgr.Ins.register(ViewConst.RewardGoldView, new RewardGoldView());
     }
     static get Instance() {
         if (!ViewRegisterMgr._instance) {
@@ -3452,8 +3451,6 @@ var ViewConst;
     ViewConst[ViewConst["FollowRewardView"] = 10001] = "FollowRewardView";
     /** 强化界面 */
     ViewConst[ViewConst["StrengthenView"] = 10002] = "StrengthenView";
-    /** 金币不足界面 */
-    ViewConst[ViewConst["RewardGoldView"] = 10003] = "RewardGoldView";
 })(ViewConst || (ViewConst = {}));
 //# sourceMappingURL=ViewConst.js.map
 /*
@@ -8974,10 +8971,6 @@ class MaskLayer extends Layer {
                 }));
             }
         }
-        this._mask.off(Laya.Event.CLICK, this, this.applyClick);
-        Laya.timer.once(Time.SEC_IN_MILI, this, () => {
-            this._mask.on(Laya.Event.CLICK, this, this.applyClick);
-        });
         if (index) {
             super.addChildAt(node, index);
         }
@@ -8987,7 +8980,7 @@ class MaskLayer extends Layer {
         return node;
     }
     applyClick() {
-        if (this._handlers.length) {
+        while (this._handlers.length) {
             this._handlers.pop().run();
         }
     }
@@ -9276,19 +9269,34 @@ class RewardGetView extends ui.common.view.RewardGetViewUI {
 /*
 * 金币不足奖励提示框;
 */
-class RewardGoldView extends BaseView {
-    constructor() {
-        super(LAYER_TYPE.SUB_FRAME_LAYER, ui.common.view.RewardGoldViewUI);
-        this.setResources(["images/rewardGold"]);
+class RewardGoldView extends ui.common.view.RewardGoldViewUI {
+    constructor(data = null, callback = null) {
+        super();
+        this._data = data;
+        this._callback = callback;
+        this.init();
+    }
+    //新建并添加到节点
+    static Create(_parentNode, callback = null, _removeCallback = null, ...arge) {
+        let resList = [
+            { url: "res/atlas/images/rewardGold.atlas", type: Laya.Loader.ATLAS }
+        ];
+        Laya.loader.load(resList, Handler.create(null, () => {
+            if (_parentNode) {
+                let nodeView = new RewardGoldView(arge, callback);
+                AlignUtils.setToScreenGoldenPos(nodeView);
+                M.layer.subFrameLayer.addChildWithMaskCall(nodeView, nodeView.removeSelf);
+                nodeView.once(Laya.Event.REMOVED, nodeView, _removeCallback);
+            }
+        }));
     }
     //初始化
-    initUI() {
-        super.initUI();
+    init() {
         let self = this;
         SDKManager.Instance.showBannerAd(true);
-        self.ui.txt_share.visible = false;
-        self.ui.advBox.visible = !self.ui.txt_share.visible;
-        self.ui.txt_lastCount.text = "今天剩余" + PlayerManager.Instance.Info.dayGetGoldCount + "次";
+        self.txt_share.visible = false; // PlayerManager.Instance.Info.dayGetGoldCount != 6 && PlayerManager.Instance.Info.dayGetGoldCount != 2;
+        self.advBox.visible = !self.txt_share.visible;
+        self.txt_lastCount.text = "今天剩余" + PlayerManager.Instance.Info.dayGetGoldCount + "次";
         let monsterType = userData.isEvolution() ? 2 : 1;
         let monsterLevel = userData.getCarLevel();
         let monsterInfo = BattleManager.Instance.getUnLockMonster(monsterType, monsterLevel);
@@ -9296,42 +9304,52 @@ class RewardGoldView extends BaseView {
             let curPrice = BattleManager.Instance.getMonsterPrice(monsterInfo.buyPrice, userData.queryBuyRecord(monsterInfo.id));
             self._money = curPrice * 0.8;
         }
-        self.ui.txt_gold.text = MathUtils.bytesToSize(self._money);
+        self.txt_gold.text = MathUtils.bytesToSize(self._money);
+        self.addEvents();
     }
     addEvents() {
-        super.addEvents();
         let self = this;
-        self.ui.btn_free.on(Laya.Event.CLICK, self, self.onClickBtn);
-        self.ui.btnExit.on(Laya.Event.CLICK, self, self.onCloseHandler);
+        self.btn_free.on(Laya.Event.CLICK, self, self.onClickBtn);
+        self.btnExit.on(Laya.Event.CLICK, self, self.onCloseHandler);
     }
     removeEvents() {
-        super.removeEvents();
         let self = this;
-        self.ui.btn_free.off(Laya.Event.CLICK, self, self.onClickBtn);
-        self.ui.btnExit.off(Laya.Event.CLICK, self, self.onCloseHandler);
+        self.btn_free.off(Laya.Event.CLICK, self, self.onClickBtn);
+        self.btnExit.off(Laya.Event.CLICK, self, self.onCloseHandler);
     }
     onClickBtn() {
         let self = this;
         if (GlobalConfig.DEBUG) {
-            self.onComplete();
+            if (self._callback)
+                self._callback(self._money);
         }
         else {
+            // if (self.txt_share.visible) {
+            //     userData.toShareAd(() => {
+            //         if (self._callback) self._callback(self._money);
+            //     });
+            // } else 
+            // if (self.advBox.visible) {
             let adStage = userData.toShareAd(() => {
-                self.onComplete();
+                if (self._callback)
+                    self._callback(self._money);
             }, 12);
+            //没有广告就走分享
             if (adStage > 0) {
                 MessageUtils.showMsgTips("今日广告已经观看完毕!");
                 FriendConcurView.Create(self);
+                // userData.toShareAd(() => {
+                //     if (self._callback) self._callback(self._money);
+                // });
             }
+            // }
         }
         self.onCloseHandler();
     }
-    onComplete() {
-        PlayerManager.Instance.Info.dayGetGoldCount--;
-        EventsManager.Instance.event(EventsType.GLOD_CHANGE, { money: userData.gold += this._money });
-    }
     onCloseHandler() {
-        ViewMgr.Ins.close(ViewConst.RewardGoldView);
+        let self = this;
+        self.removeSelf();
+        self.removeEvents();
     }
 }
 //# sourceMappingURL=RewardGoldView.js.map
@@ -11139,7 +11157,13 @@ class HallScene extends ui.hall.HallSceneUI {
         }
         else {
             if (PlayerManager.Instance.Info.dayGetGoldCount > 0) {
-                ViewMgr.Ins.open(ViewConst.RewardGoldView);
+                RewardGoldView.Create(self, (money) => {
+                    PlayerManager.Instance.Info.dayGetGoldCount--;
+                    self.updateGold(PlayerManager.Instance.Info.userMoney + money);
+                    userData.saveLocal();
+                }, () => {
+                    SDKManager.Instance.closeBannerAd(true);
+                });
             }
             else {
                 MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.19"));

@@ -6,7 +6,7 @@ class ResUtils {
     static combGroupList(group) {
         let newGroup = [];
         for (let i = 0, len = group.length; i < len; i++) {
-            newGroup.push({ url: "res/atlas/" + group[i] + ".atlas", type: Laya.Loader.ATLAS });
+            newGroup.push({ url: "res/atlas/images/" + group[i] + ".atlas", type: Laya.Loader.ATLAS });
         }
         return newGroup;
     }

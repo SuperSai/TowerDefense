@@ -3291,6 +3291,7 @@ class ViewRegisterMgr {
     initRegisterView() {
         ViewMgr.Ins.register(ViewConst.FollowRewardView, new FollowRewardView());
         ViewMgr.Ins.register(ViewConst.StrengthenView, new StrengthenView());
+        ViewMgr.Ins.register(ViewConst.RewardGoldView, new RewardGoldView());
     }
     static get Instance() {
         if (!ViewRegisterMgr._instance) {
@@ -3451,6 +3452,8 @@ var ViewConst;
     ViewConst[ViewConst["FollowRewardView"] = 10001] = "FollowRewardView";
     /** 强化界面 */
     ViewConst[ViewConst["StrengthenView"] = 10002] = "StrengthenView";
+    /** 金币不足界面 */
+    ViewConst[ViewConst["RewardGoldView"] = 10003] = "RewardGoldView";
 })(ViewConst || (ViewConst = {}));
 //# sourceMappingURL=ViewConst.js.map
 /*
@@ -4882,7 +4885,8 @@ class SDKManager {
             self._bannerAd && self._bannerAd.destroy();
             self._bannerAd = platform.createBannerAd({
                 adUnitId: 'adunit-439fc3b5508c60cc',
-                top: LayerManager.clientTop
+                top: LayerManager.clientTop,
+                height: LayerManager.clientHeight
             });
         }
         if (self._bannerAd) {
@@ -4990,7 +4994,7 @@ class SDKManager {
                 HttpManager.Instance.requestFriendConcur(data.query.userId);
                 break;
             case "clearanceReward":
-                this.checkIsGetClearanceReward(data.shareTicket);
+                this.checkIsGetClearanceReward(data);
                 break;
             default:
                 HttpManager.Instance.requestShareGift(data);
@@ -5000,6 +5004,10 @@ class SDKManager {
     /** 处理场景值 */
     handlerSceneValue(data) {
         switch (Math.floor(data.scene)) {
+            case 1008:
+            case 1044:
+                this.handlerShareType(data);
+                break;
             case 1020:
             case 1035:
             case 1043:
@@ -5007,24 +5015,21 @@ class SDKManager {
                     HttpManager.Instance.requestPublicAddress(data);
                 }
                 break;
-            case 1044:
-                this.handlerShareType(data);
-                break;
         }
     }
-    /** 检查时候可以领取通关奖励 */
-    checkIsGetClearanceReward(shareTicket) {
-        platform.getShareInfo(shareTicket, (res) => {
-            HttpManager.Instance.requestClearanceReward(res.encryptedData, res.iv, (res) => {
-                if (res) { //成功
-                    HallManager.Instance.showClearanceRewardView();
-                }
-                else { //失败
-                    MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.35"));
-                }
-            });
-        }, () => {
-            console.error("@David checkIsGetClearanceReward - platform.getShareInfo 获取数据失败...");
+    /** 检查是否可以领取通关奖励 */
+    checkIsGetClearanceReward(data) {
+        if (!data || !data.prescene_note)
+            return;
+        let chatRoom = data.prescene_note.split("@")[1];
+        let groupId = chatRoom.split(":")[1];
+        HttpManager.Instance.requestClearanceReward(userData.userId + "", groupId, (res) => {
+            if (res) { //成功
+                HallManager.Instance.showClearanceRewardView();
+            }
+            else { //失败
+                MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.35"));
+            }
         });
     }
     static get Instance() {
@@ -8165,7 +8170,7 @@ var ui;
                     this.createView(ui.common.view.DebugViewUI.uiView);
                 }
             }
-            DebugViewUI.uiView = { "type": "View", "props": { "mouseThrough": true, "mouseEnabled": true }, "child": [{ "type": "View", "props": { "y": 0, "x": 0, "width": 787, "var": "viewBtnContainer", "mouseThrough": true, "mouseEnabled": true, "height": 1094 }, "child": [{ "type": "Box", "props": { "y": 680, "x": 605, "alpha": 0.5 }, "child": [{ "type": "Rect", "props": { "width": 178, "lineWidth": 1, "height": 414, "fillColor": "#000000" } }] }, { "type": "Button", "props": { "y": 697, "x": 620, "width": 130, "var": "btnUid", "labelSize": 26, "labelFont": "SimHei", "labelColors": "#FFFFFF", "labelBold": true, "labelAlign": "center", "label": "UID: ", "height": 26 } }, { "type": "Button", "props": { "y": 747, "x": 620, "width": 130, "var": "btnShowStats", "labelSize": 26, "labelFont": "SimHei", "labelColors": "#FFFFFF", "labelBold": true, "labelAlign": "center", "label": "运行数据", "height": 26 } }, { "type": "Button", "props": { "y": 797, "x": 620, "width": 130, "var": "btnCompleteNovice", "labelSize": 26, "labelFont": "SimHei", "labelColors": "#FFFFFF", "labelBold": true, "labelAlign": "center", "label": "跳过新手", "height": 26 } }, { "type": "Button", "props": { "y": 847, "x": 620, "width": 130, "var": "btnResetKingLevel", "labelSize": 26, "labelFont": "SimHei", "labelColors": "#FFFFFF", "labelBold": true, "labelAlign": "center", "label": "重置王座", "height": 26 } }, { "type": "Button", "props": { "y": 897, "x": 620, "width": 130, "var": "btnAddGold", "labelSize": 26, "labelFont": "SimHei", "labelColors": "#FFFFFF", "labelBold": true, "labelAlign": "center", "label": "添加金币", "height": 26 } }, { "type": "Button", "props": { "y": 947, "x": 620, "width": 130, "var": "btnAddDiamond", "labelSize": 26, "labelFont": "SimHei", "labelColors": "#FFFFFF", "labelBold": true, "labelAlign": "center", "label": "添加钻石", "height": 26 } }, { "type": "Button", "props": { "y": 997, "x": 620, "width": 130, "var": "btnCrearStorage", "labelSize": 26, "labelFont": "SimHei", "labelColors": "#FFFFFF", "labelBold": true, "labelAlign": "center", "label": "清空缓存", "height": 26 } }, { "type": "Button", "props": { "y": 1047, "x": 620, "width": 130, "var": "btnExitGame", "labelSize": 26, "labelFont": "SimHei", "labelColors": "#FFFFFF", "labelBold": true, "labelAlign": "center", "label": "退出游戏", "height": 26 } }] }, { "type": "ViewStack", "props": { "y": 1101, "x": 633, "var": "viewStackArrow" }, "child": [{ "type": "Button", "props": { "y": 6, "x": 17, "width": 130, "name": "item0", "labelSize": 26, "labelFont": "SimHei", "labelColors": "#FFFFFF", "labelBold": true, "labelAlign": "center", "label": "▶▶", "height": 26 } }, { "type": "Button", "props": { "y": 6, "x": 17, "width": 130, "name": "item1", "labelSize": 26, "labelFont": "SimHei", "labelColors": "#FFFFFF", "labelBold": true, "labelAlign": "center", "label": "◀◀", "height": 26 } }] }] };
+            DebugViewUI.uiView = { "type": "View", "props": { "mouseThrough": true, "mouseEnabled": true }, "child": [{ "type": "View", "props": { "y": 0, "x": 0, "width": 787, "var": "viewBtnContainer", "mouseThrough": true, "mouseEnabled": true, "height": 1094 }, "child": [{ "type": "Box", "props": { "y": 680, "x": 605, "alpha": 0.5 }, "child": [{ "type": "Rect", "props": { "width": 178, "lineWidth": 1, "height": 414, "fillColor": "#000000" } }] }, { "type": "Button", "props": { "y": 697, "x": 620, "width": 130, "var": "btnUid", "labelSize": 26, "labelFont": "SimHei", "labelColors": "#FFFFFF", "labelBold": true, "labelAlign": "center", "label": "UID: ", "height": 26 } }, { "type": "Button", "props": { "y": 747, "x": 620, "width": 130, "var": "btnShowStats", "labelSize": 26, "labelFont": "SimHei", "labelColors": "#FFFFFF", "labelBold": true, "labelAlign": "center", "label": "运行数据", "height": 26 } }, { "type": "Button", "props": { "y": 788, "x": 620, "width": 130, "var": "btnCompleteNovice", "labelSize": 26, "labelFont": "SimHei", "labelColors": "#FFFFFF", "labelBold": true, "labelAlign": "center", "label": "跳过新手", "height": 26 } }, { "type": "Button", "props": { "y": 829, "x": 620, "width": 130, "var": "btnResetKingLevel", "labelSize": 26, "labelFont": "SimHei", "labelColors": "#FFFFFF", "labelBold": true, "labelAlign": "center", "label": "重置王座", "height": 26 } }, { "type": "Button", "props": { "y": 909, "x": 620, "width": 130, "var": "btnAddGold", "labelSize": 26, "labelFont": "SimHei", "labelColors": "#FFFFFF", "labelBold": true, "labelAlign": "center", "label": "添加金币", "height": 26 } }, { "type": "Button", "props": { "y": 947, "x": 620, "width": 130, "var": "btnAddDiamond", "labelSize": 26, "labelFont": "SimHei", "labelColors": "#FFFFFF", "labelBold": true, "labelAlign": "center", "label": "添加钻石", "height": 26 } }, { "type": "Button", "props": { "y": 997, "x": 620, "width": 130, "var": "btnCrearStorage", "labelSize": 26, "labelFont": "SimHei", "labelColors": "#FFFFFF", "labelBold": true, "labelAlign": "center", "label": "清空缓存", "height": 26 } }, { "type": "Button", "props": { "y": 1047, "x": 620, "width": 130, "var": "btnExitGame", "labelSize": 26, "labelFont": "SimHei", "labelColors": "#FFFFFF", "labelBold": true, "labelAlign": "center", "label": "退出游戏", "height": 26 } }, { "type": "Button", "props": { "y": 869, "x": 621, "width": 130, "var": "btnResetGold", "labelSize": 26, "labelFont": "SimHei", "labelColors": "#FFFFFF", "labelBold": true, "labelAlign": "center", "label": "重置金币", "height": 26 } }] }, { "type": "ViewStack", "props": { "y": 1101, "x": 633, "var": "viewStackArrow" }, "child": [{ "type": "Button", "props": { "y": 6, "x": 17, "width": 130, "name": "item0", "labelSize": 26, "labelFont": "SimHei", "labelColors": "#FFFFFF", "labelBold": true, "labelAlign": "center", "label": "▶▶", "height": 26 } }, { "type": "Button", "props": { "y": 6, "x": 17, "width": 130, "name": "item1", "labelSize": 26, "labelFont": "SimHei", "labelColors": "#FFFFFF", "labelBold": true, "labelAlign": "center", "label": "◀◀", "height": 26 } }] }] };
             view.DebugViewUI = DebugViewUI;
         })(view = common.view || (common.view = {}));
     })(common = ui.common || (ui.common = {}));
@@ -8969,6 +8974,10 @@ class MaskLayer extends Layer {
                 }));
             }
         }
+        this._mask.off(Laya.Event.CLICK, this, this.applyClick);
+        Laya.timer.once(Time.SEC_IN_MILI, this, () => {
+            this._mask.on(Laya.Event.CLICK, this, this.applyClick);
+        });
         if (index) {
             super.addChildAt(node, index);
         }
@@ -8978,7 +8987,7 @@ class MaskLayer extends Layer {
         return node;
     }
     applyClick() {
-        while (this._handlers.length) {
+        if (this._handlers.length) {
             this._handlers.pop().run();
         }
     }
@@ -9267,34 +9276,19 @@ class RewardGetView extends ui.common.view.RewardGetViewUI {
 /*
 * 金币不足奖励提示框;
 */
-class RewardGoldView extends ui.common.view.RewardGoldViewUI {
-    constructor(data = null, callback = null) {
-        super();
-        this._data = data;
-        this._callback = callback;
-        this.init();
-    }
-    //新建并添加到节点
-    static Create(_parentNode, callback = null, _removeCallback = null, ...arge) {
-        let resList = [
-            { url: "res/atlas/images/rewardGold.atlas", type: Laya.Loader.ATLAS }
-        ];
-        Laya.loader.load(resList, Handler.create(null, () => {
-            if (_parentNode) {
-                let nodeView = new RewardGoldView(arge, callback);
-                AlignUtils.setToScreenGoldenPos(nodeView);
-                M.layer.subFrameLayer.addChildWithMaskCall(nodeView, nodeView.removeSelf);
-                nodeView.once(Laya.Event.REMOVED, nodeView, _removeCallback);
-            }
-        }));
+class RewardGoldView extends BaseView {
+    constructor() {
+        super(LAYER_TYPE.SUB_FRAME_LAYER, ui.common.view.RewardGoldViewUI);
+        this.setResources(["images/rewardGold"]);
     }
     //初始化
-    init() {
+    initUI() {
+        super.initUI();
         let self = this;
         SDKManager.Instance.showBannerAd(true);
-        self.txt_share.visible = false; // PlayerManager.Instance.Info.dayGetGoldCount != 6 && PlayerManager.Instance.Info.dayGetGoldCount != 2;
-        self.advBox.visible = !self.txt_share.visible;
-        self.txt_lastCount.text = "今天剩余" + PlayerManager.Instance.Info.dayGetGoldCount + "次";
+        self.ui.txt_share.visible = false;
+        self.ui.advBox.visible = !self.ui.txt_share.visible;
+        self.ui.txt_lastCount.text = "今天剩余" + PlayerManager.Instance.Info.dayGetGoldCount + "次";
         let monsterType = userData.isEvolution() ? 2 : 1;
         let monsterLevel = userData.getCarLevel();
         let monsterInfo = BattleManager.Instance.getUnLockMonster(monsterType, monsterLevel);
@@ -9302,52 +9296,42 @@ class RewardGoldView extends ui.common.view.RewardGoldViewUI {
             let curPrice = BattleManager.Instance.getMonsterPrice(monsterInfo.buyPrice, userData.queryBuyRecord(monsterInfo.id));
             self._money = curPrice * 0.8;
         }
-        self.txt_gold.text = MathUtils.bytesToSize(self._money);
-        self.addEvents();
+        self.ui.txt_gold.text = MathUtils.bytesToSize(self._money);
     }
     addEvents() {
+        super.addEvents();
         let self = this;
-        self.btn_free.on(Laya.Event.CLICK, self, self.onClickBtn);
-        self.btnExit.on(Laya.Event.CLICK, self, self.onCloseHandler);
+        self.ui.btn_free.on(Laya.Event.CLICK, self, self.onClickBtn);
+        self.ui.btnExit.on(Laya.Event.CLICK, self, self.onCloseHandler);
     }
     removeEvents() {
+        super.removeEvents();
         let self = this;
-        self.btn_free.off(Laya.Event.CLICK, self, self.onClickBtn);
-        self.btnExit.off(Laya.Event.CLICK, self, self.onCloseHandler);
+        self.ui.btn_free.off(Laya.Event.CLICK, self, self.onClickBtn);
+        self.ui.btnExit.off(Laya.Event.CLICK, self, self.onCloseHandler);
     }
     onClickBtn() {
         let self = this;
         if (GlobalConfig.DEBUG) {
-            if (self._callback)
-                self._callback(self._money);
+            self.onComplete();
         }
         else {
-            // if (self.txt_share.visible) {
-            //     userData.toShareAd(() => {
-            //         if (self._callback) self._callback(self._money);
-            //     });
-            // } else 
-            // if (self.advBox.visible) {
             let adStage = userData.toShareAd(() => {
-                if (self._callback)
-                    self._callback(self._money);
+                self.onComplete();
             }, 12);
-            //没有广告就走分享
             if (adStage > 0) {
                 MessageUtils.showMsgTips("今日广告已经观看完毕!");
                 FriendConcurView.Create(self);
-                // userData.toShareAd(() => {
-                //     if (self._callback) self._callback(self._money);
-                // });
             }
-            // }
         }
         self.onCloseHandler();
     }
+    onComplete() {
+        PlayerManager.Instance.Info.dayGetGoldCount--;
+        EventsManager.Instance.event(EventsType.GLOD_CHANGE, { money: userData.gold += this._money });
+    }
     onCloseHandler() {
-        let self = this;
-        self.removeSelf();
-        self.removeEvents();
+        ViewMgr.Ins.close(ViewConst.RewardGoldView);
     }
 }
 //# sourceMappingURL=RewardGoldView.js.map
@@ -9643,6 +9627,9 @@ class DebugView extends Laya.View {
         });
         this.ui.btnResetKingLevel.on(Laya.Event.CLICK, this, () => {
             DebugView.GameView.setKingLevel(1);
+        });
+        this.ui.btnResetGold.on(Laya.Event.CLICK, this, () => {
+            EventsManager.Instance.event(EventsType.GLOD_CHANGE, { money: userData.gold = 0 });
         });
         this.ui.btnAddGold.on(Laya.Event.CLICK, this, () => {
             EventsManager.Instance.event(EventsType.GLOD_CHANGE, { money: userData.gold += (userData.gold * 2) + 1e100 });
@@ -11152,13 +11139,7 @@ class HallScene extends ui.hall.HallSceneUI {
         }
         else {
             if (PlayerManager.Instance.Info.dayGetGoldCount > 0) {
-                RewardGoldView.Create(self, (money) => {
-                    PlayerManager.Instance.Info.dayGetGoldCount--;
-                    self.updateGold(PlayerManager.Instance.Info.userMoney + money);
-                    userData.saveLocal();
-                }, () => {
-                    SDKManager.Instance.closeBannerAd(true);
-                });
+                ViewMgr.Ins.open(ViewConst.RewardGoldView);
             }
             else {
                 MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.19"));

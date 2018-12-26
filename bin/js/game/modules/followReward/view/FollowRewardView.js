@@ -4,7 +4,7 @@
 class FollowRewardView extends BaseView {
     constructor() {
         super(LAYER_TYPE.FRAME_LAYER, ui.follow.FollowRewardViewUI, false);
-        this.setResources(["images/followReward"]);
+        this.setResources(["followReward"]);
     }
     //初始化
     initUI() {

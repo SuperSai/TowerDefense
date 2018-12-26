@@ -5,7 +5,7 @@ class StrengthenView extends BaseView {
     constructor() {
         super(LAYER_TYPE.FRAME_LAYER, ui.strengthen.StrengthenViewUI);
         this.indexArray = [10, 2, 1, 3];
-        this.setResources(["images/strengthen"]);
+        this.setResources(["strengthen"]);
     }
     //初始化
     initUI() {

@@ -464,17 +464,11 @@ class HallScene extends ui.hall.HallSceneUI {
         }
         else {
             if (PlayerManager.Instance.Info.dayGetGoldCount > 0) {
-                RewardGoldView.Create(self, (money) => {
-                    PlayerManager.Instance.Info.dayGetGoldCount--;
-                    self.updateGold(PlayerManager.Instance.Info.userMoney + money);
-                    userData.saveLocal();
-                }, () => {
-                    SDKManager.Instance.closeBannerAd(true);
-                });
+                ViewMgr.Ins.open(ViewConst.RewardGoldView);
             }
             else {
                 MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.19"));
-                FriendConcurView.Create(self);
+                ViewMgr.Ins.open(ViewConst.FriendConcurView);
             }
         }
     }

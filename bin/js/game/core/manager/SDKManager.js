@@ -72,7 +72,8 @@ class SDKManager {
             self._bannerAd && self._bannerAd.destroy();
             self._bannerAd = platform.createBannerAd({
                 adUnitId: 'adunit-439fc3b5508c60cc',
-                top: LayerManager.clientTop
+                top: LayerManager.clientTop,
+                height: LayerManager.clientHeight
             });
         }
         if (self._bannerAd) {
@@ -180,7 +181,7 @@ class SDKManager {
                 HttpManager.Instance.requestFriendConcur(data.query.userId);
                 break;
             case "clearanceReward":
-                this.checkIsGetClearanceReward(data.shareTicket);
+                this.checkIsGetClearanceReward(data);
                 break;
             default:
                 HttpManager.Instance.requestShareGift(data);
@@ -190,6 +191,10 @@ class SDKManager {
     /** 处理场景值 */
     handlerSceneValue(data) {
         switch (Math.floor(data.scene)) {
+            case 1008:
+            case 1044:
+                this.handlerShareType(data);
+                break;
             case 1020:
             case 1035:
             case 1043:
@@ -197,24 +202,21 @@ class SDKManager {
                     HttpManager.Instance.requestPublicAddress(data);
                 }
                 break;
-            case 1044:
-                this.handlerShareType(data);
-                break;
         }
     }
-    /** 检查时候可以领取通关奖励 */
-    checkIsGetClearanceReward(shareTicket) {
-        platform.getShareInfo(shareTicket, (res) => {
-            HttpManager.Instance.requestClearanceReward(res.encryptedData, res.iv, (res) => {
-                if (res) { //成功
-                    HallManager.Instance.showClearanceRewardView();
-                }
-                else { //失败
-                    MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.35"));
-                }
-            });
-        }, () => {
-            console.error("@David checkIsGetClearanceReward - platform.getShareInfo 获取数据失败...");
+    /** 检查是否可以领取通关奖励 */
+    checkIsGetClearanceReward(data) {
+        if (!data || !data.prescene_note)
+            return;
+        let chatRoom = data.prescene_note.split("@")[1];
+        let groupId = chatRoom.split(":")[1];
+        HttpManager.Instance.requestClearanceReward(userData.userId + "", groupId, (res) => {
+            if (res) { //成功
+                HallManager.Instance.showClearanceRewardView();
+            }
+            else { //失败
+                MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.35"));
+            }
         });
     }
     static get Instance() {

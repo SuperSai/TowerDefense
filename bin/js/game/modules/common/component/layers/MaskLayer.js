@@ -127,6 +127,10 @@ class MaskLayer extends Layer {
                 }));
             }
         }
+        this._mask.off(Laya.Event.CLICK, this, this.applyClick);
+        Laya.timer.once(Time.SEC_IN_MILI, this, () => {
+            this._mask.on(Laya.Event.CLICK, this, this.applyClick);
+        });
         if (index) {
             super.addChildAt(node, index);
         }
@@ -136,7 +140,7 @@ class MaskLayer extends Layer {
         return node;
     }
     applyClick() {
-        while (this._handlers.length) {
+        if (this._handlers.length) {
             this._handlers.pop().run();
         }
     }
