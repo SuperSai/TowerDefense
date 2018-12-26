@@ -6,7 +6,6 @@ class HallScene extends ui.hall.HallSceneUI {
         super();
         this.parkMonsterModelSp = null;
         this.curMonsterSprite = null;
-        this.imgCarNumTimeLine = null; //兵营满席动画
         this._giveCarTime = 0; //定时赠送怪物
         this._giveTempTime = 0; //定时赠送怪物
         /** 更新在线奖励时间 */
@@ -1768,8 +1767,9 @@ class HallScene extends ui.hall.HallSceneUI {
     }
     /** 关注 */
     onClickFollow() {
-        FollowRewardView.Create(this, () => {
-        });
+        ViewMgr.Ins.open(ViewConst.FollowRewardView);
+        // FollowRewardView.Create(this, () => {
+        // });
     }
     //每日签到界面
     showDaySignView() {

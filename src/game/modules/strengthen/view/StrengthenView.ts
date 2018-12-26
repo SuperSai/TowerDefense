@@ -90,7 +90,7 @@ class StrengthenView extends ui.strengthen.StrengthenViewUI {
             if ($skillId == skillId) {
                 let strengthenLevel: number = userData.querySkillAddition($skillId);
                 let curProbability: number = SkillManager.Instance.getSkillStrengthenLevelProbability($skillId, strengthenLevel);
-                let probability: number = SkillManager.Instance.getSkillStrengthenProbability(skillId, 1);
+                // let probability: number = SkillManager.Instance.getSkillStrengthenProbability(skillId, 1);
                 let price: number = SkillManager.Instance.getSkillStrengthenCost($skillId, strengthenLevel + 1);
 
                 let imgBg = that.mainView.getChildByName("imgBg") as Laya.Image;
@@ -103,14 +103,13 @@ class StrengthenView extends ui.strengthen.StrengthenViewUI {
                         if (txtAdd) {
                             txtAdd.text = (MathUtils.numToPercent(curProbability));
                         }
-
-                        //价格
-                        let imgEssence = boxItem.getChildByName("imgEssence") as Laya.Image;
-                        if (imgEssence) {
-                            let txtEssence = imgEssence.getChildByName("txtEssence") as Laya.Label;
-                            if (txtEssence) {
-                                txtEssence.text = ("" + price);
-                            }
+                        let hbox = boxItem.getChildByName("hbox") as Laya.HBox;
+                        if (hbox) {
+                            hbox.refresh();
+                        }
+                        let txtLevel = boxItem.getChildByName("txtLevel") as Laya.Label;
+                        if (txtLevel) {
+                            txtLevel.text = "Lv" + strengthenLevel;
                         }
                         //按钮
                         let btnStrengthen = boxItem.getChildByName("btnStrengthen") as Laya.Button;
@@ -138,9 +137,9 @@ class StrengthenView extends ui.strengthen.StrengthenViewUI {
                                 });
                             }, [btnStrengthen, { skillId: skillId, price: price }]);
 
-                            let txtAdd = btnStrengthen.getChildByName("txtAdd") as Laya.Label;
-                            if (txtAdd) {
-                                txtAdd.changeText(MathUtils.numToPercent(probability));
+                            let txtEssence = btnStrengthen.getChildByName("txtEssence") as Laya.Label;
+                            if (txtEssence) {
+                                txtEssence.text = ("" + price);
                             }
                         }
                     }

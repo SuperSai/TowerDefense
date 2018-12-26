@@ -5,6 +5,7 @@ const userData: UserData = new UserData();
 
 platform.onShow(function (data: any) {
     console.log("@David onShow", data);
+    SDKManager.Instance.handlerShareType(data);
     SDKManager.Instance.handlerSceneValue(data);
     EventsManager.Instance.event(EventsType.BACK_GAME);
     M.more.applyMute();

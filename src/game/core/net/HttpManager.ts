@@ -618,6 +618,60 @@ class HttpManager {
         });
     }
 
+    /** 请求好友互助 */
+    public requestFriendConcur(userId: any): void {
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+        HttpReqHelper.request({
+            url: "v1/activity/help/click/" + userId,
+            success: function (res) {
+                console.log(res);
+            },
+            fail: function (res) {
+                console.log(res);
+            }
+        });
+    }
+
+    /** 分享礼包 */
+    public requestShareGift(param: any): void {
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+        HttpReqHelper.request({
+            url: "v1/share/friend",
+            method: "POST",
+            data: {
+                "userId": param.query.userId,
+                "shareId": param.query.shareId,
+                "shareType": param.query.shareType
+            },
+            success: function (res) {
+                console.log(res);
+            },
+            fail: function (res) {
+                console.log(res);
+            }
+        });
+    }
+
+    /** 公众号 */
+    public requestPublicAddress(param: any): void {
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+        HttpReqHelper.request({
+            url: "v1/subscription/attention",
+            method: "POST",
+            data: {
+                "scene": param.scene,
+                "appId": param.referrerInfo.appId
+            },
+            success: function (res) {
+                console.log(res);
+            },
+            fail: function (res) {
+                console.log(res);
+            }
+        });
+    }
+
+
 
     private static _instance: HttpManager;
     public static get Instance(): HttpManager {

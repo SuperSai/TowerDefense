@@ -86,7 +86,7 @@ class StrengthenView extends ui.strengthen.StrengthenViewUI {
             if ($skillId == skillId) {
                 let strengthenLevel = userData.querySkillAddition($skillId);
                 let curProbability = SkillManager.Instance.getSkillStrengthenLevelProbability($skillId, strengthenLevel);
-                let probability = SkillManager.Instance.getSkillStrengthenProbability(skillId, 1);
+                // let probability: number = SkillManager.Instance.getSkillStrengthenProbability(skillId, 1);
                 let price = SkillManager.Instance.getSkillStrengthenCost($skillId, strengthenLevel + 1);
                 let imgBg = that.mainView.getChildByName("imgBg");
                 if (imgBg) {
@@ -98,13 +98,13 @@ class StrengthenView extends ui.strengthen.StrengthenViewUI {
                         if (txtAdd) {
                             txtAdd.text = (MathUtils.numToPercent(curProbability));
                         }
-                        //价格
-                        let imgEssence = boxItem.getChildByName("imgEssence");
-                        if (imgEssence) {
-                            let txtEssence = imgEssence.getChildByName("txtEssence");
-                            if (txtEssence) {
-                                txtEssence.text = ("" + price);
-                            }
+                        let hbox = boxItem.getChildByName("hbox");
+                        if (hbox) {
+                            hbox.refresh();
+                        }
+                        let txtLevel = boxItem.getChildByName("txtLevel");
+                        if (txtLevel) {
+                            txtLevel.text = "Lv" + strengthenLevel;
                         }
                         //按钮
                         let btnStrengthen = boxItem.getChildByName("btnStrengthen");
@@ -131,9 +131,9 @@ class StrengthenView extends ui.strengthen.StrengthenViewUI {
                                     }
                                 });
                             }, [btnStrengthen, { skillId: skillId, price: price }]);
-                            let txtAdd = btnStrengthen.getChildByName("txtAdd");
-                            if (txtAdd) {
-                                txtAdd.changeText(MathUtils.numToPercent(probability));
+                            let txtEssence = btnStrengthen.getChildByName("txtEssence");
+                            if (txtEssence) {
+                                txtEssence.text = ("" + price);
                             }
                         }
                     }

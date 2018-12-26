@@ -1,8 +1,8 @@
 {
     "x":0,
     "type":"View",
-    "selectedBox":2,
-    "selecteID":98,
+    "selectedBox":118,
+    "selecteID":121,
     "props":{"width":714,"sceneWidth":750,"sceneHeight":1334,"sceneColor":"#000000","height":1018},
     "nodeParent":-1,
     "label":"View",
@@ -135,13 +135,14 @@
                             "props":{"y":226,"x":73,"name":"boxItem1"},
                             "nodeParent":2,
                             "label":"Box(boxItem1)",
-                            "isOpen":false,
+                            "isOpen":true,
                             "isDirectory":true,
                             "isAniNode":true,
                             "hasChild":true,
                             "compId":26,
                             "child":[
                                 {
+                                    "x":60,
                                     "type":"Image",
                                     "props":{"skin":"images/strengthen/strengthen_item_bg.png","name":"imgItemBg"},
                                     "nodeParent":26,
@@ -154,8 +155,9 @@
                                         ]
                                 },
                                 {
+                                    "x":60,
                                     "type":"Image",
-                                    "props":{"y":69,"x":48,"skin":"images/strengthen/strengthen_item3.png","name":"imgItem","centerX":5},
+                                    "props":{"y":57,"x":71,"skin":"images/strengthen/strengthen_item3.png","scaleY":0.85,"scaleX":0.85,"name":"imgItem"},
                                     "nodeParent":26,
                                     "label":"Image(imgItem)",
                                     "isDirectory":false,
@@ -166,8 +168,9 @@
                                         ]
                                 },
                                 {
+                                    "x":60,
                                     "type":"Label",
-                                    "props":{"y":13,"x":23,"text":"金币加成","name":"txtDes","fontSize":30,"color":"#b13c0e","bold":true,"align":"right"},
+                                    "props":{"y":11,"x":46,"text":"金币加成","strokeColor":"#9b5000","stroke":2,"name":"txtDes","fontSize":28,"color":"#ffffff","bold":true,"align":"right"},
                                     "nodeParent":26,
                                     "label":"Label(txtDes)",
                                     "isDirectory":false,
@@ -178,60 +181,12 @@
                                         ]
                                 },
                                 {
-                                    "type":"Label",
-                                    "props":{"y":14,"x":157,"width":82,"text":"+0%","name":"txtAdd","fontSize":30,"color":"#b13c0e","bold":true,"align":"right"},
-                                    "nodeParent":26,
-                                    "label":"Label(txtAdd)",
-                                    "isDirectory":false,
-                                    "isAniNode":true,
-                                    "hasChild":false,
-                                    "compId":91,
-                                    "child":[
-                                        ]
-                                },
-                                {
-                                    "type":"Image",
-                                    "props":{"y":220,"x":52,"skin":"images/strengthen/strengthen_frame_bar.png","name":"imgEssence"},
-                                    "nodeParent":26,
-                                    "label":"Image(imgEssence)",
-                                    "isOpen":true,
-                                    "isDirectory":true,
-                                    "isAniNode":true,
-                                    "hasChild":true,
-                                    "compId":49,
-                                    "child":[
-                                        {
-                                            "type":"Image",
-                                            "props":{"y":-3,"x":-13,"skin":"images/strengthen/strengthen_item_shitou.png","name":"imgIcon"},
-                                            "nodeParent":49,
-                                            "label":"Image(imgIcon)",
-                                            "isOpen":true,
-                                            "isDirectory":false,
-                                            "isAniNode":true,
-                                            "hasChild":false,
-                                            "compId":50,
-                                            "child":[
-                                                ]
-                                        },
-                                        {
-                                            "type":"Label",
-                                            "props":{"y":3,"x":30,"text":"0","strokeColor":"#946430","stroke":4,"name":"txtEssence","fontSize":26,"color":"#ffffff","bold":true,"align":"left"},
-                                            "nodeParent":49,
-                                            "label":"Label(txtEssence)",
-                                            "isDirectory":false,
-                                            "isAniNode":true,
-                                            "hasChild":false,
-                                            "compId":51,
-                                            "child":[
-                                                ]
-                                        }]
-                                },
-                                {
+                                    "x":60,
                                     "type":"Button",
                                     "props":{"y":281,"x":39,"stateNum":"1","skin":"images/component/frame_btn_small_yellow.png","name":"btnStrengthen","labelStrokeColor":"#e5ad1e","labelStroke":2,"labelSize":30,"labelColors":"#ffffff","labelBold":true},
                                     "nodeParent":26,
                                     "label":"Button(btnStrengthen)",
-                                    "isOpen":true,
+                                    "isOpen":false,
                                     "isDirectory":true,
                                     "isAniNode":true,
                                     "hasChild":true,
@@ -239,25 +194,13 @@
                                     "child":[
                                         {
                                             "type":"Label",
-                                            "props":{"y":18,"x":33,"text":"强化","strokeColor":"#946430","stroke":4,"name":"txtBtn","fontSize":28,"color":"#ffffff","bold":true,"align":"left"},
+                                            "props":{"y":16,"x":22,"text":"强化","strokeColor":"#946430","stroke":2,"name":"txtBtn","fontSize":28,"color":"#f0f7f7","bold":true,"align":"left"},
                                             "nodeParent":41,
                                             "label":"Label(txtBtn)",
                                             "isDirectory":false,
                                             "isAniNode":true,
                                             "hasChild":false,
                                             "compId":77,
-                                            "child":[
-                                                ]
-                                        },
-                                        {
-                                            "type":"Label",
-                                            "props":{"y":18,"x":94,"text":"+2%","strokeColor":"#946430","stroke":4,"name":"txtAdd","fontSize":28,"color":"#ffffff","bold":true,"align":"left"},
-                                            "nodeParent":41,
-                                            "label":"Label(txtAdd)",
-                                            "isDirectory":false,
-                                            "isAniNode":true,
-                                            "hasChild":false,
-                                            "compId":76,
                                             "child":[
                                                 ]
                                         },
@@ -273,22 +216,116 @@
                                             "compId":87,
                                             "child":[
                                                 ]
+                                        },
+                                        {
+                                            "type":"Image",
+                                            "props":{"y":16,"x":83,"skin":"images/strengthen/strengthen_item_shitou.png","scaleY":0.7,"scaleX":0.7,"name":"imgIcon"},
+                                            "nodeParent":41,
+                                            "label":"Image(imgIcon)",
+                                            "isOpen":true,
+                                            "isDirectory":false,
+                                            "isAniNode":true,
+                                            "hasChild":false,
+                                            "compId":50,
+                                            "child":[
+                                                ]
+                                        },
+                                        {
+                                            "type":"Label",
+                                            "props":{"y":16,"x":115,"text":"0","strokeColor":"#946430","stroke":4,"name":"txtEssence","fontSize":26,"color":"#ffffff","bold":true,"align":"left"},
+                                            "nodeParent":41,
+                                            "label":"Label(txtEssence)",
+                                            "isDirectory":false,
+                                            "isAniNode":true,
+                                            "hasChild":false,
+                                            "compId":51,
+                                            "child":[
+                                                ]
+                                        }]
+                                },
+                                {
+                                    "x":60,
+                                    "type":"Label",
+                                    "props":{"y":12,"x":166,"text":"Lv0","name":"txtLevel","fontSize":28,"color":"#a0880e","bold":true},
+                                    "nodeParent":26,
+                                    "label":"Label(txtLevel)",
+                                    "isDirectory":false,
+                                    "isAniNode":true,
+                                    "hasChild":false,
+                                    "compId":99,
+                                    "child":[
+                                        ]
+                                },
+                                {
+                                    "x":60,
+                                    "type":"Label",
+                                    "props":{"y":193,"x":38,"text":"击杀怪物后金币收益","fontSize":21,"color":"#a43601","bold":true,"align":"right"},
+                                    "nodeParent":26,
+                                    "label":"Label",
+                                    "isDirectory":false,
+                                    "isAniNode":true,
+                                    "hasChild":false,
+                                    "compId":107,
+                                    "child":[
+                                        ],
+                                    "$HIDDEN":false
+                                },
+                                {
+                                    "x":60,
+                                    "type":"HBox",
+                                    "props":{"y":229,"x":134,"space":5,"name":"hbox","anchorY":0.5,"anchorX":0.5,"align":"middle"},
+                                    "nodeParent":26,
+                                    "label":"HBox(hbox)",
+                                    "isOpen":true,
+                                    "isDirectory":true,
+                                    "isAniNode":true,
+                                    "hasChild":true,
+                                    "compId":108,
+                                    "child":[
+                                        {
+                                            "x":75,
+                                            "type":"Label",
+                                            "props":{"y":1,"x":86,"text":"6%","name":"txtAdd","fontSize":21,"color":"#af9801","bold":true,"align":"right"},
+                                            "nodeParent":108,
+                                            "label":"Label(txtAdd)",
+                                            "isDirectory":false,
+                                            "isAniNode":true,
+                                            "hasChild":false,
+                                            "compId":109,
+                                            "child":[
+                                                ],
+                                            "$HIDDEN":false
+                                        },
+                                        {
+                                            "x":75,
+                                            "type":"Label",
+                                            "props":{"text":"提升","fontSize":21,"color":"#a43601","bold":true,"align":"right"},
+                                            "nodeParent":108,
+                                            "label":"Label",
+                                            "isDirectory":false,
+                                            "isAniNode":true,
+                                            "hasChild":false,
+                                            "compId":110,
+                                            "child":[
+                                                ],
+                                            "$HIDDEN":false
                                         }]
                                 }]
                         },
                         {
                             "x":45,
                             "type":"Box",
-                            "props":{"y":224,"x":383,"name":"boxItem2"},
+                            "props":{"y":224,"x":383,"width":271,"name":"boxItem2","height":346},
                             "nodeParent":2,
                             "label":"Box(boxItem2)",
-                            "isOpen":false,
+                            "isOpen":true,
                             "isDirectory":true,
                             "isAniNode":true,
                             "hasChild":true,
                             "compId":68,
                             "child":[
                                 {
+                                    "x":60,
                                     "type":"Image",
                                     "props":{"skin":"images/strengthen/strengthen_item_bg.png","name":"imgItemBg"},
                                     "nodeParent":68,
@@ -299,11 +336,13 @@
                                     "compId":69,
                                     "child":[
                                         ],
-                                    "$LOCKED":true
+                                    "$LOCKED":false,
+                                    "$HIDDEN":false
                                 },
                                 {
+                                    "x":60,
                                     "type":"Image",
-                                    "props":{"y":67,"x":48,"skin":"images/core/skill_01.png","name":"imgItem","centerX":2},
+                                    "props":{"y":56,"x":71,"skin":"images/core/skill_01.png","scaleY":0.85,"scaleX":0.85,"name":"imgItem"},
                                     "nodeParent":68,
                                     "label":"Image(imgItem)",
                                     "isDirectory":false,
@@ -314,8 +353,9 @@
                                         ]
                                 },
                                 {
+                                    "x":60,
                                     "type":"Label",
-                                    "props":{"y":13,"x":21,"text":"雷神之怒","name":"txtDes","fontSize":30,"color":"#b13c0e","bold":true,"align":"right"},
+                                    "props":{"y":11,"x":46,"text":"雷神之怒","strokeColor":"#9b5000","stroke":2,"name":"txtDes","fontSize":28,"color":"#ffffff","bold":true,"align":"right"},
                                     "nodeParent":68,
                                     "label":"Label(txtDes)",
                                     "isDirectory":false,
@@ -326,56 +366,7 @@
                                         ]
                                 },
                                 {
-                                    "type":"Label",
-                                    "props":{"y":13,"x":151,"width":82,"text":"+6%","name":"txtAdd","height":30,"fontSize":30,"color":"#b13c0e","bold":true,"align":"right"},
-                                    "nodeParent":68,
-                                    "label":"Label(txtAdd)",
-                                    "isDirectory":false,
-                                    "isAniNode":true,
-                                    "hasChild":false,
-                                    "compId":92,
-                                    "child":[
-                                        ],
-                                    "$HIDDEN":false
-                                },
-                                {
-                                    "type":"Image",
-                                    "props":{"y":221,"x":56,"skin":"images/strengthen/strengthen_frame_bar.png","name":"imgEssence"},
-                                    "nodeParent":68,
-                                    "label":"Image(imgEssence)",
-                                    "isOpen":true,
-                                    "isDirectory":true,
-                                    "isAniNode":true,
-                                    "hasChild":true,
-                                    "compId":72,
-                                    "child":[
-                                        {
-                                            "type":"Image",
-                                            "props":{"y":-5,"x":-14,"skin":"images/strengthen/strengthen_item_shitou.png","name":"imgIcon"},
-                                            "nodeParent":72,
-                                            "label":"Image(imgIcon)",
-                                            "isOpen":true,
-                                            "isDirectory":false,
-                                            "isAniNode":true,
-                                            "hasChild":false,
-                                            "compId":73,
-                                            "child":[
-                                                ]
-                                        },
-                                        {
-                                            "type":"Label",
-                                            "props":{"y":4,"x":30,"text":"0","strokeColor":"#946430","stroke":4,"name":"txtEssence","fontSize":26,"color":"#ffffff","bold":true,"align":"left"},
-                                            "nodeParent":72,
-                                            "label":"Label(txtEssence)",
-                                            "isDirectory":false,
-                                            "isAniNode":true,
-                                            "hasChild":false,
-                                            "compId":74,
-                                            "child":[
-                                                ]
-                                        }]
-                                },
-                                {
+                                    "x":60,
                                     "type":"Button",
                                     "props":{"y":284,"x":39,"stateNum":"1","skin":"images/component/frame_btn_small_yellow.png","name":"btnStrengthen","labelStrokeColor":"#e5ad1e","labelStroke":2,"labelSize":30,"labelColors":"#ffffff","labelBold":true},
                                     "nodeParent":68,
@@ -387,8 +378,9 @@
                                     "compId":78,
                                     "child":[
                                         {
+                                            "x":75,
                                             "type":"Label",
-                                            "props":{"y":17,"x":35,"text":"强化","strokeColor":"#946430","stroke":4,"name":"txtBtn","fontSize":30,"color":"#ffffff","bold":true,"align":"left"},
+                                            "props":{"y":16,"x":22,"text":"强化","strokeColor":"#946430","stroke":4,"name":"txtBtn","fontSize":30,"color":"#ffffff","bold":true,"align":"left"},
                                             "nodeParent":78,
                                             "label":"Label(txtBtn)",
                                             "isDirectory":false,
@@ -399,18 +391,7 @@
                                                 ]
                                         },
                                         {
-                                            "type":"Label",
-                                            "props":{"y":20,"x":100,"text":"+1%","strokeColor":"#946430","stroke":4,"name":"txtAdd","fontSize":24,"color":"#ffffff","bold":true,"align":"left"},
-                                            "nodeParent":78,
-                                            "label":"Label(txtAdd)",
-                                            "isDirectory":false,
-                                            "isAniNode":true,
-                                            "hasChild":false,
-                                            "compId":80,
-                                            "child":[
-                                                ]
-                                        },
-                                        {
+                                            "x":75,
                                             "type":"Script",
                                             "source":"laya/pages/ScaleAnimScript.script",
                                             "props":{"y":0,"x":0},
@@ -422,22 +403,132 @@
                                             "compId":88,
                                             "child":[
                                                 ]
+                                        },
+                                        {
+                                            "x":75,
+                                            "type":"Label",
+                                            "props":{"y":16,"x":119,"text":"0","strokeColor":"#946430","stroke":4,"name":"txtEssence","fontSize":26,"color":"#ffffff","bold":true,"align":"left"},
+                                            "nodeParent":78,
+                                            "label":"Label(txtEssence)",
+                                            "isDirectory":false,
+                                            "isAniNode":true,
+                                            "hasChild":false,
+                                            "compId":74,
+                                            "child":[
+                                                ]
+                                        },
+                                        {
+                                            "x":75,
+                                            "type":"Image",
+                                            "props":{"y":16,"x":87,"skin":"images/strengthen/strengthen_item_shitou.png","scaleY":0.7,"scaleX":0.7,"name":"imgIcon"},
+                                            "nodeParent":78,
+                                            "label":"Image(imgIcon)",
+                                            "isOpen":true,
+                                            "isDirectory":false,
+                                            "isAniNode":true,
+                                            "hasChild":false,
+                                            "compId":73,
+                                            "child":[
+                                                ]
+                                        }]
+                                },
+                                {
+                                    "x":60,
+                                    "type":"Label",
+                                    "props":{"y":12,"x":166,"text":"Lv0","name":"txtLevel","fontSize":28,"color":"#a0880e","bold":true},
+                                    "nodeParent":68,
+                                    "label":"Label(txtLevel)",
+                                    "isDirectory":false,
+                                    "isAniNode":true,
+                                    "hasChild":false,
+                                    "compId":100,
+                                    "child":[
+                                        ]
+                                },
+                                {
+                                    "x":60,
+                                    "type":"Label",
+                                    "props":{"y":219,"x":75,"text":"攻击2个怪物","fontSize":21,"color":"#a43601","bold":true,"align":"right"},
+                                    "nodeParent":68,
+                                    "label":"Label",
+                                    "isDirectory":false,
+                                    "isAniNode":true,
+                                    "hasChild":false,
+                                    "compId":104,
+                                    "child":[
+                                        ],
+                                    "$HIDDEN":false
+                                },
+                                {
+                                    "x":60,
+                                    "type":"HBox",
+                                    "props":{"y":203,"x":134,"space":5,"name":"hbox","anchorY":0.5,"anchorX":0.5,"align":"middle"},
+                                    "nodeParent":68,
+                                    "label":"HBox(hbox)",
+                                    "isOpen":true,
+                                    "isDirectory":true,
+                                    "isAniNode":true,
+                                    "hasChild":true,
+                                    "compId":106,
+                                    "child":[
+                                        {
+                                            "x":75,
+                                            "type":"Label",
+                                            "props":{"y":1,"x":86,"text":"6%","name":"txtAdd","fontSize":21,"color":"#af9801","bold":true,"align":"right"},
+                                            "nodeParent":106,
+                                            "label":"Label(txtAdd)",
+                                            "isDirectory":false,
+                                            "isAniNode":true,
+                                            "hasChild":false,
+                                            "compId":92,
+                                            "child":[
+                                                ],
+                                            "$HIDDEN":false
+                                        },
+                                        {
+                                            "x":75,
+                                            "type":"Label",
+                                            "props":{"text":"攻击时有","fontSize":21,"color":"#a43601","bold":true,"align":"right"},
+                                            "nodeParent":106,
+                                            "label":"Label",
+                                            "isDirectory":false,
+                                            "isAniNode":true,
+                                            "hasChild":false,
+                                            "compId":103,
+                                            "child":[
+                                                ],
+                                            "$HIDDEN":false
+                                        },
+                                        {
+                                            "x":75,
+                                            "type":"Label",
+                                            "props":{"y":1,"x":112,"text":"几率同时","fontSize":21,"color":"#a43601","bold":true,"align":"right"},
+                                            "nodeParent":106,
+                                            "label":"Label",
+                                            "isDirectory":false,
+                                            "isAniNode":true,
+                                            "hasChild":false,
+                                            "compId":105,
+                                            "child":[
+                                                ],
+                                            "$HIDDEN":false
                                         }]
                                 }]
                         },
                         {
                             "x":45,
                             "type":"Box",
-                            "props":{"y":587,"x":71,"name":"boxItem3"},
+                            "props":{"y":587,"x":71,"width":271,"name":"boxItem3","height":343},
                             "nodeParent":2,
                             "label":"Box(boxItem3)",
-                            "isOpen":false,
+                            "isOpen":true,
                             "isDirectory":true,
                             "isAniNode":true,
                             "hasChild":true,
                             "compId":60,
                             "child":[
                                 {
+                                    "x":60,
                                     "type":"Image",
                                     "props":{"skin":"images/strengthen/strengthen_item_bg.png","name":"imgItemBg"},
                                     "nodeParent":60,
@@ -450,8 +541,9 @@
                                         ]
                                 },
                                 {
+                                    "x":60,
                                     "type":"Image",
-                                    "props":{"y":66,"skin":"images/core/skill_02.png","name":"imgItem","centerX":-1},
+                                    "props":{"y":56,"x":71,"skin":"images/core/skill_02.png","scaleY":0.85,"scaleX":0.85,"name":"imgItem","centerX":-2},
                                     "nodeParent":60,
                                     "label":"Image(imgItem)",
                                     "isDirectory":false,
@@ -462,8 +554,9 @@
                                         ]
                                 },
                                 {
+                                    "x":60,
                                     "type":"Label",
-                                    "props":{"y":13,"x":27,"text":"冰冻之触","name":"txtDes","fontSize":30,"color":"#b13c0e","bold":true,"align":"right"},
+                                    "props":{"y":11,"x":46,"text":"冰冻之触","strokeColor":"#9b5000","stroke":2,"name":"txtDes","fontSize":28,"color":"#ffffff","bold":true,"align":"right"},
                                     "nodeParent":60,
                                     "label":"Label(txtDes)",
                                     "isDirectory":false,
@@ -474,56 +567,7 @@
                                         ]
                                 },
                                 {
-                                    "type":"Label",
-                                    "props":{"y":13,"x":156,"width":82,"text":"+6%","name":"txtAdd","fontSize":30,"color":"#b13c0e","bold":true,"align":"right"},
-                                    "nodeParent":60,
-                                    "label":"Label(txtAdd)",
-                                    "isDirectory":false,
-                                    "isAniNode":true,
-                                    "hasChild":false,
-                                    "compId":93,
-                                    "child":[
-                                        ],
-                                    "$HIDDEN":false
-                                },
-                                {
-                                    "type":"Image",
-                                    "props":{"y":222,"x":49,"skin":"images/strengthen/strengthen_frame_bar.png","name":"imgEssence"},
-                                    "nodeParent":60,
-                                    "label":"Image(imgEssence)",
-                                    "isOpen":true,
-                                    "isDirectory":true,
-                                    "isAniNode":true,
-                                    "hasChild":true,
-                                    "compId":64,
-                                    "child":[
-                                        {
-                                            "type":"Image",
-                                            "props":{"y":-1,"x":-15,"skin":"images/strengthen/strengthen_item_shitou.png","name":"imgIcon"},
-                                            "nodeParent":64,
-                                            "label":"Image(imgIcon)",
-                                            "isOpen":true,
-                                            "isDirectory":false,
-                                            "isAniNode":true,
-                                            "hasChild":false,
-                                            "compId":65,
-                                            "child":[
-                                                ]
-                                        },
-                                        {
-                                            "type":"Label",
-                                            "props":{"y":3,"x":30,"text":"0","strokeColor":"#946430","stroke":4,"name":"txtEssence","fontSize":26,"color":"#ffffff","bold":true,"align":"left"},
-                                            "nodeParent":64,
-                                            "label":"Label(txtEssence)",
-                                            "isDirectory":false,
-                                            "isAniNode":true,
-                                            "hasChild":false,
-                                            "compId":66,
-                                            "child":[
-                                                ]
-                                        }]
-                                },
-                                {
+                                    "x":60,
                                     "type":"Button",
                                     "props":{"y":281,"x":39,"stateNum":"1","skin":"images/component/frame_btn_small_yellow.png","name":"btnStrengthen","labelStrokeColor":"#e5ad1e","labelStroke":2,"labelSize":30,"labelColors":"#ffffff","labelBold":true},
                                     "nodeParent":60,
@@ -535,8 +579,9 @@
                                     "compId":81,
                                     "child":[
                                         {
+                                            "x":75,
                                             "type":"Label",
-                                            "props":{"y":17,"x":32,"text":"强化","strokeColor":"#946430","stroke":4,"name":"txtBtn","fontSize":30,"color":"#ffffff","bold":true,"align":"left"},
+                                            "props":{"y":16,"x":22,"text":"强化","strokeColor":"#946430","stroke":2,"name":"txtBtn","fontSize":30,"color":"#f0f7f7","bold":true,"align":"left"},
                                             "nodeParent":81,
                                             "label":"Label(txtBtn)",
                                             "isDirectory":false,
@@ -547,18 +592,7 @@
                                                 ]
                                         },
                                         {
-                                            "type":"Label",
-                                            "props":{"y":20,"x":97,"text":"+1%","strokeColor":"#946430","stroke":4,"name":"txtAdd","fontSize":24,"color":"#ffffff","bold":true,"align":"left"},
-                                            "nodeParent":81,
-                                            "label":"Label(txtAdd)",
-                                            "isDirectory":false,
-                                            "isAniNode":true,
-                                            "hasChild":false,
-                                            "compId":83,
-                                            "child":[
-                                                ]
-                                        },
-                                        {
+                                            "x":75,
                                             "type":"Script",
                                             "source":"laya/pages/ScaleAnimScript.script",
                                             "props":{"y":0,"x":0},
@@ -570,22 +604,133 @@
                                             "compId":89,
                                             "child":[
                                                 ]
+                                        },
+                                        {
+                                            "x":75,
+                                            "type":"Image",
+                                            "props":{"y":16,"x":86,"skin":"images/strengthen/strengthen_item_shitou.png","scaleY":0.7,"scaleX":0.7,"name":"imgIcon"},
+                                            "nodeParent":81,
+                                            "label":"Image(imgIcon)",
+                                            "isOpen":true,
+                                            "isDirectory":false,
+                                            "isAniNode":true,
+                                            "hasChild":false,
+                                            "compId":65,
+                                            "child":[
+                                                ]
+                                        },
+                                        {
+                                            "x":75,
+                                            "type":"Label",
+                                            "props":{"y":16,"x":118,"text":"0","strokeColor":"#946430","stroke":4,"name":"txtEssence","fontSize":26,"color":"#ffffff","bold":true,"align":"left"},
+                                            "nodeParent":81,
+                                            "label":"Label(txtEssence)",
+                                            "isDirectory":false,
+                                            "isAniNode":true,
+                                            "hasChild":false,
+                                            "compId":66,
+                                            "child":[
+                                                ]
+                                        }]
+                                },
+                                {
+                                    "x":60,
+                                    "type":"Label",
+                                    "props":{"y":12,"x":166,"text":"Lv0","name":"txtLevel","fontSize":28,"color":"#a0880e","bold":true,"align":"right"},
+                                    "nodeParent":60,
+                                    "label":"Label(txtLevel)",
+                                    "isDirectory":false,
+                                    "isAniNode":true,
+                                    "hasChild":false,
+                                    "compId":101,
+                                    "child":[
+                                        ],
+                                    "$HIDDEN":false
+                                },
+                                {
+                                    "x":60,
+                                    "type":"Label",
+                                    "props":{"y":219,"x":32,"text":"20%减速效果,持续5秒","fontSize":21,"color":"#a43601","bold":true},
+                                    "nodeParent":60,
+                                    "label":"Label",
+                                    "isDirectory":false,
+                                    "isAniNode":true,
+                                    "hasChild":false,
+                                    "compId":112,
+                                    "child":[
+                                        ],
+                                    "$HIDDEN":false
+                                },
+                                {
+                                    "x":60,
+                                    "type":"HBox",
+                                    "props":{"y":203,"x":135,"space":5,"name":"hbox","anchorY":0.5,"anchorX":0.5,"align":"middle"},
+                                    "nodeParent":60,
+                                    "label":"HBox(hbox)",
+                                    "isOpen":true,
+                                    "isDirectory":true,
+                                    "isAniNode":true,
+                                    "hasChild":true,
+                                    "compId":113,
+                                    "child":[
+                                        {
+                                            "x":75,
+                                            "type":"Label",
+                                            "props":{"y":1,"x":86,"text":"6%","name":"txtAdd","fontSize":21,"color":"#af9801","bold":true,"align":"right"},
+                                            "nodeParent":113,
+                                            "label":"Label(txtAdd)",
+                                            "isDirectory":false,
+                                            "isAniNode":true,
+                                            "hasChild":false,
+                                            "compId":114,
+                                            "child":[
+                                                ],
+                                            "$HIDDEN":false
+                                        },
+                                        {
+                                            "x":75,
+                                            "type":"Label",
+                                            "props":{"text":"攻击时有","fontSize":21,"color":"#a43601","bold":true,"align":"right"},
+                                            "nodeParent":113,
+                                            "label":"Label",
+                                            "isDirectory":false,
+                                            "isAniNode":true,
+                                            "hasChild":false,
+                                            "compId":115,
+                                            "child":[
+                                                ],
+                                            "$HIDDEN":false
+                                        },
+                                        {
+                                            "x":75,
+                                            "type":"Label",
+                                            "props":{"y":1,"x":112,"text":"几率造成","fontSize":21,"color":"#a43601","bold":true,"align":"right"},
+                                            "nodeParent":113,
+                                            "label":"Label",
+                                            "isDirectory":false,
+                                            "isAniNode":true,
+                                            "hasChild":false,
+                                            "compId":116,
+                                            "child":[
+                                                ],
+                                            "$HIDDEN":false
                                         }]
                                 }]
                         },
                         {
                             "x":45,
                             "type":"Box",
-                            "props":{"y":587,"x":384,"name":"boxItem4"},
+                            "props":{"y":587,"x":384,"width":271,"name":"boxItem4","height":341},
                             "nodeParent":2,
                             "label":"Box(boxItem4)",
-                            "isOpen":false,
+                            "isOpen":true,
                             "isDirectory":true,
                             "isAniNode":true,
                             "hasChild":true,
                             "compId":52,
                             "child":[
                                 {
+                                    "x":60,
                                     "type":"Image",
                                     "props":{"skin":"images/strengthen/strengthen_item_bg.png","name":"imgItemBg"},
                                     "nodeParent":52,
@@ -598,8 +743,9 @@
                                         ]
                                 },
                                 {
+                                    "x":60,
                                     "type":"Image",
-                                    "props":{"y":65,"x":53,"skin":"images/core/skill_03.png","name":"imgItem","centerX":0},
+                                    "props":{"y":56,"x":71,"skin":"images/core/skill_03.png","scaleY":0.85,"scaleX":0.85,"name":"imgItem","centerX":1},
                                     "nodeParent":52,
                                     "label":"Image(imgItem)",
                                     "isDirectory":false,
@@ -610,8 +756,9 @@
                                         ]
                                 },
                                 {
+                                    "x":60,
                                     "type":"Label",
-                                    "props":{"y":13,"x":27,"text":"幽冥毒液","name":"txtDes","fontSize":30,"color":"#b13c0e","bold":true,"align":"right"},
+                                    "props":{"y":12,"x":46,"text":"幽冥毒液","strokeColor":"#9b5000","stroke":2,"name":"txtDes","fontSize":28,"color":"#ffffff","bold":true},
                                     "nodeParent":52,
                                     "label":"Label(txtDes)",
                                     "isDirectory":false,
@@ -622,56 +769,7 @@
                                         ]
                                 },
                                 {
-                                    "type":"Label",
-                                    "props":{"y":13,"x":158,"width":82,"text":"+6%","name":"txtAdd","fontSize":30,"color":"#b13c0e","bold":true,"align":"right"},
-                                    "nodeParent":52,
-                                    "label":"Label(txtAdd)",
-                                    "isDirectory":false,
-                                    "isAniNode":true,
-                                    "hasChild":false,
-                                    "compId":94,
-                                    "child":[
-                                        ],
-                                    "$HIDDEN":false
-                                },
-                                {
-                                    "type":"Image",
-                                    "props":{"y":220,"x":55,"skin":"images/strengthen/strengthen_frame_bar.png","name":"imgEssence"},
-                                    "nodeParent":52,
-                                    "label":"Image(imgEssence)",
-                                    "isOpen":true,
-                                    "isDirectory":true,
-                                    "isAniNode":true,
-                                    "hasChild":true,
-                                    "compId":56,
-                                    "child":[
-                                        {
-                                            "type":"Image",
-                                            "props":{"y":-2,"x":-16,"skin":"images/strengthen/strengthen_item_shitou.png","name":"imgIcon"},
-                                            "nodeParent":56,
-                                            "label":"Image(imgIcon)",
-                                            "isOpen":true,
-                                            "isDirectory":false,
-                                            "isAniNode":true,
-                                            "hasChild":false,
-                                            "compId":57,
-                                            "child":[
-                                                ]
-                                        },
-                                        {
-                                            "type":"Label",
-                                            "props":{"y":3,"x":30,"text":"0","strokeColor":"#946430","stroke":4,"name":"txtEssence","fontSize":26,"color":"#ffffff","bold":true,"align":"left"},
-                                            "nodeParent":56,
-                                            "label":"Label(txtEssence)",
-                                            "isDirectory":false,
-                                            "isAniNode":true,
-                                            "hasChild":false,
-                                            "compId":58,
-                                            "child":[
-                                                ]
-                                        }]
-                                },
-                                {
+                                    "x":60,
                                     "type":"Button",
                                     "props":{"y":279,"x":39,"stateNum":"1","skin":"images/component/frame_btn_small_yellow.png","name":"btnStrengthen","labelStrokeColor":"#e5ad1e","labelStroke":2,"labelSize":30,"labelColors":"#ffffff","labelBold":true},
                                     "nodeParent":52,
@@ -683,8 +781,9 @@
                                     "compId":84,
                                     "child":[
                                         {
+                                            "x":75,
                                             "type":"Label",
-                                            "props":{"y":17,"x":31,"text":"强化","strokeColor":"#946430","stroke":4,"name":"txtBtn","fontSize":30,"color":"#ffffff","bold":true,"align":"left"},
+                                            "props":{"y":16,"x":22,"text":"强化","strokeColor":"#946430","stroke":2,"name":"txtBtn","fontSize":30,"color":"#f0f7f7","bold":true,"align":"left"},
                                             "nodeParent":84,
                                             "label":"Label(txtBtn)",
                                             "isDirectory":false,
@@ -695,18 +794,7 @@
                                                 ]
                                         },
                                         {
-                                            "type":"Label",
-                                            "props":{"y":17,"x":96,"text":"+1%","strokeColor":"#946430","stroke":4,"name":"txtAdd","fontSize":30,"color":"#ffffff","bold":true,"align":"left"},
-                                            "nodeParent":84,
-                                            "label":"Label(txtAdd)",
-                                            "isDirectory":false,
-                                            "isAniNode":true,
-                                            "hasChild":false,
-                                            "compId":86,
-                                            "child":[
-                                                ]
-                                        },
-                                        {
+                                            "x":75,
                                             "type":"Script",
                                             "source":"laya/pages/ScaleAnimScript.script",
                                             "props":{"y":0,"x":0},
@@ -718,6 +806,116 @@
                                             "compId":90,
                                             "child":[
                                                 ]
+                                        },
+                                        {
+                                            "x":75,
+                                            "type":"Image",
+                                            "props":{"y":16,"x":85,"skin":"images/strengthen/strengthen_item_shitou.png","scaleY":0.7,"scaleX":0.7,"name":"imgIcon"},
+                                            "nodeParent":84,
+                                            "label":"Image(imgIcon)",
+                                            "isOpen":true,
+                                            "isDirectory":false,
+                                            "isAniNode":true,
+                                            "hasChild":false,
+                                            "compId":57,
+                                            "child":[
+                                                ]
+                                        },
+                                        {
+                                            "x":75,
+                                            "type":"Label",
+                                            "props":{"y":16,"x":117,"text":"0","strokeColor":"#946430","stroke":4,"name":"txtEssence","fontSize":26,"color":"#ffffff","bold":true,"align":"left"},
+                                            "nodeParent":84,
+                                            "label":"Label(txtEssence)",
+                                            "isDirectory":false,
+                                            "isAniNode":true,
+                                            "hasChild":false,
+                                            "compId":58,
+                                            "child":[
+                                                ]
+                                        }]
+                                },
+                                {
+                                    "x":60,
+                                    "type":"Label",
+                                    "props":{"y":11,"x":166,"text":"Lv0","name":"txtLevel","fontSize":28,"color":"#a0880e","bold":true},
+                                    "nodeParent":52,
+                                    "label":"Label(txtLevel)",
+                                    "isDirectory":false,
+                                    "isAniNode":true,
+                                    "hasChild":false,
+                                    "compId":102,
+                                    "child":[
+                                        ],
+                                    "$HIDDEN":false
+                                },
+                                {
+                                    "x":60,
+                                    "type":"Label",
+                                    "props":{"y":219,"x":74,"text":"中毒伤害效果","fontSize":21,"color":"#a43601","bold":true,"align":"right"},
+                                    "nodeParent":52,
+                                    "label":"Label",
+                                    "isDirectory":false,
+                                    "isAniNode":true,
+                                    "hasChild":false,
+                                    "compId":117,
+                                    "child":[
+                                        ],
+                                    "$HIDDEN":false
+                                },
+                                {
+                                    "x":60,
+                                    "type":"HBox",
+                                    "props":{"y":203,"x":144,"space":5,"name":"hbox","anchorY":0.5,"anchorX":0.5,"align":"middle"},
+                                    "nodeParent":52,
+                                    "label":"HBox(hbox)",
+                                    "isOpen":true,
+                                    "isDirectory":true,
+                                    "isAniNode":true,
+                                    "hasChild":true,
+                                    "compId":118,
+                                    "child":[
+                                        {
+                                            "x":75,
+                                            "type":"Label",
+                                            "props":{"y":1,"x":86,"text":"6%","name":"txtAdd","fontSize":21,"color":"#af9801","bold":true,"align":"right"},
+                                            "nodeParent":118,
+                                            "label":"Label(txtAdd)",
+                                            "isDirectory":false,
+                                            "isAniNode":true,
+                                            "hasChild":false,
+                                            "compId":119,
+                                            "child":[
+                                                ],
+                                            "$HIDDEN":false
+                                        },
+                                        {
+                                            "x":75,
+                                            "type":"Label",
+                                            "props":{"text":"攻击时有","fontSize":21,"color":"#a43601","bold":true,"align":"right"},
+                                            "nodeParent":118,
+                                            "label":"Label",
+                                            "isDirectory":false,
+                                            "isAniNode":true,
+                                            "hasChild":false,
+                                            "compId":120,
+                                            "child":[
+                                                ],
+                                            "$HIDDEN":false
+                                        },
+                                        {
+                                            "x":75,
+                                            "type":"Label",
+                                            "props":{"y":1,"x":112,"text":"几率造成","fontSize":21,"color":"#a43601","bold":true,"align":"right"},
+                                            "nodeParent":118,
+                                            "label":"Label",
+                                            "isDirectory":false,
+                                            "isAniNode":true,
+                                            "hasChild":false,
+                                            "compId":121,
+                                            "child":[
+                                                ],
+                                            "$HIDDEN":false
                                         }]
                                 }]
                         },

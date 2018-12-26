@@ -3,6 +3,7 @@
 */
 class GameEnterManager {
     init() {
+        ViewRegisterMgr.Instance.initRegisterView();
         HallManager.Instance.setup();
         PlayerManager.Instance.setup();
         BattleManager.Instance.setup();

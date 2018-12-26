@@ -1,39 +1,26 @@
 /*
 * 关注奖励;
 */
-class FollowRewardView extends ui.follow.FollowRewardViewUI {
+class FollowRewardView extends BaseView {
     constructor() {
-        super();
-        this.init();
-    }
-    //新建并添加到节点
-    static Create(_parentNode, callback = null, _removeCallback = null, ...arge) {
-        let resList = [
-            { url: "res/atlas/images/followReward.atlas", type: Laya.Loader.ATLAS }
-        ];
-        Laya.loader.load(resList, Handler.create(null, () => {
-            if (_parentNode) {
-                let nodeView = new FollowRewardView();
-                AlignUtils.setToScreenGoldenPos(nodeView);
-                LayerManager.getInstance().frameLayer.addChildWithMaskCall(nodeView, nodeView.removeSelf);
-                nodeView.once(Laya.Event.REMOVED, nodeView, _removeCallback);
-            }
-        }));
+        super(LAYER_TYPE.FRAME_LAYER, ui.follow.FollowRewardViewUI);
+        this.setResources(["images/followReward"]);
     }
     //初始化
-    init() {
+    initUI() {
+        super.initUI();
         var that = this;
         //按钮事件
-        that.btnExit.on(Laya.Event.CLICK, that, that.onClickExit);
-        that.btnGet.on(Laya.Event.CLICK, that, that.onClickGet);
+        that.ui.btnExit.on(Laya.Event.CLICK, that, that.onClickExit);
+        that.ui.btnGet.on(Laya.Event.CLICK, that, that.onClickGet);
         that.requestOfficialAccData((_res) => {
-            if (that.imgBg && _res && _res.image && (_res.image.indexOf(".png") || _res.image.indexOf(".jpg"))) {
-                that.imgBg.skin = _res.image;
+            if (that.ui.imgBg && _res && _res.image && (_res.image.indexOf(".png") || _res.image.indexOf(".jpg"))) {
+                that.ui.imgBg.skin = _res.image;
             }
         });
     }
     onClickExit() {
-        this.removeSelf();
+        ViewMgr.Ins.close(ViewConst.FollowRewardView);
     }
     onClickGet() {
         let that = this;

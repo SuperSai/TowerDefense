@@ -139,13 +139,35 @@ class SDKManager {
         //小程序跳转次数统计
         HttpManager.Instance.requestShareAdFinish("minipro_" + appId);
     }
+    /** 处理分享类型 */
+    handlerShareType(data) {
+        if (!data)
+            return;
+        switch (data.query.shareType) {
+            case "help":
+                console.log("好友互助UID:", data.query.userId);
+                HttpManager.Instance.requestFriendConcur(data.query.userId);
+                break;
+            case "clearanceReward":
+                this.checkIsGetClearanceReward(data.shareTicket);
+                break;
+            default:
+                HttpManager.Instance.requestShareGift(data);
+                break;
+        }
+    }
     /** 处理场景值 */
     handlerSceneValue(data) {
         switch (Math.floor(data.scene)) {
-            case 1044:
-                if (data.query.shareType == "clearanceReward") {
-                    this.checkIsGetClearanceReward(data.shareTicket);
+            case 1020:
+            case 1035:
+            case 1043:
+                if (data.referrerInfo && data.referrerInfo.appId) {
+                    HttpManager.Instance.requestPublicAddress(data);
                 }
+                break;
+            case 1044:
+                this.handlerShareType(data);
                 break;
         }
     }

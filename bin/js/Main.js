@@ -3,6 +3,7 @@ const M = new ManagerShortcuts();
 const userData = new UserData();
 platform.onShow(function (data) {
     console.log("@David onShow", data);
+    SDKManager.Instance.handlerShareType(data);
     SDKManager.Instance.handlerSceneValue(data);
     EventsManager.Instance.event(EventsType.BACK_GAME);
     M.more.applyMute();
@@ -44,6 +45,7 @@ class Main {
         Laya.init(750, 1334, Laya.WebGL);
         Laya.stage.scaleMode = Laya.Stage.SCALE_NOSCALE;
         M.layer.initLayer(Laya.stage, 750, 1334);
+        LayerMgr.Instance.initLayer(Laya.stage, 750, 1334);
         if (!Laya.Browser.onMiniGame) {
             if (GlobalConfig.DEBUG) {
                 this.beginLoad();

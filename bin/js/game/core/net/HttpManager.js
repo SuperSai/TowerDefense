@@ -583,6 +583,56 @@ class HttpManager {
             }
         });
     }
+    /** 请求好友互助 */
+    requestFriendConcur(userId) {
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+        HttpReqHelper.request({
+            url: "v1/activity/help/click/" + userId,
+            success: function (res) {
+                console.log(res);
+            },
+            fail: function (res) {
+                console.log(res);
+            }
+        });
+    }
+    /** 分享礼包 */
+    requestShareGift(param) {
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+        HttpReqHelper.request({
+            url: "v1/share/friend",
+            method: "POST",
+            data: {
+                "userId": param.query.userId,
+                "shareId": param.query.shareId,
+                "shareType": param.query.shareType
+            },
+            success: function (res) {
+                console.log(res);
+            },
+            fail: function (res) {
+                console.log(res);
+            }
+        });
+    }
+    /** 公众号 */
+    requestPublicAddress(param) {
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+        HttpReqHelper.request({
+            url: "v1/subscription/attention",
+            method: "POST",
+            data: {
+                "scene": param.scene,
+                "appId": param.referrerInfo.appId
+            },
+            success: function (res) {
+                console.log(res);
+            },
+            fail: function (res) {
+                console.log(res);
+            }
+        });
+    }
     static get Instance() {
         if (HttpManager._instance == null) {
             HttpManager._instance = new HttpManager();
