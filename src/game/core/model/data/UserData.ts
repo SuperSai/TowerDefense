@@ -598,7 +598,7 @@ class UserData {
             if (GlobalConfig.USER) {
                 M.player.account = GlobalConfig.USER;
             }
-            if (GlobalConfig.NEW_ACCOUNT) {
+            if (!Laya.Browser.onMiniGame) {
                 _callback && _callback(true);
                 return;
             }
@@ -927,6 +927,12 @@ class UserData {
                     callback && callback();
                     HttpManager.Instance.requestShareAdFinish("share_friend_concur", res);
                 }, isTask, isGroupShare, "help");
+                break;
+            case 15: //通关奖励
+                self.toShare((res) => {
+                    callback && callback();
+                    HttpManager.Instance.requestShareAdFinish("share_clearance_reward", res);
+                }, isTask, isGroupShare, "clearanceReward");
                 break;
             //分享无限次数
             default: {

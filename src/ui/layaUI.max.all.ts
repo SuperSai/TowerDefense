@@ -1,6 +1,41 @@
 
 import View=laya.ui.View;
 import Dialog=laya.ui.Dialog;
+module ui.buff {
+    export class BuffTipsViewUI extends View {
+		public imgIcon:Laya.Image;
+		public txt_des:Laya.Label;
+		public txt_time:Laya.Label;
+
+        public static  uiView:any ={"type":"View","props":{"width":713,"height":628},"child":[{"type":"Box","props":{"y":0,"x":0,"width":713,"height":628},"child":[{"type":"Image","props":{"y":70,"x":0,"width":716,"skin":"images/component/frame_9calce_01.png","height":565,"sizeGrid":"168,65,62,82"}},{"type":"Image","props":{"y":66,"x":632,"skin":"images/component/frame_close_btn.png"}},{"type":"Image","props":{"y":267,"x":281,"var":"imgIcon","skin":"images/buff/buff_1.png"}},{"type":"Label","props":{"y":452,"x":51,"width":613,"var":"txt_des","text":"恭喜您获得暴击加成","height":35,"fontSize":35,"font":"SimHei","color":"#884a00","bold":true,"align":"center"}},{"type":"HBox","props":{"y":518,"x":356,"anchorY":0.5,"anchorX":0.5,"align":"middle"},"child":[{"type":"Label","props":{"y":2,"x":196,"text":"秒","fontSize":35,"font":"SimHei","color":"#884a00","bold":true}},{"type":"Label","props":{"text":"持续","fontSize":35,"font":"SimHei","color":"#884a00","bold":true}},{"type":"Label","props":{"y":0,"x":81.5625,"var":"txt_time","text":"180","fontSize":35,"font":"SimHei","color":"#eb6626","bold":true,"align":"center"}}]},{"type":"Label","props":{"y":635,"x":267,"text":"点击空白处关闭","fontSize":26,"color":"#ffffff","align":"center"}},{"type":"Image","props":{"y":-1,"x":60,"skin":"images/buff/buff_title_bg.png"}}]}]};
+        constructor(){ super()}
+        createChildren():void {
+        
+            super.createChildren();
+            this.createView(ui.buff.BuffTipsViewUI.uiView);
+
+        }
+
+    }
+}
+
+module ui.buff {
+    export class SkillItemUI extends View {
+		public imgIcon:Laya.Image;
+		public txt_time:Laya.Label;
+
+        public static  uiView:any ={"type":"View","props":{"width":54,"height":68},"child":[{"type":"Box","props":{"y":0,"x":0,"width":55,"height":69},"child":[{"type":"Image","props":{"y":23,"x":27,"var":"imgIcon","skin":"images/buff_1.png","anchorY":0.5,"anchorX":0.5}},{"type":"Image","props":{"y":42,"x":-3,"skin":"images/component/skill_bg.png"}},{"type":"Label","props":{"y":45,"x":5,"width":43,"var":"txt_time","text":"30","fontSize":20,"color":"#ffffff","bold":true,"align":"center"}}]}]};
+        constructor(){ super()}
+        createChildren():void {
+        
+            super.createChildren();
+            this.createView(ui.buff.SkillItemUI.uiView);
+
+        }
+
+    }
+}
+
 module ui.common.item {
     export class RewardItemUI extends View {
 		public itemImg:Laya.Image;
@@ -214,7 +249,7 @@ module ui.common.view {
 		public lblDesc:Laya.Label;
 		public lblNum:Laya.Label;
 
-        public static  uiView:any ={"type":"View","props":{},"child":[{"type":"Image","props":{"y":69,"x":0,"width":716,"skin":"images/component/frame_9calce_01.png","height":565,"sizeGrid":"168,65,62,82"}},{"type":"Image","props":{"y":65,"x":632,"var":"imgCloseBtn","skin":"images/component/frame_close_btn.png"}},{"type":"Image","props":{"y":0,"x":63,"skin":"images/skyDrop/title.png"}},{"type":"Button","props":{"y":495,"x":431,"width":182,"var":"btnHelp","stateNum":1,"skin":"images/component/frame_btn_small_blue.png","labelStrokeColor":"#306294","labelStroke":4,"labelSize":32,"labelColors":"#FFFFFF","labelBold":true,"label":"求助","height":62,"sizeGrid":"0,32,0,34"}},{"type":"Button","props":{"y":495,"x":116,"var":"btnVideo","stateNum":1,"skin":"images/component/frame_btn_small_yellow.png","labelStrokeColor":"#825321","labelStroke":4,"labelSize":32,"labelColors":"#FFFFFF","labelBold":true,"label":"领取"}},{"type":"HBox","props":{"y":401,"x":362,"var":"hbox2","anchorY":0.5,"anchorX":0.5,"align":"middle"},"child":[{"type":"Label","props":{"y":2,"x":196,"text":"秒","fontSize":40,"font":"SimHei","color":"#884a00","bold":true}},{"type":"Label","props":{"text":"持续","fontSize":40,"font":"SimHei","color":"#884a00","bold":true}},{"type":"Label","props":{"y":0,"x":81.5625,"width":68.578125,"var":"lblDuration","text":"180","height":44,"fontSize":44,"font":"SimHei","color":"#eb6626","bold":true,"align":"center"}}]},{"type":"HBox","props":{"y":314,"x":362,"var":"hbox1","anchorY":0.5,"anchorX":0.5,"align":"middle"},"child":[{"type":"Label","props":{"var":"lblDesc","text":"英雄攻击力增加","fontSize":40,"font":"SimHei","color":"#884a00","bold":true,"align":"right"}},{"type":"Label","props":{"y":3,"x":294,"var":"lblNum","text":"50%","fontSize":44,"font":"SimHei","color":"#eb6626","bold":true}}]}]};
+        public static  uiView:any ={"type":"View","props":{},"child":[{"type":"Image","props":{"y":359,"x":17,"width":716,"skin":"images/component/frame_9calce_01.png","height":565,"sizeGrid":"168,65,62,82"}},{"type":"Image","props":{"y":355,"x":649,"var":"imgCloseBtn","skin":"images/component/frame_close_btn.png"}},{"type":"Image","props":{"y":290,"x":80,"skin":"images/skyDrop/title.png"}},{"type":"Button","props":{"y":785,"x":448,"width":182,"var":"btnHelp","stateNum":1,"skin":"images/component/frame_btn_small_blue.png","labelStrokeColor":"#306294","labelStroke":4,"labelSize":32,"labelColors":"#FFFFFF","labelBold":true,"label":"求助","height":62,"sizeGrid":"0,32,0,34"}},{"type":"Button","props":{"y":785,"x":133,"var":"btnVideo","stateNum":1,"skin":"images/component/frame_btn_small_yellow.png","labelStrokeColor":"#825321","labelStroke":4,"labelSize":32,"labelColors":"#FFFFFF","labelBold":true,"label":"领取"}},{"type":"HBox","props":{"y":691,"x":379,"var":"hbox2","anchorY":0.5,"anchorX":0.5,"align":"middle"},"child":[{"type":"Label","props":{"y":2,"x":196,"text":"秒","fontSize":40,"font":"SimHei","color":"#884a00","bold":true}},{"type":"Label","props":{"text":"持续","fontSize":40,"font":"SimHei","color":"#884a00","bold":true}},{"type":"Label","props":{"y":0,"x":81.5625,"width":68.578125,"var":"lblDuration","text":"180","height":44,"fontSize":44,"font":"SimHei","color":"#eb6626","bold":true,"align":"center"}}]},{"type":"HBox","props":{"y":604,"x":379,"var":"hbox1","anchorY":0.5,"anchorX":0.5,"align":"middle"},"child":[{"type":"Label","props":{"var":"lblDesc","text":"英雄攻击力增加","fontSize":40,"font":"SimHei","color":"#884a00","bold":true,"align":"right"}},{"type":"Label","props":{"y":3,"x":294,"var":"lblNum","text":"50%","fontSize":44,"font":"SimHei","color":"#eb6626","bold":true}}]}]};
         constructor(){ super()}
         createChildren():void {
         
@@ -311,6 +346,30 @@ module ui.evolution {
 
             super.createChildren();
             this.createView(ui.evolution.EvolutionViewUI.uiView);
+
+        }
+
+    }
+}
+
+module ui.evolution {
+    export class LevelHeroViewUI extends View {
+		public txt_level:Laya.Label;
+		public txt_uplevel:Laya.Label;
+		public txt_name:Laya.Label;
+		public txt_count:Laya.Label;
+		public txt_diamond:Laya.Label;
+		public btn_exit:Laya.Button;
+		public btn_sure:Laya.Button;
+		public btn_next:Laya.Button;
+
+        public static  uiView:any ={"type":"View","props":{"width":714,"height":562},"child":[{"type":"Box","props":{"y":0,"x":0,"width":714,"height":562},"child":[{"type":"Image","props":{"y":4,"width":716,"skin":"images/component/frame_9calce_01.png","height":565,"sizeGrid":"168,65,62,82"}},{"type":"Image","props":{"y":35,"x":119,"skin":"images/levelHero/levelHero_titel.png"}},{"type":"Image","props":{"y":172,"x":317,"skin":"images/levelHero/levelHero_arrow.png"}},{"type":"Image","props":{"y":139,"x":186,"skin":"images/levelHero/levelHero_level_icon.png"}},{"type":"Image","props":{"y":378,"x":25,"skin":"images/component/frame_line_02.png"}},{"type":"Image","props":{"y":259,"x":33,"skin":"images/component/frame_9calce_05.png"}},{"type":"Image","props":{"y":317,"x":33,"skin":"images/component/frame_9calce_05.png"}},{"type":"Image","props":{"y":324,"x":168,"skin":"images/core/diamond.png","scaleY":0.9,"scaleX":0.9}},{"type":"Image","props":{"y":268,"x":172,"width":182,"skin":"images/levelHero/levelHero_name_bg.png","sizeGrid":"13,42,13,36","height":34}},{"type":"Image","props":{"y":139,"x":422,"skin":"images/levelHero/levelHero_level_icon.png"}},{"type":"Label","props":{"y":178,"x":196,"width":88,"var":"txt_level","text":"Lv8","height":32,"fontSize":32,"color":"#886300","align":"center"}},{"type":"Label","props":{"y":178,"x":433,"width":88,"var":"txt_uplevel","text":"Lv8","height":32,"fontSize":32,"color":"#886300","align":"center"}},{"type":"Label","props":{"y":273,"x":44,"text":"升级条件：","fontSize":26,"color":"#9a2525","bold":true,"align":"center"}},{"type":"Label","props":{"y":328,"x":44,"text":"升级消耗：","fontSize":26,"color":"#9a2525","bold":true,"align":"center"}},{"type":"Label","props":{"y":271,"x":172,"width":182,"var":"txt_name","text":"强•克瑞翁Lv30","height":26,"fontSize":26,"color":"#ad1c1c","bold":true,"align":"center"}},{"type":"Label","props":{"y":271,"x":357,"var":"txt_count","text":"x3","fontSize":26,"color":"#9a8d00","align":"center"}},{"type":"Label","props":{"y":327,"x":213,"var":"txt_diamond","text":"0/0","fontSize":26,"color":"#9a8d00","align":"left"}},{"type":"Label","props":{"y":570,"x":268,"text":"点击空白处关闭","fontSize":26,"color":"#ffffff","align":"center"}},{"type":"Button","props":{"x":632,"var":"btn_exit","stateNum":1,"skin":"images/component/frame_close_btn.png"}},{"type":"Button","props":{"y":433,"x":389,"var":"btn_sure","stateNum":1,"skin":"images/component/frame_btn_small_yellow.png","labelStrokeColor":"#825321","labelStroke":2,"labelSize":28,"labelColors":"#ffffff,#ffffff,#ffffff,#ffffff","label":"确定"},"child":[{"type":"Script","props":{"runtime":"ScaleAnimScript"}}]},{"type":"Button","props":{"y":433,"x":142,"width":182,"var":"btn_next","stateNum":1,"skin":"images/component/frame_btn_small_blue.png","labelStrokeColor":"#306294","labelStroke":2,"labelSize":28,"labelColors":"#ffffff,#ffffff,#ffffff,#ffffff","label":"下次","height":62,"sizeGrid":"0,32,0,34"},"child":[{"type":"Script","props":{"runtime":"ScaleAnimScript"}}]}]}]};
+        constructor(){ super()}
+        createChildren():void {
+        			View.regComponent("ScaleAnimScript",ScaleAnimScript);
+
+            super.createChildren();
+            this.createView(ui.evolution.LevelHeroViewUI.uiView);
 
         }
 
@@ -744,7 +803,7 @@ module ui.settlement {
 		public mainView:View;
 		public hbox:Laya.HBox;
 
-        public static  uiView:any ={"type":"View","props":{"mouseThrough":true,"mouseEnabled":true},"child":[{"type":"View","props":{"y":244,"width":750,"var":"mainView","name":"mainView","mouseThrough":true,"mouseEnabled":true,"height":712},"child":[{"type":"Image","props":{"y":128,"x":17,"width":717,"visible":false,"name":"imgBg","mouseThrough":true,"mouseEnabled":true,"height":565},"child":[{"type":"Image","props":{"y":-25,"x":1,"width":716,"skin":"images/component/frame_9calce_01.png","mouseEnabled":true,"height":611,"sizeGrid":"168,65,62,82"}},{"type":"Image","props":{"y":-229,"x":28,"skin":"images/stageSummary/success_title.png","mouseEnabled":true}},{"type":"Image","props":{"y":205,"x":34,"width":645,"skin":"images/component/frame_9calce_02.png","height":224,"sizeGrid":"25,32,32,36"}},{"type":"Button","props":{"y":438,"x":203,"strokeColors":"#946430","stateNum":1,"skin":"images/component/normal_btn.png","name":"btnShare","labelStroke":5,"labelSize":50,"labelColors":"#fff4e1","labelBold":true,"label":"领取"},"child":[{"type":"Script","props":{"y":0,"x":0,"runtime":"ScaleAnimScript"}}]},{"type":"Button","props":{"y":-24,"x":631,"stateNum":1,"skin":"images/component/frame_close_btn.png","name":"btnExit"},"child":[{"type":"Script","props":{"y":0,"x":0,"runtime":"ScaleAnimScript"}}]},{"type":"Image","props":{"y":236,"x":355,"name":"imgItemBg"}},{"type":"HBox","props":{"y":258,"x":113,"var":"hbox","space":50,"name":"hbox","align":"middle"}}]},{"type":"Image","props":{"y":-87,"x":87,"visible":false,"skin":"images/stageSummary/failure_title.png","name":"imgFailed","mouseThrough":true,"mouseEnabled":true},"child":[{"type":"Label","props":{"y":293,"x":36,"width":500,"text":"3","name":"txtTime","fontSize":190,"color":"#f1774e","align":"center"}},{"type":"Label","props":{"y":506,"x":38,"width":500,"text":"秒后重新开始","fontSize":54,"color":"#e5d6bc","bold":true,"align":"center"}},{"type":"Label","props":{"y":595,"x":202,"text":"点击空白处关闭","fontSize":25,"color":"#ffffff","bold":true,"align":"center"}}]}]}]};
+        public static  uiView:any ={"type":"View","props":{"mouseThrough":true,"mouseEnabled":true},"child":[{"type":"View","props":{"y":244,"width":750,"var":"mainView","name":"mainView","mouseThrough":true,"mouseEnabled":true,"height":712},"child":[{"type":"Image","props":{"y":128,"x":17,"width":717,"visible":false,"name":"imgBg","mouseThrough":true,"mouseEnabled":true,"height":565},"child":[{"type":"Image","props":{"y":-25,"x":1,"width":716,"skin":"images/component/frame_9calce_01.png","mouseEnabled":true,"height":611,"sizeGrid":"168,65,62,82"}},{"type":"Image","props":{"y":-229,"x":28,"skin":"images/stageSummary/success_title.png","mouseEnabled":true}},{"type":"Image","props":{"y":205,"x":34,"width":645,"skin":"images/component/frame_9calce_02.png","height":224,"sizeGrid":"25,32,32,36"}},{"type":"Button","props":{"y":438,"x":203,"strokeColors":"#946430","stateNum":1,"skin":"images/component/normal_btn.png","name":"btnShare","labelStroke":5,"labelSize":50,"labelColors":"#fff4e1","labelBold":true,"label":"分享领取"},"child":[{"type":"Script","props":{"y":0,"x":0,"runtime":"ScaleAnimScript"}}]},{"type":"Button","props":{"y":-24,"x":631,"stateNum":1,"skin":"images/component/frame_close_btn.png","name":"btnExit"},"child":[{"type":"Script","props":{"y":0,"x":0,"runtime":"ScaleAnimScript"}}]},{"type":"Image","props":{"y":236,"x":355,"name":"imgItemBg"}},{"type":"HBox","props":{"y":258,"x":113,"var":"hbox","space":50,"name":"hbox","align":"middle"}}]},{"type":"Image","props":{"y":-87,"x":87,"visible":false,"skin":"images/stageSummary/failure_title.png","name":"imgFailed","mouseThrough":true,"mouseEnabled":true},"child":[{"type":"Label","props":{"y":293,"x":36,"width":500,"text":"3","name":"txtTime","fontSize":190,"color":"#f1774e","align":"center"}},{"type":"Label","props":{"y":506,"x":38,"width":500,"text":"秒后重新开始","fontSize":54,"color":"#e5d6bc","bold":true,"align":"center"}},{"type":"Label","props":{"y":595,"x":202,"text":"点击空白处关闭","fontSize":25,"color":"#ffffff","bold":true,"align":"center"}}]}]}]};
         constructor(){ super()}
         createChildren():void {
         			View.regComponent("ScaleAnimScript",ScaleAnimScript);

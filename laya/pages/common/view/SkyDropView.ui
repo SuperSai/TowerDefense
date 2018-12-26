@@ -15,7 +15,7 @@
         {
             "x":15,
             "type":"Image",
-            "props":{"y":69,"x":0,"width":716,"skin":"images/component/frame_9calce_01.png","height":565},
+            "props":{"y":359,"x":17,"width":716,"skin":"images/component/frame_9calce_01.png","height":565},
             "nodeParent":1,
             "label":"Image",
             "isDirectory":false,
@@ -29,7 +29,7 @@
         {
             "x":15,
             "type":"Image",
-            "props":{"y":65,"x":632,"var":"imgCloseBtn","skin":"images/component/frame_close_btn.png"},
+            "props":{"y":355,"x":649,"var":"imgCloseBtn","skin":"images/component/frame_close_btn.png"},
             "nodeParent":1,
             "label":"Image(imgCloseBtn)",
             "isDirectory":false,
@@ -42,7 +42,7 @@
         {
             "x":15,
             "type":"Image",
-            "props":{"y":0,"x":63,"skin":"images/skyDrop/title.png"},
+            "props":{"y":290,"x":80,"skin":"images/skyDrop/title.png"},
             "nodeParent":1,
             "label":"Image",
             "isDirectory":false,
@@ -56,7 +56,7 @@
         {
             "x":15,
             "type":"Button",
-            "props":{"y":495,"x":431,"width":182,"var":"btnHelp","stateNum":"1","skin":"images/component/frame_btn_small_blue.png","labelStrokeColor":"#306294","labelStroke":4,"labelSize":32,"labelColors":"#FFFFFF","labelBold":true,"label":"求助","height":62},
+            "props":{"y":785,"x":448,"width":182,"var":"btnHelp","stateNum":"1","skin":"images/component/frame_btn_small_blue.png","labelStrokeColor":"#306294","labelStroke":4,"labelSize":32,"labelColors":"#FFFFFF","labelBold":true,"label":"求助","height":62},
             "nodeParent":1,
             "label":"Button(btnHelp)",
             "isDirectory":false,
@@ -70,7 +70,7 @@
         {
             "x":15,
             "type":"Button",
-            "props":{"y":495,"x":116,"var":"btnVideo","stateNum":"1","skin":"images/component/frame_btn_small_yellow.png","labelStrokeColor":"#825321","labelStroke":4,"labelSize":32,"labelColors":"#FFFFFF","labelBold":true,"label":"领取"},
+            "props":{"y":785,"x":133,"var":"btnVideo","stateNum":"1","skin":"images/component/frame_btn_small_yellow.png","labelStrokeColor":"#825321","labelStroke":4,"labelSize":32,"labelColors":"#FFFFFF","labelBold":true,"label":"领取"},
             "nodeParent":1,
             "label":"Button(btnVideo)",
             "isDirectory":false,
@@ -84,17 +84,16 @@
         {
             "x":15,
             "type":"HBox",
-            "props":{"y":401,"x":362,"var":"hbox2","anchorY":0.5,"anchorX":0.5,"align":"middle"},
+            "props":{"y":691,"x":379,"var":"hbox2","anchorY":0.5,"anchorX":0.5,"align":"middle"},
             "nodeParent":1,
             "label":"HBox(hbox2)",
-            "isOpen":true,
+            "isOpen":false,
             "isDirectory":true,
             "isAniNode":true,
             "hasChild":true,
             "compId":22,
             "child":[
                 {
-                    "x":30,
                     "type":"Label",
                     "props":{"y":2,"x":196,"text":"秒","fontSize":40,"font":"SimHei","color":"#884a00","bold":true},
                     "nodeParent":22,
@@ -108,7 +107,6 @@
                         ]
                 },
                 {
-                    "x":30,
                     "type":"Label",
                     "props":{"text":"持续","fontSize":40,"font":"SimHei","color":"#884a00","bold":true},
                     "nodeParent":22,
@@ -121,7 +119,6 @@
                         ]
                 },
                 {
-                    "x":30,
                     "type":"Label",
                     "props":{"y":0,"x":81.5625,"width":68.578125,"var":"lblDuration","text":"180","height":44,"fontSize":44,"font":"SimHei","color":"#eb6626","bold":true,"align":"center"},
                     "nodeParent":22,
@@ -137,17 +134,16 @@
         {
             "x":15,
             "type":"HBox",
-            "props":{"y":314,"x":362,"var":"hbox1","anchorY":0.5,"anchorX":0.5,"align":"middle"},
+            "props":{"y":604,"x":379,"var":"hbox1","anchorY":0.5,"anchorX":0.5,"align":"middle"},
             "nodeParent":1,
             "label":"HBox(hbox1)",
-            "isOpen":true,
+            "isOpen":false,
             "isDirectory":true,
             "isAniNode":true,
             "hasChild":true,
             "compId":23,
             "child":[
                 {
-                    "x":30,
                     "type":"Label",
                     "props":{"var":"lblDesc","text":"英雄攻击力增加","fontSize":40,"font":"SimHei","color":"#884a00","bold":true,"align":"right"},
                     "nodeParent":23,
@@ -160,7 +156,6 @@
                         ]
                 },
                 {
-                    "x":30,
                     "type":"Label",
                     "props":{"y":3,"x":294,"var":"lblNum","text":"50%","fontSize":44,"font":"SimHei","color":"#eb6626","bold":true},
                     "nodeParent":23,

@@ -1,7 +1,9 @@
 xiaoduo = window.xiaoduo;
 const M = new ManagerShortcuts();
 const userData = new UserData();
-platform.onShow(function (e) {
+platform.onShow(function (data) {
+    console.log("@David onShow", data);
+    SDKManager.Instance.handlerSceneValue(data);
     EventsManager.Instance.event(EventsType.BACK_GAME);
     M.more.applyMute();
     if (platform.isSharing())

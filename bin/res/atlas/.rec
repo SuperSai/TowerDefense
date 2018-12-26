@@ -2,7 +2,7 @@ D .
 R DED3E094 Compression.bat
 R A41E3D13 pngquant.exe
 D config
-R 9BE0D3BA language.txt
+R DF673151 language.txt
 D images
 P 3035E761 acce_effect.png
 P 5131035C accelerate_icon.png
@@ -15,11 +15,11 @@ P 8809E17A buff_2.png
 P D39E2A6A buff_3.png
 P DA6005DC buff_4.png
 P 1B8DB693 bullet_01.png
-P A7912260 bullet_02.png
-P 5DBE5401 bullet_03.png
+P 315FA92A bullet_02.png
+P 1E858E97 bullet_03.png
 P 1D2679A1 buy_title.png
 P 7EB918E6 coin_frame.png
-R 02BB7F8F common_bg_light.png
+R 5DBDE8A3 common_bg_light.png
 R C0FCDF8C crit_num.png
 P EFAC6458 dailySingBtn.png
 P 5AA8293B daojishi_di.png
@@ -44,7 +44,7 @@ P 3C15D3B7 gameLastTimeTip.png
 P 87CB7A5C gbtn_acce.png
 P 8283E3EC gbtn_feedback.png
 P 78ED3472 gbtn_fire.png
-P 20F0AA3C gbtn_luck.png
+P FC544D37 gbtn_luck.png
 P A566B116 gbtn_more.png
 P 96BC9F8B gbtn_ranking.png
 P C65F6639 gbtn_shop.png
@@ -61,7 +61,7 @@ P 009F326C home_menu_music2.png
 P DDC93265 home_menu_server.png
 P 6833E726 huishou_icon_0.png
 P 4956FE80 huishou_icon_1.png
-P 01DCF482 king_title_icon.png
+P D138D4F1 king_title_icon.png
 P B5309743 lv_001.png
 P E746D0CF miniProgram_icon.png
 P 1A434EF7 more_icon.png
@@ -93,6 +93,12 @@ R FB3CB231 Monster.json
 R 015B0E33 SkillConfig.json
 R 20D2D94D SkillStrengthen.json
 R ED329E37 TrainDrop.json
+D images/buff
+P 7DDD1283 buff_1.png
+P 4F7C6A50 buff_2.png
+P 4D0BCF1D buff_3.png
+P B823FEBA buff_4.png
+P B6238C45 buff_title_bg.png
 D images/carImg
 D images/ClearanceReward
 P 2A19A3D9 result_prize_item2.png
@@ -103,11 +109,11 @@ D images/component
 P EEE465EF frame_9calce_01.png
 P 0EAE69C2 frame_9calce_02.png
 P 7DE91940 frame_9calce_03.png
-R 51C7648F frame_9calce_04.png
-R EB84678B frame_9calce_05.png
+P 51C7648F frame_9calce_04.png
+P EB84678B frame_9calce_05.png
 P 092F93C3 frame_9calce_06.png
 P F6E5E3B6 frame_9calce_07.png
-P EFE0D97E frame_9calce_08.png
+P EA0C9502 frame_9calce_08.png
 P 5B203EAD frame_9scale_09.png
 P 794B90EE frame_9scale_10.png
 P 634234AE frame_9scale_11.png
@@ -115,11 +121,13 @@ P 1F6D3DFB frame_9scale_12.png
 P BDBDE042 frame_btn_small_blue.png
 P B6817D81 frame_btn_small_yellow.png
 P A5B1E251 frame_close_btn.png
-R 1A357E31 frame_line_01.png
+P 1A357E31 frame_line_01.png
+P 2A001353 frame_line_02.png
 P 014F26CF frame_tips_bg.png
 P 4539629B gray_btn.png
 P C341EA97 normal_btn.png
-R A8CDFB54 seperate_line.png
+P A8CDFB54 seperate_line.png
+P 809A562F skill_bg.png
 P B76B6F4C sub_title_bg.png
 P 7EDB17DF tab_01.png
 P 17FA910B tab_02.png
@@ -130,8 +138,8 @@ P 2835F19E blank.png
 P 0F928770 coin_40x40.png
 P 2618A204 coin_big.png
 P 0EE78F75 coin_stack_01.png
-P 87A21D33 core_block_icon.png
-P 05BFB04A core_eliminate_icon.png
+P 78C5773C core_block_icon.png
+P 67796B57 core_eliminate_icon.png
 P AE98943F core_fly_icon.png
 P BE12F052 core_tips_icon.png
 P EFAC6458 dailySingBtn.png
@@ -142,7 +150,7 @@ P A1C17549 essence.png
 P 8721B77E essence_icon.png
 P DFA8EC49 fenxiang_icon.png
 P F5420F53 game_exp_pro_head.png
-R 232B38FF light_01.png
+R 75C5FEE8 light_01.png
 P A675715C red_dot_hint.png
 P 260D9C6B shop_free_share.png
 P AB43462D shop_free_video.png
@@ -169,30 +177,35 @@ P 9DAC9B01 right_link.png
 P 7BF6BEEA title.png
 D images/effect
 D images/followReward
-P 1A133A24 followReward_bg.jpg
+P 2ED49B66 followReward_bg.jpg
 P A94025F7 followReward_btn.png
 D images/friendConcur
-P DBD31032 friendConcur_bg.png
+P DA085E50 friendConcur_bg.png
 P 51E39C02 friendConcur_time_bg.png
-P D1A691B6 friendConcur_title.png
+P 78B21B48 friendConcur_title.png
 D images/hall
-P 309C3D81 hall_arrow.png
-P 139C419D hall_concurBtn.png
+P DE129311 hall_arrow.png
+P DF23629E hall_concurBtn.png
 P EFAC6458 hall_dailySingBtn.png
-P F2049765 hall_followBtn.png
-P 51BB37C3 hall_online_reward.png
+P 892A6464 hall_followBtn.png
+P 93B1EAFF hall_online_reward.png
 P DE37E78D hall_rankBtn.png
 P B6B1E7F9 hall_suofang_bg.png
 P 87443716 reward_get_title.png
+D images/levelHero
+P CB77502B levelHero_arrow.png
+P 75B83E5F levelHero_level_icon.png
+P CE6B89CF levelHero_name_bg.png
+P 0B17F171 levelHero_titel.png
 D images/luckLottery
 P 043405C4 luck_go.png
 R 71914F23 luck_huanpan.png
 R E0670AD6 luck_huanpan_light.png
 R 3ACAA4E1 luck_item_title.png
 P F8378FE5 luck_price_bg.png
-P 6189DB90 luck_prize_0.png
+P 62EB7C06 luck_prize_0.png
 P 2D627445 luck_prize_2.png
-P 609455F2 luck_prize_3.png
+P 48B398A3 luck_prize_3.png
 P C7EFCA58 luck_prize_5.png
 P 754AC489 luck_prize_6.png
 R 0DE823A0 luck_title.png
@@ -217,7 +230,7 @@ P 98675CCD diamond.png
 P 35D83365 empty_friend_icon.png
 P 1F437D20 idle_btn.png
 P 50FE6CDD invite_btn.png
-R DBD31032 item_bg.png
+R DA085E50 item_bg.png
 P 10F98E01 reward_bg.png
 P B93E802F selected_btn.png
 P 7EDB17DF tab.png
@@ -249,4 +262,4 @@ P 1F6D3DFB strengthen_frame_bar.png
 P A5E0F081 strengthen_item3.png
 P AE614C39 strengthen_item_bg.png
 P 5D0D36A4 strengthen_item_shitou.png
-P FD8C8B2F strengthen_title.png
+P EF00C4AE strengthen_title.png

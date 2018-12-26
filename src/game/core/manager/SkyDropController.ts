@@ -21,9 +21,8 @@ class SkyDropController extends Laya.EventDispatcher {
         this._container.mouseThrough = true;
         this._package = new Laya.Image("images/sk_package.png");
         this._package.pivot(34, 42);
-
         this._awardType = -1;
-
+        // this.dropPackage(1);
         Laya.timer.once(5 * 1000, this, this.requestSkyDropPackage);
     }
 
@@ -73,7 +72,6 @@ class SkyDropController extends Laya.EventDispatcher {
                 this._skyDropFrame = new SkyDropView();
                 this._skyDropFrame.renew(sheet);
             }
-            AlignUtils.setToScreenGoldenPos(this._skyDropFrame);
             M.layer.subFrameLayer.addChildWithMaskCall(this._skyDropFrame, this._skyDropFrame.removeSelf);
         } else {
             if (!this._skyDropObtainFrame) {
@@ -88,6 +86,7 @@ class SkyDropController extends Laya.EventDispatcher {
         const sheet = SkyDropSheet.getSheetById(this._awardType);
         BuffController.getInstance().addBuffFromSkyDrop(sheet);
         this.retrievePackage();
+        BuffTipsView.Create(sheet);
     }
 
     public requestSkyDropPackage(): void {

@@ -559,10 +559,22 @@ class HttpManager {
     }
     /** 请求好友互助列表 */
     requestFriendConcurList(callback) {
-        let that = this;
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/activity/help/list',
+            success: function (res) {
+                callback && callback(res);
+            },
+            fail: function (res) {
+                console.log(res);
+            }
+        });
+    }
+    /** 请求是否获取通关奖励 */
+    requestClearanceReward(encryptedData, iv, callback) {
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+        HttpReqHelper.request({
+            url: 'v1/activity/help/list?encryptedData=' + encryptedData + "&iv=" + iv,
             success: function (res) {
                 callback && callback(res);
             },

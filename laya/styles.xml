@@ -28,4 +28,11 @@
    <item name="images/randomReward/randomReward_title_01.png" type="Image" compress="0" pack="1" quality="80" props="" picType="0" scale="0"/>
    <item name="images/randomReward/randomReward_title_02.png" type="Image" compress="0" pack="1" quality="80" props="" picType="0" scale="0"/>
    <item name="images/hall/reward_get_title.png" type="Image" compress="0" pack="1" quality="80" props="" picType="0" scale="0"/>
+   <item name="images/buff/buff_title_bg.png" type="Image" compress="0" pack="1" quality="80" props="" picType="0" scale="0"/>
+   <item name="images/component/frame_9calce_05.png" type="Image" compress="0" pack="1" quality="80" props="" picType="0" scale="0"/>
+   <item name="images/component/frame_9calce_04.png" type="Image" compress="0" pack="1" quality="80" props="" picType="0" scale="0"/>
+   <item name="images/component/frame_line_01.png" type="Image" compress="0" pack="1" quality="80" props="" picType="0" scale="0"/>
+   <item name="images/component/seperate_line.png" type="Image" compress="0" pack="1" quality="80" props="" picType="0" scale="0"/>
+   <item name="images/component/line_01.png" type="null" compress="0" pack="1" quality="80" props="" picType="0" scale="0"/>
+   <item name="images/component/frame_line_02.png" type="Image" compress="0" pack="1" quality="80" props="" picType="0" scale="0"/>
 </res>

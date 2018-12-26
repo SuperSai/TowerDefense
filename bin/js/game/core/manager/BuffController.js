@@ -22,24 +22,45 @@ class BuffController extends Laya.EventDispatcher {
         this._buffValueList = [0, 0, 0, 0];
     }
     addBuffFromSkyDrop(sheet) {
+        let skillUrl = "";
         switch (sheet.id) {
             case SkyDropSheet.ATTACK_SPEED_INCREASE: {
                 this.activateBuff(BuffSheet.ATTACK_SPEED_INCREASE, sheet);
+                skillUrl = "images/buff_1.png";
                 break;
             }
             case SkyDropSheet.ATTACK_VALUE_INCREASE: {
                 this.activateBuff(BuffSheet.ATTACK_VALUE_INCREASE, sheet);
+                skillUrl = "images/buff_2.png";
                 break;
             }
             case SkyDropSheet.CRIT_RATE_INCREASE: {
                 this.activateBuff(BuffSheet.CRIT_RATE_INCREASE, sheet);
+                skillUrl = "images/buff_3.png";
                 break;
             }
             case SkyDropSheet.COIN_OBTAIN_INCREASE: {
                 this.activateBuff(BuffSheet.COIN_OBTAIN_INCREASE, sheet);
+                skillUrl = "images/buff_4.png";
                 break;
             }
         }
+        let skill = new SkillItem();
+        skill.initSkill(skillUrl);
+        this.setSkillTime(skill, sheet.duration);
+        this._buffContainer.boxBuffList.addChild(skill);
+    }
+    setSkillTime(skillItem, time) {
+        let skillTime = time;
+        let timeInt = setInterval(() => {
+            skillTime -= 1000;
+            skillItem.updateTime(TimeUtil.getTimeCD(skillTime));
+            if (skillTime <= 0) {
+                clearInterval(timeInt);
+                skillItem.removeSelf();
+                skillItem = null;
+            }
+        }, 1000);
     }
     getBuffValueById(id) {
         if (!this._buffValueList[id]) {
@@ -56,10 +77,10 @@ class BuffController extends Laya.EventDispatcher {
     }
     activateBuff(id, sheet) {
         this._buffValueList[id] = sheet.num;
-        this._buffContainer.boxBuffList.addChild(this._buffIconList[id]);
+        // this._buffContainer.boxBuffList.addChild(this._buffIconList[id]);
         Laya.timer.once(sheet.duration, this, () => {
             this._buffValueList[id] = 0;
-            this._buffIconList[id].removeSelf();
+            // this._buffIconList[id].removeSelf();
         });
     }
 }

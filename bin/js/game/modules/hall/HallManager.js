@@ -114,9 +114,40 @@ class HallManager extends Laya.EventDispatcher {
         }
         return false;
     }
+    /** 显示通关奖励礼包界面 */
+    showClearanceRewardView() {
+        if (this._hall) {
+            let lastStage = HallManager.Instance.hallData.stagePrizeList.pop();
+            //显示获得的奖品
+            let stagePrizeCfg = GlobleData.getData(GlobleData.BarrierRewardVO, lastStage);
+            if (stagePrizeCfg) {
+                //发送奖励
+                let bossM = MathUtils.parseStringNum(stagePrizeCfg.bossM);
+                let gold = BattleManager.Instance.getBarrierRewardToGold(lastStage, MathUtils.parseStringNum(stagePrizeCfg.gold));
+                let gem = MathUtils.parseStringNum(stagePrizeCfg.gem);
+                HttpManager.Instance.requestStagePrizeDiamond(lastStage, gem, bossM, (_res) => {
+                    let stage = _res;
+                    if (stage > 0) {
+                        ClearanceRewardView.Create(this._hall, null, null, stage);
+                        HttpManager.Instance.requestDiamondData();
+                        HttpManager.Instance.requestEssenceData();
+                    }
+                });
+                if (gold > 0) { //金币礼包
+                    this._hall.updateGold(PlayerManager.Instance.Info.userMoney + gold);
+                }
+            }
+        }
+    }
     set hallData(value) { this._model = value; }
     /** 大厅中的数据 */
     get hallData() { return this._model; }
+    get hall() {
+        return this._hall;
+    }
+    set hall(value) {
+        this._hall = value;
+    }
     static get Instance() {
         if (HallManager._instance == null) {
             HallManager._instance = new HallManager();

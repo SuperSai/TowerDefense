@@ -3,7 +3,9 @@ xiaoduo = window.xiaoduo;
 const M = new ManagerShortcuts();
 const userData: UserData = new UserData();
 
-platform.onShow(function (e: any) {
+platform.onShow(function (data: any) {
+    console.log("@David onShow", data);
+    SDKManager.Instance.handlerSceneValue(data);
     EventsManager.Instance.event(EventsType.BACK_GAME);
     M.more.applyMute();
     if (platform.isSharing()) return;
@@ -27,7 +29,6 @@ platform.onHide(function () {
         console.log("@FREEMAN: 在保存离线数据期间发生了错误：", e);
     }
 });
-
 
 class Main {
     private _loginView: LoginView;

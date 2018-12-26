@@ -2,22 +2,23 @@ declare interface Platform {
     getUserInfo(): Promise<any>;
     login(): Promise<any>;
 
-    startLoading(_callback:any): Promise<any>;
-    
-    authenticLogin(_callback:any, _btnVect:any, _statusCallback:any): void;
+    startLoading(_callback: any): Promise<any>;
+
+    authenticLogin(_callback: any, _btnVect: any, _statusCallback: any): void;
     hideAuthenticLoginBtn(): void;
-    createFeedbackButton(_btnVect:any):void;
-    
-    onShow(_callback:any): void;
-    onHide(_callback:any): void;
-    httpToken(_url:string, _callback:any, _forceNew:boolean): any;
-    httpRequest(_url:string, _params:any, _noToken:boolean):any;
-    
-    onShare(_data:any): void;
+    createFeedbackButton(_btnVect: any): void;
+
+    onShow(_callback: any): void;
+    onHide(_callback: any): void;
+    getShareInfo(shareTicket, callback, failCallback): void;
+    httpToken(_url: string, _callback: any, _forceNew: boolean): any;
+    httpRequest(_url: string, _params: any, _noToken: boolean): any;
+
+    onShare(_data: any): void;
     isSharing(): any;
-    
-    navigateToMiniProgram(data:{appId:string, path?:string, extraData?:any, envVersion?:string, success?:any}): void;
-    
+
+    navigateToMiniProgram(data: { appId: string, path?: string, extraData?: any, envVersion?: string, success?: any }): void;
+
     createBannerAd(_param): any;
     createRewardedVideoAd(_param): any;
 
@@ -25,12 +26,12 @@ declare interface Platform {
 
     setUserCloudStorage(_kvDataList): Promise<any>;
     getOpenDataContext(): Promise<any>;
-    postMessage(_data:any): void;
-    
+    postMessage(_data: any): void;
+
     //编码（名字表情）
-    encode(_txt:string): string;
+    encode(_txt: string): string;
     //解码（名字表情）
-    decode(_txt:string): string;
+    decode(_txt: string): string;
 }
 class DebugPlatform implements Platform {
     async getUserInfo() {
@@ -41,43 +42,44 @@ class DebugPlatform implements Platform {
     }
 
     // @ts-ignore
-    async startLoading(_callback:any) {
-        
+    async startLoading(_callback: any) {
+
     }
-    
-    authenticLogin(_callback:any, _btnVect:any, _statusCallback:any) {
+
+    authenticLogin(_callback: any, _btnVect: any, _statusCallback: any) {
         _callback && _callback(true)
     }
-    hideAuthenticLoginBtn(){}
-    createFeedbackButton(_btnVect:any){}
+    hideAuthenticLoginBtn() { }
+    createFeedbackButton(_btnVect: any) { }
 
-    async onShow(_callback:any) {}
-    async onHide(_callback:any) {}
-    httpToken(_url:string, _callback:any, _forceNew:boolean=false){
+    async onShow(_callback: any) { }
+    async onHide(_callback: any) { }
+    async getShareInfo(shareTicket: string, callback: any, failCallback: any) { }
+    httpToken(_url: string, _callback: any, _forceNew: boolean = false) {
         return "yaoguai_8f4cd7953ac7232e79ea04a7f9e27947";//M.player.token;
     }
-    httpRequest(_url:string, _params:any, _noToken:boolean=false) {
+    httpRequest(_url: string, _params: any, _noToken: boolean = false) {
     }
-    onShare(_data:any){}
-    isSharing():any{}
+    onShare(_data: any) { }
+    isSharing(): any { }
 
-    navigateToMiniProgram(_data:any){}
-    
-    createBannerAd(_param){}
-    createRewardedVideoAd(_param){}
-    
-    openCustomerService(_param){}
+    navigateToMiniProgram(_data: any) { }
 
-    setUserCloudStorage(_kvDataList):any{}
-    getOpenDataContext():any{}
-    postMessage(_data:any): void{}
-    
+    createBannerAd(_param) { }
+    createRewardedVideoAd(_param) { }
+
+    openCustomerService(_param) { }
+
+    setUserCloudStorage(_kvDataList): any { }
+    getOpenDataContext(): any { }
+    postMessage(_data: any): void { }
+
     //编码（名字表情）
-    encode(_txt:string): string {
+    encode(_txt: string): string {
         return _txt;
     }
     //解码（名字表情）
-    decode(_txt:string): string {
+    decode(_txt: string): string {
         return _txt;
     }
 }

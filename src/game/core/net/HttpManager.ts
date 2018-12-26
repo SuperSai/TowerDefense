@@ -592,7 +592,6 @@ class HttpManager {
 
     /** 请求好友互助列表 */
     public requestFriendConcurList(callback: any): void {
-        let that = this;
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/activity/help/list',
@@ -604,6 +603,21 @@ class HttpManager {
             }
         });
     }
+
+    /** 请求是否获取通关奖励 */
+    public requestClearanceReward(encryptedData: string, iv: string, callback: any): void {
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+        HttpReqHelper.request({
+            url: 'v1/activity/help/list?encryptedData=' + encryptedData + "&iv=" + iv,
+            success: function (res) {
+                callback && callback(res);
+            },
+            fail: function (res) {
+                console.log(res);
+            }
+        });
+    }
+
 
     private static _instance: HttpManager;
     public static get Instance(): HttpManager {

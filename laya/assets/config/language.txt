@@ -38,7 +38,11 @@ hallScene.label.txt.27:在线5分钟，才能领取奖励哟~
 hallScene.label.txt.28:领取奖励
 hallScene.label.txt.29:今日已满
 hallScene.label.txt.30:今日在线奖励已领取完毕哟~
-
+hallScene.label.txt.31:恭喜您获得攻击速度加成
+hallScene.label.txt.32:恭喜您获得攻击力加成
+hallScene.label.txt.33:恭喜您获得暴击率加成
+hallScene.label.txt.34:恭喜您获得金币加成
+hallScene.label.txt.35:半小时内不可以领取同一个群的奖励
 
 
 

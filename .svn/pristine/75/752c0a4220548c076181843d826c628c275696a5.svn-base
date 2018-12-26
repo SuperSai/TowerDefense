@@ -1,0 +1,262 @@
+class SkyDropController extends Laya.EventDispatcher {
+
+    private static _instance: SkyDropController;
+
+    public static getInstance(): SkyDropController {
+        if (!this._instance) {
+            this._instance = new SkyDropController();
+        }
+        return this._instance;
+    }
+
+    private _container: Laya.View;
+    private _package: Laya.Image;
+    private _awardType: number;
+
+    private _skyDropFrame: SkyDropView;
+    private _skyDropObtainFrame: SkyDropObtainView;
+
+    public init(parent: Laya.View): void {
+        this._container = parent;
+        this._container.mouseThrough = true;
+        this._package = new Laya.Image("images/sk_package.png");
+        this._package.pivot(34, 42);
+
+        this._awardType = -1;
+        Laya.timer.once(5 * 1000, this, this.requestSkyDropPackage);
+    }
+
+    public dropPackage(awardType: number): void {
+        this._awardType = awardType;
+        this._package.pos(153, -80);
+        if (this._container) {
+            this._container.addChild(this._package);
+            this.dropTween();
+        }
+    }
+
+    public retrievePackage(): void {
+        this._awardType = -1;
+        this._package.removeSelf();
+        Laya.Tween.clearTween(this._package);
+    }
+
+    public get packageOnScreen(): boolean {
+        return Boolean(this._package.parent);
+    }
+
+    private dropTween(): void {
+        if (this._package) {
+            Laya.Tween.to(this._package, { y: 430 }, 800, Laya.Ease.quadIn, Handler.create(this, this.onDropTweenComplete))
+        }
+    }
+
+    private onDropTweenComplete() {
+        this._package.on(Laya.Event.CLICK, this, this.onPackageClick);
+        Laya.Tween.clearTween(this._package);
+        this.bouncingUp();
+    }
+
+    private bouncingDown(): void {
+        Laya.Tween.to(this._package, { scaleX: 1.1, scaleY: 0.85, y: 430 }, 400, Laya.Ease.quadIn, Handler.create(this, this.bouncingUp))
+    }
+
+    private bouncingUp(): void {
+        Laya.Tween.to(this._package, { scaleX: 0.9, scaleY: 1.1, y: 400 }, 400, Laya.Ease.quadOut, Handler.create(this, this.bouncingDown))
+    }
+
+    private onPackageClick(): void {
+        if (this._awardType < 100) {
+            const sheet = SkyDropSheet.getSheetById(this._awardType);
+            if (!this._skyDropFrame) {
+                this._skyDropFrame = new SkyDropView();
+                this._skyDropFrame.renew(sheet);
+            }
+            AlignUtils.setToScreenGoldenPos(this._skyDropFrame);
+            M.layer.subFrameLayer.addChildWithMaskCall(this._skyDropFrame, this._skyDropFrame.removeSelf);
+        } else {
+            if (!this._skyDropObtainFrame) {
+                this._skyDropObtainFrame = new SkyDropObtainView();
+                this._skyDropObtainFrame.renew("images/core/diamond_icon.png", LanguageManager.Instance.getLanguageText("hallScene.label.txt.10", Math.round(Math.random() * 30)));
+            }
+            this._container.addChild(this._skyDropObtainFrame);
+        }
+    }
+
+    public activatePackageAward(): void {
+        const sheet = SkyDropSheet.getSheetById(this._awardType);
+        BuffController.getInstance().addBuffFromSkyDrop(sheet);
+        this.retrievePackage();
+    }
+
+    public requestSkyDropPackage(): void {
+        let that = this;
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+        HttpReqHelper.request({
+            url: 'v1/skyDropPackage/status',
+            success: function (res) {
+                const bool: Boolean = res.isShowPackage;
+                if (bool) {
+                    that.dropPackage(res.type);
+                } else {
+                    const timeSpan: number = res.nextPackageTimeSpan;
+                    if (timeSpan > 0) {
+                        Laya.timer.once(timeSpan * 1000, that, that.requestSkyDropPackage);
+                    } else {
+                        Laya.timer.clear(that, that.requestSkyDropPackage);
+                    }
+                }
+                console.log("@FREEMAN: 请求天降礼包数据:", res);
+            },
+            fail: (res) => {
+                console.log("@FREEMAN: getSkyDropPackage: fail =>", res);
+            }
+        });
+    }
+
+    public postSkyDropPackage(): void {
+        let that = this;
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+        HttpReqHelper.request({
+            url: 'v1/skyDropPackage/open/' + this._awardType,
+            success: ({ legal }) => {
+                if (legal) {
+                    that.activatePackageAward();
+                    Laya.timer.once(10 * 1000, that, that.requestSkyDropPackage);
+                } else {
+                    console.log("@FREEMAN: postSkyDropPackage:", "领取时间无效，您暂时无法领取天降惊喜礼包！");
+                }
+                console.log("@FREEMAN: postSkyDropPackage: legal =>", legal);
+            },
+            fail: (res) => {
+                console.log("@FREEMAN: postSkyDropPackage: fail =>", res);
+            }
+        });
+    }
+}
+
+class SkyDropSheet {
+    /** 攻击速度按百分比增加 */
+    public static ATTACK_SPEED_INCREASE: number = 0;
+    /** 攻击力按百分比增加 */
+    public static ATTACK_VALUE_INCREASE: number = 1;
+    /** 暴击率按百分比增加 */
+    public static CRIT_RATE_INCREASE: number = 2;
+    /** 金币获得按百分比增加 */
+    public static COIN_OBTAIN_INCREASE: number = 3;
+
+    public id: number;
+
+    public num: number;
+
+    public duration: number;
+
+    constructor(id: number, num: number, duration: number) {
+        this.id = id;
+        this.num = num;
+        this.duration = duration;
+    }
+
+    public static sheets: SkyDropSheet[] = [
+        new SkyDropSheet(0, 0.5, 60 * 1000),
+        new SkyDropSheet(1, 1, 30 * 1000),
+        new SkyDropSheet(2, 0.5, 30 * 1000),
+        new SkyDropSheet(3, 1, 120 * 1000),
+    ];
+
+    public static getSheetById(id: number): SkyDropSheet {
+        for (const sheet of this.sheets) {
+            if (sheet.id === id) {
+                return sheet;
+            }
+        }
+        return null;
+    }
+}
+
+
+class SkyDropView extends Laya.View {
+    public ui: any;
+    public sheet: SkyDropSheet;
+
+    constructor() {
+        super();
+        this.init();
+    }
+
+    protected init(): void {
+        this.ui = new ui.common.view.SkyDropViewUI();
+        this.addChild(this.ui);
+
+        this.ui.imgCloseBtn.on(Laya.Event.CLICK, this, this.removeSelf);
+        this.ui.btnHelp.on(Laya.Event.CLICK, this, this.onHelpBtnClick);
+        this.ui.btnVideo.on(Laya.Event.CLICK, this, this.onVideoBtnClick);
+    }
+
+    public renew(sheet: SkyDropSheet): void {
+        this.sheet = sheet;
+        switch (sheet.id) {
+            case SkyDropSheet.ATTACK_SPEED_INCREASE: {
+                this.ui.lblDesc.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.11");
+                break;
+            }
+            case SkyDropSheet.ATTACK_VALUE_INCREASE: {
+                this.ui.lblDesc.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.12");
+                break;
+            }
+            case SkyDropSheet.CRIT_RATE_INCREASE: {
+                this.ui.lblDesc.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.13");
+                break;
+            }
+            case SkyDropSheet.COIN_OBTAIN_INCREASE: {
+                this.ui.lblDesc.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.14");
+                break;
+            }
+        }
+        const numStr: string = (sheet.num * 100).toString() + "%";
+        this.ui.lblNum.text = numStr;
+        this.ui.lblDuration.text = (sheet.duration * 0.001).toString();
+        this.ui.hbox1.refresh();
+        this.ui.hbox2.refresh();
+    }
+
+    protected onHelpBtnClick() {
+        if (GlobalConfig.DEBUG) {
+            this.success();
+        } else {
+            userData.toShareAd(() => {
+                this.success();
+            })
+        }
+    }
+
+    protected onVideoBtnClick() {
+        SDKManager.Instance.showVideoAd(() => {
+            this.success();
+        }, () => {
+            MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.15"));
+        }, false)
+    }
+
+    protected success(): void {
+        this.removeSelf();
+        SkyDropController.getInstance().postSkyDropPackage();
+    }
+}
+
+class SkyDropObtainView extends SkyDropView {
+    protected init(): void {
+        this.ui = new ui.common.view.SkyDropObtainViewUI();
+        this.addChild(this.ui);
+
+        this.ui.imgCloseBtn.on(Laya.Event.CLICK, this, this.removeSelf);
+        this.ui.btnHelp.on(Laya.Event.CLICK, this, this.onHelpBtnClick);
+        this.ui.btnVideo.on(Laya.Event.CLICK, this, this.onVideoBtnClick);
+    }
+
+    // @ts-ignore
+    public renew(iconStr: string, desc: string): void {
+        this.ui.imgIcon.skin = iconStr;
+        this.ui.lblDesc.text = desc;
+    }
+}

@@ -58,6 +58,7 @@ class HallScene extends ui.hall.HallSceneUI {
     //初始化
     init() {
         let self = this;
+        HallManager.Instance.hall = self;
         self.btnMiniProgram.visible = false;
         if (self.btnMiniProgram && userData.miniImageUrl().length > 0) {
             Laya.loader.load(userData.miniImageUrl(), Laya.Handler.create(self, (_imgTexture) => {
@@ -894,102 +895,57 @@ class HallScene extends ui.hall.HallSceneUI {
                             for (var index = 0; index < HallManager.Instance.hallData.parkMonsterCount; index++) {
                                 var element = that.carparkList.getCell(index);
                                 if (element) {
-                                    let carParkSp = element.getChildByName("car");
-                                    if (carParkSp && ObjectUtils.isHit(carParkSp) && carParkSp != that.curMonsterSprite) {
-                                        if (!carParkSp.isBox() && !carParkSp.isLock()) {
-                                            let carId = carParkSp.monsterId;
-                                            const currPetLv = BattleManager.Instance.getLevel(carId);
-                                            if (that.curMonsterSprite.isSameLevel(carId)) {
+                                    let heroItem = element.getChildByName("car");
+                                    if (heroItem && ObjectUtils.isHit(heroItem) && heroItem != that.curMonsterSprite) {
+                                        if (!heroItem.isBox() && !heroItem.isLock()) {
+                                            let heroId = heroItem.monsterId;
+                                            const currHeroLevel = BattleManager.Instance.getLevel(heroId);
+                                            if (that.curMonsterSprite.isSameLevel(heroId)) {
                                                 //合并
-                                                let monsterLevel = 0;
-                                                if (userData.isEvolution()) {
-                                                    monsterLevel = ((userData.getKingLevel() - 30) % 60) + 1;
-                                                }
-                                                else {
-                                                    monsterLevel = ((userData.getKingLevel() - 1) % 30) + 1;
-                                                }
-                                                if (carParkSp.isMaxLevel()) {
+                                                if (heroItem.isMaxLevel()) {
                                                     MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.06"));
                                                 }
-                                                else if (currPetLv >= monsterLevel) {
-                                                    MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.08"));
+                                                else if (currHeroLevel >= EvolutionManager.Instance.getHeroLevel()) { //提示守卫是否可以升级
+                                                    if (currHeroLevel > 10) {
+                                                        LevelHeroView.Create(this, (kingLevel, money) => {
+                                                            //英雄升级
+                                                            this.handlerHeroLevel(heroItem, heroId, index, currHeroLevel);
+                                                            if (kingLevel > HallManager.Instance.hallData.userKingLevel) {
+                                                                that.setKingLevel(kingLevel);
+                                                            }
+                                                            if (money >= 0) { //刷新钻石
+                                                                that.updateDiamond(money);
+                                                            }
+                                                            that.playKingUpdateEffect();
+                                                            Laya.SoundManager.playSound("musics/kingUpdate.mp3");
+                                                            that.checkKingIsUpdate();
+                                                        }, () => {
+                                                            that.curMonsterSprite = null;
+                                                        });
+                                                    }
+                                                    else {
+                                                        MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.02"));
+                                                    }
                                                 }
-                                                else {
-                                                    let nextCardId = carId + 1;
-                                                    userData.synthesisCount++;
-                                                    //随机奖励
-                                                    if (userData.synthesisCount % 48 == 0) {
-                                                        let randomNum = Math.random();
-                                                        if (randomNum < 0.4) {
-                                                            that.showRandomDiamondReward();
-                                                            carParkSp.setKind(nextCardId, index);
-                                                        }
-                                                        else {
-                                                            let upLevel = nextCardId + 2;
-                                                            let kingLevel = userData.isEvolution() ? userData.getKingLevel() - 30 : userData.getKingLevel();
-                                                            let heroLv = BattleManager.Instance.getLevel(upLevel);
-                                                            if (heroLv > kingLevel) {
-                                                                that.showRandomDiamondReward();
-                                                                carParkSp.setKind(nextCardId, index);
-                                                            }
-                                                            else {
-                                                                HeroLevelView.Create(that, () => {
-                                                                    MessageUtils.showMsgTips("升级成功！");
-                                                                    carParkSp.setKind(upLevel, index);
-                                                                }, () => {
-                                                                    MessageUtils.showMsgTips("升级失败！");
-                                                                    carParkSp.setKind(nextCardId, index);
-                                                                }, nextCardId, upLevel);
-                                                            }
-                                                        }
-                                                    }
-                                                    else {
-                                                        carParkSp.setKind(nextCardId, index);
-                                                    }
-                                                    if (NoviceManager.cache.synthesiseComplete) {
-                                                        NoviceManager.cache.synthesiseComplete();
-                                                    }
-                                                    if (NoviceManager.cache.checkPetSynthesisLevel) {
-                                                        NoviceManager.cache.checkPetSynthesisLevel(currPetLv + 1);
-                                                    }
-                                                    that.curMonsterSprite.clearStage();
-                                                    carParkSp.playMergeEffetc(that.mainView, carId);
-                                                    //检测等级刷新
-                                                    if (userData.updateCarLevel(BattleManager.Instance.getLevel(nextCardId))) {
-                                                        //显示红点
-                                                        if (userData.isShowCarShopRedPoint() && userData.getCarLevel() == 6) {
-                                                            that.showCarportRedPoint();
-                                                        }
-                                                        Laya.SoundManager.playSound("musics/unlock.mp3");
-                                                    }
-                                                    else {
-                                                        Laya.SoundManager.playSound("musics/makecar.mp3");
-                                                    }
-                                                    //刷新快捷买怪物按钮
-                                                    that.refreshShortcutCreateBtn();
-                                                    HallManager.Instance.updateIncomePerSec(HallManager.Instance.getCalculateIncomePerSec(that.carparkList));
-                                                    //本地保存
-                                                    userData.setCarparkSave(carParkSp, that.curMonsterSprite);
-                                                    //任务统计
-                                                    HttpManager.Instance.requestDailyTaskData(1);
-                                                    //检查守卫是否可以升级
-                                                    that.checkKingIsUpdate();
+                                                else { //英雄升级
+                                                    this.handlerHeroLevel(heroItem, heroId, index, currHeroLevel);
                                                 }
                                             }
-                                            else if (!carParkSp.isRunning() && HallManager.Instance.isGuide() == false) {
+                                            else if (!heroItem.isRunning() && HallManager.Instance.isGuide() == false) {
                                                 //交换
-                                                let isEmpty = carParkSp.isEmpty();
-                                                carParkSp.setKind(that.curMonsterSprite.monsterId);
-                                                carParkSp.setStage(that.curMonsterSprite.monsterStage);
+                                                let isEmpty = heroItem.isEmpty();
+                                                heroItem.setKind(that.curMonsterSprite.monsterId);
+                                                heroItem.setStage(that.curMonsterSprite.monsterStage);
                                                 if (isEmpty) {
                                                     that.curMonsterSprite.clearStage();
                                                 }
                                                 else {
-                                                    that.curMonsterSprite.setKind(carId);
+                                                    that.curMonsterSprite.setKind(heroId);
                                                 }
                                                 //本地保存
-                                                userData.setCarparkSave(carParkSp, that.curMonsterSprite);
+                                                userData.setCarparkSave(heroItem, that.curMonsterSprite);
                                                 Laya.SoundManager.playSound("musics/drawcar.mp3");
+                                                that.curMonsterSprite = null;
                                             }
                                         }
                                         break;
@@ -1001,7 +957,6 @@ class HallScene extends ui.hall.HallSceneUI {
                     //移除模型
                     ObjectPool.push(that.parkMonsterModelSp);
                     that.parkMonsterModelSp.removeSelf();
-                    that.curMonsterSprite = null;
                     that.btnDelete.skin = "images/huishou_icon_0.png";
                 }
                 else if (that.curMonsterSprite && HallManager.Instance.isGuide() == false) {
@@ -1022,6 +977,70 @@ class HallScene extends ui.hall.HallSceneUI {
         }
         BattleManager.Instance.hallScene = that;
         BattleManager.Instance.startBattle();
+    }
+    /** 英雄升级 */
+    handlerHeroLevel(heroItem, heroId, index, currHeroLevel) {
+        let self = this;
+        let nextCardId = heroId + 1;
+        userData.synthesisCount++;
+        //随机奖励
+        if (userData.synthesisCount % 48 == 0) {
+            let randomNum = Math.random();
+            if (randomNum < 0.4) {
+                self.showRandomDiamondReward();
+                heroItem.setKind(nextCardId, index);
+            }
+            else {
+                let upLevel = nextCardId + 2;
+                let kingLevel = userData.isEvolution() ? userData.getKingLevel() - 30 : userData.getKingLevel();
+                let heroLv = BattleManager.Instance.getLevel(upLevel);
+                if (heroLv > kingLevel) {
+                    self.showRandomDiamondReward();
+                    heroItem.setKind(nextCardId, index);
+                }
+                else {
+                    HeroLevelView.Create(self, () => {
+                        MessageUtils.showMsgTips("升级成功！");
+                        heroItem.setKind(upLevel, index);
+                    }, () => {
+                        MessageUtils.showMsgTips("升级失败！");
+                        heroItem.setKind(nextCardId, index);
+                    }, nextCardId, upLevel);
+                }
+            }
+        }
+        else {
+            heroItem.setKind(nextCardId, index);
+        }
+        if (NoviceManager.cache.synthesiseComplete) {
+            NoviceManager.cache.synthesiseComplete();
+        }
+        if (NoviceManager.cache.checkPetSynthesisLevel) {
+            NoviceManager.cache.checkPetSynthesisLevel(currHeroLevel + 1);
+        }
+        self.curMonsterSprite.clearStage();
+        heroItem.playMergeEffetc(self.mainView, heroId);
+        //检测等级刷新
+        if (userData.updateCarLevel(BattleManager.Instance.getLevel(nextCardId))) {
+            //显示红点
+            if (userData.isShowCarShopRedPoint() && userData.getCarLevel() == 6) {
+                self.showCarportRedPoint();
+            }
+            Laya.SoundManager.playSound("musics/unlock.mp3");
+        }
+        else {
+            Laya.SoundManager.playSound("musics/makecar.mp3");
+        }
+        //刷新快捷买怪物按钮
+        self.refreshShortcutCreateBtn();
+        HallManager.Instance.updateIncomePerSec(HallManager.Instance.getCalculateIncomePerSec(self.carparkList));
+        //本地保存
+        userData.setCarparkSave(heroItem, self.curMonsterSprite);
+        //任务统计
+        HttpManager.Instance.requestDailyTaskData(1);
+        //检查守卫是否可以升级
+        self.checkKingIsUpdate();
+        self.curMonsterSprite = null;
     }
     /** 随机钻石奖励界面 */
     showRandomDiamondReward() {

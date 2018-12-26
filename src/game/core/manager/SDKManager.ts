@@ -38,9 +38,7 @@ class SDKManager {
         if (forbid) {
             self._isForbidBannerAd = true;
         }
-        if (self._bannerAd) {
-            self.createBanner(false);
-        }
+        self.createBanner(false);
     }
 
     public createBanner(isShow: boolean = true): void {
@@ -148,6 +146,35 @@ class SDKManager {
         });
         //小程序跳转次数统计
         HttpManager.Instance.requestShareAdFinish("minipro_" + appId);
+    }
+
+    /** 处理场景值 */
+    public handlerSceneValue(data: any): void {
+        switch (Math.floor(data.scene)) {
+            case 1044:
+                if (data.query.shareType == "clearanceReward") {
+                    this.checkIsGetClearanceReward(data.shareTicket);
+                }
+                break;
+        }
+    }
+
+    /** 检查时候可以领取通关奖励 */
+    private checkIsGetClearanceReward(shareTicket: string): void {
+        platform.getShareInfo(shareTicket,
+            (res) => {
+                HttpManager.Instance.requestClearanceReward(res.encryptedData, res.iv, (res) => {
+                    if (res) {  //成功
+                        HallManager.Instance.showClearanceRewardView();
+                    } else {    //失败
+                        MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.35"))
+                    }
+                })
+            },
+            () => {
+                console.error("@David checkIsGetClearanceReward - platform.getShareInfo 获取数据失败...");
+
+            });
     }
 
 
