@@ -70,6 +70,14 @@ class MaskLayer extends Layer {
     }
     removeChild(node) {
         super.removeChild(node);
+        const sp = node;
+        if (sp) {
+            if (sp.layer_tween) {
+                sp.layer_tween.complete();
+                sp.scale(sp.layer_origin_scale.x, sp.layer_origin_scale.y);
+                delete sp.layer_tween;
+            }
+        }
         if (this.numChildren === 2 && this._usingCustomMask) {
             if (this._customMask) {
                 if (this._customMaskParent) {
@@ -100,12 +108,12 @@ class MaskLayer extends Layer {
     superAddChild(node, index) {
         if (this._useAnimation && !this._animationComplete) {
             const sp = node;
-            if (sp) {
-                // @ts-ignore
-                sp.layer_tween && Laya.Tween.clear(sp.layer_tween);
-                // pivot = new Laya.Point(sp.pivotX, sp.pivotY);
+            if (sp && !sp.layer_tween) {
+                if (!sp.layer_origin_scale) {
+                    sp.layer_origin_scale = new Laya.Point(sp.scaleX, sp.scaleY);
+                }
                 const comp = sp;
-                let size = new Laya.Point();
+                const size = new Laya.Point();
                 if (comp) {
                     size.setTo(comp.displayWidth, comp.displayHeight);
                 }
@@ -113,7 +121,6 @@ class MaskLayer extends Layer {
                     const rect = sp.getBounds();
                     size.setTo(rect.width, rect.height);
                 }
-                // @ts-ignore
                 sp.layer_tween = Laya.Tween.from(node, { x: sp.x + (size.x >> 1), y: sp.y + (size.y >> 1), scaleX: 0, scaleY: 0 }, 300, Laya.Ease.backInOut, Handler.create(this, () => {
                     this._animationComplete = true;
                     this.event(LayerEvent.LAYER_ANIMATION_COMPLETE, this._animationComplete);
