@@ -5,7 +5,7 @@ class EffectUtils extends Laya.Sprite {
     /** 显示训练时间到了的特效 */
     static showTrainingTimeEffect(parentNode) {
         let self = this;
-        let img = new Laya.Image("images/gameLastTimeTip.png");
+        let img = new Laya.Image("images/hall/gameLastTimeTip.png");
         M.layer.screenEffectLayer.addChild(img);
         img.pos(0 - img.width, (LayerManager.stageDesignHeight - 260) / 2);
         Laya.Tween.to(img, { x: (LayerManager.stageDesignWidth - 260) / 2 }, 250, null, Laya.Handler.create(self, () => {
@@ -96,7 +96,7 @@ class EffectUtils extends Laya.Sprite {
             return;
         let bloodClip = ObjectPool.pop(Laya.FontClip, "BloodFontClip");
         bloodClip.mouseEnabled = bloodClip.mouseThrough = false;
-        bloodClip.skin = "images/blood_num.png";
+        bloodClip.skin = "images/fontImg/blood_num.png";
         bloodClip.sheet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWSYZT";
         bloodClip.alpha = 1;
         bloodClip.value = _content;
@@ -110,7 +110,7 @@ class EffectUtils extends Laya.Sprite {
         PointUtils.parentToParent(bloodClip, _parentNode, true);
         _parentNode.addChild(bloodClip);
         if (_isDoubleHurt) {
-            bloodClip.skin = "images/crit_num.png";
+            bloodClip.skin = "images/fontImg/crit_num.png";
             //缩放一下
             let timeLine = new Laya.TimeLine();
             timeLine.addLabel("tl1", 0).from(bloodClip, { scaleX: 1.5, scaleY: 1.2 }, 200, Laya.Ease.linearNone)

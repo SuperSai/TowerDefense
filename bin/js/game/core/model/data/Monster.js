@@ -307,7 +307,7 @@ class MonsterSprite extends Laya.Sprite {
                 x: 0
             }, 100, Laya.Ease.linearIn, Laya.Handler.create(that, () => {
                 effectNode.removeChildren();
-                EffectUtils.playCoinEffect(effectNode, 'images/star2.png', {
+                EffectUtils.playCoinEffect(effectNode, 'images/hall/star2.png', {
                     x: 0,
                     y: 0
                 }, () => {
@@ -352,7 +352,7 @@ class MonsterSprite extends Laya.Sprite {
         that.setStage(4);
         let parkcarSp = new MonsterSprite();
         effectNode.addChild(parkcarSp);
-        parkcarSp.loadImage("images/drop_box.png", 0, 0, 60, 60);
+        parkcarSp.loadImage("images/hall/drop_box.png", 0, 0, 60, 60);
         parkcarSp.pivot(parkcarSp.width / 2, parkcarSp.height / 2);
         EffectUtils.playBoxDropEffect(effectNode, () => {
             parkcarSp.frameOnce(60, that, () => {
@@ -368,7 +368,7 @@ class MonsterSprite extends Laya.Sprite {
         if (effectNode) {
             EffectUtils.playBoxShakeEffect(effectNode, () => {
                 effectNode.removeChildren();
-                EffectUtils.playCoinEffect(effectNode, 'images/star2.png', {
+                EffectUtils.playCoinEffect(effectNode, 'images/hall/star2.png', {
                     x: 0,
                     y: 0
                 }, () => {
@@ -428,7 +428,7 @@ class MonsterSprite extends Laya.Sprite {
         let bloodBarKey = "bloodBar";
         let bloodBar = self.getChildByName(bloodBarKey);
         if (bloodBar == null) {
-            bloodBar = new Laya.ProgressBar("images/game_blood.png");
+            bloodBar = new Laya.ProgressBar("images/hall/game_blood.png");
             bloodBar.name = bloodBarKey;
             self.addChild(bloodBar);
             bloodBar.pos(-76 / 2, -200 / 2);
@@ -477,7 +477,7 @@ class MonsterSprite extends Laya.Sprite {
         let effectSp = that.getChildByName(effectKey);
         if (effectSp == null) {
             effectSp = Laya.Pool.getItemByClass("layaImage", Laya.Image);
-            effectSp.skin = "images/effect_water002.png";
+            effectSp.skin = "images/skill/effect_water002.png";
             effectSp.name = effectKey;
             that.addChild(effectSp);
             effectSp.pos(-110 / 2, -120 / 2);
@@ -496,7 +496,7 @@ class MonsterSprite extends Laya.Sprite {
         let effectSp = that.getChildByName(effectKey);
         if (effectSp == null) {
             effectSp = Laya.Pool.getItemByClass("layaImage", Laya.Image);
-            effectSp.skin = "images/effect_drug002.png";
+            effectSp.skin = "images/skill/effect_drug002.png";
             effectSp.name = effectKey;
             that.addChild(effectSp);
             effectSp.pos(-75 / 2, -170 / 2);

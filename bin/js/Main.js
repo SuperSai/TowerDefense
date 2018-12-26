@@ -1,35 +1,6 @@
 xiaoduo = window.xiaoduo;
 const M = new ManagerShortcuts();
 const userData = new UserData();
-platform.onShow(function (data) {
-    console.log("@David onShow", data);
-    SDKManager.Instance.handlerShareType(data);
-    SDKManager.Instance.handlerSceneValue(data);
-    EventsManager.Instance.event(EventsType.BACK_GAME);
-    M.more.applyMute();
-    if (platform.isSharing())
-        return;
-    //离线收益
-    if (userData && userData.isLoadStorage()) {
-        userData.requestOfflinePrizeData();
-    }
-});
-platform.onHide(function () {
-    if (platform.isSharing())
-        return;
-    try {
-        //保存数据
-        if (userData && userData.isLoadStorage()) {
-            userData.saveLocal(true, { petList: true, petShop: true, skill: true });
-            userData.saveOfflineTime();
-            //上传腾讯云
-            userData.setUserCloudStorage();
-        }
-    }
-    catch (e) {
-        console.log("@FREEMAN: 在保存离线数据期间发生了错误：", e);
-    }
-});
 class Main {
     constructor() {
         Laya.MiniAdpter.init();
@@ -46,6 +17,7 @@ class Main {
         Laya.stage.scaleMode = Laya.Stage.SCALE_NOSCALE;
         M.layer.initLayer(Laya.stage, 750, 1334);
         LayerMgr.Instance.initLayer(Laya.stage, 750, 1334);
+        SDKManager.Instance.initWX();
         if (!Laya.Browser.onMiniGame) {
             if (GlobalConfig.DEBUG) {
                 this.beginLoad();

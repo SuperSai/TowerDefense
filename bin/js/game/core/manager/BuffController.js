@@ -14,11 +14,6 @@ class BuffController extends Laya.EventDispatcher {
         this._container.mouseThrough = true;
         this._buffContainer = new ui.hall.BuffIconListUI();
         this._container.addChild(this._buffContainer);
-        this._buffIconList = [];
-        this._buffIconList[BuffSheet.ATTACK_SPEED_INCREASE] = new Laya.Image("images/buff_1.png");
-        this._buffIconList[BuffSheet.ATTACK_VALUE_INCREASE] = new Laya.Image("images/buff_2.png");
-        this._buffIconList[BuffSheet.CRIT_RATE_INCREASE] = new Laya.Image("images/buff_3.png");
-        this._buffIconList[BuffSheet.COIN_OBTAIN_INCREASE] = new Laya.Image("images/buff_4.png");
         this._buffValueList = [0, 0, 0, 0];
     }
     addBuffFromSkyDrop(sheet) {
@@ -26,22 +21,22 @@ class BuffController extends Laya.EventDispatcher {
         switch (sheet.id) {
             case SkyDropSheet.ATTACK_SPEED_INCREASE: {
                 this.activateBuff(BuffSheet.ATTACK_SPEED_INCREASE, sheet);
-                skillUrl = "images/buff_1.png";
+                skillUrl = "images/skill/buff_1.png";
                 break;
             }
             case SkyDropSheet.ATTACK_VALUE_INCREASE: {
                 this.activateBuff(BuffSheet.ATTACK_VALUE_INCREASE, sheet);
-                skillUrl = "images/buff_2.png";
+                skillUrl = "images/skill/buff_2.png";
                 break;
             }
             case SkyDropSheet.CRIT_RATE_INCREASE: {
                 this.activateBuff(BuffSheet.CRIT_RATE_INCREASE, sheet);
-                skillUrl = "images/buff_3.png";
+                skillUrl = "images/skill/buff_3.png";
                 break;
             }
             case SkyDropSheet.COIN_OBTAIN_INCREASE: {
                 this.activateBuff(BuffSheet.COIN_OBTAIN_INCREASE, sheet);
-                skillUrl = "images/buff_4.png";
+                skillUrl = "images/skill/buff_4.png";
                 break;
             }
         }

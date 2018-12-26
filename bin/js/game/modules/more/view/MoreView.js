@@ -15,6 +15,7 @@ class MoreView extends Laya.Component {
         this.ui.listMoreItem.itemRender = MoreViewListItem;
         this.ui.listMoreItem.vScrollBarSkin = "";
         this.ui.listMoreItem.optimizeScrollRect = true;
+        this.ui.txt_uid.text = "UID: " + userData.userId;
         const len = this._model.itemList.length;
         this.ui.lblNoneGameTips.visible = len <= 0;
         this.ui.listMoreItem.visible = len > 0;

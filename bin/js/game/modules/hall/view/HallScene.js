@@ -19,10 +19,11 @@ class HallScene extends ui.hall.HallSceneUI {
     //新建并添加到节点
     static Create(_parentNode) {
         let resList = [
-            { url: "res/atlas/images.atlas", type: Laya.Loader.ATLAS },
             { url: "res/atlas/images/component.atlas", type: Laya.Loader.ATLAS },
             { url: "res/atlas/images/hall.atlas", type: Laya.Loader.ATLAS },
             { url: "res/atlas/images/core.atlas", type: Laya.Loader.ATLAS },
+            { url: "res/atlas/images/skill.atlas", type: Laya.Loader.ATLAS },
+            { url: "res/atlas/images/fontImg.atlas", type: Laya.Loader.ATLAS },
             { url: "res/atlas/images/novice.atlas", type: Laya.Loader.ATLAS },
             { url: "sheets/sheet.json", type: Laya.Loader.JSON }
         ];
@@ -855,7 +856,7 @@ class HallScene extends ui.hall.HallSceneUI {
                                 else if (carParkSp.isBox()) {
                                     that.curMonsterSprite = carParkSp;
                                 }
-                                that.btnDelete.skin = "images/huishou_icon_1.png";
+                                that.btnDelete.skin = "images/hall/huishou_icon_1.png";
                                 return;
                             }
                         }
@@ -956,7 +957,7 @@ class HallScene extends ui.hall.HallSceneUI {
                     //移除模型
                     ObjectPool.push(that.parkMonsterModelSp);
                     that.parkMonsterModelSp.removeSelf();
-                    that.btnDelete.skin = "images/huishou_icon_0.png";
+                    that.btnDelete.skin = "images/hall/huishou_icon_0.png";
                 }
                 else if (that.curMonsterSprite && HallManager.Instance.isGuide() == false) {
                     //取消选中状态

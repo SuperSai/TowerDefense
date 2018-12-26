@@ -15,7 +15,7 @@ class Bullet extends Laya.Sprite {
             self._bulletImg.skin = PathConfig.GameResUrl.replace("{0}", monster.monsterInfo.buttleName);
         }
         else {
-            self._bulletImg.skin = "images/effect_water001.png";
+            self._bulletImg.skin = "images/skill/effect_water001.png";
         }
         self.addChild(self._bulletImg);
     }
@@ -83,7 +83,7 @@ class Bullet extends Laya.Sprite {
     joinTarget(_targetPos, _collionCallback = null) {
         let that = this;
         let effectSp = that;
-        effectSp.loadImage("images/effect_electric002.png");
+        effectSp.loadImage("images/skill/effect_electric002.png");
         effectSp.pivotX = 8;
         effectSp.pivotY = effectSp.height / 2;
         effectSp.rotation = MathUtils.calulatePointAnagle(effectSp.x, effectSp.y, _targetPos.x, _targetPos.y);
