@@ -141,7 +141,7 @@
         {
             "x":15,
             "type":"Button",
-            "props":{"y":169,"x":172,"var":"btnCustomService","stateNum":"1","skin":"images/more/custom_service.png"},
+            "props":{"y":178,"x":191,"var":"btnCustomService","stateNum":"1","skin":"images/more/custom_service.png"},
             "nodeParent":1,
             "label":"Button(btnCustomService)",
             "isOpen":null,
@@ -167,7 +167,7 @@
         {
             "x":15,
             "type":"Button",
-            "props":{"y":170,"x":466,"var":"btnSoundClosed","stateNum":"1","skin":"images/more/sound_closed.png"},
+            "props":{"y":180,"x":466,"var":"btnSoundClosed","stateNum":"1","skin":"images/more/sound_closed.png"},
             "nodeParent":1,
             "label":"Button(btnSoundClosed)",
             "isOpen":null,
@@ -192,7 +192,7 @@
         {
             "x":15,
             "type":"Button",
-            "props":{"y":169,"x":465,"var":"btnSoundOpend","stateNum":"1","skin":"images/more/sound_opened.png"},
+            "props":{"y":179,"x":465,"var":"btnSoundOpend","stateNum":"1","skin":"images/more/sound_opened.png"},
             "nodeParent":1,
             "label":"Button(btnSoundOpend)",
             "isOpen":true,

@@ -77,23 +77,13 @@ class EvolutionView extends ui.evolution.EvolutionViewUI {
             let atkSpeed: number = kingVO.interval;
             let atkAdd: number = kingVO.shatk * kingLevel;
             let doubleAdd: number = kingVO.crit * kingLevel;
-            //升级条件
-            let monsterLevel: number = 0;
-            let heroId: number = 0
-            //进化设定
-            if (userData.isEvolution()) {
-                monsterLevel = ((kingLevel - 30) % 60) + 1;
-                heroId = 1000 + monsterLevel;
-            } else {
-                monsterLevel = ((kingLevel - 1) % 30) + 1;
-                heroId = 100 + monsterLevel;
-            }
-            let heroData: any = BattleManager.Instance.getMonsterItem(heroId);
-            let heroName: string = "英雄" + " Lv" + monsterLevel + ":";
+
+            let heroData: any = BattleManager.Instance.getMonsterItem(EvolutionManager.Instance.getHeroId());
+            let heroName: string = "英雄" + " Lv" + EvolutionManager.Instance.getHeroLevel() + ":";
             if (heroData) {
-                heroName = heroData.name + " Lv" + monsterLevel + ":";
+                heroName = heroData.name + " Lv" + EvolutionManager.Instance.getHeroLevel() + ":";
             }
-            let currHeroCount: number = userData.caculateMonsterCount(heroId);
+            let currHeroCount: number = userData.caculateMonsterCount(EvolutionManager.Instance.getHeroId());
             let needHeroCount: number = 3;
             //需要钻石
             let diamond: number = userData.diamond;

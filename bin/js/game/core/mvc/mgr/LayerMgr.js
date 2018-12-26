@@ -58,11 +58,12 @@ class LayerMgr extends EventDispatcher {
         }
     }
     createOnLayer(layerType) {
-        let layer = new Layer(layerType);
+        let layer = new MaskLayer(layerType);
         return layer;
     }
     addToLayer(display, layerType) {
         let layer = this.getLayerByType(layerType);
+        layer.maskEnabled = false;
         layer.addChild(display);
     }
     getLayerByType(layerType) {

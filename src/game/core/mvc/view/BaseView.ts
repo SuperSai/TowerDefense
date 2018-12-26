@@ -3,16 +3,18 @@
  */
 class BaseView extends Laya.View implements IBaseView {
 
-    private _myParent: Laya.Node;
+    private _myParent: MaskLayer;
     private _isInit: boolean;
     private _resources: string[] = null;
     private _ui: any;
+    private _isShowMask: boolean;
 
     /** 构造函数 */
-    public constructor($layer: number, $class: any) {
+    public constructor($layer: number, $class: any, isShowMask: boolean = true) {
         super();
         this._myParent = LayerMgr.Instance.getLayerByType($layer);
         this._isInit = false;
+        this._isShowMask = isShowMask;
         this._ui = $class;
     }
 
@@ -24,7 +26,12 @@ class BaseView extends Laya.View implements IBaseView {
     /** 添加到父级 */
     public addToParent(): void {
         AlignUtils.setToScreenGoldenPos(this);
-        this._myParent.addChild(this);
+        if (this._isShowMask) {
+            this._myParent.addChildWithMaskCall(this, null);
+        } else {
+            this._myParent.maskEnabled = false;
+            this._myParent.addChild(this);
+        }
     }
 
     /** 初始化UI界面 */

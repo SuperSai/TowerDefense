@@ -3,11 +3,12 @@
  */
 class BaseView extends Laya.View {
     /** 构造函数 */
-    constructor($layer, $class) {
+    constructor($layer, $class, isShowMask = true) {
         super();
         this._resources = null;
         this._myParent = LayerMgr.Instance.getLayerByType($layer);
         this._isInit = false;
+        this._isShowMask = isShowMask;
         this._ui = $class;
     }
     /** 获取我的父级 */
@@ -17,7 +18,13 @@ class BaseView extends Laya.View {
     /** 添加到父级 */
     addToParent() {
         AlignUtils.setToScreenGoldenPos(this);
-        this._myParent.addChild(this);
+        if (this._isShowMask) {
+            this._myParent.addChildWithMaskCall(this, null);
+        }
+        else {
+            this._myParent.maskEnabled = false;
+            this._myParent.addChild(this);
+        }
     }
     /** 初始化UI界面 */
     initUIView() {

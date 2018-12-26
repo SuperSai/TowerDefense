@@ -2,7 +2,7 @@
 class LayerMgr extends EventDispatcher {
 
     private _layerCount: number = 11;
-    private _layers: Layer[] = [];
+    private _layers: MaskLayer[] = [];
 
     public initLayer(container: Laya.Stage, designWidth?: number, designHeight?: number): void {
         const pixelRatio: number = Laya.Browser.pixelRatio;
@@ -66,17 +66,18 @@ class LayerMgr extends EventDispatcher {
         }
     }
 
-    private createOnLayer(layerType: number): Layer {
-        let layer: Layer = new Layer(layerType);
+    private createOnLayer(layerType: number): MaskLayer {
+        let layer: MaskLayer = new MaskLayer(layerType);
         return layer;
     }
 
     public addToLayer(display: any, layerType: number): void {
-        let layer: Layer = this.getLayerByType(layerType);
+        let layer: MaskLayer = this.getLayerByType(layerType);
+        layer.maskEnabled = false;
         layer.addChild(display);
     }
 
-    public getLayerByType(layerType: number): Layer {
+    public getLayerByType(layerType: number): MaskLayer {
         for (let i: number = 0; i < this._layers.length; i++) {
             if (this._layers[i].layerId == layerType) {
                 return this._layers[i];

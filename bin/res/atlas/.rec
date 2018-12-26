@@ -2,7 +2,7 @@ D .
 R DED3E094 Compression.bat
 R A41E3D13 pngquant.exe
 D config
-R DF673151 language.txt
+R 8127185D language.txt
 D images
 P 3035E761 acce_effect.png
 P 5131035C accelerate_icon.png
