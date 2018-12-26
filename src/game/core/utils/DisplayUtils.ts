@@ -83,6 +83,18 @@ class DisplayUtils {
         return array;
     }
 
+    /**
+     * 从父级移除child
+     * @param child
+     */
+    static removeFromParent(child: Laya.Node) {
+        if (!child) return;
+        if (child.parent) {
+            child.parent.removeChild(child);
+        }
+        child = null;
+    }
+
     /** 移除所有子对象并回收 */
     static removeAllChildren(container: any): void {
         if (!container) return;
