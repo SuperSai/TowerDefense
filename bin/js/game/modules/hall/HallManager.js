@@ -139,6 +139,69 @@ class HallManager extends Laya.EventDispatcher {
             }
         }
     }
+    /** 30分钟后检测是否还有红点 */
+    startShopRedpointTime(time = 1800) {
+        let that = this;
+        Laya.timer.once(1000 * time, this, () => {
+            userData.shiftShopRedpointTime();
+            if (userData.isShowCarShopRedPoint()) {
+                that.showCarportRedPoint();
+            }
+        });
+        userData.saveShopRedpointTime(time);
+    }
+    /** 显示怪物商店红点 */
+    showCarportRedPoint(isShow = true) {
+        let that = this;
+        if (that.hall && that.hall.btnShop) {
+            let imgRedPoint = that.hall.btnShop.getChildByName("imgRedPoint");
+            if (imgRedPoint) {
+                imgRedPoint.visible = isShow;
+                let checkTime = userData.shiftShopRedpointTime(false);
+                if (checkTime > 0) {
+                    that.startShopRedpointTime(checkTime);
+                    imgRedPoint.visible = false;
+                }
+            }
+        }
+    }
+    /** 钻石购买 */
+    onDiamondBuy(heroInfo = null) {
+        let carPrice = BattleManager.Instance.getMonsterDiamondPrice(heroInfo.id, userData.queryBuyRecord(heroInfo.id, true));
+        ViewMgr.Ins.open(ViewConst.DiamondBuyView, DILOG_TYPE.PET, carPrice, heroInfo);
+    }
+    //金币购买英雄
+    goldBuyHero(_carInfo = null, btnObj = null) {
+        let carPrice = BattleManager.Instance.getMonsterPrice(_carInfo.buyPrice, userData.queryBuyRecord(_carInfo.id));
+        if (PlayerManager.Instance.Info.userMoney >= carPrice) {
+            if (BattleManager.Instance.createPet(_carInfo.id) == null)
+                return;
+            HallManager.Instance.hall.updateGold(PlayerManager.Instance.Info.userMoney - carPrice);
+            //刷新消费记录
+            userData.refreshBuyRecord(_carInfo.id);
+            let curPrice = BattleManager.Instance.getMonsterPrice(_carInfo.buyPrice, userData.queryBuyRecord(_carInfo.id));
+            if (btnObj) {
+                let imgPrice = btnObj.getChildByName("imgPrice");
+                if (imgPrice) {
+                    let txtPrice = imgPrice.getChildByName("txtPrice");
+                    if (txtPrice) {
+                        txtPrice.text = MathUtils.bytesToSize(curPrice);
+                    }
+                    MessageUtils.shopMsgByObj(btnObj, LanguageManager.Instance.getLanguageText("hallScene.label.txt.07"));
+                }
+            }
+            HallManager.Instance.hall.refreshShortcutCreateBtn();
+        }
+        else {
+            if (PlayerManager.Instance.Info.dayGetGoldCount > 0) {
+                ViewMgr.Ins.open(ViewConst.RewardGoldView);
+            }
+            else {
+                MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.19"));
+                ViewMgr.Ins.open(ViewConst.FriendConcurView);
+            }
+        }
+    }
     set hallData(value) { this._model = value; }
     /** 大厅中的数据 */
     get hallData() { return this._model; }

@@ -12,7 +12,7 @@ class Token {
         if (launchOptions && launchOptions.query && launchOptions.query.channel) {
             channel = "" + launchOptions.query.channel + "_" + launchOptions.scene;
         }
-        if (launchOptions && launchOptions.referrerInfo) {
+        else if (launchOptions && launchOptions.referrerInfo) {
             if (launchOptions.referrerInfo.extraData && launchOptions.referrerInfo.extraData.channel) {
                 channel = "" + launchOptions.referrerInfo.extraData.channel + "_" + launchOptions.scene;
             }
@@ -609,7 +609,7 @@ class EvolutionManager {
     getIsEvolutionLevel() {
         let kingLevel = userData.getKingLevel();
         if (kingLevel > 10) {
-            return !((userData.diamond < this.getEvolutionLevelDiamond()) || (userData.caculateMonsterCount(this.getHeroLevel()) < this.needHeroCount));
+            return !((userData.diamond < this.getEvolutionLevelDiamond()) || (userData.caculateMonsterCount(this.getHeroId()) < this.needHeroCount));
         }
         else {
             return !(userData.diamond < this.getEvolutionLevelDiamond());
@@ -1500,7 +1500,7 @@ class ResUtils {
     static combGroupList(group) {
         let newGroup = [];
         for (let i = 0, len = group.length; i < len; i++) {
-            newGroup.push({ url: "res/atlas/" + group[i] + ".atlas", type: Laya.Loader.ATLAS });
+            newGroup.push({ url: "res/atlas/images/" + group[i] + ".atlas", type: Laya.Loader.ATLAS });
         }
         return newGroup;
     }
@@ -2097,7 +2097,7 @@ class MessageUtils {
             hbox.align = "middle";
             const global = PointUtils.localToGlobal(obj);
             hbox.pos(global.x, global.y);
-            M.layer.screenEffectLayer.addChild(hbox);
+            LayerMgr.Instance.addToLayer(hbox, LAYER_TYPE.SCREEN_EFFECT_LAYER);
             hbox.x += (obj.width - hbox.width) / 2;
             Laya.Tween.to(hbox, { y: hbox.y - 50, alpha: 0 }, 1000, null, Laya.Handler.create(this, () => {
                 Laya.Tween.clearTween(hbox);
@@ -2107,7 +2107,7 @@ class MessageUtils {
         else {
             const global = PointUtils.localToGlobal(obj);
             label.pos(global.x, global.y);
-            M.layer.screenEffectLayer.addChild(label);
+            LayerMgr.Instance.addToLayer(label, LAYER_TYPE.SCREEN_EFFECT_LAYER);
             label.x += (obj.width - label.width) / 2;
             Laya.Tween.to(label, { y: label.y - 50, alpha: 0 }, 1000, null, Laya.Handler.create(this, () => {
                 Laya.Tween.clearTween(label);
@@ -3292,6 +3292,13 @@ class ViewRegisterMgr {
         ViewMgr.Ins.register(ViewConst.FollowRewardView, new FollowRewardView());
         ViewMgr.Ins.register(ViewConst.StrengthenView, new StrengthenView());
         ViewMgr.Ins.register(ViewConst.RewardGoldView, new RewardGoldView());
+        ViewMgr.Ins.register(ViewConst.FriendConcurView, new FriendConcurView());
+        ViewMgr.Ins.register(ViewConst.ShopView, new ShopView());
+        ViewMgr.Ins.register(ViewConst.DiamondBuyView, new DiamondBuyView());
+        ViewMgr.Ins.register(ViewConst.SkillExplainView, new SkillExplainView());
+        ViewMgr.Ins.register(ViewConst.AdditionalRewardView, new AdditionalRewardView());
+        ViewMgr.Ins.register(ViewConst.FreeGetPetView, new FreeGetPetView());
+        ViewMgr.Ins.register(ViewConst.EvolutionView, new EvolutionView());
     }
     static get Instance() {
         if (!ViewRegisterMgr._instance) {
@@ -3454,6 +3461,20 @@ var ViewConst;
     ViewConst[ViewConst["StrengthenView"] = 10002] = "StrengthenView";
     /** 金币不足界面 */
     ViewConst[ViewConst["RewardGoldView"] = 10003] = "RewardGoldView";
+    /** 好友互助界面 */
+    ViewConst[ViewConst["FriendConcurView"] = 10004] = "FriendConcurView";
+    /** 英雄商店界面 */
+    ViewConst[ViewConst["ShopView"] = 10005] = "ShopView";
+    /** 钻石购买英雄界面 */
+    ViewConst[ViewConst["DiamondBuyView"] = 10006] = "DiamondBuyView";
+    /** 技能说明界面 */
+    ViewConst[ViewConst["SkillExplainView"] = 10007] = "SkillExplainView";
+    /** 额外奖励界面 */
+    ViewConst[ViewConst["AdditionalRewardView"] = 10008] = "AdditionalRewardView";
+    /** 获得免费英雄提示框 */
+    ViewConst[ViewConst["FreeGetPetView"] = 10009] = "FreeGetPetView";
+    /** 守卫升级界面 */
+    ViewConst[ViewConst["EvolutionView"] = 10010] = "EvolutionView";
 })(ViewConst || (ViewConst = {}));
 //# sourceMappingURL=ViewConst.js.map
 /*
@@ -3504,6 +3525,29 @@ class BarrierRewardVO {
 class BarrierConfigVO {
 }
 //# sourceMappingURL=BarrierConfigVO.js.map
+class WXSystemInfo {
+    canUseVersion(version) {
+        if (this.SDKVersion) {
+            const curr = StringUtils.splitStringToArr(this.SDKVersion, ".");
+            const comp = StringUtils.splitStringToArr(version, ".");
+            if (parseInt(curr[0], 0) > parseInt(comp[0], 0)) {
+                return true;
+            }
+            else {
+                if (parseInt(curr[1], 0) >= parseInt(comp[1], 0)) {
+                    return true;
+                }
+                else {
+                    if (parseInt(curr[2], 0) >= parseInt(comp[2], 0)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+}
+//# sourceMappingURL=WXSystemInfo.js.map
 /*
 * terry 2018/7/16;
 * 用户数据本地存储
@@ -5261,6 +5305,8 @@ EventsType.FRIEND_CONCUR_RED_POINT = "FRIEND_CONCUR_RED_POINT";
 EventsType.UPDATE_HALL_DATA = "UPDATE_HALL_DATA";
 /** 好友助力领奖 */
 EventsType.FRIEND_CONCUR_GET_REWARD = "FRIEND_CONCUR_GET_REWARD";
+/** 守卫升级完毕 */
+EventsType.EVOLUTION_LEVEL_COMPLETE = "EVOLUTION_LEVEL_COMPLETE";
 //# sourceMappingURL=EventsType.js.map
 class Time {
 }
@@ -6827,7 +6873,8 @@ class GlobleData extends Laya.EventDispatcher {
     /** 获取对应表的所有数据 */
     static getAllValue(type) {
         let dic = GlobleData.AllCacheData.TryGetValue(type);
-        return dic.getValues();
+        let arr = dic.getValues();
+        return arr ? arr : [];
     }
     /**
      * 查找对应条件的数据
@@ -6984,7 +7031,8 @@ class BaseView extends Laya.View {
     addToParent() {
         AlignUtils.setToScreenGoldenPos(this);
         if (this._isShowMask) {
-            this._myParent.addChildWithMaskCall(this, null);
+            this._myParent.maskEnabled = true;
+            this._myParent.addChildWithMaskCall(this, this.removeFromParent);
         }
         else {
             this._myParent.maskEnabled = false;
@@ -7012,7 +7060,9 @@ class BaseView extends Laya.View {
         this._isInit = true;
     }
     /** 对面板数据的初始化，用于子类继承 */
-    initData() { }
+    initData() {
+        this._isInit = true;
+    }
     /** 添加监听事件 */
     addEvents() { }
     /** 移除监听事件 */
@@ -7026,7 +7076,9 @@ class BaseView extends Laya.View {
         return this.stage != null && this.visible && this._myParent.contains(this);
     }
     /** 面板开启执行函数，用于子类继承 */
-    open(...param) { }
+    open(...param) {
+        this._datas = param;
+    }
     /** 设置是否隐藏 */
     setVisible(value) {
         this.visible = value;
@@ -7063,6 +7115,8 @@ class BaseView extends Laya.View {
     }
     get ui() { return this._ui; }
     set ui(value) { this._ui = value; }
+    get datas() { return this._datas; }
+    set datas(value) { this._datas = value; }
 }
 //# sourceMappingURL=BaseView.js.map
 /*
@@ -8393,7 +8447,7 @@ var ui;
                 this.createView(ui.evolution.EvolutionViewUI.uiView);
             }
         }
-        EvolutionViewUI.uiView = { "type": "View", "props": {}, "child": [{ "type": "View", "props": { "y": 190, "x": 0, "width": 750, "var": "mainView", "name": "mainView", "height": 826 }, "child": [{ "type": "Image", "props": { "y": -88, "x": 18, "width": 715, "skin": "images/component/frame_9calce_01.png", "sizeGrid": "158,62,69,62", "name": "imgBg", "height": 1014 }, "child": [{ "type": "Image", "props": { "y": 33, "x": 259, "skin": "images/fontImg/king_title_icon.png" } }, { "type": "Image", "props": { "y": 494, "x": 36, "skin": "images/component/frame_line_01.png" } }, { "type": "Label", "props": { "y": 449, "x": 66, "text": "升级条件:", "fontSize": 32, "color": "#c83d33", "align": "left" } }, { "type": "Button", "props": { "y": -8, "x": 634, "var": "btnExit", "stateNum": 1, "skin": "images/component/frame_close_btn.png" }, "child": [{ "type": "Script", "props": { "y": 0, "x": 0, "runtime": "ScaleAnimScript" } }] }, { "type": "Button", "props": { "y": 796, "x": 197, "var": "btnUpdate", "stateNum": 1, "skin": "images/component/yellow_btn.png", "labelStrokeColor": "#946430", "labelStroke": 2, "labelSize": 50, "labelColors": "#ffffff", "labelBold": true, "label": "升级", "disabled": true }, "child": [{ "type": "Script", "props": { "y": 0, "x": 0, "runtime": "ScaleAnimScript" } }] }, { "type": "Box", "props": { "y": 507, "x": 32, "var": "heroBox" }, "child": [{ "type": "Image", "props": { "skin": "images/component/frame_9calce_05.png" } }, { "type": "HBox", "props": { "y": 11, "x": 32, "var": "nameHbox", "space": 5, "align": "middle" }, "child": [{ "type": "Label", "props": { "y": 2, "x": 179, "var": "txtNeedItem", "text": "0/1", "fontSize": 28, "color": "#9a8d00", "align": "left" } }, { "type": "Label", "props": { "var": "txtItemName", "text": "刺王龙 Lv11:", "fontSize": 30, "color": "#9a2525", "align": "left" } }] }] }, { "type": "Box", "props": { "y": 558, "x": 32, "var": "diamondBox" }, "child": [{ "type": "Image", "props": { "skin": "images/component/frame_9calce_05.png" } }, { "type": "Image", "props": { "y": 13, "x": 32, "skin": "images/core/diamond_icon.png", "scaleY": 0.6, "scaleX": 0.6 } }, { "type": "Label", "props": { "y": 13, "x": 156, "var": "txtNeedDiamond", "text": "0/50", "fontSize": 28, "color": "#9a8d00", "align": "left" } }, { "type": "Label", "props": { "y": 11, "x": 73, "var": "txtDiamondName", "text": "钻石:", "fontSize": 30, "color": "#9a2525", "align": "left" } }] }, { "type": "Box", "props": { "y": 140, "x": 33 }, "child": [{ "type": "Image", "props": { "width": 649, "skin": "images/component/frame_9calce_02.png", "sizeGrid": "25,27,32,27", "height": 270 } }, { "type": "Image", "props": { "y": 90, "x": 97, "skin": "images/component/frame_9calce_06.png" } }, { "type": "Image", "props": { "y": 30, "x": 97, "skin": "images/component/frame_9calce_07.png", "sizeGrid": "0,31,0,33" } }, { "type": "Image", "props": { "y": 148, "x": 97, "skin": "images/component/frame_9calce_06.png" } }, { "type": "Image", "props": { "y": 90, "x": 429, "skin": "images/component/frame_9calce_06.png" } }, { "type": "Image", "props": { "y": 148, "x": 429, "skin": "images/component/frame_9calce_06.png" } }, { "type": "Label", "props": { "y": 35, "x": 33, "text": "等级:", "fontSize": 28, "color": "#9a2525" } }, { "type": "Label", "props": { "y": 95, "x": 33, "text": "攻击:", "fontSize": 28, "color": "#9a2525" } }, { "type": "Label", "props": { "y": 154, "x": 33, "text": "速度:", "fontSize": 28, "color": "#9a2525" } }, { "type": "Label", "props": { "y": 95, "x": 306, "text": "攻击加成:", "fontSize": 28, "color": "#9a2525" } }, { "type": "Label", "props": { "y": 154, "x": 306, "text": "暴击加成:", "fontSize": 28, "color": "#9a2525" } }, { "type": "Label", "props": { "y": 215, "x": 33, "text": "技能效果:", "fontSize": 28, "color": "#9a2525" } }, { "type": "Label", "props": { "y": 154, "x": 449, "var": "txtDoubleAdd", "text": "0.8%", "fontSize": 30, "color": "#ffffff", "bold": true, "align": "left" } }, { "type": "Label", "props": { "y": 154, "x": 114, "var": "txtAtkSpeed", "text": "0.3s", "fontSize": 30, "color": "#ffffff", "bold": true, "align": "left" } }, { "type": "Label", "props": { "y": 95, "x": 449, "var": "txtAtkAdd", "text": "1.5%", "fontSize": 30, "color": "#ffffff", "bold": true, "align": "left" } }, { "type": "Label", "props": { "y": 96, "x": 114, "var": "txtAtk", "text": "10", "fontSize": 30, "color": "#ffffff", "bold": true, "align": "left" } }, { "type": "Label", "props": { "y": 35, "x": 114, "var": "txtKingLevel", "text": "1", "fontSize": 30, "color": "#ffffff", "bold": true, "align": "left" } }, { "type": "Label", "props": { "y": 215, "x": 162, "width": 400, "var": "txtSkillDes", "text": "增加所有上阵英雄的攻击和暴击", "fontSize": 28, "color": "#8b6107", "align": "left" } }] }] }] }] };
+        EvolutionViewUI.uiView = { "type": "View", "props": { "width": 715, "height": 1014 }, "child": [{ "type": "View", "props": { "y": 0, "x": 0, "width": 715, "var": "mainView", "name": "mainView", "height": 1014 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "width": 715, "skin": "images/component/frame_9calce_01.png", "sizeGrid": "158,62,69,62", "name": "imgBg", "height": 1014 }, "child": [{ "type": "Image", "props": { "y": 33, "x": 259, "skin": "images/fontImg/king_title_icon.png" } }, { "type": "Image", "props": { "y": 494, "x": 36, "skin": "images/component/frame_line_01.png" } }, { "type": "Label", "props": { "y": 449, "x": 66, "text": "升级条件:", "fontSize": 32, "color": "#c83d33", "align": "left" } }, { "type": "Button", "props": { "y": -8, "x": 634, "var": "btnExit", "stateNum": 1, "skin": "images/component/frame_close_btn.png" }, "child": [{ "type": "Script", "props": { "y": 0, "x": 0, "runtime": "ScaleAnimScript" } }] }, { "type": "Button", "props": { "y": 796, "x": 197, "var": "btnUpdate", "stateNum": 1, "skin": "images/component/yellow_btn.png", "labelStrokeColor": "#946430", "labelStroke": 2, "labelSize": 50, "labelColors": "#ffffff", "labelBold": true, "label": "升级", "disabled": true }, "child": [{ "type": "Script", "props": { "y": 0, "x": 0, "runtime": "ScaleAnimScript" } }] }, { "type": "Box", "props": { "y": 507, "x": 32, "var": "heroBox" }, "child": [{ "type": "Image", "props": { "skin": "images/component/frame_9calce_05.png" } }, { "type": "HBox", "props": { "y": 11, "x": 32, "var": "nameHbox", "space": 5, "align": "middle" }, "child": [{ "type": "Label", "props": { "y": 2, "x": 179, "var": "txtNeedItem", "text": "0/1", "fontSize": 28, "color": "#9a8d00", "align": "left" } }, { "type": "Label", "props": { "var": "txtItemName", "text": "刺王龙 Lv11:", "fontSize": 30, "color": "#9a2525", "align": "left" } }] }] }, { "type": "Box", "props": { "y": 558, "x": 32, "var": "diamondBox" }, "child": [{ "type": "Image", "props": { "skin": "images/component/frame_9calce_05.png" } }, { "type": "Image", "props": { "y": 13, "x": 32, "skin": "images/core/diamond_icon.png", "scaleY": 0.6, "scaleX": 0.6 } }, { "type": "Label", "props": { "y": 13, "x": 156, "var": "txtNeedDiamond", "text": "0/50", "fontSize": 28, "color": "#9a8d00", "align": "left" } }, { "type": "Label", "props": { "y": 11, "x": 73, "var": "txtDiamondName", "text": "钻石:", "fontSize": 30, "color": "#9a2525", "align": "left" } }] }, { "type": "Box", "props": { "y": 140, "x": 33 }, "child": [{ "type": "Image", "props": { "width": 649, "skin": "images/component/frame_9calce_02.png", "sizeGrid": "25,27,32,27", "height": 270 } }, { "type": "Image", "props": { "y": 90, "x": 97, "skin": "images/component/frame_9calce_06.png" } }, { "type": "Image", "props": { "y": 30, "x": 97, "skin": "images/component/frame_9calce_07.png", "sizeGrid": "0,31,0,33" } }, { "type": "Image", "props": { "y": 148, "x": 97, "skin": "images/component/frame_9calce_06.png" } }, { "type": "Image", "props": { "y": 90, "x": 429, "skin": "images/component/frame_9calce_06.png" } }, { "type": "Image", "props": { "y": 148, "x": 429, "skin": "images/component/frame_9calce_06.png" } }, { "type": "Label", "props": { "y": 35, "x": 33, "text": "等级:", "fontSize": 28, "color": "#9a2525" } }, { "type": "Label", "props": { "y": 95, "x": 33, "text": "攻击:", "fontSize": 28, "color": "#9a2525" } }, { "type": "Label", "props": { "y": 154, "x": 33, "text": "速度:", "fontSize": 28, "color": "#9a2525" } }, { "type": "Label", "props": { "y": 95, "x": 306, "text": "攻击加成:", "fontSize": 28, "color": "#9a2525" } }, { "type": "Label", "props": { "y": 154, "x": 306, "text": "暴击加成:", "fontSize": 28, "color": "#9a2525" } }, { "type": "Label", "props": { "y": 215, "x": 33, "text": "技能效果:", "fontSize": 28, "color": "#9a2525" } }, { "type": "Label", "props": { "y": 154, "x": 449, "var": "txtDoubleAdd", "text": "0.8%", "fontSize": 30, "color": "#ffffff", "bold": true, "align": "left" } }, { "type": "Label", "props": { "y": 154, "x": 114, "var": "txtAtkSpeed", "text": "0.3s", "fontSize": 30, "color": "#ffffff", "bold": true, "align": "left" } }, { "type": "Label", "props": { "y": 95, "x": 449, "var": "txtAtkAdd", "text": "1.5%", "fontSize": 30, "color": "#ffffff", "bold": true, "align": "left" } }, { "type": "Label", "props": { "y": 96, "x": 114, "var": "txtAtk", "text": "10", "fontSize": 30, "color": "#ffffff", "bold": true, "align": "left" } }, { "type": "Label", "props": { "y": 35, "x": 114, "var": "txtKingLevel", "text": "1", "fontSize": 30, "color": "#ffffff", "bold": true, "align": "left" } }, { "type": "Label", "props": { "y": 215, "x": 162, "width": 400, "var": "txtSkillDes", "text": "增加所有上阵英雄的攻击和暴击", "fontSize": 28, "color": "#8b6107", "align": "left" } }] }] }] }] };
         evolution.EvolutionViewUI = EvolutionViewUI;
     })(evolution = ui.evolution || (ui.evolution = {}));
 })(ui || (ui = {}));
@@ -9009,64 +9063,77 @@ class RewardItem extends ui.common.item.RewardItemUI {
 }
 //# sourceMappingURL=RewardItem.js.map
 /*
-* name;
+* 钻石购买英雄界面;
 */
-class DiamondBuyView extends ui.common.view.DiamondBuyViewUI {
-    constructor(data = null, callback = null) {
-        super();
-        this._data = data;
-        this._callback = callback;
-        this.init();
-    }
-    //新建并添加到节点
-    static Create(_parentNode, callback = null, _removeCallback = null, ...arge) {
-        let resList = [
-            { url: "res/atlas/images.atlas", type: Laya.Loader.ATLAS }
-        ];
-        Laya.loader.load(resList, Handler.create(null, () => {
-            if (_parentNode) {
-                let nodeView = new DiamondBuyView(arge, callback);
-                AlignUtils.setToScreenGoldenPos(nodeView);
-                M.layer.subFrameLayer.addChildWithMaskCall(nodeView, nodeView.removeSelf);
-                nodeView.once(Laya.Event.REMOVED, nodeView, _removeCallback);
-            }
-        }));
+class DiamondBuyView extends BaseView {
+    constructor() {
+        super(LAYER_TYPE.SUB_FRAME_LAYER, ui.common.view.DiamondBuyViewUI);
     }
     //初始化
-    init() {
+    initUI() {
+        super.initUI();
+    }
+    initData() {
+        super.initData();
         let self = this;
-        switch (self._data[0]) {
+        switch (self.datas[0]) {
             case DILOG_TYPE.PET:
-                self.petTitleImg.visible = self.imgMonster.visible = true;
-                self.accTitleImg.visible = self.accIcon.visible = false;
-                self.imgMonster.skin = "images/carImg/" + self._data[2].imgUrl;
+                self.ui.petTitleImg.visible = self.ui.imgMonster.visible = true;
+                self.ui.accTitleImg.visible = self.ui.accIcon.visible = false;
+                self.ui.imgMonster.skin = "images/carImg/" + self.datas[2].imgUrl;
                 break;
             case DILOG_TYPE.ACC:
                 SDKManager.Instance.showBannerAd(true);
-                self.petTitleImg.visible = self.imgMonster.visible = false;
-                self.accTitleImg.visible = self.accIcon.visible = true;
+                self.ui.petTitleImg.visible = self.ui.imgMonster.visible = false;
+                self.ui.accTitleImg.visible = self.ui.accIcon.visible = true;
                 break;
         }
-        self.txtDiamond.text = self._data[1];
-        self.addEvents();
+        self.ui.txtDiamond.text = self.datas[1];
     }
     addEvents() {
+        super.addEvents();
         let self = this;
-        self.btnBuy.on(Laya.Event.CLICK, self, self.onBuyHandler);
-        self.btnExit.on(Laya.Event.CLICK, self, self.onCloseHandler);
+        self.ui.btnBuy.on(Laya.Event.CLICK, self, self.onBuyHandler);
+        self.ui.btnExit.on(Laya.Event.CLICK, self, self.onCloseHandler);
     }
     removeEvents() {
+        super.removeEvents();
         let self = this;
-        self.btnBuy.off(Laya.Event.CLICK, self, self.onBuyHandler);
-        self.btnExit.off(Laya.Event.CLICK, self, self.onCloseHandler);
+        self.ui.btnBuy.off(Laya.Event.CLICK, self, self.onBuyHandler);
+        self.ui.btnExit.off(Laya.Event.CLICK, self, self.onCloseHandler);
     }
     onBuyHandler() {
         let self = this;
-        let carPriceInt = Math.floor(self._data[1]);
+        let carPriceInt = Math.floor(self.datas[1]);
         if (PlayerManager.Instance.Info.userDiamond >= carPriceInt) {
-            if (this._callback) {
-                this._callback(carPriceInt);
-            }
+            HttpManager.Instance.requestDiamondBuyOrder(carPriceInt, (_res) => {
+                if (_res) {
+                    if (BattleManager.Instance.createPet(self.datas[2].id) == null)
+                        return;
+                    HttpManager.Instance.requestDiamondBuy(_res.order_id, (_res) => {
+                        MessageUtils.showMsgTips("购买成功");
+                        HttpManager.Instance.requestDiamondData();
+                        switch (self.datas[0]) {
+                            case DILOG_TYPE.PET: //刷新消费记录
+                                userData.refreshBuyRecord(self.datas[2].id, true);
+                                break;
+                            case DILOG_TYPE.ACC: //钻石加速次数加1
+                                userData.diamondAcceTimes(true);
+                                break;
+                        }
+                    });
+                }
+                else {
+                    switch (self.datas[0]) {
+                        case DILOG_TYPE.PET: //刷新消费记录
+                            MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.37"));
+                            break;
+                        case DILOG_TYPE.ACC: //钻石加速次数加1
+                            MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.05"));
+                            break;
+                    }
+                }
+            });
         }
         else {
             MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.04"));
@@ -9075,52 +9142,32 @@ class DiamondBuyView extends ui.common.view.DiamondBuyViewUI {
     }
     onCloseHandler() {
         let self = this;
-        self.removeSelf();
-        self.removeEvents();
+        ViewMgr.Ins.close(ViewConst.DiamondBuyView);
     }
 }
 //# sourceMappingURL=DiamondBuyView.js.map
 /*
 * 获得免费英雄提示框;
 */
-class FreeGetPetView extends ui.common.view.FreeGetPetViewUI {
-    constructor(data = null) {
-        super();
-        this._data = data;
-        this.init();
+class FreeGetPetView extends BaseView {
+    constructor() {
+        super(LAYER_TYPE.SUB_FRAME_LAYER, ui.common.view.FreeGetPetViewUI);
     }
-    //新建并添加到节点
-    static Create(_parentNode, callback = null, _removeCallback = null, ...arge) {
-        let resList = [
-            { url: "res/atlas/images.atlas", type: Laya.Loader.ATLAS }
-        ];
-        Laya.loader.load(resList, Handler.create(null, () => {
-            if (_parentNode) {
-                let nodeView = new FreeGetPetView(arge);
-                AlignUtils.setToScreenGoldenPos(nodeView);
-                M.layer.subFrameLayer.addChildWithMaskCall(nodeView, nodeView.removeSelf);
-                nodeView.once(Laya.Event.REMOVED, nodeView, _removeCallback);
-            }
-        }));
-    }
-    //初始化
-    init() {
+    initData() {
+        super.initData();
         let self = this;
-        self.imgPet.skin = "images/carImg/" + self._data[0].imgUrl;
-        self.addEvents();
+        self.ui.imgPet.skin = "images/carImg/" + self.datas[0].imgUrl;
     }
     addEvents() {
         let self = this;
-        self.btnExit.on(Laya.Event.CLICK, self, self.onCloseHandler);
+        self.ui.btnExit.on(Laya.Event.CLICK, self, self.onCloseHandler);
     }
     removeEvents() {
         let self = this;
-        self.btnExit.off(Laya.Event.CLICK, self, self.onCloseHandler);
+        self.ui.btnExit.off(Laya.Event.CLICK, self, self.onCloseHandler);
     }
     onCloseHandler() {
-        let self = this;
-        self.removeSelf();
-        self.removeEvents();
+        ViewMgr.Ins.close(ViewConst.FreeGetPetView);
     }
 }
 //# sourceMappingURL=FreeGetPetView.js.map
@@ -9279,7 +9326,7 @@ class RewardGetView extends ui.common.view.RewardGetViewUI {
 class RewardGoldView extends BaseView {
     constructor() {
         super(LAYER_TYPE.SUB_FRAME_LAYER, ui.common.view.RewardGoldViewUI);
-        this.setResources(["images/rewardGold"]);
+        this.setResources(["rewardGold"]);
     }
     //初始化
     initUI() {
@@ -9321,7 +9368,7 @@ class RewardGoldView extends BaseView {
             }, 12);
             if (adStage > 0) {
                 MessageUtils.showMsgTips("今日广告已经观看完毕!");
-                FriendConcurView.Create(self);
+                ViewMgr.Ins.open(ViewConst.FriendConcurView);
             }
         }
         self.onCloseHandler();
@@ -9338,35 +9385,26 @@ class RewardGoldView extends BaseView {
 /*
 * 技能说明界面;
 */
-class SkillExplainView extends ui.common.view.SkillExplainViewUI {
-    constructor(data = null, callback = null) {
-        super();
-        this._data = data;
-        this._callback = callback;
-        this.init();
-    }
-    //新建并添加到节点
-    static Create(_parentNode, callback = null, _removeCallback = null, ...arge) {
-        let resList = [
-            { url: "res/atlas/images.atlas", type: Laya.Loader.ATLAS }
-        ];
-        Laya.loader.load(resList, Handler.create(null, () => {
-            if (_parentNode) {
-                let nodeView = new SkillExplainView(arge, callback);
-                AlignUtils.setToScreenGoldenPos(nodeView);
-                M.layer.subFrameLayer.addChildWithMaskCall(nodeView, nodeView.removeSelf);
-                nodeView.once(Laya.Event.REMOVED, nodeView, _removeCallback);
-            }
-        }));
+class SkillExplainView extends BaseView {
+    constructor() {
+        super(LAYER_TYPE.SUB_FRAME_LAYER, ui.common.view.SkillExplainViewUI);
     }
     //初始化
-    init() {
+    initUI() {
+        super.initUI();
+    }
+    addEvents() {
+        super.addEvents();
         let self = this;
-        self.btnExit.offAll(Laya.Event.CLICK);
-        self.btnExit.on(Laya.Event.CLICK, self, self.onClickClose);
+        self.ui.btnExit.on(Laya.Event.CLICK, self, self.onClickClose);
+    }
+    removeEvents() {
+        super.removeEvents();
+        let self = this;
+        self.ui.btnExit.off(Laya.Event.CLICK, self, self.onClickClose);
     }
     onClickClose() {
-        this.removeSelf();
+        ViewMgr.Ins.close(ViewConst.SkillExplainView);
     }
 }
 //# sourceMappingURL=SkillExplainView.js.map
@@ -9779,54 +9817,31 @@ EvolutionAdvancedView.isOpen = false;
 /*
 * 守卫升级界面
 */
-class EvolutionView extends ui.evolution.EvolutionViewUI {
-    constructor(_stage = -1) {
-        super();
-        this.init(_stage);
-    }
-    //新建并添加到节点
-    static Create(_parentNode, _callback = null, _removeCallback = null, _stage = -1) {
-        let resList = [
-            { url: "res/atlas/images.atlas", type: Laya.Loader.ATLAS }
-        ];
-        Laya.loader.load(resList, Handler.create(null, () => {
-            if (_parentNode) {
-                if (EvolutionView.isOpen) {
-                    return;
-                }
-            }
-            else {
-                EvolutionView.isOpen = true;
-                let nodeView = new EvolutionView(_stage);
-                M.layer.frameLayer.addChildWithMaskCall(nodeView, nodeView.removeSelf);
-                _callback && _callback(nodeView);
-                nodeView.once(Laya.Event.REMOVED, nodeView, () => {
-                    EvolutionView.isOpen = false;
-                    nodeView.removeUI();
-                    _removeCallback && _removeCallback();
-                });
-            }
-        }));
+class EvolutionView extends BaseView {
+    constructor() {
+        super(LAYER_TYPE.FRAME_LAYER, ui.evolution.EvolutionViewUI);
     }
     //初始化
-    init(_stage) {
+    initUI() {
+        super.initUI();
         let self = this;
         //界面初始化
-        self.btnUpdate.offAll(Laya.Event.CLICK);
-        self.btnExit.offAll(Laya.Event.CLICK);
-        self.btnExit.on(Laya.Event.CLICK, self, () => {
-            self.removeSelf();
+        self.ui.btnUpdate.offAll(Laya.Event.CLICK);
+        self.ui.btnExit.offAll(Laya.Event.CLICK);
+        self.ui.btnExit.on(Laya.Event.CLICK, self, () => {
+            ViewMgr.Ins.close(ViewConst.EvolutionView);
         });
-        M.layer.frameLayer.on(LayerEvent.LAYER_ANIMATION_COMPLETE, this, (complete) => {
+        self.refreshBoxUI();
+        LayerMgr.Instance.getLayerByType(LAYER_TYPE.FRAME_LAYER).on(LayerEvent.LAYER_ANIMATION_COMPLETE, this, (complete) => {
             if (complete) {
                 if (!NoviceManager.isComplete) {
                     M.novice.on(NoviceEvent.ACTIVATE_TARGET, self, (eventParam) => {
                         if (eventParam === NoviceTarget.FOREST_KING_UPGRADE) {
-                            M.novice.activateClickTarget(self.btnUpdate, eventParam, self.btnUpdate.parent);
+                            M.novice.activateClickTarget(self.ui.btnUpdate, eventParam, self.ui.btnUpdate.parent);
                         }
                         else if (eventParam === NoviceTarget.FOREST_KING_CLOSE) {
                             M.novice.ui.btnReturnNovice2.visible = true;
-                            M.novice.activateClickTarget(self.btnExit, eventParam, self.btnExit.parent);
+                            M.novice.activateClickTarget(self.ui.btnExit, eventParam, self.ui.btnExit.parent);
                         }
                     });
                 }
@@ -9834,12 +9849,8 @@ class EvolutionView extends ui.evolution.EvolutionViewUI {
             }
         });
     }
-    //移除界面
-    removeUI() {
-        EventsManager.Instance.offAll(EventsType.ESSENCE_CHANGE);
-    }
     //设置强化数据
-    refreshBoxUI(_callback) {
+    refreshBoxUI() {
         let self = this;
         let kingLevel = userData.getKingLevel();
         let kingVO = GlobleData.getData(GlobleData.KindLevelConfigVO, kingLevel);
@@ -9861,52 +9872,59 @@ class EvolutionView extends ui.evolution.EvolutionViewUI {
             let diamond = userData.diamond;
             let needDiamond = MathUtils.parseInt(kingVO.gemxh.toString());
             if (kingLevel > 10) {
-                self.btnUpdate.disabled = (diamond < needDiamond) || (currHeroCount < needHeroCount);
+                self.ui.btnUpdate.disabled = (diamond < needDiamond) || (currHeroCount < needHeroCount);
             }
             else {
-                self.btnUpdate.disabled = diamond < needDiamond;
+                self.ui.btnUpdate.disabled = diamond < needDiamond;
             }
-            self.txtKingLevel.text = kingLevel + "";
-            self.txtAtk.text = MathUtils.bytesToSize(atk);
-            self.txtAtkAdd.text = MathUtils.numToPercent(atkAdd);
-            self.txtAtkSpeed.text = MathUtils.bytesToSize(atkSpeed) + "s";
-            self.txtDoubleAdd.text = MathUtils.numToPercent(doubleAdd);
+            self.ui.txtKingLevel.text = kingLevel + "";
+            self.ui.txtAtk.text = MathUtils.bytesToSize(atk);
+            self.ui.txtAtkAdd.text = MathUtils.numToPercent(atkAdd);
+            self.ui.txtAtkSpeed.text = MathUtils.bytesToSize(atkSpeed) + "s";
+            self.ui.txtDoubleAdd.text = MathUtils.numToPercent(doubleAdd);
             let isShow = kingLevel > 10;
-            self.heroBox.visible = isShow;
-            self.txtItemName.text = heroName;
-            self.txtNeedItem.text = Math.min(currHeroCount, needHeroCount) + '/' + needHeroCount;
-            self.txtNeedDiamond.text = Math.min(diamond, needDiamond) + '/' + needDiamond;
+            self.ui.heroBox.visible = isShow;
+            self.ui.txtItemName.text = heroName;
+            self.ui.txtNeedItem.text = Math.min(currHeroCount, needHeroCount) + '/' + needHeroCount;
+            self.ui.txtNeedDiamond.text = Math.min(diamond, needDiamond) + '/' + needDiamond;
             if (isShow) {
-                self.diamondBox.pos(32, 558);
+                self.ui.diamondBox.pos(32, 558);
             }
             else {
-                self.diamondBox.pos(32, 507);
+                self.ui.diamondBox.pos(32, 507);
             }
-            self.nameHbox.refresh();
-            self.btnUpdate.on(Laya.Event.CLICK, self, () => {
+            self.ui.nameHbox.refresh();
+            self.ui.btnUpdate.on(Laya.Event.CLICK, self, () => {
                 if (diamond >= needDiamond) {
                     HttpManager.Instance.requestUpdateKingLevel(EvolutionView.kingEvolutionType, kingLevel, needDiamond, (_res) => {
                         if (_res && _res.type) {
-                            MessageUtils.showMsgTips("升级成功");
-                            HallManager.Instance.hallData.isUpdate = false;
-                            _callback && _callback(kingLevel + 1, _res.diamond);
-                            self.refreshBoxUI(_callback);
+                            this.evolutionLevelComplete(kingLevel + 1, _res.diamond);
                         }
                     });
                     if (GlobalConfig.DEBUG) {
-                        HallManager.Instance.hallData.isUpdate = false;
-                        _callback && _callback(kingLevel + 1, userData.diamond - needDiamond);
-                        self.refreshBoxUI(_callback);
+                        this.evolutionLevelComplete(kingLevel + 1, userData.diamond - needDiamond);
                     }
                 }
                 else {
-                    MessageUtils.showMsgTips("钻石不足");
+                    MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.04"));
                 }
             });
         }
     }
+    evolutionLevelComplete(kingLevel, diamond) {
+        let self = this;
+        MessageUtils.showMsgTips("升级成功");
+        HallManager.Instance.hallData.isUpdate = false;
+        if (diamond > 0)
+            EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: userData.diamond -= diamond });
+        EventsManager.Instance.event(EventsType.EVOLUTION_LEVEL_COMPLETE, kingLevel);
+        self.refreshBoxUI();
+    }
+    close(...param) {
+        super.close(param);
+        EventsManager.Instance.offAll(EventsType.ESSENCE_CHANGE);
+    }
 }
-EvolutionView.isOpen = false;
 EvolutionView.kingEvolutionType = 101;
 //# sourceMappingURL=EvolutionView.js.map
 /*
@@ -9985,7 +10003,7 @@ class LevelHeroView extends ui.evolution.LevelHeroViewUI {
 class FollowRewardView extends BaseView {
     constructor() {
         super(LAYER_TYPE.FRAME_LAYER, ui.follow.FollowRewardViewUI, false);
-        this.setResources(["images/followReward"]);
+        this.setResources(["followReward"]);
     }
     //初始化
     initUI() {
@@ -10144,46 +10162,34 @@ class FriendConcurItem extends ui.friendConcur.FriendConcurItemUI {
 /*
 * 好友互助;
 */
-class FriendConcurView extends ui.friendConcur.FriendConcurUI {
+class FriendConcurView extends BaseView {
     constructor() {
-        super();
-        this.addEvetns();
-        this.init();
-    }
-    //新建并添加到节点
-    static Create(_parentNode) {
-        let resList = [
-            { url: "res/atlas/images/friendConcur.atlas", type: Laya.Loader.ATLAS }
-        ];
-        Laya.loader.load(resList, Handler.create(null, () => {
-            if (_parentNode) {
-                let nodeView = new FriendConcurView();
-                AlignUtils.setToScreenGoldenPos(nodeView);
-                LayerManager.getInstance().frameLayer.addChildWithMaskCall(nodeView, nodeView.removeView);
-                nodeView.once(Laya.Event.REMOVED, nodeView, nodeView.removeView);
-            }
-        }));
+        super(LAYER_TYPE.FRAME_LAYER, ui.friendConcur.FriendConcurUI);
+        this.setResources(["friendConcur"]);
     }
     //初始化
-    init() {
+    initUI() {
+        super.initUI();
         let self = this;
-        self.rewardList.visible = false;
-        self.rewardList.itemRender = FriendConcurItem;
-        self.rewardList.vScrollBarSkin = "";
+        self.ui.rewardList.visible = false;
+        self.ui.rewardList.itemRender = FriendConcurItem;
+        self.ui.rewardList.vScrollBarSkin = "";
         HttpManager.Instance.requestFriendConcurList((res) => {
             self.refreshRewarList(res);
         });
     }
     addEvetns() {
+        super.addEvents();
         let self = this;
-        self.btn_exit.on(Laya.Event.CLICK, self, self.removeView);
-        self.btn_send.on(Laya.Event.CLICK, self, self.onSendShareHandler);
+        self.ui.btn_exit.on(Laya.Event.CLICK, self, self.removeView);
+        self.ui.btn_send.on(Laya.Event.CLICK, self, self.onSendShareHandler);
         EventsManager.Instance.on(EventsType.FRIEND_CONCUR_GET_REWARD, self, self.onUpdateFriendList);
     }
     removeEvents() {
+        super.removeEvents();
         let self = this;
-        self.btn_exit.off(Laya.Event.CLICK, self, self.removeView);
-        self.btn_send.off(Laya.Event.CLICK, self, self.onSendShareHandler);
+        self.ui.btn_exit.off(Laya.Event.CLICK, self, self.removeView);
+        self.ui.btn_send.off(Laya.Event.CLICK, self, self.onSendShareHandler);
         EventsManager.Instance.off(EventsType.FRIEND_CONCUR_GET_REWARD, self, self.onUpdateFriendList);
     }
     /** 发送分享 */
@@ -10196,7 +10202,7 @@ class FriendConcurView extends ui.friendConcur.FriendConcurUI {
         let self = this;
         if (data == null)
             return console.log("好友互动 -- 拉取不到数据。。。");
-        self.rewardList.visible = true;
+        self.ui.rewardList.visible = true;
         let listData = data;
         listData.sort((pre, next) => {
             if (pre.static == 1 && next.static == 1) {
@@ -10212,8 +10218,8 @@ class FriendConcurView extends ui.friendConcur.FriendConcurUI {
                 FriendConcurView.redPointNum += (data.p_status == 0 ? 1 : 0);
             }
         });
-        self.rewardList.repeatY = listData.length;
-        self.rewardList.array = listData;
+        self.ui.rewardList.repeatY = listData.length;
+        self.ui.rewardList.array = listData;
     }
     onUpdateFriendList() {
         let self = this;
@@ -10223,9 +10229,7 @@ class FriendConcurView extends ui.friendConcur.FriendConcurUI {
         });
     }
     removeView() {
-        let self = this;
-        self.removeSelf();
-        self.removeEvents();
+        ViewMgr.Ins.close(ViewConst.FriendConcurView);
     }
 }
 FriendConcurView.redPointNum = 0;
@@ -10265,7 +10269,7 @@ class NoviceManager extends EventDispatcher {
             this._container = container;
         }
         else {
-            this._container = M.layer.guideLayer;
+            this._container = LayerMgr.Instance.getLayerByType(LAYER_TYPE.GUIDE_LAYER);
         }
         this._currStepId = 0;
         this._currGroupSheets = [].concat(NoviceGuide.getSheetByFieldValue("groupId", this._currGroupId));
@@ -10330,14 +10334,14 @@ class NoviceManager extends EventDispatcher {
             const position = StringUtils.splitStringToPoint(sheet.position);
             if (this._currStepType === NoviceType.DEFAULT) {
                 // 剧情对话
-                M.layer.guideLayer.maskEnabled = true;
+                LayerMgr.Instance.getLayerByType(LAYER_TYPE.GUIDE_LAYER).maskEnabled = true;
                 this.ui.viewStackNovice.selectedIndex = NoviceType.DEFAULT - 1;
                 this.updateDisplay(sheet, position.x, position.y);
                 this.activateMaskClick();
             }
             else if (this._currStepType === NoviceType.CLICK) {
                 // 点击指引
-                M.layer.guideLayer.maskEnabled = false;
+                LayerMgr.Instance.getLayerByType(LAYER_TYPE.GUIDE_LAYER).maskEnabled = false;
                 this.ui.mouseEnabled = true;
                 this.ui.viewStackNovice.selectedIndex = NoviceType.CLICK - 1;
                 this.ui.viewStackNovice.mouseEnabled = true;
@@ -10354,7 +10358,7 @@ class NoviceManager extends EventDispatcher {
             }
             else if (this._currStepType === NoviceType.DRAG) {
                 // 拖拽指引
-                M.layer.guideLayer.maskEnabled = false;
+                LayerMgr.Instance.getLayerByType(LAYER_TYPE.GUIDE_LAYER).maskEnabled = false;
                 this.ui.viewStackNovice.selectedIndex = NoviceType.CLICK - 1;
                 this.ui.viewStackNovice.mouseEnabled = false;
                 this.ui.viewInteract.visible = true;
@@ -10419,7 +10423,7 @@ class NoviceManager extends EventDispatcher {
         if (!this._currSheet || !this._currSheet.eventParam)
             return;
         if (targetName === this._currSheet.eventParam) {
-            M.layer.guideLayer.maskEnabled = true;
+            LayerMgr.Instance.getLayerByType(LAYER_TYPE.GUIDE_LAYER).maskEnabled = true;
             target.off(Laya.Event.CLICK, this, this.onTargetClick);
             this.recoverTargets();
             this.nextStep();
@@ -10466,12 +10470,12 @@ class NoviceManager extends EventDispatcher {
     activateMaskClick() {
         Laya.timer.once(Time.SEC_IN_MILI * 0.05, this, () => {
             // prettier-ignore
-            M.layer.guideLayer.on(Laya.Event.CLICK, this, this.onMaskClick);
+            LayerMgr.Instance.getLayerByType(LAYER_TYPE.GUIDE_LAYER).on(Laya.Event.CLICK, this, this.onMaskClick);
         });
     }
     onMaskClick() {
         if (this._currStepType === NoviceType.DEFAULT) {
-            M.layer.guideLayer.off(Laya.Event.CLICK, this, this.onMaskClick);
+            LayerMgr.Instance.getLayerByType(LAYER_TYPE.GUIDE_LAYER).off(Laya.Event.CLICK, this, this.onMaskClick);
             this.nextStep();
         }
     }
@@ -10648,6 +10652,69 @@ class HallManager extends Laya.EventDispatcher {
                 if (gold > 0) { //金币礼包
                     this._hall.updateGold(PlayerManager.Instance.Info.userMoney + gold);
                 }
+            }
+        }
+    }
+    /** 30分钟后检测是否还有红点 */
+    startShopRedpointTime(time = 1800) {
+        let that = this;
+        Laya.timer.once(1000 * time, this, () => {
+            userData.shiftShopRedpointTime();
+            if (userData.isShowCarShopRedPoint()) {
+                that.showCarportRedPoint();
+            }
+        });
+        userData.saveShopRedpointTime(time);
+    }
+    /** 显示怪物商店红点 */
+    showCarportRedPoint(isShow = true) {
+        let that = this;
+        if (that.hall && that.hall.btnShop) {
+            let imgRedPoint = that.hall.btnShop.getChildByName("imgRedPoint");
+            if (imgRedPoint) {
+                imgRedPoint.visible = isShow;
+                let checkTime = userData.shiftShopRedpointTime(false);
+                if (checkTime > 0) {
+                    that.startShopRedpointTime(checkTime);
+                    imgRedPoint.visible = false;
+                }
+            }
+        }
+    }
+    /** 钻石购买 */
+    onDiamondBuy(heroInfo = null) {
+        let carPrice = BattleManager.Instance.getMonsterDiamondPrice(heroInfo.id, userData.queryBuyRecord(heroInfo.id, true));
+        ViewMgr.Ins.open(ViewConst.DiamondBuyView, DILOG_TYPE.PET, carPrice, heroInfo);
+    }
+    //金币购买英雄
+    goldBuyHero(_carInfo = null, btnObj = null) {
+        let carPrice = BattleManager.Instance.getMonsterPrice(_carInfo.buyPrice, userData.queryBuyRecord(_carInfo.id));
+        if (PlayerManager.Instance.Info.userMoney >= carPrice) {
+            if (BattleManager.Instance.createPet(_carInfo.id) == null)
+                return;
+            HallManager.Instance.hall.updateGold(PlayerManager.Instance.Info.userMoney - carPrice);
+            //刷新消费记录
+            userData.refreshBuyRecord(_carInfo.id);
+            let curPrice = BattleManager.Instance.getMonsterPrice(_carInfo.buyPrice, userData.queryBuyRecord(_carInfo.id));
+            if (btnObj) {
+                let imgPrice = btnObj.getChildByName("imgPrice");
+                if (imgPrice) {
+                    let txtPrice = imgPrice.getChildByName("txtPrice");
+                    if (txtPrice) {
+                        txtPrice.text = MathUtils.bytesToSize(curPrice);
+                    }
+                    MessageUtils.shopMsgByObj(btnObj, LanguageManager.Instance.getLanguageText("hallScene.label.txt.07"));
+                }
+            }
+            HallManager.Instance.hall.refreshShortcutCreateBtn();
+        }
+        else {
+            if (PlayerManager.Instance.Info.dayGetGoldCount > 0) {
+                ViewMgr.Ins.open(ViewConst.RewardGoldView);
+            }
+            else {
+                MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.19"));
+                ViewMgr.Ins.open(ViewConst.FriendConcurView);
             }
         }
     }
@@ -10899,7 +10966,7 @@ class HallScene extends ui.hall.HallSceneUI {
             }
             //怪物商店红点
             if (userData.isShowCarShopRedPoint()) {
-                self.showCarportRedPoint();
+                HallManager.Instance.showCarportRedPoint();
             }
             //任务红点
             if (userData.isShowTaskRedPoint()) {
@@ -10963,6 +11030,7 @@ class HallScene extends ui.hall.HallSceneUI {
         EventsManager.Instance.on(EventsType.FOLLOW_RED_POINT, self, self.onFollowRewardRedPoint); //关注红点事件
         EventsManager.Instance.on(EventsType.FRIEND_CONCUR_RED_POINT, self, self.onFriendConcurRedPoint); //好友互助红点事件
         EventsManager.Instance.on(EventsType.UPDATE_HALL_DATA, self, self.onUpdateHallData);
+        EventsManager.Instance.on(EventsType.EVOLUTION_LEVEL_COMPLETE, self, self.onEvolutionLevelComplete); //守卫升级完毕
     }
     onClickMiniProgram(evt) {
         let self = this;
@@ -11050,8 +11118,8 @@ class HallScene extends ui.hall.HallSceneUI {
         if (monsterInfo && btnBuy) {
             if (HallManager.Instance.hallData.curNewMonsterId != monsterInfo.id) {
                 HallManager.Instance.hallData.curNewMonsterId = monsterInfo.id;
-                btnBuy.off(Laya.Event.CLICK, self, self.onBuyPet);
-                btnBuy.on(Laya.Event.CLICK, self, self.onBuyPet, [monsterInfo, btnBuy]);
+                btnBuy.off(Laya.Event.CLICK, self, HallManager.Instance.goldBuyHero);
+                btnBuy.on(Laya.Event.CLICK, self, HallManager.Instance.goldBuyHero, [monsterInfo, btnBuy]);
             }
             let curPrice = BattleManager.Instance.getMonsterPrice(monsterInfo.buyPrice, userData.queryBuyRecord(monsterInfo.id));
             let imgPrice = btnBuy.getChildByName("imgPrice");
@@ -11114,61 +11182,6 @@ class HallScene extends ui.hall.HallSceneUI {
         //锁定按钮
         AnimationUtils.lockBtnStage(that.surpassView);
     }
-    //金币购买英雄
-    onBuyPet(_carInfo = null, btnObj = null) {
-        let self = this;
-        let carPrice = BattleManager.Instance.getMonsterPrice(_carInfo.buyPrice, userData.queryBuyRecord(_carInfo.id));
-        if (PlayerManager.Instance.Info.userMoney >= carPrice) {
-            if (BattleManager.Instance.createPet(_carInfo.id) == null)
-                return;
-            self.updateGold(PlayerManager.Instance.Info.userMoney - carPrice);
-            //刷新消费记录
-            userData.refreshBuyRecord(_carInfo.id);
-            let curPrice = BattleManager.Instance.getMonsterPrice(_carInfo.buyPrice, userData.queryBuyRecord(_carInfo.id));
-            if (btnObj) {
-                let imgPrice = btnObj.getChildByName("imgPrice");
-                if (imgPrice) {
-                    let txtPrice = imgPrice.getChildByName("txtPrice");
-                    if (txtPrice) {
-                        txtPrice.text = MathUtils.bytesToSize(curPrice);
-                    }
-                    MessageUtils.shopMsgByObj(btnObj, LanguageManager.Instance.getLanguageText("hallScene.label.txt.07"));
-                }
-            }
-            self.refreshShortcutCreateBtn();
-        }
-        else {
-            if (PlayerManager.Instance.Info.dayGetGoldCount > 0) {
-                ViewMgr.Ins.open(ViewConst.RewardGoldView);
-            }
-            else {
-                MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.19"));
-                FriendConcurView.Create(self);
-            }
-        }
-    }
-    /** 钻石购买 */
-    onDiamondBuy(_carInfo = null) {
-        let that = this;
-        let carPrice = BattleManager.Instance.getMonsterDiamondPrice(_carInfo.id, userData.queryBuyRecord(_carInfo.id, true));
-        DiamondBuyView.Create(that, (carPriceInt) => {
-            HttpManager.Instance.requestDiamondBuyOrder(carPriceInt, (_res) => {
-                if (_res) {
-                    if (BattleManager.Instance.createPet(_carInfo.id) == null)
-                        return;
-                    HttpManager.Instance.requestDiamondBuy(_res.order_id, (_res) => {
-                        MessageUtils.showMsgTips("购买成功");
-                        HttpManager.Instance.requestDiamondData();
-                        //刷新消费记录
-                        userData.refreshBuyRecord(_carInfo.id, true);
-                    });
-                }
-                else {
-                    MessageUtils.showMsgTips("购买失败");
-                }
-            });
-        }, null, DILOG_TYPE.PET, carPrice, _carInfo);
-    }
     //强化
     onStrengthen(_btnObj = null) {
         ViewMgr.Ins.open(ViewConst.StrengthenView);
@@ -11198,21 +11211,18 @@ class HallScene extends ui.hall.HallSceneUI {
         }
         else {
             //升级
-            EvolutionView.Create(null, (_nodeView) => {
-                _nodeView.refreshBoxUI((_kingLevel, _money) => {
-                    if (_kingLevel > HallManager.Instance.hallData.userKingLevel) {
-                        that.setKingLevel(_kingLevel);
-                    }
-                    //刷新钻石
-                    if (_money >= 0) {
-                        that.updateDiamond(_money);
-                    }
-                    that.playKingUpdateEffect();
-                    Laya.SoundManager.playSound("musics/kingUpdate.mp3");
-                    that.checkKingIsUpdate();
-                });
-            });
+            ViewMgr.Ins.open(ViewConst.EvolutionView);
         }
+    }
+    /** 守卫升级完毕 */
+    onEvolutionLevelComplete(kingLevel) {
+        let self = this;
+        if (kingLevel > HallManager.Instance.hallData.userKingLevel) {
+            self.setKingLevel(kingLevel);
+        }
+        self.playKingUpdateEffect();
+        Laya.SoundManager.playSound("musics/kingUpdate.mp3");
+        self.checkKingIsUpdate();
     }
     //商店进化
     onEvolutionShop(_level) {
@@ -11301,76 +11311,10 @@ class HallScene extends ui.hall.HallSceneUI {
     }
     /** 钻石购买加速 */
     onDiamondBuyAcce() {
-        let self = this;
-        let carPrice = 60;
-        //钻石加速超过5次处理
-        // let acceTimes = userData.diamondAcceTimes() - 5;
-        // if (acceTimes > 0) {
-        //     carPrice = carPrice * Math.pow(1.18, acceTimes);
-        // }
-        DiamondBuyView.Create(self, (carPriceInt) => {
-            HttpManager.Instance.requestDiamondBuyOrder(carPriceInt, (_res) => {
-                if (_res) {
-                    HttpManager.Instance.requestDiamondBuy(_res.order_id, (_res) => {
-                        self.playAcceEffectView();
-                        HttpManager.Instance.requestDiamondData();
-                        //钻石加速次数加1
-                        userData.diamondAcceTimes(true);
-                    });
-                }
-                else {
-                    MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.05"));
-                }
-            }, 1);
-        }, () => {
-            SDKManager.Instance.closeBannerAd(true);
-        }, DILOG_TYPE.ACC, carPrice);
-    }
-    onShareFreeCar(_carInfo = null, btnObj = null) {
-        let that = this;
-        //显示广告
-        userData.toShareAd((_res) => {
-            if (userData) {
-                let carParkSp = BattleManager.Instance.createPet(_carInfo.id, true);
-                if (carParkSp == null) {
-                    that.saveCarStore(_carInfo.id);
-                }
-                MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.03"));
-                FreeGetPetView.Create(that, null, null, _carInfo);
-                if (btnObj) {
-                    //观看次数已用完
-                    if (userData.getAdTimes(11) < 1 && userData.getShareTimes(11) < 1) {
-                        btnObj.visible = false;
-                    }
-                    else {
-                        if (userData.isAdStage(11)) {
-                            btnObj.skin = "images/core/shop_free_video.png";
-                        }
-                        else {
-                            btnObj.skin = "images/core/shop_free_share.png";
-                        }
-                    }
-                }
-                userData.removeCarShopRedPoin();
-                // 30分钟后检测是否还有红点
-                that.startShopRedpointTime();
-            }
-        }, 11, false, true);
+        ViewMgr.Ins.open(ViewConst.DiamondBuyView, DILOG_TYPE.ACC, 60);
     }
     onShowCarport() {
-        let self = this;
-        ShopView.Create(self, (_nodeView) => {
-            if (_nodeView) {
-                _nodeView.name = "nodeShopView";
-                _nodeView.btnBuyFun = Laya.Handler.create(self, self.onBuyPet, null, false);
-                _nodeView.btnFreeFun = Laya.Handler.create(self, self.onShareFreeCar, null, false);
-                _nodeView.btnDiamondFun = Laya.Handler.create(self, self.onDiamondBuy, null, false);
-                _nodeView.evolutionFun = Laya.Handler.create(self, self.onEvolutionShop, null, false);
-                _nodeView.refreshMoney(PlayerManager.Instance.Info.userMoney, PlayerManager.Instance.Info.userDiamond);
-            }
-        }, () => {
-            SDKManager.Instance.closeBannerAd(true);
-        });
+        ViewMgr.Ins.open(ViewConst.ShopView);
     }
     //能量加速
     onPowerAcce() {
@@ -11421,32 +11365,6 @@ class HallScene extends ui.hall.HallSceneUI {
             that.btnPower.clearTimer(that, that.powerAcceTime);
             that.btnPower.disabled = false;
         }
-    }
-    //显示怪物商店红点
-    showCarportRedPoint(_show = true) {
-        let that = this;
-        if (that.btnShop) {
-            let imgRedPoint = that.btnShop.getChildByName("imgRedPoint");
-            if (imgRedPoint) {
-                imgRedPoint.visible = _show;
-                let checkTime = userData.shiftShopRedpointTime(false);
-                if (checkTime > 0) {
-                    that.startShopRedpointTime(checkTime);
-                    imgRedPoint.visible = false;
-                }
-            }
-        }
-    }
-    // 30分钟后检测是否还有红点
-    startShopRedpointTime(_time = 1800) {
-        let that = this;
-        that.timerOnce(1000 * _time, that, () => {
-            userData.shiftShopRedpointTime();
-            if (userData.isShowCarShopRedPoint()) {
-                that.showCarportRedPoint();
-            }
-        });
-        userData.saveShopRedpointTime(_time);
     }
     //显示签到红点
     showDailySignRedPoint(_show = true) {
@@ -11575,7 +11493,7 @@ class HallScene extends ui.hall.HallSceneUI {
                                                     MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.06"));
                                                 }
                                                 else if (currHeroLevel >= EvolutionManager.Instance.getHeroLevel()) { //提示守卫是否可以升级
-                                                    if (currHeroLevel > 10) {
+                                                    if (currHeroLevel > 10 || userData.isEvolution()) {
                                                         LevelHeroView.Create(this, (kingLevel, money) => {
                                                             //英雄升级
                                                             this.handlerHeroLevel(heroItem, heroId, index, currHeroLevel);
@@ -11693,7 +11611,7 @@ class HallScene extends ui.hall.HallSceneUI {
         if (userData.updateCarLevel(BattleManager.Instance.getLevel(nextCardId))) {
             //显示红点
             if (userData.isShowCarShopRedPoint() && userData.getCarLevel() == 6) {
-                self.showCarportRedPoint();
+                HallManager.Instance.showCarportRedPoint();
             }
             Laya.SoundManager.playSound("musics/unlock.mp3");
         }
@@ -11713,9 +11631,8 @@ class HallScene extends ui.hall.HallSceneUI {
     }
     /** 随机钻石奖励界面 */
     showRandomDiamondReward() {
-        let self = this;
         HttpManager.Instance.requestShowRandomRewardDiamond((res) => {
-            AdditionalRewardView.Create(self, res);
+            ViewMgr.Ins.open(ViewConst.AdditionalRewardView, res);
         });
     }
     //初始化兵营
@@ -12253,10 +12170,10 @@ class HallScene extends ui.hall.HallSceneUI {
     onUpdatePetShopRedPoint($data) {
         let self = this;
         if ($data == "show") {
-            self.showCarportRedPoint();
+            HallManager.Instance.showCarportRedPoint();
         }
         else {
-            self.showCarportRedPoint(false);
+            HallManager.Instance.showCarportRedPoint(false);
         }
     }
     /** 更新转盘红点 */
@@ -12433,13 +12350,11 @@ class HallScene extends ui.hall.HallSceneUI {
     }
     /** 好友互助 */
     onClickConcur() {
-        FriendConcurView.Create(this);
+        ViewMgr.Ins.open(ViewConst.FriendConcurView);
     }
     /** 关注 */
     onClickFollow() {
         ViewMgr.Ins.open(ViewConst.FollowRewardView);
-        // FollowRewardView.Create(this, () => {
-        // });
     }
     //每日签到界面
     showDaySignView() {
@@ -13140,51 +13055,42 @@ class MoreViewListItem extends Laya.Component {
 /*
 * 额外奖励界面;
 */
-class AdditionalRewardView extends ui.randomReward.AdditionalRewardViewUI {
-    constructor(data) {
-        super();
-        this._data = data;
-        this.addEvetns();
-        this.init();
-    }
-    //新建并添加到节点
-    static Create(_parentNode, data) {
-        let resList = [
-            { url: "res/atlas/images/randomReward.atlas", type: Laya.Loader.ATLAS }
-        ];
-        Laya.loader.load(resList, Handler.create(null, () => {
-            if (_parentNode) {
-                let nodeView = new AdditionalRewardView(data);
-                AlignUtils.setToScreenGoldenPos(nodeView);
-                LayerManager.getInstance().subFrameLayer.addChildWithMaskCall(nodeView, nodeView.removeView);
-                // nodeView.once(Laya.Event.REMOVED, nodeView, nodeView.removeView);
-            }
-        }));
+class AdditionalRewardView extends BaseView {
+    constructor() {
+        super(LAYER_TYPE.SUB_FRAME_LAYER, ui.randomReward.AdditionalRewardViewUI);
+        this.setResources(["randomReward"]);
     }
     //初始化
-    init() {
+    initUI() {
+        super.initUI();
         let self = this;
-        self._tween = EffectUtils.objectRotate(self.imgLight);
-        self.txt_count.text = "x" + self._data.diamond;
+        self._tween = EffectUtils.objectRotate(self.ui.imgLight);
+    }
+    initData() {
+        super.initData();
+        let self = this;
+        self.ui.txt_count.text = "x" + self.datas[0].diamond;
     }
     addEvetns() {
+        super.addEvents();
         let self = this;
-        self.btn_get.on(Laya.Event.CLICK, self, self.onGetReward);
+        self.ui.btn_get.on(Laya.Event.CLICK, self, self.onGetReward);
     }
     removeEvents() {
+        super.removeEvents();
         let self = this;
-        self.btn_get.off(Laya.Event.CLICK, self, self.onGetReward);
+        self.ui.btn_get.off(Laya.Event.CLICK, self, self.onGetReward);
     }
     /** 领取奖励 */
     onGetReward() {
         let self = this;
         userData.toShareAd(() => {
-            HttpManager.Instance.requestRandomRewardDiamond(self._data.diamond, (res) => {
+            HttpManager.Instance.requestRandomRewardDiamond(self.datas[0].diamond, (res) => {
                 self.removeView();
-                let point = PointUtils.localToGlobal(self.btn_get);
+                let point = PointUtils.localToGlobal(self.ui.btn_get);
                 M.layer.screenEffectLayer.addChild(new FlyEffect().play("diamond", point.x, point.y, 38, 73));
                 EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: userData.diamond = res.total_diamond });
-                MessageUtils.showMsgTips("获得钻石:" + self._data.diamond);
+                MessageUtils.showMsgTips("获得钻石:" + self.datas[0].diamond);
             });
         });
     }
@@ -13192,8 +13098,7 @@ class AdditionalRewardView extends ui.randomReward.AdditionalRewardViewUI {
         let self = this;
         self._tween && (Laya.Tween.clear(self._tween));
         self._tween = null;
-        self.removeSelf();
-        self.removeEvents();
+        ViewMgr.Ins.close(ViewConst.AdditionalRewardView);
     }
 }
 //# sourceMappingURL=AdditionalRewardView.js.map
@@ -13790,62 +13695,48 @@ class ResultView extends ui.settlement.ResultViewUI {
 /*
 * 商店界面
 */
-class ShopView extends ui.shop.ShopViewUI {
-    constructor(_kind) {
-        super();
-        this.btnBuyFun = null; //购买回调
-        this.btnFreeFun = null; //购买回调
-        this.btnDiamondFun = null; //购买回调
-        this.evolutionFun = null; //进化回调
+class ShopView extends BaseView {
+    constructor() {
+        super(LAYER_TYPE.FRAME_LAYER, ui.shop.ShopViewUI);
         this.isScroll = true;
-        this.init(_kind);
-    }
-    //新建并添加到节点
-    static Create(_parentNode, _callback = null, _removeCallback = null, _kind = 0) {
-        let resList = [
-            { url: "res/atlas/images/shop.atlas", type: Laya.Loader.ATLAS }
-        ];
-        Laya.loader.load(resList, Handler.create(null, () => {
-            if (_parentNode) {
-                let nodeView = new ShopView(_kind);
-                AlignUtils.setToScreenGoldenPos(nodeView);
-                M.layer.frameLayer.addChildWithMaskCall(nodeView, nodeView.removeSelf);
-                _callback && _callback(nodeView);
-                nodeView.once(Laya.Event.REMOVED, nodeView, _removeCallback);
-            }
-        }));
+        this.setResources(["shop"]);
     }
     //初始化
-    init(_kind) {
+    initUI() {
+        super.initUI();
         let self = this;
         SDKManager.Instance.showBannerAd(true);
-        //按钮事件
-        self.removeEvents();
-        self.btnExit.on(Laya.Event.CLICK, self, self.onClickExit);
-        self.btn_skillExplain.on(Laya.Event.CLICK, self, self.onSkillExplain);
         self.initList();
+        self.refreshMoney(PlayerManager.Instance.Info.userMoney, PlayerManager.Instance.Info.userDiamond);
+    }
+    addEvents() {
+        super.addEvents();
+        let self = this;
+        self.ui.btnExit.on(Laya.Event.CLICK, self, self.onClickExit);
+        self.ui.btn_skillExplain.on(Laya.Event.CLICK, self, self.onSkillExplain);
     }
     removeEvents() {
+        super.removeEvents();
         let self = this;
-        self.btnExit.off(Laya.Event.CLICK, self, self.onClickExit);
-        self.btn_skillExplain.off(Laya.Event.CLICK, self, self.onSkillExplain);
+        self.ui.btnExit.off(Laya.Event.CLICK, self, self.onClickExit);
+        self.ui.btn_skillExplain.off(Laya.Event.CLICK, self, self.onSkillExplain);
     }
     onSkillExplain() {
         let self = this;
-        SkillExplainView.Create(self);
+        ViewMgr.Ins.open(ViewConst.SkillExplainView);
     }
     //点击事件
     onClickExit() {
-        this.removeSelf();
+        ViewMgr.Ins.close(ViewConst.ShopView);
     }
     //刷新金币与钻石
     refreshMoney(_money, _diamond) {
         let that = this;
-        if (that.txtMoney) {
-            that.txtMoney.changeText(MathUtils.bytesToSize(_money));
+        if (that.ui.txtMoney) {
+            that.ui.txtMoney.changeText(MathUtils.bytesToSize(_money));
         }
-        if (that.txtDiamond) {
-            that.txtDiamond.changeText(MathUtils.bytesToSize(_diamond));
+        if (that.ui.txtDiamond) {
+            that.ui.txtDiamond.changeText(MathUtils.bytesToSize(_diamond));
         }
     }
     //初始化列表
@@ -13853,9 +13744,9 @@ class ShopView extends ui.shop.ShopViewUI {
         let self = this;
         let monsterType = userData.isEvolution() ? 2 : 1;
         let heroesData = BattleManager.Instance.getAllMonsterByType(monsterType);
-        self.heroList.vScrollBarSkin = '';
-        self.heroList.repeatY = heroesData.length;
-        self.heroList.array = heroesData;
+        self.ui.heroList.vScrollBarSkin = '';
+        self.ui.heroList.repeatY = heroesData.length;
+        self.ui.heroList.array = heroesData;
         // if (self.isScroll) self.heroList.visible = false;
         let firstLockId = 0; //第一个被锁项目
         let shareFreeCarId = 0; //免费得车Id
@@ -13866,8 +13757,8 @@ class ShopView extends ui.shop.ShopViewUI {
         let curBuyIndex = BattleManager.Instance.getLevel(shareFreeCarId) - 1; //滚屏位置
         let count = 1;
         let moveY = 50;
-        self.heroList.renderHandler = new Laya.Handler(self, (cell, index) => {
-            if (index > self.heroList.array.length)
+        self.ui.heroList.renderHandler = new Laya.Handler(self, (cell, index) => {
+            if (index > self.ui.heroList.array.length)
                 return;
             // if (index >= curBuyIndex && self.isScroll) {
             //     if (!self.heroList.visible) self.heroList.visible = true;
@@ -13880,7 +13771,7 @@ class ShopView extends ui.shop.ShopViewUI {
             //     }));
             //     count++;
             // }
-            let carInfo = self.heroList.array[index];
+            let carInfo = self.ui.heroList.array[index];
             if (carInfo) {
                 let monsterType = BattleManager.Instance.getType(carInfo.id);
                 let monsterLevel = BattleManager.Instance.getLevel(carInfo.id);
@@ -13926,7 +13817,7 @@ class ShopView extends ui.shop.ShopViewUI {
                 if (btnBuy) {
                     btnBuy.offAll(Laya.Event.CLICK);
                     btnBuy.on(Laya.Event.CLICK, self, (_carInfo = null, _btnObj = null) => {
-                        self.btnBuyFun && self.btnBuyFun.runWith([_carInfo, _btnObj]);
+                        HallManager.Instance.goldBuyHero(_carInfo, _btnObj);
                     }, [carInfo, btnBuy]);
                     btnBuy.visible = !buyBtnLock;
                     btnBuy.disabled = buyBtnLock;
@@ -13967,7 +13858,7 @@ class ShopView extends ui.shop.ShopViewUI {
                     btnSharePrize.visible = (shareFreeCarId == carInfo.id);
                     btnSharePrize.offAll(Laya.Event.CLICK);
                     btnSharePrize.on(Laya.Event.CLICK, self, (_carInfo = null, _btnObj = null) => {
-                        self.btnFreeFun && self.btnFreeFun.runWith([_carInfo, _btnObj]);
+                        this.onShareFreeCar(_carInfo, _btnObj);
                     }, [carInfo, btnSharePrize]);
                     //观看次数已用完
                     if (userData.getAdTimes(11) < 1 && userData.getShareTimes(11) < 1) {
@@ -13992,9 +13883,9 @@ class ShopView extends ui.shop.ShopViewUI {
                         btnDiamondBuy.visible = (firstLockId == carInfo.unLockId);
                         if (btnDiamondBuy.visible) {
                             btnDiamondBuy.offAll(Laya.Event.CLICK);
-                            btnDiamondBuy.on(Laya.Event.CLICK, self, (_carInfo = null, _btnObj = null) => {
-                                self.btnDiamondFun && self.btnDiamondFun.runWith([_carInfo, _btnObj]);
-                            }, [carInfo, btnDiamondBuy]);
+                            btnDiamondBuy.on(Laya.Event.CLICK, self, (_carInfo = null) => {
+                                HallManager.Instance.onDiamondBuy(_carInfo);
+                            }, [carInfo]);
                         }
                     }
                     else {
@@ -14004,8 +13895,8 @@ class ShopView extends ui.shop.ShopViewUI {
             }
         });
         self.frameOnce(5, self, () => {
-            if (self.heroList && curBuyIndex > 0) {
-                self.heroList.scrollTo(curBuyIndex);
+            if (self.ui.heroList && curBuyIndex > 0) {
+                self.ui.heroList.scrollTo(curBuyIndex);
             }
         });
     }
@@ -14020,6 +13911,39 @@ class ShopView extends ui.shop.ShopViewUI {
             }
         }
     }
+    /** 看广告或分享得英雄 */
+    onShareFreeCar(_carInfo = null, btnObj = null) {
+        let that = this;
+        //显示广告
+        userData.toShareAd((_res) => {
+            if (userData) {
+                let carParkSp = BattleManager.Instance.createPet(_carInfo.id, true);
+                if (carParkSp == null) {
+                    if (HallManager.Instance.hall)
+                        HallManager.Instance.hall.saveCarStore(_carInfo.id);
+                }
+                MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.03"));
+                ViewMgr.Ins.open(ViewConst.FreeGetPetView, _carInfo);
+                if (btnObj) {
+                    //观看次数已用完
+                    if (userData.getAdTimes(11) < 1 && userData.getShareTimes(11) < 1) {
+                        btnObj.visible = false;
+                    }
+                    else {
+                        if (userData.isAdStage(11)) {
+                            btnObj.skin = "images/core/shop_free_video.png";
+                        }
+                        else {
+                            btnObj.skin = "images/core/shop_free_share.png";
+                        }
+                    }
+                }
+                userData.removeCarShopRedPoin();
+                // 30分钟后检测是否还有红点
+                HallManager.Instance.startShopRedpointTime();
+            }
+        }, 11, false, true);
+    }
 }
 //# sourceMappingURL=ShopView.js.map
 /*
@@ -14029,7 +13953,7 @@ class StrengthenView extends BaseView {
     constructor() {
         super(LAYER_TYPE.FRAME_LAYER, ui.strengthen.StrengthenViewUI);
         this.indexArray = [10, 2, 1, 3];
-        this.setResources(["images/strengthen"]);
+        this.setResources(["strengthen"]);
     }
     //初始化
     initUI() {
@@ -14050,7 +13974,7 @@ class StrengthenView extends BaseView {
             if (btnSkill) {
                 btnSkill.offAll(Laya.Event.CLICK);
                 btnSkill.on(Laya.Event.CLICK, btnSkill, () => {
-                    SkillExplainView.Create(self);
+                    ViewMgr.Ins.open(ViewConst.SkillExplainView);
                 });
             }
         }
@@ -14770,6 +14694,7 @@ class ManagerShortcuts {
 xiaoduo = window.xiaoduo;
 const M = new ManagerShortcuts();
 const userData = new UserData();
+let systemInfo;
 class Main {
     constructor() {
         Laya.MiniAdpter.init();
@@ -14787,6 +14712,12 @@ class Main {
         M.layer.initLayer(Laya.stage, 750, 1334);
         LayerMgr.Instance.initLayer(Laya.stage, 750, 1334);
         SDKManager.Instance.initWX();
+        try {
+            systemInfo = Laya.Browser.window.wx.getSystemInfoSync();
+        }
+        catch (e) {
+            console.log("@FREEMAN: 获取系统信息失败");
+        }
         if (!Laya.Browser.onMiniGame) {
             if (GlobalConfig.DEBUG) {
                 this.beginLoad();

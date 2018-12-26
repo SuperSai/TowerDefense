@@ -224,7 +224,7 @@ class HallScene extends ui.hall.HallSceneUI {
             }
             //怪物商店红点
             if (userData.isShowCarShopRedPoint()) {
-                self.showCarportRedPoint();
+                HallManager.Instance.showCarportRedPoint();
             }
             //任务红点
             if (userData.isShowTaskRedPoint()) {
@@ -288,6 +288,7 @@ class HallScene extends ui.hall.HallSceneUI {
         EventsManager.Instance.on(EventsType.FOLLOW_RED_POINT, self, self.onFollowRewardRedPoint); //关注红点事件
         EventsManager.Instance.on(EventsType.FRIEND_CONCUR_RED_POINT, self, self.onFriendConcurRedPoint); //好友互助红点事件
         EventsManager.Instance.on(EventsType.UPDATE_HALL_DATA, self, self.onUpdateHallData);
+        EventsManager.Instance.on(EventsType.EVOLUTION_LEVEL_COMPLETE, self, self.onEvolutionLevelComplete); //守卫升级完毕
     }
     onClickMiniProgram(evt) {
         let self = this;
@@ -375,8 +376,8 @@ class HallScene extends ui.hall.HallSceneUI {
         if (monsterInfo && btnBuy) {
             if (HallManager.Instance.hallData.curNewMonsterId != monsterInfo.id) {
                 HallManager.Instance.hallData.curNewMonsterId = monsterInfo.id;
-                btnBuy.off(Laya.Event.CLICK, self, self.onBuyPet);
-                btnBuy.on(Laya.Event.CLICK, self, self.onBuyPet, [monsterInfo, btnBuy]);
+                btnBuy.off(Laya.Event.CLICK, self, HallManager.Instance.goldBuyHero);
+                btnBuy.on(Laya.Event.CLICK, self, HallManager.Instance.goldBuyHero, [monsterInfo, btnBuy]);
             }
             let curPrice = BattleManager.Instance.getMonsterPrice(monsterInfo.buyPrice, userData.queryBuyRecord(monsterInfo.id));
             let imgPrice = btnBuy.getChildByName("imgPrice");
@@ -439,61 +440,6 @@ class HallScene extends ui.hall.HallSceneUI {
         //锁定按钮
         AnimationUtils.lockBtnStage(that.surpassView);
     }
-    //金币购买英雄
-    onBuyPet(_carInfo = null, btnObj = null) {
-        let self = this;
-        let carPrice = BattleManager.Instance.getMonsterPrice(_carInfo.buyPrice, userData.queryBuyRecord(_carInfo.id));
-        if (PlayerManager.Instance.Info.userMoney >= carPrice) {
-            if (BattleManager.Instance.createPet(_carInfo.id) == null)
-                return;
-            self.updateGold(PlayerManager.Instance.Info.userMoney - carPrice);
-            //刷新消费记录
-            userData.refreshBuyRecord(_carInfo.id);
-            let curPrice = BattleManager.Instance.getMonsterPrice(_carInfo.buyPrice, userData.queryBuyRecord(_carInfo.id));
-            if (btnObj) {
-                let imgPrice = btnObj.getChildByName("imgPrice");
-                if (imgPrice) {
-                    let txtPrice = imgPrice.getChildByName("txtPrice");
-                    if (txtPrice) {
-                        txtPrice.text = MathUtils.bytesToSize(curPrice);
-                    }
-                    MessageUtils.shopMsgByObj(btnObj, LanguageManager.Instance.getLanguageText("hallScene.label.txt.07"));
-                }
-            }
-            self.refreshShortcutCreateBtn();
-        }
-        else {
-            if (PlayerManager.Instance.Info.dayGetGoldCount > 0) {
-                ViewMgr.Ins.open(ViewConst.RewardGoldView);
-            }
-            else {
-                MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.19"));
-                ViewMgr.Ins.open(ViewConst.FriendConcurView);
-            }
-        }
-    }
-    /** 钻石购买 */
-    onDiamondBuy(_carInfo = null) {
-        let that = this;
-        let carPrice = BattleManager.Instance.getMonsterDiamondPrice(_carInfo.id, userData.queryBuyRecord(_carInfo.id, true));
-        DiamondBuyView.Create(that, (carPriceInt) => {
-            HttpManager.Instance.requestDiamondBuyOrder(carPriceInt, (_res) => {
-                if (_res) {
-                    if (BattleManager.Instance.createPet(_carInfo.id) == null)
-                        return;
-                    HttpManager.Instance.requestDiamondBuy(_res.order_id, (_res) => {
-                        MessageUtils.showMsgTips("购买成功");
-                        HttpManager.Instance.requestDiamondData();
-                        //刷新消费记录
-                        userData.refreshBuyRecord(_carInfo.id, true);
-                    });
-                }
-                else {
-                    MessageUtils.showMsgTips("购买失败");
-                }
-            });
-        }, null, DILOG_TYPE.PET, carPrice, _carInfo);
-    }
     //强化
     onStrengthen(_btnObj = null) {
         ViewMgr.Ins.open(ViewConst.StrengthenView);
@@ -523,21 +469,18 @@ class HallScene extends ui.hall.HallSceneUI {
         }
         else {
             //升级
-            EvolutionView.Create(null, (_nodeView) => {
-                _nodeView.refreshBoxUI((_kingLevel, _money) => {
-                    if (_kingLevel > HallManager.Instance.hallData.userKingLevel) {
-                        that.setKingLevel(_kingLevel);
-                    }
-                    //刷新钻石
-                    if (_money >= 0) {
-                        that.updateDiamond(_money);
-                    }
-                    that.playKingUpdateEffect();
-                    Laya.SoundManager.playSound("musics/kingUpdate.mp3");
-                    that.checkKingIsUpdate();
-                });
-            });
+            ViewMgr.Ins.open(ViewConst.EvolutionView);
         }
+    }
+    /** 守卫升级完毕 */
+    onEvolutionLevelComplete(kingLevel) {
+        let self = this;
+        if (kingLevel > HallManager.Instance.hallData.userKingLevel) {
+            self.setKingLevel(kingLevel);
+        }
+        self.playKingUpdateEffect();
+        Laya.SoundManager.playSound("musics/kingUpdate.mp3");
+        self.checkKingIsUpdate();
     }
     //商店进化
     onEvolutionShop(_level) {
@@ -626,76 +569,10 @@ class HallScene extends ui.hall.HallSceneUI {
     }
     /** 钻石购买加速 */
     onDiamondBuyAcce() {
-        let self = this;
-        let carPrice = 60;
-        //钻石加速超过5次处理
-        // let acceTimes = userData.diamondAcceTimes() - 5;
-        // if (acceTimes > 0) {
-        //     carPrice = carPrice * Math.pow(1.18, acceTimes);
-        // }
-        DiamondBuyView.Create(self, (carPriceInt) => {
-            HttpManager.Instance.requestDiamondBuyOrder(carPriceInt, (_res) => {
-                if (_res) {
-                    HttpManager.Instance.requestDiamondBuy(_res.order_id, (_res) => {
-                        self.playAcceEffectView();
-                        HttpManager.Instance.requestDiamondData();
-                        //钻石加速次数加1
-                        userData.diamondAcceTimes(true);
-                    });
-                }
-                else {
-                    MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.05"));
-                }
-            }, 1);
-        }, () => {
-            SDKManager.Instance.closeBannerAd(true);
-        }, DILOG_TYPE.ACC, carPrice);
-    }
-    onShareFreeCar(_carInfo = null, btnObj = null) {
-        let that = this;
-        //显示广告
-        userData.toShareAd((_res) => {
-            if (userData) {
-                let carParkSp = BattleManager.Instance.createPet(_carInfo.id, true);
-                if (carParkSp == null) {
-                    that.saveCarStore(_carInfo.id);
-                }
-                MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.03"));
-                FreeGetPetView.Create(that, null, null, _carInfo);
-                if (btnObj) {
-                    //观看次数已用完
-                    if (userData.getAdTimes(11) < 1 && userData.getShareTimes(11) < 1) {
-                        btnObj.visible = false;
-                    }
-                    else {
-                        if (userData.isAdStage(11)) {
-                            btnObj.skin = "images/core/shop_free_video.png";
-                        }
-                        else {
-                            btnObj.skin = "images/core/shop_free_share.png";
-                        }
-                    }
-                }
-                userData.removeCarShopRedPoin();
-                // 30分钟后检测是否还有红点
-                that.startShopRedpointTime();
-            }
-        }, 11, false, true);
+        ViewMgr.Ins.open(ViewConst.DiamondBuyView, DILOG_TYPE.ACC, 60);
     }
     onShowCarport() {
-        let self = this;
-        ShopView.Create(self, (_nodeView) => {
-            if (_nodeView) {
-                _nodeView.name = "nodeShopView";
-                _nodeView.btnBuyFun = Laya.Handler.create(self, self.onBuyPet, null, false);
-                _nodeView.btnFreeFun = Laya.Handler.create(self, self.onShareFreeCar, null, false);
-                _nodeView.btnDiamondFun = Laya.Handler.create(self, self.onDiamondBuy, null, false);
-                _nodeView.evolutionFun = Laya.Handler.create(self, self.onEvolutionShop, null, false);
-                _nodeView.refreshMoney(PlayerManager.Instance.Info.userMoney, PlayerManager.Instance.Info.userDiamond);
-            }
-        }, () => {
-            SDKManager.Instance.closeBannerAd(true);
-        });
+        ViewMgr.Ins.open(ViewConst.ShopView);
     }
     //能量加速
     onPowerAcce() {
@@ -746,32 +623,6 @@ class HallScene extends ui.hall.HallSceneUI {
             that.btnPower.clearTimer(that, that.powerAcceTime);
             that.btnPower.disabled = false;
         }
-    }
-    //显示怪物商店红点
-    showCarportRedPoint(_show = true) {
-        let that = this;
-        if (that.btnShop) {
-            let imgRedPoint = that.btnShop.getChildByName("imgRedPoint");
-            if (imgRedPoint) {
-                imgRedPoint.visible = _show;
-                let checkTime = userData.shiftShopRedpointTime(false);
-                if (checkTime > 0) {
-                    that.startShopRedpointTime(checkTime);
-                    imgRedPoint.visible = false;
-                }
-            }
-        }
-    }
-    // 30分钟后检测是否还有红点
-    startShopRedpointTime(_time = 1800) {
-        let that = this;
-        that.timerOnce(1000 * _time, that, () => {
-            userData.shiftShopRedpointTime();
-            if (userData.isShowCarShopRedPoint()) {
-                that.showCarportRedPoint();
-            }
-        });
-        userData.saveShopRedpointTime(_time);
     }
     //显示签到红点
     showDailySignRedPoint(_show = true) {
@@ -900,7 +751,7 @@ class HallScene extends ui.hall.HallSceneUI {
                                                     MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.06"));
                                                 }
                                                 else if (currHeroLevel >= EvolutionManager.Instance.getHeroLevel()) { //提示守卫是否可以升级
-                                                    if (currHeroLevel > 10) {
+                                                    if (currHeroLevel > 10 || userData.isEvolution()) {
                                                         LevelHeroView.Create(this, (kingLevel, money) => {
                                                             //英雄升级
                                                             this.handlerHeroLevel(heroItem, heroId, index, currHeroLevel);
@@ -1018,7 +869,7 @@ class HallScene extends ui.hall.HallSceneUI {
         if (userData.updateCarLevel(BattleManager.Instance.getLevel(nextCardId))) {
             //显示红点
             if (userData.isShowCarShopRedPoint() && userData.getCarLevel() == 6) {
-                self.showCarportRedPoint();
+                HallManager.Instance.showCarportRedPoint();
             }
             Laya.SoundManager.playSound("musics/unlock.mp3");
         }
@@ -1038,9 +889,8 @@ class HallScene extends ui.hall.HallSceneUI {
     }
     /** 随机钻石奖励界面 */
     showRandomDiamondReward() {
-        let self = this;
         HttpManager.Instance.requestShowRandomRewardDiamond((res) => {
-            AdditionalRewardView.Create(self, res);
+            ViewMgr.Ins.open(ViewConst.AdditionalRewardView, res);
         });
     }
     //初始化兵营
@@ -1578,10 +1428,10 @@ class HallScene extends ui.hall.HallSceneUI {
     onUpdatePetShopRedPoint($data) {
         let self = this;
         if ($data == "show") {
-            self.showCarportRedPoint();
+            HallManager.Instance.showCarportRedPoint();
         }
         else {
-            self.showCarportRedPoint(false);
+            HallManager.Instance.showCarportRedPoint(false);
         }
     }
     /** 更新转盘红点 */
@@ -1758,13 +1608,11 @@ class HallScene extends ui.hall.HallSceneUI {
     }
     /** 好友互助 */
     onClickConcur() {
-        FriendConcurView.Create(this);
+        ViewMgr.Ins.open(ViewConst.FriendConcurView);
     }
     /** 关注 */
     onClickFollow() {
         ViewMgr.Ins.open(ViewConst.FollowRewardView);
-        // FollowRewardView.Create(this, () => {
-        // });
     }
     //每日签到界面
     showDaySignView() {

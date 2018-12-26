@@ -46,7 +46,7 @@ class RewardGoldView extends BaseView {
             }, 12);
             if (adStage > 0) {
                 MessageUtils.showMsgTips("今日广告已经观看完毕!");
-                FriendConcurView.Create(self);
+                ViewMgr.Ins.open(ViewConst.FriendConcurView);
             }
         }
         self.onCloseHandler();

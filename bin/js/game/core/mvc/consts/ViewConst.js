@@ -8,5 +8,17 @@ var ViewConst;
     ViewConst[ViewConst["RewardGoldView"] = 10003] = "RewardGoldView";
     /** 好友互助界面 */
     ViewConst[ViewConst["FriendConcurView"] = 10004] = "FriendConcurView";
+    /** 英雄商店界面 */
+    ViewConst[ViewConst["ShopView"] = 10005] = "ShopView";
+    /** 钻石购买英雄界面 */
+    ViewConst[ViewConst["DiamondBuyView"] = 10006] = "DiamondBuyView";
+    /** 技能说明界面 */
+    ViewConst[ViewConst["SkillExplainView"] = 10007] = "SkillExplainView";
+    /** 额外奖励界面 */
+    ViewConst[ViewConst["AdditionalRewardView"] = 10008] = "AdditionalRewardView";
+    /** 获得免费英雄提示框 */
+    ViewConst[ViewConst["FreeGetPetView"] = 10009] = "FreeGetPetView";
+    /** 守卫升级界面 */
+    ViewConst[ViewConst["EvolutionView"] = 10010] = "EvolutionView";
 })(ViewConst || (ViewConst = {}));
 //# sourceMappingURL=ViewConst.js.map

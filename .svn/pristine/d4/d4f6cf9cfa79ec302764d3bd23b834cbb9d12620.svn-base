@@ -1,0 +1,12 @@
+enum ViewConst {
+    /** 关注奖励界面 */
+    FollowRewardView = 10001,
+    /** 强化界面 */
+    StrengthenView,
+    /** 金币不足界面 */
+    RewardGoldView,
+    /** 好友互助界面 */
+    FriendConcurView,
+    /** 英雄商店界面 */
+    ShopView,
+}

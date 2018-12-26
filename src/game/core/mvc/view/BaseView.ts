@@ -8,6 +8,7 @@ class BaseView extends Laya.View implements IBaseView {
     private _resources: string[] = null;
     private _ui: any;
     private _isShowMask: boolean;
+    private _datas: any[];
 
     /** 构造函数 */
     public constructor($layer: number, $class: any, isShowMask: boolean = true) {
@@ -27,7 +28,8 @@ class BaseView extends Laya.View implements IBaseView {
     public addToParent(): void {
         AlignUtils.setToScreenGoldenPos(this);
         if (this._isShowMask) {
-            this._myParent.addChildWithMaskCall(this, null);
+            this._myParent.maskEnabled = true;
+            this._myParent.addChildWithMaskCall(this, this.removeFromParent);
         } else {
             this._myParent.maskEnabled = false;
             this._myParent.addChild(this);
@@ -57,7 +59,9 @@ class BaseView extends Laya.View implements IBaseView {
     }
 
     /** 对面板数据的初始化，用于子类继承 */
-    public initData(): void { }
+    public initData(): void {
+        this._isInit = true;
+    }
 
     /** 添加监听事件 */
     public addEvents(): void { }
@@ -76,7 +80,9 @@ class BaseView extends Laya.View implements IBaseView {
     }
 
     /** 面板开启执行函数，用于子类继承 */
-    public open(...param: any[]): void { }
+    public open(...param: any[]): void {
+        this._datas = param;
+    }
 
     /** 设置是否隐藏 */
     public setVisible(value: boolean): void {
@@ -118,4 +124,7 @@ class BaseView extends Laya.View implements IBaseView {
 
     public get ui(): any { return this._ui; }
     public set ui(value: any) { this._ui = value; }
+
+    public get datas(): any[] { return this._datas; }
+    public set datas(value: any[]) { this._datas = value; }
 }

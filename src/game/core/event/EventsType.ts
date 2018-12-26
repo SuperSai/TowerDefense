@@ -21,4 +21,7 @@ class EventsType {
     public static UPDATE_HALL_DATA: string = "UPDATE_HALL_DATA";
     /** 好友助力领奖 */
     public static FRIEND_CONCUR_GET_REWARD: string = "FRIEND_CONCUR_GET_REWARD";
+    /** 守卫升级完毕 */
+    public static EVOLUTION_LEVEL_COMPLETE: string = "EVOLUTION_LEVEL_COMPLETE";
+
 }

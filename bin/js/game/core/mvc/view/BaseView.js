@@ -19,7 +19,8 @@ class BaseView extends Laya.View {
     addToParent() {
         AlignUtils.setToScreenGoldenPos(this);
         if (this._isShowMask) {
-            this._myParent.addChildWithMaskCall(this, null);
+            this._myParent.maskEnabled = true;
+            this._myParent.addChildWithMaskCall(this, this.removeFromParent);
         }
         else {
             this._myParent.maskEnabled = false;
@@ -47,7 +48,9 @@ class BaseView extends Laya.View {
         this._isInit = true;
     }
     /** 对面板数据的初始化，用于子类继承 */
-    initData() { }
+    initData() {
+        this._isInit = true;
+    }
     /** 添加监听事件 */
     addEvents() { }
     /** 移除监听事件 */
@@ -61,7 +64,9 @@ class BaseView extends Laya.View {
         return this.stage != null && this.visible && this._myParent.contains(this);
     }
     /** 面板开启执行函数，用于子类继承 */
-    open(...param) { }
+    open(...param) {
+        this._datas = param;
+    }
     /** 设置是否隐藏 */
     setVisible(value) {
         this.visible = value;
@@ -98,5 +103,7 @@ class BaseView extends Laya.View {
     }
     get ui() { return this._ui; }
     set ui(value) { this._ui = value; }
+    get datas() { return this._datas; }
+    set datas(value) { this._datas = value; }
 }
 //# sourceMappingURL=BaseView.js.map

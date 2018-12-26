@@ -44,6 +44,7 @@ hallScene.label.txt.33:恭喜您获得暴击率加成
 hallScene.label.txt.34:恭喜您获得金币加成
 hallScene.label.txt.35:半小时内不可以领取同一个群的奖励
 hallScene.label.txt.36:该界面没有到 ViewRegisterMgr 类中注册!
+hallScene.label.txt.37:购买失败
 
 
 

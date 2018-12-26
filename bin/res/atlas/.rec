@@ -2,7 +2,7 @@ D .
 R DED3E094 Compression.bat
 R A41E3D13 pngquant.exe
 D config
-R 8127185D language.txt
+R 812CAE20 language.txt
 D images
 D loading
 D musics

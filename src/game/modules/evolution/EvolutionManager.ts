@@ -39,7 +39,7 @@ class EvolutionManager {
     public getIsEvolutionLevel(): boolean {
         let kingLevel: number = userData.getKingLevel();
         if (kingLevel > 10) {
-            return !((userData.diamond < this.getEvolutionLevelDiamond()) || (userData.caculateMonsterCount(this.getHeroLevel()) < this.needHeroCount));
+            return !((userData.diamond < this.getEvolutionLevelDiamond()) || (userData.caculateMonsterCount(this.getHeroId()) < this.needHeroCount));
         } else {
             return !(userData.diamond < this.getEvolutionLevelDiamond());
         }

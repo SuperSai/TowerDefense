@@ -97,7 +97,8 @@ class GlobleData extends Laya.EventDispatcher {
     /** 获取对应表的所有数据 */
     static getAllValue(type) {
         let dic = GlobleData.AllCacheData.TryGetValue(type);
-        return dic.getValues();
+        let arr = dic.getValues();
+        return arr ? arr : [];
     }
     /**
      * 查找对应条件的数据

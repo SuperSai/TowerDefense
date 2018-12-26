@@ -1,57 +1,34 @@
 /*
 * 守卫升级界面
 */
-class EvolutionView extends ui.evolution.EvolutionViewUI {
-    static isOpen: boolean = false;
+class EvolutionView extends BaseView {
+
     static kingEvolutionType: number = 101;
 
-    constructor(_stage: number = -1) {
-        super();
-        this.init(_stage);
-    }
-    //新建并添加到节点
-    static Create(_parentNode: Laya.Node, _callback: any = null, _removeCallback: any = null, _stage: number = -1): void {
-        let resList = [
-            { url: "res/atlas/images.atlas", type: Laya.Loader.ATLAS }
-        ];
-        Laya.loader.load(resList, Handler.create(null, () => {
-            if (_parentNode) {
-                if (EvolutionView.isOpen) {
-                    return;
-                }
-            } else {
-                EvolutionView.isOpen = true;
-                let nodeView = new EvolutionView(_stage);
-                M.layer.frameLayer.addChildWithMaskCall(nodeView, nodeView.removeSelf);
-                _callback && _callback(nodeView);
-                nodeView.once(Laya.Event.REMOVED, nodeView, () => {
-                    EvolutionView.isOpen = false;
-                    nodeView.removeUI();
-                    _removeCallback && _removeCallback();
-                });
-            }
-        }));
+    constructor() {
+        super(LAYER_TYPE.FRAME_LAYER, ui.evolution.EvolutionViewUI);
     }
 
     //初始化
-    private init(_stage: number): void {
+    public initUI(): void {
+        super.initUI();
         let self = this;
         //界面初始化
-        self.btnUpdate.offAll(Laya.Event.CLICK);
-        self.btnExit.offAll(Laya.Event.CLICK);
-        self.btnExit.on(Laya.Event.CLICK, self, () => {
-            self.removeSelf();
+        self.ui.btnUpdate.offAll(Laya.Event.CLICK);
+        self.ui.btnExit.offAll(Laya.Event.CLICK);
+        self.ui.btnExit.on(Laya.Event.CLICK, self, () => {
+            ViewMgr.Ins.close(ViewConst.EvolutionView);
         });
-
-        M.layer.frameLayer.on(LayerEvent.LAYER_ANIMATION_COMPLETE, this, (complete) => {
+        self.refreshBoxUI();
+        LayerMgr.Instance.getLayerByType(LAYER_TYPE.FRAME_LAYER).on(LayerEvent.LAYER_ANIMATION_COMPLETE, this, (complete) => {
             if (complete) {
                 if (!NoviceManager.isComplete) {
                     M.novice.on(NoviceEvent.ACTIVATE_TARGET, self, (eventParam) => {
                         if (eventParam === NoviceTarget.FOREST_KING_UPGRADE) {
-                            M.novice.activateClickTarget(self.btnUpdate, eventParam, self.btnUpdate.parent as Sprite);
+                            M.novice.activateClickTarget(self.ui.btnUpdate, eventParam, self.ui.btnUpdate.parent as Sprite);
                         } else if (eventParam === NoviceTarget.FOREST_KING_CLOSE) {
                             M.novice.ui.btnReturnNovice2.visible = true;
-                            M.novice.activateClickTarget(self.btnExit, eventParam, self.btnExit.parent as Sprite);
+                            M.novice.activateClickTarget(self.ui.btnExit, eventParam, self.ui.btnExit.parent as Sprite);
                         }
                     });
                 }
@@ -60,13 +37,8 @@ class EvolutionView extends ui.evolution.EvolutionViewUI {
         });
     }
 
-    //移除界面
-    public removeUI(): void {
-        EventsManager.Instance.offAll(EventsType.ESSENCE_CHANGE);
-    }
-
     //设置强化数据
-    public refreshBoxUI(_callback: any): void {
+    private refreshBoxUI(): void {
         let self = this;
         let kingLevel: number = userData.getKingLevel();
         let kingVO: KindLevelConfigVO = GlobleData.getData(GlobleData.KindLevelConfigVO, kingLevel);
@@ -89,50 +61,57 @@ class EvolutionView extends ui.evolution.EvolutionViewUI {
             let diamond: number = userData.diamond;
             let needDiamond: number = MathUtils.parseInt(kingVO.gemxh.toString());
             if (kingLevel > 10) {
-                self.btnUpdate.disabled = (diamond < needDiamond) || (currHeroCount < needHeroCount);
+                self.ui.btnUpdate.disabled = (diamond < needDiamond) || (currHeroCount < needHeroCount);
             } else {
-                self.btnUpdate.disabled = diamond < needDiamond;
+                self.ui.btnUpdate.disabled = diamond < needDiamond;
             }
-            self.txtKingLevel.text = kingLevel + "";
-            self.txtAtk.text = MathUtils.bytesToSize(atk);
-            self.txtAtkAdd.text = MathUtils.numToPercent(atkAdd);
-            self.txtAtkSpeed.text = MathUtils.bytesToSize(atkSpeed) + "s";
-            self.txtDoubleAdd.text = MathUtils.numToPercent(doubleAdd);
+            self.ui.txtKingLevel.text = kingLevel + "";
+            self.ui.txtAtk.text = MathUtils.bytesToSize(atk);
+            self.ui.txtAtkAdd.text = MathUtils.numToPercent(atkAdd);
+            self.ui.txtAtkSpeed.text = MathUtils.bytesToSize(atkSpeed) + "s";
+            self.ui.txtDoubleAdd.text = MathUtils.numToPercent(doubleAdd);
 
             let isShow: boolean = kingLevel > 10;
-            self.heroBox.visible = isShow;
-            self.txtItemName.text = heroName;
+            self.ui.heroBox.visible = isShow;
+            self.ui.txtItemName.text = heroName;
 
-            self.txtNeedItem.text = Math.min(currHeroCount, needHeroCount) + '/' + needHeroCount;
-            self.txtNeedDiamond.text = Math.min(diamond, needDiamond) + '/' + needDiamond;
+            self.ui.txtNeedItem.text = Math.min(currHeroCount, needHeroCount) + '/' + needHeroCount;
+            self.ui.txtNeedDiamond.text = Math.min(diamond, needDiamond) + '/' + needDiamond;
 
             if (isShow) {
-                self.diamondBox.pos(32, 558);
+                self.ui.diamondBox.pos(32, 558);
             } else {
-                self.diamondBox.pos(32, 507);
+                self.ui.diamondBox.pos(32, 507);
             }
-
-            self.nameHbox.refresh();
-
-            self.btnUpdate.on(Laya.Event.CLICK, self, () => {
+            self.ui.nameHbox.refresh();
+            self.ui.btnUpdate.on(Laya.Event.CLICK, self, () => {
                 if (diamond >= needDiamond) {
                     HttpManager.Instance.requestUpdateKingLevel(EvolutionView.kingEvolutionType, kingLevel, needDiamond, (_res: any) => {
                         if (_res && _res.type) {
-                            MessageUtils.showMsgTips("升级成功");
-                            HallManager.Instance.hallData.isUpdate = false;
-                            _callback && _callback(kingLevel + 1, _res.diamond);
-                            self.refreshBoxUI(_callback);
+                            this.evolutionLevelComplete(kingLevel + 1, _res.diamond);
                         }
                     });
                     if (GlobalConfig.DEBUG) {
-                        HallManager.Instance.hallData.isUpdate = false;
-                        _callback && _callback(kingLevel + 1, userData.diamond - needDiamond);
-                        self.refreshBoxUI(_callback);
+                        this.evolutionLevelComplete(kingLevel + 1, userData.diamond - needDiamond);
                     }
                 } else {
-                    MessageUtils.showMsgTips("钻石不足");
+                    MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.04"));
                 }
             });
         }
+    }
+
+    private evolutionLevelComplete(kingLevel: number, diamond: number): void {
+        let self = this;
+        MessageUtils.showMsgTips("升级成功");
+        HallManager.Instance.hallData.isUpdate = false;
+        if (diamond > 0) EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: userData.diamond -= diamond });
+        EventsManager.Instance.event(EventsType.EVOLUTION_LEVEL_COMPLETE, kingLevel);
+        self.refreshBoxUI();
+    }
+
+    public close(...param: any[]): void {
+        super.close(param);
+        EventsManager.Instance.offAll(EventsType.ESSENCE_CHANGE);
     }
 }

@@ -78,7 +78,7 @@ class MessageUtils {
             hbox.align = "middle";
             const global = PointUtils.localToGlobal(obj);
             hbox.pos(global.x, global.y);
-            M.layer.screenEffectLayer.addChild(hbox);
+            LayerMgr.Instance.addToLayer(hbox, LAYER_TYPE.SCREEN_EFFECT_LAYER);
             hbox.x += (obj.width - hbox.width) / 2;
             Laya.Tween.to(hbox, { y: hbox.y - 50, alpha: 0 }, 1000, null, Laya.Handler.create(this, () => {
                 Laya.Tween.clearTween(hbox);
@@ -88,7 +88,7 @@ class MessageUtils {
         else {
             const global = PointUtils.localToGlobal(obj);
             label.pos(global.x, global.y);
-            M.layer.screenEffectLayer.addChild(label);
+            LayerMgr.Instance.addToLayer(label, LAYER_TYPE.SCREEN_EFFECT_LAYER);
             label.x += (obj.width - label.width) / 2;
             Laya.Tween.to(label, { y: label.y - 50, alpha: 0 }, 1000, null, Laya.Handler.create(this, () => {
                 Laya.Tween.clearTween(label);

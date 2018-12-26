@@ -6,7 +6,7 @@ class Token {
         if (launchOptions && launchOptions.query && launchOptions.query.channel) {
             channel = "" + launchOptions.query.channel + "_" + launchOptions.scene;
         }
-        if (launchOptions && launchOptions.referrerInfo) {
+        else if (launchOptions && launchOptions.referrerInfo) {
             if (launchOptions.referrerInfo.extraData && launchOptions.referrerInfo.extraData.channel) {
                 channel = "" + launchOptions.referrerInfo.extraData.channel + "_" + launchOptions.scene;
             }

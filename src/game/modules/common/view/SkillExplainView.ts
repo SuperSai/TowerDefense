@@ -1,42 +1,30 @@
 /*
 * 技能说明界面;
 */
-class SkillExplainView extends ui.common.view.SkillExplainViewUI {
+class SkillExplainView extends BaseView {
 
-    private _data: any[];
-    private _money: number;
-    private _callback: Function;
-
-    constructor(data: any[] = null, callback: Function = null) {
-        super();
-        this._data = data;
-        this._callback = callback;
-        this.init();
-    }
-
-    //新建并添加到节点
-    static Create(_parentNode: Laya.Node, callback: any = null, _removeCallback: any = null, ...arge): void {
-        let resList = [
-            { url: "res/atlas/images.atlas", type: Laya.Loader.ATLAS }
-        ];
-        Laya.loader.load(resList, Handler.create(null, () => {
-            if (_parentNode) {
-                let nodeView = new SkillExplainView(arge, callback);
-                AlignUtils.setToScreenGoldenPos(nodeView);
-                M.layer.subFrameLayer.addChildWithMaskCall(nodeView, nodeView.removeSelf);
-                nodeView.once(Laya.Event.REMOVED, nodeView, _removeCallback);
-            }
-        }));
+    constructor() {
+        super(LAYER_TYPE.SUB_FRAME_LAYER, ui.common.view.SkillExplainViewUI);
     }
 
     //初始化
-    private init(): void {
+    public initUI(): void {
+        super.initUI();
+    }
+
+    public addEvents(): void {
+        super.addEvents();
         let self = this;
-        self.btnExit.offAll(Laya.Event.CLICK);
-        self.btnExit.on(Laya.Event.CLICK, self, self.onClickClose);
+        self.ui.btnExit.on(Laya.Event.CLICK, self, self.onClickClose);
+    }
+
+    public removeEvents(): void {
+        super.removeEvents()
+        let self = this;
+        self.ui.btnExit.off(Laya.Event.CLICK, self, self.onClickClose);
     }
 
     private onClickClose(): any {
-        this.removeSelf();
+        ViewMgr.Ins.close(ViewConst.SkillExplainView);
     }
 }

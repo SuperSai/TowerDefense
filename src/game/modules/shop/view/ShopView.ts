@@ -1,70 +1,56 @@
 /*
 * 商店界面
 */
-class ShopView extends ui.shop.ShopViewUI {
+class ShopView extends BaseView {
 
-    public btnBuyFun: Laya.Handler = null; //购买回调
-    public btnFreeFun: Laya.Handler = null; //购买回调
-    public btnDiamondFun: Laya.Handler = null; //购买回调
-    public evolutionFun: Laya.Handler = null; //进化回调
     private isScroll: boolean = true;
 
-    constructor(_kind: number) {
-        super();
-        this.init(_kind);
-    }
-    //新建并添加到节点
-    static Create(_parentNode: Laya.Node, _callback: any = null, _removeCallback: any = null, _kind: number = 0): void {
-
-        let resList = [
-            { url: "res/atlas/images/shop.atlas", type: Laya.Loader.ATLAS }
-        ];
-        Laya.loader.load(resList, Handler.create(null, () => {
-            if (_parentNode) {
-                let nodeView = new ShopView(_kind);
-                AlignUtils.setToScreenGoldenPos(nodeView);
-                M.layer.frameLayer.addChildWithMaskCall(nodeView, nodeView.removeSelf);
-                _callback && _callback(nodeView);
-                nodeView.once(Laya.Event.REMOVED, nodeView, _removeCallback);
-            }
-        }));
+    constructor() {
+        super(LAYER_TYPE.FRAME_LAYER, ui.shop.ShopViewUI);
+        this.setResources(["shop"]);
     }
 
     //初始化
-    private init(_kind: number): void {
+    public initUI(): void {
+        super.initUI();
         let self = this;
         SDKManager.Instance.showBannerAd(true);
-        //按钮事件
-        self.removeEvents();
-        self.btnExit.on(Laya.Event.CLICK, self, self.onClickExit);
-        self.btn_skillExplain.on(Laya.Event.CLICK, self, self.onSkillExplain);
         self.initList();
+        self.refreshMoney(PlayerManager.Instance.Info.userMoney, PlayerManager.Instance.Info.userDiamond);
     }
 
-    private removeEvents(): void {
+    public addEvents(): void {
+        super.addEvents();
         let self = this;
-        self.btnExit.off(Laya.Event.CLICK, self, self.onClickExit);
-        self.btn_skillExplain.off(Laya.Event.CLICK, self, self.onSkillExplain);
+        self.ui.btnExit.on(Laya.Event.CLICK, self, self.onClickExit);
+        self.ui.btn_skillExplain.on(Laya.Event.CLICK, self, self.onSkillExplain);
+    }
+
+    public removeEvents(): void {
+        super.removeEvents();
+        let self = this;
+        self.ui.btnExit.off(Laya.Event.CLICK, self, self.onClickExit);
+        self.ui.btn_skillExplain.off(Laya.Event.CLICK, self, self.onSkillExplain);
     }
 
     private onSkillExplain(): void {
         let self = this;
-        SkillExplainView.Create(self);
+        ViewMgr.Ins.open(ViewConst.SkillExplainView);
     }
 
     //点击事件
     private onClickExit(): void {
-        this.removeSelf();
+        ViewMgr.Ins.close(ViewConst.ShopView);
     }
 
     //刷新金币与钻石
     public refreshMoney(_money: number, _diamond: number) {
         let that = this;
-        if (that.txtMoney) {
-            that.txtMoney.changeText(MathUtils.bytesToSize(_money));
+        if (that.ui.txtMoney) {
+            that.ui.txtMoney.changeText(MathUtils.bytesToSize(_money));
         }
-        if (that.txtDiamond) {
-            that.txtDiamond.changeText(MathUtils.bytesToSize(_diamond));
+        if (that.ui.txtDiamond) {
+            that.ui.txtDiamond.changeText(MathUtils.bytesToSize(_diamond));
         }
     }
 
@@ -73,9 +59,9 @@ class ShopView extends ui.shop.ShopViewUI {
         let self = this;
         let monsterType: number = userData.isEvolution() ? 2 : 1;
         let heroesData = BattleManager.Instance.getAllMonsterByType(monsterType);
-        self.heroList.vScrollBarSkin = '';
-        self.heroList.repeatY = heroesData.length;
-        self.heroList.array = heroesData;
+        self.ui.heroList.vScrollBarSkin = '';
+        self.ui.heroList.repeatY = heroesData.length;
+        self.ui.heroList.array = heroesData;
         // if (self.isScroll) self.heroList.visible = false;
         let firstLockId: number = 0; //第一个被锁项目
         let shareFreeCarId: number = 0;//免费得车Id
@@ -86,8 +72,8 @@ class ShopView extends ui.shop.ShopViewUI {
         let curBuyIndex: number = BattleManager.Instance.getLevel(shareFreeCarId) - 1; //滚屏位置
         let count: number = 1;
         let moveY: number = 50;
-        self.heroList.renderHandler = new Laya.Handler(self, (cell: Laya.Box, index: number) => {
-            if (index > self.heroList.array.length) return;
+        self.ui.heroList.renderHandler = new Laya.Handler(self, (cell: Laya.Box, index: number) => {
+            if (index > self.ui.heroList.array.length) return;
             // if (index >= curBuyIndex && self.isScroll) {
             //     if (!self.heroList.visible) self.heroList.visible = true;
             //     moveY = index < 4 ? 150 : 50;
@@ -99,7 +85,7 @@ class ShopView extends ui.shop.ShopViewUI {
             //     }));
             //     count++;
             // }
-            let carInfo = self.heroList.array[index];
+            let carInfo = self.ui.heroList.array[index];
             if (carInfo) {
                 let monsterType: number = BattleManager.Instance.getType(carInfo.id);
                 let monsterLevel: number = BattleManager.Instance.getLevel(carInfo.id);
@@ -145,7 +131,7 @@ class ShopView extends ui.shop.ShopViewUI {
                 if (btnBuy) {
                     btnBuy.offAll(Laya.Event.CLICK);
                     btnBuy.on(Laya.Event.CLICK, self, (_carInfo: any = null, _btnObj: Laya.Button = null) => {
-                        self.btnBuyFun && self.btnBuyFun.runWith([_carInfo, _btnObj]);
+                        HallManager.Instance.goldBuyHero(_carInfo, _btnObj);
                     }, [carInfo, btnBuy]);
                     btnBuy.visible = !buyBtnLock;
                     btnBuy.disabled = buyBtnLock;
@@ -186,7 +172,7 @@ class ShopView extends ui.shop.ShopViewUI {
                     btnSharePrize.visible = (shareFreeCarId == carInfo.id);
                     btnSharePrize.offAll(Laya.Event.CLICK);
                     btnSharePrize.on(Laya.Event.CLICK, self, (_carInfo: any = null, _btnObj: Laya.Button = null) => {
-                        self.btnFreeFun && self.btnFreeFun.runWith([_carInfo, _btnObj]);
+                        this.onShareFreeCar(_carInfo, _btnObj);
                     }, [carInfo, btnSharePrize]);
                     //观看次数已用完
                     if (userData.getAdTimes(11) < 1 && userData.getShareTimes(11) < 1) {
@@ -209,9 +195,9 @@ class ShopView extends ui.shop.ShopViewUI {
                         btnDiamondBuy.visible = (firstLockId == carInfo.unLockId);
                         if (btnDiamondBuy.visible) {
                             btnDiamondBuy.offAll(Laya.Event.CLICK);
-                            btnDiamondBuy.on(Laya.Event.CLICK, self, (_carInfo: any = null, _btnObj: Laya.Button = null) => {
-                                self.btnDiamondFun && self.btnDiamondFun.runWith([_carInfo, _btnObj]);
-                            }, [carInfo, btnDiamondBuy]);
+                            btnDiamondBuy.on(Laya.Event.CLICK, self, (_carInfo: any = null) => {
+                                HallManager.Instance.onDiamondBuy(_carInfo);
+                            }, [carInfo]);
                         }
                     } else {
                         btnDiamondBuy.visible = false;
@@ -220,8 +206,8 @@ class ShopView extends ui.shop.ShopViewUI {
             }
         });
         self.frameOnce(5, self, () => {
-            if (self.heroList && curBuyIndex > 0) {
-                self.heroList.scrollTo(curBuyIndex);
+            if (self.ui.heroList && curBuyIndex > 0) {
+                self.ui.heroList.scrollTo(curBuyIndex);
             }
         });
     }
@@ -236,5 +222,36 @@ class ShopView extends ui.shop.ShopViewUI {
                 txtPrice.text = MathUtils.bytesToSize(curPrice);
             }
         }
+    }
+
+    /** 看广告或分享得英雄 */
+    private onShareFreeCar(_carInfo: any = null, btnObj: Laya.Button = null): void {
+        let that = this;
+        //显示广告
+        userData.toShareAd((_res) => {
+            if (userData) {
+                let carParkSp: MonsterSprite = BattleManager.Instance.createPet(_carInfo.id, true) as MonsterSprite;
+                if (carParkSp == null) {
+                    if (HallManager.Instance.hall) HallManager.Instance.hall.saveCarStore(_carInfo.id);
+                }
+                MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.03"));
+                ViewMgr.Ins.open(ViewConst.FreeGetPetView, _carInfo);
+                if (btnObj) {
+                    //观看次数已用完
+                    if (userData.getAdTimes(11) < 1 && userData.getShareTimes(11) < 1) {
+                        btnObj.visible = false;
+                    } else {
+                        if (userData.isAdStage(11)) {
+                            btnObj.skin = "images/core/shop_free_video.png";
+                        } else {
+                            btnObj.skin = "images/core/shop_free_share.png";
+                        }
+                    }
+                }
+                userData.removeCarShopRedPoin();
+                // 30分钟后检测是否还有红点
+                HallManager.Instance.startShopRedpointTime();
+            }
+        }, 11, false, true);
     }
 }

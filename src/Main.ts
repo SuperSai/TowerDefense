@@ -2,6 +2,8 @@ xiaoduo = window.xiaoduo;
 
 const M = new ManagerShortcuts();
 const userData: UserData = new UserData();
+let systemInfo: WXSystemInfo;
+
 class Main {
     private _loginView: LoginView;
     constructor() {
@@ -20,6 +22,12 @@ class Main {
         LayerMgr.Instance.initLayer(Laya.stage, 750, 1334);
         SDKManager.Instance.initWX();
         
+        try{
+            systemInfo = Laya.Browser.window.wx.getSystemInfoSync();
+        } catch (e) {
+            console.log("@FREEMAN: 获取系统信息失败")
+        }
+
         if (!Laya.Browser.onMiniGame) {
             if (GlobalConfig.DEBUG) {
                 this.beginLoad();

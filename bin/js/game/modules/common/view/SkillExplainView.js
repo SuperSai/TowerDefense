@@ -1,35 +1,26 @@
 /*
 * 技能说明界面;
 */
-class SkillExplainView extends ui.common.view.SkillExplainViewUI {
-    constructor(data = null, callback = null) {
-        super();
-        this._data = data;
-        this._callback = callback;
-        this.init();
-    }
-    //新建并添加到节点
-    static Create(_parentNode, callback = null, _removeCallback = null, ...arge) {
-        let resList = [
-            { url: "res/atlas/images.atlas", type: Laya.Loader.ATLAS }
-        ];
-        Laya.loader.load(resList, Handler.create(null, () => {
-            if (_parentNode) {
-                let nodeView = new SkillExplainView(arge, callback);
-                AlignUtils.setToScreenGoldenPos(nodeView);
-                M.layer.subFrameLayer.addChildWithMaskCall(nodeView, nodeView.removeSelf);
-                nodeView.once(Laya.Event.REMOVED, nodeView, _removeCallback);
-            }
-        }));
+class SkillExplainView extends BaseView {
+    constructor() {
+        super(LAYER_TYPE.SUB_FRAME_LAYER, ui.common.view.SkillExplainViewUI);
     }
     //初始化
-    init() {
+    initUI() {
+        super.initUI();
+    }
+    addEvents() {
+        super.addEvents();
         let self = this;
-        self.btnExit.offAll(Laya.Event.CLICK);
-        self.btnExit.on(Laya.Event.CLICK, self, self.onClickClose);
+        self.ui.btnExit.on(Laya.Event.CLICK, self, self.onClickClose);
+    }
+    removeEvents() {
+        super.removeEvents();
+        let self = this;
+        self.ui.btnExit.off(Laya.Event.CLICK, self, self.onClickClose);
     }
     onClickClose() {
-        this.removeSelf();
+        ViewMgr.Ins.close(ViewConst.SkillExplainView);
     }
 }
 //# sourceMappingURL=SkillExplainView.js.map

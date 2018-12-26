@@ -26,7 +26,7 @@ class StrengthenView extends BaseView {
             if (btnSkill) {
                 btnSkill.offAll(Laya.Event.CLICK);
                 btnSkill.on(Laya.Event.CLICK, btnSkill, () => {
-                    SkillExplainView.Create(self);
+                    ViewMgr.Ins.open(ViewConst.SkillExplainView);
                 });
             }
         }
