@@ -37,6 +37,7 @@ class ViewMgr {
     open(key, ...param) {
         var view = this.getView(key);
         if (view == null) {
+            MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.36"));
             return;
         }
         if (view.isShow()) {

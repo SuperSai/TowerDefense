@@ -1,0 +1,124 @@
+/*
+* 强化界面
+*/
+class StrengthenView extends BaseView {
+    private indexArray: Array<number> = [10, 2, 1, 3];
+
+    constructor() {
+        super(LAYER_TYPE.FRAME_LAYER, ui.strengthen.StrengthenViewUI);
+        this.setResources(["images/strengthen"]);
+    }
+
+    //初始化
+    public initUI(): void {
+        super.initUI();
+        let self = this;
+        SDKManager.Instance.showBannerAd(true);
+        //界面初始化
+        let imgBg = self.ui.mainView.getChildByName("imgBg") as Laya.Image;
+        if (imgBg) {
+            let btnExit = imgBg.getChildByName("btnExit") as Laya.Button;
+            if (btnExit) {
+                btnExit.offAll(Laya.Event.CLICK);
+                btnExit.on(Laya.Event.CLICK, btnExit, () => {
+                    ViewMgr.Ins.close(ViewConst.StrengthenView);
+                });
+            }
+            let btnSkill = imgBg.getChildByName("btn_skill") as Laya.Button;
+            if (btnSkill) {
+                btnSkill.offAll(Laya.Event.CLICK);
+                btnSkill.on(Laya.Event.CLICK, btnSkill, () => {
+                    SkillExplainView.Create(self);
+                });
+            }
+        }
+        //box
+        for (var index = 0; index < 4; index++) {
+            let skillId: number = self.indexArray[index];
+            self.refreshBoxUI(skillId);
+        }
+        //精华碎片刷新
+        self.setEssence(userData.essence);
+        EventsManager.Instance.on(EventsType.ESSENCE_CHANGE, self, (_data: any) => {
+            self.setEssence(userData.essence);
+        });
+        HttpManager.Instance.requestEssenceData();
+    }
+
+    //刷新精华碎片数
+    public setEssence(_value: number): void {
+        let that = this;
+        if (that.ui.txtEssence) {
+            that.ui.txtEssence.changeText(MathUtils.bytesToSize(_value).toString());
+        }
+    }
+    //设置强化数据
+    private refreshBoxUI($skillId: number): void {
+        let that = this;
+        for (var index = 0; index < 4; index++) {
+            let skillId: number = that.indexArray[index];
+            if ($skillId == skillId) {
+                let strengthenLevel: number = userData.querySkillAddition($skillId);
+                let curProbability: number = SkillManager.Instance.getSkillStrengthenLevelProbability($skillId, strengthenLevel);
+                // let probability: number = SkillManager.Instance.getSkillStrengthenProbability(skillId, 1);
+                let price: number = SkillManager.Instance.getSkillStrengthenCost($skillId, strengthenLevel + 1);
+                let imgBg = that.ui.mainView.getChildByName("imgBg") as Laya.Image;
+                if (imgBg) {
+                    let strBoxKey = "boxItem" + (index + 1);
+                    let boxItem = imgBg.getChildByName(strBoxKey) as Laya.Box;
+                    if (boxItem) {
+                        //加成
+                        let txtAdd = boxItem.getChildByName("txtAdd") as Laya.Label;
+                        if (txtAdd) {
+                            txtAdd.text = (MathUtils.numToPercent(curProbability));
+                        }
+                        let hbox = boxItem.getChildByName("hbox") as Laya.HBox;
+                        if (hbox) {
+                            hbox.refresh();
+                        }
+                        let txtLevel = boxItem.getChildByName("txtLevel") as Laya.Label;
+                        if (txtLevel) {
+                            txtLevel.text = "Lv" + strengthenLevel;
+                        }
+                        //按钮
+                        let btnStrengthen = boxItem.getChildByName("btnStrengthen") as Laya.Button;
+                        if (btnStrengthen) {
+                            btnStrengthen.offAll(Laya.Event.CLICK);
+                            btnStrengthen.on(Laya.Event.CLICK, that, (_btnObj: Laya.Button, _btnInfo: any) => {
+                                if (userData.essence < _btnInfo.price) {
+                                    MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.17"));
+                                    return;
+                                }
+                                if (userData.querySkillAddition(_btnInfo.skillId) >= 50) {
+                                    return MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.16"));
+                                }
+                                HttpManager.Instance.requestSkillStrengthen(_btnInfo.skillId, 1, _btnInfo.price, 1, (_res: any) => {
+                                    if (_res && _res.type) {
+                                        userData.refreshSkillAddition(_btnInfo.skillId);
+                                        that.refreshBoxUI(_btnInfo.skillId);
+                                        MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.18"));
+                                        StrengthenManager.Instance.checkRedPoint();
+                                        if (_res.hasOwnProperty("essence")) {
+                                            userData.setEssence(MathUtils.parseInt(_res.essence));
+                                            that.setEssence(userData.essence);
+                                        }
+                                    }
+                                });
+                            }, [btnStrengthen, { skillId: skillId, price: price }]);
+
+                            let txtEssence = btnStrengthen.getChildByName("txtEssence") as Laya.Label;
+                            if (txtEssence) {
+                                txtEssence.text = ("" + price);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public close(...param: any[]): void {
+        super.close(param);
+        EventsManager.Instance.offAll(EventsType.ESSENCE_CHANGE);
+    }
+}

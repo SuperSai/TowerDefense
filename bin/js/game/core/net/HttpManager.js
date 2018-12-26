@@ -633,6 +633,22 @@ class HttpManager {
             }
         });
     }
+    /** 请求技能强化 */
+    requestSkillStrengthen(id, level, price, coinType, callback = null) {
+        let dataString = 'type=' + id + '&value=' + level + '&price=' + price + '&unit=' + "essence";
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+        HttpReqHelper.request({
+            url: 'v1/intensify',
+            method: 'Post',
+            data: dataString,
+            success: function (res) {
+                callback && callback(res);
+            },
+            fail: function (res) {
+                console.log(res);
+            }
+        });
+    }
     static get Instance() {
         if (HttpManager._instance == null) {
             HttpManager._instance = new HttpManager();

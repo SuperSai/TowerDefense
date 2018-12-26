@@ -23,7 +23,8 @@ class MessageUtils {
         self._msgs.push(msg);
 
         AlignUtils.setToScreenGoldenPos(msg);
-        M.layer.rollMessageLayer.addChild(msg);
+        LayerMgr.Instance.addToLayer(msg, LAYER_TYPE.ROLL_MSG_LAYER);
+        // M.layer.rollMessageLayer.addChild(msg);
 
         if (self._msgs.length > 0) {
             let time: number = self._msgTime * 250;

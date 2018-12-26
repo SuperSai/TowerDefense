@@ -48,6 +48,7 @@ class ViewMgr {
     public open(key: number, ...param: any[]): IBaseView {
         var view: IBaseView = this.getView(key);
         if (view == null) {
+            MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.36"));
             return;
         }
         if (view.isShow()) {

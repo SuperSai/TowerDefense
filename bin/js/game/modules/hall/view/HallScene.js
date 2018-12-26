@@ -501,7 +501,7 @@ class HallScene extends ui.hall.HallSceneUI {
     }
     //强化
     onStrengthen(_btnObj = null) {
-        StrengthenView.Create();
+        ViewMgr.Ins.open(ViewConst.StrengthenView);
     }
     //森林之王进化
     onEvolution(_btnObj = null) {

@@ -1,50 +1,25 @@
 /*
 * 强化界面
 */
-class StrengthenView extends ui.strengthen.StrengthenViewUI {
-    constructor(_stage = -1) {
-        super();
+class StrengthenView extends BaseView {
+    constructor() {
+        super(LAYER_TYPE.FRAME_LAYER, ui.strengthen.StrengthenViewUI);
         this.indexArray = [10, 2, 1, 3];
-        this.init(_stage);
-    }
-    //新建并添加到节点
-    static Create(_parentNode, _callback = null, _removeCallback = null, _stage = -1) {
-        let resList = [
-            { url: "res/atlas/images/strengthen.atlas", type: Laya.Loader.ATLAS }
-        ];
-        Laya.loader.load(resList, Handler.create(null, () => {
-            if (_parentNode) {
-                if (StrengthenView.isOpen) {
-                    return;
-                }
-            }
-            else {
-                StrengthenView.isOpen = true;
-                let nodeView = new StrengthenView(_stage);
-                AlignUtils.setToScreenGoldenPos(nodeView);
-                LayerManager.getInstance().frameLayer.addChildWithMaskCall(nodeView, nodeView.removeSelf);
-                _callback && _callback(nodeView);
-                nodeView.once(Laya.Event.REMOVED, nodeView, () => {
-                    StrengthenView.isOpen = false;
-                    nodeView.removeUI();
-                    SDKManager.Instance.closeBannerAd(true);
-                    _removeCallback && _removeCallback();
-                });
-            }
-        }));
+        this.setResources(["images/strengthen"]);
     }
     //初始化
-    init(_stage) {
+    initUI() {
+        super.initUI();
         let self = this;
         SDKManager.Instance.showBannerAd(true);
         //界面初始化
-        let imgBg = self.mainView.getChildByName("imgBg");
+        let imgBg = self.ui.mainView.getChildByName("imgBg");
         if (imgBg) {
             let btnExit = imgBg.getChildByName("btnExit");
             if (btnExit) {
                 btnExit.offAll(Laya.Event.CLICK);
                 btnExit.on(Laya.Event.CLICK, btnExit, () => {
-                    self.removeSelf();
+                    ViewMgr.Ins.close(ViewConst.StrengthenView);
                 });
             }
             let btnSkill = imgBg.getChildByName("btn_skill");
@@ -67,15 +42,11 @@ class StrengthenView extends ui.strengthen.StrengthenViewUI {
         });
         HttpManager.Instance.requestEssenceData();
     }
-    //移除界面
-    removeUI() {
-        EventsManager.Instance.offAll(EventsType.ESSENCE_CHANGE);
-    }
     //刷新精华碎片数
     setEssence(_value) {
         let that = this;
-        if (that.txtEssence) {
-            that.txtEssence.changeText(MathUtils.bytesToSize(_value).toString());
+        if (that.ui.txtEssence) {
+            that.ui.txtEssence.changeText(MathUtils.bytesToSize(_value).toString());
         }
     }
     //设置强化数据
@@ -88,7 +59,7 @@ class StrengthenView extends ui.strengthen.StrengthenViewUI {
                 let curProbability = SkillManager.Instance.getSkillStrengthenLevelProbability($skillId, strengthenLevel);
                 // let probability: number = SkillManager.Instance.getSkillStrengthenProbability(skillId, 1);
                 let price = SkillManager.Instance.getSkillStrengthenCost($skillId, strengthenLevel + 1);
-                let imgBg = that.mainView.getChildByName("imgBg");
+                let imgBg = that.ui.mainView.getChildByName("imgBg");
                 if (imgBg) {
                     let strBoxKey = "boxItem" + (index + 1);
                     let boxItem = imgBg.getChildByName(strBoxKey);
@@ -118,7 +89,7 @@ class StrengthenView extends ui.strengthen.StrengthenViewUI {
                                 if (userData.querySkillAddition(_btnInfo.skillId) >= 50) {
                                     return MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.16"));
                                 }
-                                that.requestSkillStrengthen(_btnInfo.skillId, 1, _btnInfo.price, 1, (_res) => {
+                                HttpManager.Instance.requestSkillStrengthen(_btnInfo.skillId, 1, _btnInfo.price, 1, (_res) => {
                                     if (_res && _res.type) {
                                         userData.refreshSkillAddition(_btnInfo.skillId);
                                         that.refreshBoxUI(_btnInfo.skillId);
@@ -141,23 +112,9 @@ class StrengthenView extends ui.strengthen.StrengthenViewUI {
             }
         }
     }
-    //请求技能强化
-    requestSkillStrengthen(_id, _level, _price, _coinType, _callback = null) {
-        let that = this;
-        let dataString = 'type=' + _id + '&value=' + _level + '&price=' + _price + '&unit=' + "essence";
-        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
-        HttpReqHelper.request({
-            url: 'v1/intensify',
-            method: 'Post',
-            data: dataString,
-            success: function (res) {
-                _callback && _callback(res);
-            },
-            fail: function (res) {
-                console.log(res);
-            }
-        });
+    close(...param) {
+        super.close(param);
+        EventsManager.Instance.offAll(EventsType.ESSENCE_CHANGE);
     }
 }
-StrengthenView.isOpen = false;
 //# sourceMappingURL=StrengthenView.js.map

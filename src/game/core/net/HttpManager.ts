@@ -671,7 +671,22 @@ class HttpManager {
         });
     }
 
-
+    /** 请求技能强化 */
+    public requestSkillStrengthen(id: number, level: number, price: number, coinType: number, callback: any = null): void {
+        let dataString = 'type=' + id + '&value=' + level + '&price=' + price + '&unit=' + "essence";
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+        HttpReqHelper.request({
+            url: 'v1/intensify',
+            method: 'Post',
+            data: dataString,
+            success: function (res) {
+                callback && callback(res);
+            },
+            fail: function (res) {
+                console.log(res);
+            }
+        });
+    }
 
     private static _instance: HttpManager;
     public static get Instance(): HttpManager {

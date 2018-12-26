@@ -16,7 +16,8 @@ class MessageUtils {
         msg.init(content);
         self._msgs.push(msg);
         AlignUtils.setToScreenGoldenPos(msg);
-        M.layer.rollMessageLayer.addChild(msg);
+        LayerMgr.Instance.addToLayer(msg, LAYER_TYPE.ROLL_MSG_LAYER);
+        // M.layer.rollMessageLayer.addChild(msg);
         if (self._msgs.length > 0) {
             let time = self._msgTime * 250;
             TimerManager.Instance.doTimer(time, 1, () => {
