@@ -10,6 +10,7 @@ declare interface Platform {
 
     onShow(_callback: any): void;
     onHide(_callback: any): void;
+    getLaunchOptionsSync(): any;
     getShareInfo(shareTicket, callback, failCallback): void;
     httpToken(_url: string, _callback: any, _forceNew: boolean): any;
     httpRequest(_url: string, _params: any, _noToken: boolean): any;

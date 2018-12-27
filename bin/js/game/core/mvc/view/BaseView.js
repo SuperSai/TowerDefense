@@ -10,6 +10,7 @@ class BaseView extends Laya.View {
         this._isInit = false;
         this._isShowMask = isShowMask;
         this._ui = $class;
+        this._class = $class;
     }
     /** 获取我的父级 */
     get myParent() {
@@ -20,7 +21,10 @@ class BaseView extends Laya.View {
         AlignUtils.setToScreenGoldenPos(this);
         if (this._isShowMask) {
             this._myParent.maskEnabled = true;
-            this._myParent.addChildWithMaskCall(this, this.removeFromParent);
+            this._myParent.addChildWithMaskCall(this, () => {
+                this.removeFromParent();
+                this.close();
+            });
         }
         else {
             this._myParent.maskEnabled = false;

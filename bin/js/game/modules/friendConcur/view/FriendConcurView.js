@@ -17,17 +17,17 @@ class FriendConcurView extends BaseView {
             self.refreshRewarList(res);
         });
     }
-    addEvetns() {
+    addEvents() {
         super.addEvents();
         let self = this;
-        self.ui.btn_exit.on(Laya.Event.CLICK, self, self.removeView);
+        self.ui.btn_exit.on(Laya.Event.CLICK, self, self.onRemoveClose);
         self.ui.btn_send.on(Laya.Event.CLICK, self, self.onSendShareHandler);
         EventsManager.Instance.on(EventsType.FRIEND_CONCUR_GET_REWARD, self, self.onUpdateFriendList);
     }
     removeEvents() {
         super.removeEvents();
         let self = this;
-        self.ui.btn_exit.off(Laya.Event.CLICK, self, self.removeView);
+        self.ui.btn_exit.off(Laya.Event.CLICK, self, self.onRemoveClose);
         self.ui.btn_send.off(Laya.Event.CLICK, self, self.onSendShareHandler);
         EventsManager.Instance.off(EventsType.FRIEND_CONCUR_GET_REWARD, self, self.onUpdateFriendList);
     }
@@ -67,7 +67,7 @@ class FriendConcurView extends BaseView {
                 self.refreshRewarList(res);
         });
     }
-    removeView() {
+    onRemoveClose() {
         ViewMgr.Ins.close(ViewConst.FriendConcurView);
     }
 }

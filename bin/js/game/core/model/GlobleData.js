@@ -33,7 +33,8 @@ class GlobleData extends Laya.EventDispatcher {
     initStep() {
         let self = this;
         self._needParseCount = self._totalStepCsvList.GetLenght();
-        TimerManager.Instance.doFrame(1, 0, self.onEnterFrameLoader, self);
+        // TimerManager.Instance.doFrame(0, 0, self.onEnterFrameLoader, self);
+        self.onEnterFrameLoader();
     }
     onEnterFrameLoader() {
         let self = this;
@@ -54,8 +55,9 @@ class GlobleData extends Laya.EventDispatcher {
         let self = this;
         if (self._jsonCount < self._needParseCount) {
             let key = self._totalStepCsvList.getKeyByIndex(self._jsonCount);
-            key = "config/csvJson/" + key;
+            key = "index/config/csvJson/" + key;
             key = key.replace('_', '.');
+            key = PathConfig.AppResUrl + key;
             Laya.loader.load(key, Laya.Handler.create(self, self.onLoaded, [key]), null, Laya.Loader.TEXT);
             self._jsonCount++;
         }
@@ -68,6 +70,7 @@ class GlobleData extends Laya.EventDispatcher {
         let data_json = JSON.parse(data);
         let csvStr = JSON.stringify(data_json);
         self.starSingleParse(csvStr);
+        this.onEnterFrameLoader();
     }
     starSingleParse(csvStr) {
         let self = this;
@@ -75,6 +78,7 @@ class GlobleData extends Laya.EventDispatcher {
         let DataClass = self._totalStepCsvList.getValueByIndex(self._currParseCount);
         let dic = CSVParser.ParseJsonData(DataClass, csvStr);
         GlobleData.AllCacheData.Add(key, dic);
+        console.log("@David csv key:", key, " -- values:", dic);
         self._currParseCount++;
     }
     /** 获取对应表的指定某条数据 */
@@ -97,8 +101,7 @@ class GlobleData extends Laya.EventDispatcher {
     /** 获取对应表的所有数据 */
     static getAllValue(type) {
         let dic = GlobleData.AllCacheData.TryGetValue(type);
-        let arr = dic.getValues();
-        return arr ? arr : [];
+        return dic.getValues();
     }
     /**
      * 查找对应条件的数据

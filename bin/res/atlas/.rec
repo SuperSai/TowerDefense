@@ -2,7 +2,7 @@ D .
 R DED3E094 Compression.bat
 R A41E3D13 pngquant.exe
 D config
-R 812CAE20 language.txt
+R 57247755 language.txt
 D images
 D loading
 D musics
@@ -37,9 +37,11 @@ D images/ClearanceReward
 P 2A19A3D9 result_prize_item2.png
 P 1ECAC6D4 result_prize_item3.png
 P 8721B77E result_prize_item4.png
-R 814FC7FD result_win_title.png
+P 814FC7FD result_win_title.png
 D images/component
 P 69F12034 blue_btn.png
+P 8F52F53F btn_blue_yuan.png
+P 91A730F2 btn_yellow_yuan.png
 P 7EB918E6 coin_frame.png
 P EEE465EF frame_9calce_01.png
 P 0EAE69C2 frame_9calce_02.png
@@ -85,7 +87,7 @@ P A1C17549 essence.png
 P 8721B77E essence_icon.png
 P DFA8EC49 fenxiang_icon.png
 P F5420F53 game_exp_pro_head.png
-R 75C5FEE8 light_01.png
+P 75C5FEE8 light_01.png
 P A675715C red_dot_hint.png
 P 260D9C6B shop_free_share.png
 P AB43462D shop_free_video.png
@@ -102,7 +104,7 @@ P 97934415 icon_day_4.png
 P 89D5C99D icon_day_5.png
 P 32BF0C35 icon_day_6.png
 P 306C7015 icon_day_7.png
-R 3E06637A item_bg_7th_day.png
+P 3E06637A item_bg_7th_day.png
 P FEDB6944 item_bg_normal.png
 P 66F7B7D4 item_bg_obtainable.png
 P D0F5B787 left_link.png
@@ -122,7 +124,7 @@ R C0FCDF8C crit_num.png
 P 33797E78 evolution_shop_title.png
 P 29A21142 getFreePet_title.png
 P D138D4F1 king_title_icon.png
-R 87443716 reward_get_title.png
+P 87443716 reward_get_title.png
 P BDDC9FCE skill_title_icon.png
 P 7495DEFC zhagao_title.png
 D images/friendConcur
@@ -176,7 +178,7 @@ D images/levelHero
 P CB77502B levelHero_arrow.png
 P 75B83E5F levelHero_level_icon.png
 P CE6B89CF levelHero_name_bg.png
-P 0B17F171 levelHero_titel.png
+P 411A7C2E levelHero_titel.png
 D images/luckLottery
 P 043405C4 luck_go.png
 R 71914F23 luck_huanpan.png
@@ -257,3 +259,10 @@ P A5E0F081 strengthen_item3.png
 P DDCEC856 strengthen_item_bg.png
 P 5D0D36A4 strengthen_item_shitou.png
 P E99AD372 strengthen_title.png
+D images/welfare
+P 0C230350 banner.png
+P 21F16F26 welfare_bg.png
+P C503032E welfare_btn.png
+P 7021A7BC welfare_icon.png
+P 3AECCCE4 welfare_icon_bg.png
+P 2E82D10B welfare_title.png

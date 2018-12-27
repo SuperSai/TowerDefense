@@ -1,0 +1,152 @@
+<?xml version="1.0"?>
+
+<!--basedir   输入目录-->
+<project name="jhl" default="copyResource" basedir=".">
+	<!--上传相关配置-->
+	<description>
+		版本自动编译打包脚本
+	</description>
+
+	<echo>start to build Game...</echo>
+	<echo>${basedir}</echo>
+	<!--<taskdef name="xmltask" classname="com.oopsconsultancy.xmltask.ant.XmlTask"/>-->
+	
+	<tstamp>  
+		<format property="TODAY_CN" pattern="yyyy-MM-dd-HH-mm-ss" locale="cn"/>  
+    </tstamp> 
+	<property name="host" value="113.107.148.89" />
+	<property name="port" value="16333" />
+	<property name="user" value="herman" />
+	<property name="password" value="3363463" />
+	<property name="remotePath" value="/data/source/" />
+
+	<property name="releaseUrl" value="svn://118.89.52.222/version/client" />
+
+	<property name="language" value="CN" />
+	<property name="del_anguage" value="EN"/>
+	<!--打包路径设置-->
+	<property name="target_path" value="${basedir}" />
+	
+	<!--原路径设置-->
+	<property name="lib_src" value="./lib" />
+	<property name="config_src" value="./config" />
+
+	<path id="lib-out">
+		<fileset dir="${lib-out}">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+
+	<!--上传相关配置-->
+	<!--更新源代码相关配置-->
+	<property name="buildPath" value="." />
+	<!--更新源代码相关配置-->
+	<!--更新源代码相关配置-->
+	<property name="publishPath" value="${buildPath}/publish.bat" />
+	<!--资源json文件加版本号-->
+	<property name="creatverPath" value="${buildPath}/z_creatver.bat" />
+	<!--更新源代码相关配置-->
+	<!--拷贝资源代码相关配置-->
+	<property name="copySourcePath" value="${buildPath}/bin-release/web/webupload" />
+	<property name="local_home" value="D:/upload/client/httpsClickHeroes" />
+	<property name="tempDir" value="C:/temp" />
+	<!--拷贝资源代码相关配置-->
+	
+	<!-- 更资源代码 -->
+	<target name="updateResource" >
+		<exec executable="TortoiseProc">
+		<arg value="/command:update" />
+		<arg value="/path:${buildPath}" />
+		<arg value="/closeonend:2" />
+		</exec>
+	</target>
+
+	<!-- 资源加上版本号 -->
+	<target name="buildUIResConfig" depends="updateResource">
+		<exec executable="${creatverPath}" />
+	</target> 
+
+	<!-- 编译客户端 -->
+	<target name="buildgame" depends="buildUIResConfig">
+		<exec executable="${publishPath}" />
+	</target>
+	
+	<!-- svn更新发布目录 -->
+	<target name="updateRelease" depends="buildgame">
+		<echo>==========================开始更新发布目录！==========================</echo>
+		<exec executable="TortoiseProc">
+			<arg value="/command:update" />
+			<arg value="/path:${local_home}" />
+			<arg value="/closeonend:3" />
+		</exec>
+	</target> 
+	
+	<target name="copyResource" depends="updateRelease">
+		<echo>==========================复制资源！=================================</echo>
+		<delete file="${copySourcePath}/resource/${language}/json/json.zip"/>
+		<!-- 拷贝美术资源至输出文件夹 -->
+		<sync todir="${local_home}" failonerror="true" verbose="true">
+			<fileset dir="${copySourcePath}">
+				<include name="**/*.png" />
+				<include name="**/*.jpg" />
+				<include name="**/*.jpeg" />
+				<include name="**/*.mp3" />
+				<include name="**/*.xml" />
+				<include name="**/*.js" />
+				<include name="**/*.json" />
+				<include name="**/*.exml" />
+				<include name="**/*.data" />
+				<include name="**/*.fnt" />
+				<include name="**/*.zip" />
+				<include name="**/*.txt" />
+			</fileset>
+			<preserveintarget>
+				<include name="**/.svn" />
+        		<include name="**/.svn/**" />
+				<include name="**/.svn/tmp" />
+				<include name="**/.svn/tmp/**" />
+				<include name="**/resource/${language}/csv/*"/>
+				<include name="**/resource/${language}/json/*"/>
+			</preserveintarget>
+		</sync>
+
+		<copy todir="${local_home}">
+			<fileset dir="${buildPath}">
+				<include name="index.html" />
+			</fileset>
+		</copy>
+
+		<zip destfile="${local_home}/resource/${language}/json/json.zip">
+            <zipfileset dir="${copySourcePath}/resource/${language}/json/"/>
+        </zip>
+
+		<zip destfile="${local_home}/main.min.zip">
+			<zipfileset dir="${copySourcePath}/" includes="main.min.js" fullpath="main.min.js"/>
+        </zip>
+
+		<delete dir="${local_home}/resource/${language}/texture" failonerror="true"/>
+		<delete dir="${local_home}/resource/${del_anguage}" failonerror="true"/>
+
+		<replace file="${local_home}/index.html" token="@version" value="${TODAY_CN}" encoding="utf-8"/>
+		<replace file="${local_home}/index.html" token="@lang" value="${language}" encoding="utf-8"/>
+		
+		<input message="Press y/n key to upload..." validargs="y,n" addproperty="option" defaultvalue="y"/>
+		<condition property="do.y">
+            <equals arg1="y" arg2="${option}"/>
+        </condition>
+        <antcall target="commitRelease"/>
+
+	</target>
+
+	<!-- 提交到外网服务器 -->
+	<target name="commitRelease" if="do.y">
+		<mkdir dir="${local_home}/.svn/tmp/"/>
+		<echo>==========================开始提交外网！=============================</echo>
+		<exec executable="TortoiseProc">
+			<arg value="/command:commit" />
+			<arg value="/path:${local_home}" />
+			<arg value="/closeonend:2" />
+		</exec>
+	</target>
+
+</project>

@@ -12,26 +12,25 @@ class MessageUtils {
     static showMsgTips(content) {
         let self = this;
         let msg = ObjectPool.pop(MessageTips, "MessageTips");
-        msg.visible = false;
+        msg.visible = true;
+        msg.zOrder = 999;
         msg.init(content);
         self._msgs.push(msg);
         AlignUtils.setToScreenGoldenPos(msg);
         LayerMgr.Instance.addToLayer(msg, LAYER_TYPE.ROLL_MSG_LAYER);
-        // M.layer.rollMessageLayer.addChild(msg);
+        console.log("@David showMsgTips content:", content, " ----- length:", self._msgs.length);
         if (self._msgs.length > 0) {
             let time = self._msgTime * 250;
-            TimerManager.Instance.doTimer(time, 1, () => {
-                msg.visible = true;
-                msg.zOrder = 999;
-            }, msg);
             Laya.Tween.to(msg, { x: msg.x, y: msg.y - 100, alpha: 0 }, 2500, Laya.Ease.cubicInOut, Laya.Handler.create(self, ($msg) => {
                 Laya.Tween.clearTween($msg);
                 DisplayUtils.removeFromArray($msg, self._msgs);
+                console.log("@David showMsgTips content:", content, " ----- length:", self._msgs.length);
                 $msg.zOrder = 1;
                 ObjectPool.push($msg);
                 $msg.removeSelf();
                 $msg.alpha = 1;
                 if (self._msgs.length <= 0) {
+                    self._msgs = [];
                     self._msgTime = 0;
                 }
             }, [msg]), time);

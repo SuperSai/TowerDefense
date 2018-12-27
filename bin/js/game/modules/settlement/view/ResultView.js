@@ -74,6 +74,7 @@ class ResultView extends ui.settlement.ResultViewUI {
                             // }
                             DisplayUtils.removeAllChildren(this.hbox);
                             that.removeSelf();
+                            MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.38"));
                         }, 15);
                     }
                 });

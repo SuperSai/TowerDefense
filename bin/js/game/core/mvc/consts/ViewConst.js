@@ -20,5 +20,7 @@ var ViewConst;
     ViewConst[ViewConst["FreeGetPetView"] = 10009] = "FreeGetPetView";
     /** 守卫升级界面 */
     ViewConst[ViewConst["EvolutionView"] = 10010] = "EvolutionView";
+    /** 福利界面 */
+    ViewConst[ViewConst["WelfareView"] = 10011] = "WelfareView";
 })(ViewConst || (ViewConst = {}));
 //# sourceMappingURL=ViewConst.js.map

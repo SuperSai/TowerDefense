@@ -242,6 +242,11 @@ class HallScene extends ui.hall.HallSceneUI {
             if (userData.isShowFriendConcurRedPoint()) {
                 self.showFriendConcurRedPoint();
             }
+            //每日父类红点
+            if (userData.isShowEveryDayRewardRedPoint()) {
+                self.showEveryDayRewardRedPoint();
+            }
+            self.isShowWelfareBtn();
             self.menuRedPointIsShow();
             self.updateDiamondTime(HallManager.Instance.hallData.offlineTotalTime);
         }
@@ -266,6 +271,7 @@ class HallScene extends ui.hall.HallSceneUI {
         self.btn_sign.on(Laya.Event.CLICK, self, self.showDaySignView); //签到
         self.btn_follow.on(Laya.Event.CLICK, self, self.onClickFollow); //关注
         self.btn_online.on(Laya.Event.CLICK, self, self.onGetOffLineReward); //在线奖励
+        self.btn_welfare.on(Laya.Event.CLICK, self, self.onShowWelfareView); //福利界面
         this.btnMore.on(Laya.Event.CLICK, this, () => {
             M.more.show();
         });
@@ -287,6 +293,7 @@ class HallScene extends ui.hall.HallSceneUI {
         EventsManager.Instance.on(EventsType.STRENGTHEN_RED_POINT, self, self.onUpdateStrengthenRedPoint); //强化红点移除事件
         EventsManager.Instance.on(EventsType.FOLLOW_RED_POINT, self, self.onFollowRewardRedPoint); //关注红点事件
         EventsManager.Instance.on(EventsType.FRIEND_CONCUR_RED_POINT, self, self.onFriendConcurRedPoint); //好友互助红点事件
+        EventsManager.Instance.on(EventsType.EVERY_DAY_INTO_REWARD, self, self.onEveryDayRewardRedPoint); //福利红点事件
         EventsManager.Instance.on(EventsType.UPDATE_HALL_DATA, self, self.onUpdateHallData);
         EventsManager.Instance.on(EventsType.EVOLUTION_LEVEL_COMPLETE, self, self.onEvolutionLevelComplete); //守卫升级完毕
     }
@@ -731,6 +738,7 @@ class HallScene extends ui.hall.HallSceneUI {
                         that.updateGold(PlayerManager.Instance.Info.userMoney + obtainMoney);
                         //本地保存
                         userData.setCarparkSave(that.curMonsterSprite);
+                        that.curMonsterSprite = null;
                     }
                     else {
                         //恢复拖动状态
@@ -1507,6 +1515,39 @@ class HallScene extends ui.hall.HallSceneUI {
             }
         }
     }
+    /** 更新福利红点 */
+    onEveryDayRewardRedPoint($data) {
+        let self = this;
+        if ($data == "show") {
+            self.showEveryDayRewardRedPoint();
+        }
+        else {
+            self.showEveryDayRewardRedPoint(false);
+        }
+        self.isShowWelfareBtn();
+        self.menuRedPointIsShow();
+    }
+    /** 显示每日福利红点 */
+    showEveryDayRewardRedPoint(show = true) {
+        let self = this;
+        if (self.btn_welfare) {
+            let imgRedPoint = self.btn_welfare.getChildByName("imgRedPoint");
+            if (imgRedPoint) {
+                imgRedPoint.visible = show;
+            }
+        }
+    }
+    isShowWelfareBtn() {
+        let self = this;
+        if (userData.isShowEveryDayRewardRedPoint()) {
+            self.btn_ranking.visible = false;
+            self.btn_welfare.visible = true;
+        }
+        else {
+            self.btn_ranking.visible = true;
+            self.btn_welfare.visible = false;
+        }
+    }
     /** 菜单红点是否显示 */
     menuRedPointIsShow() {
         let self = this;
@@ -1689,6 +1730,9 @@ class HallScene extends ui.hall.HallSceneUI {
                 MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.27"));
             }
         }
+    }
+    onShowWelfareView() {
+        ViewMgr.Ins.open(ViewConst.WelfareView);
     }
 }
 //# sourceMappingURL=HallScene.js.map

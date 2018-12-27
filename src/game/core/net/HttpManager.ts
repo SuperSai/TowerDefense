@@ -605,15 +605,20 @@ class HttpManager {
     }
 
     /** 请求是否获取通关奖励 */
-    public requestClearanceReward(encryptedData: string, iv: string, callback: any): void {
+    public requestClearanceReward(uid: string, group_id: string, stage: number, callback: any): void {
+        console.log("@David 请求是否获取通关奖励 uid:", uid, " -- group_id:", group_id, " -- stage:", stage);
+        let dataString = 'uid=' + uid + '&group_id=' + group_id + '&stage=' + stage;
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
-            url: 'v1/activity/help/list?encryptedData=' + encryptedData + "&iv=" + iv,
+            url: 'v1/share/stage',
+            method: "Post",
+            data: dataString,
             success: function (res) {
-                callback && callback(res);
+                callback && callback(res.result);
+                return;
             },
             fail: function (res) {
-                console.log(res);
+                console.log("请求是否获取通关奖励 未录入成功！");
             }
         });
     }
@@ -679,6 +684,20 @@ class HttpManager {
             url: 'v1/intensify',
             method: 'Post',
             data: dataString,
+            success: function (res) {
+                callback && callback(res);
+            },
+            fail: function (res) {
+                console.log(res);
+            }
+        });
+    }
+
+    /** 领取福利奖励 */
+    public requestWelfareReward(callback: any): void {
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+        HttpReqHelper.request({
+            url: 'v1/activity/into/reward',
             success: function (res) {
                 callback && callback(res);
             },

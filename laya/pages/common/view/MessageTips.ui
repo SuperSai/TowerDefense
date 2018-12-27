@@ -2,7 +2,7 @@
     "x":0,
     "type":"View",
     "selectedBox":1,
-    "selecteID":2,
+    "selecteID":1,
     "props":{"sceneWidth":316,"sceneHeight":72,"sceneColor":"#ffffff"},
     "nodeParent":-1,
     "label":"View",
@@ -28,7 +28,7 @@
         {
             "x":15,
             "type":"HBox",
-            "props":{"y":18,"x":19,"var":"hbox"},
+            "props":{"y":18,"x":12,"var":"hbox"},
             "nodeParent":1,
             "label":"HBox(hbox)",
             "isOpen":true,

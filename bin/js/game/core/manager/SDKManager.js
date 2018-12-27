@@ -7,7 +7,6 @@ class SDKManager {
     initWX() {
         platform.onShow(function (data) {
             console.log("@David onShow", data);
-            SDKManager.Instance.handlerShareType(data);
             SDKManager.Instance.handlerSceneValue(data);
             EventsManager.Instance.event(EventsType.BACK_GAME);
             M.more.applyMute();
@@ -180,7 +179,7 @@ class SDKManager {
                 console.log("好友互助UID:", data.query.userId);
                 HttpManager.Instance.requestFriendConcur(data.query.userId);
                 break;
-            case "clearanceReward":
+            case "stage":
                 this.checkIsGetClearanceReward(data);
                 break;
             default:
@@ -202,20 +201,23 @@ class SDKManager {
                     HttpManager.Instance.requestPublicAddress(data);
                 }
                 break;
+            case 1022:
         }
     }
     /** 检查是否可以领取通关奖励 */
     checkIsGetClearanceReward(data) {
         if (!data || !data.prescene_note)
             return;
-        let chatRoom = data.prescene_note.split("@")[1];
-        let groupId = chatRoom.split(":")[1];
-        HttpManager.Instance.requestClearanceReward(userData.userId + "", groupId, (res) => {
-            if (res) { //成功
+        let groupId = data.prescene_note.split("@")[0];
+        HttpManager.Instance.requestClearanceReward(userData.userId + "", groupId, HallManager.Instance.hallData.passStage, (result) => {
+            console.log("@David 检查是否可以领取通关奖励 返回结果 flag:", result);
+            if (result == true) { //成功
                 HallManager.Instance.showClearanceRewardView();
+                return;
             }
-            else { //失败
+            else if (result == false) { //失败
                 MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.35"));
+                return;
             }
         });
     }

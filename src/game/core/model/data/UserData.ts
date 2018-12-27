@@ -86,6 +86,8 @@ class UserData {
     private showLuckPrizeRedPoint: boolean = false; //转盘红点
     private showFollowRedPoint: boolean = false; //关注奖励红点
     private showFriendConcurRedPoint: boolean = false;//好友互助红点
+    /** 福利 */
+    private every_day_into_rewards: boolean = false;//福利
     private isOpenShareAd: boolean = false; //打开视频分享
     private advert: Array<any> = []; //广告
     private diamond_acce_num: number = 0; //每日元宝加速次数
@@ -523,6 +525,20 @@ class UserData {
         }
     }
 
+    //显示福利红点
+    public isShowEveryDayRewardRedPoint(): boolean {
+        return this.every_day_into_rewards;
+    }
+    //移除福利红点
+    public removeEveryDayRewardRedPoint(): void {
+        this.every_day_into_rewards = false;
+        if (EventsManager.Instance) {
+            this.menuRedPointCount--;
+            EventsManager.Instance.event(EventsType.EVERY_DAY_INTO_REWARD, "remove");
+        }
+    }
+
+
     //是否新手
     public isGuide(): boolean {
         let that = this;
@@ -595,9 +611,9 @@ class UserData {
         let that = this;
         that._isLoadStorage = true;
         if (GlobalConfig.DEBUG) {
-            if (GlobalConfig.USER) {
-                M.player.account = GlobalConfig.USER;
-            }
+            // if (GlobalConfig.USER) {
+            //     M.player.account = GlobalConfig.USER;
+            // }
             if (!Laya.Browser.onMiniGame) {
                 _callback && _callback(true);
                 return;
@@ -932,7 +948,7 @@ class UserData {
                 self.toShare((res) => {
                     callback && callback();
                     HttpManager.Instance.requestShareAdFinish("share_clearance_reward", res);
-                }, isTask, isGroupShare, "clearanceReward");
+                }, isTask, isGroupShare, "stage");
                 break;
             //分享无限次数
             default: {
@@ -1021,6 +1037,7 @@ class UserData {
                     self.showLuckPrizeRedPoint = res.roulette_flag;
                     self.showFollowRedPoint = res.subscribe_flag;
                     self.showFriendConcurRedPoint = res.friend_help_flag;
+                    self.every_day_into_rewards = res.every_day_into_rewards;
                     self.advert = res.advert;
                     self.diamond_acce_num = res.diamond_acce_num;
                     if (EventsManager.Instance) {
@@ -1128,6 +1145,8 @@ class UserData {
                         cache.hasOwnProperty(CacheKey.CONCUR) && (HallManager.Instance.hallData.concurGoldDic.fromJsonObject(cache[CacheKey.CONCUR]));
                         // 不管有没有缓存都需要赋值
                         M.more.model.mute = cache.hasOwnProperty(CacheKey.SOUND_MUTE) ? cache[CacheKey.SOUND_MUTE] : false;
+                        console.log("@David 声音开关 SOUND_MUTE：", cache[CacheKey.SOUND_MUTE], " ----- hasOwnProperty:", cache.hasOwnProperty(CacheKey.SOUND_MUTE));
+
                     }
                 }
             }

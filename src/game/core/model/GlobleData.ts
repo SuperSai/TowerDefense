@@ -54,7 +54,8 @@ class GlobleData extends Laya.EventDispatcher {
     private initStep(): void {
         let self = this;
         self._needParseCount = self._totalStepCsvList.GetLenght();
-        TimerManager.Instance.doFrame(1, 0, self.onEnterFrameLoader, self);
+        // TimerManager.Instance.doFrame(0, 0, self.onEnterFrameLoader, self);
+        self.onEnterFrameLoader();
     }
 
     private onEnterFrameLoader(): void {
@@ -76,8 +77,9 @@ class GlobleData extends Laya.EventDispatcher {
         let self = this;
         if (self._jsonCount < self._needParseCount) {
             let key: string = self._totalStepCsvList.getKeyByIndex(self._jsonCount);
-            key = "config/csvJson/" + key;
+            key = "index/config/csvJson/" + key;
             key = key.replace('_', '.');
+            key = PathConfig.AppResUrl + key;
             Laya.loader.load(key, Laya.Handler.create(self, self.onLoaded, [key]), null, Laya.Loader.TEXT);
             self._jsonCount++;
         }
@@ -91,6 +93,7 @@ class GlobleData extends Laya.EventDispatcher {
         let data_json: any = JSON.parse(data);
         let csvStr: string = JSON.stringify(data_json);
         self.starSingleParse(csvStr);
+        this.onEnterFrameLoader();
     }
 
     private starSingleParse(csvStr: string): void {
@@ -99,6 +102,7 @@ class GlobleData extends Laya.EventDispatcher {
         let DataClass: any = self._totalStepCsvList.getValueByIndex(self._currParseCount);
         let dic: TSDictionary<number, any> = CSVParser.ParseJsonData(DataClass, csvStr);
         GlobleData.AllCacheData.Add(key, dic);
+        console.log("@David csv key:", key, " -- values:", dic);
         self._currParseCount++;
     }
 
@@ -124,8 +128,7 @@ class GlobleData extends Laya.EventDispatcher {
     /** 获取对应表的所有数据 */
     public static getAllValue(type: string): Array<any> {
         let dic: TSDictionary<number, any> = GlobleData.AllCacheData.TryGetValue(type);
-        let arr: any[] = dic.getValues();
-        return arr ? arr : [];
+        return dic.getValues();
     }
     /**
      * 查找对应条件的数据

@@ -9,6 +9,7 @@ class BaseView extends Laya.View implements IBaseView {
     private _ui: any;
     private _isShowMask: boolean;
     private _datas: any[];
+    private _class: Laya.View;
 
     /** 构造函数 */
     public constructor($layer: number, $class: any, isShowMask: boolean = true) {
@@ -17,6 +18,7 @@ class BaseView extends Laya.View implements IBaseView {
         this._isInit = false;
         this._isShowMask = isShowMask;
         this._ui = $class;
+        this._class = $class;
     }
 
     /** 获取我的父级 */
@@ -29,7 +31,10 @@ class BaseView extends Laya.View implements IBaseView {
         AlignUtils.setToScreenGoldenPos(this);
         if (this._isShowMask) {
             this._myParent.maskEnabled = true;
-            this._myParent.addChildWithMaskCall(this, this.removeFromParent);
+            this._myParent.addChildWithMaskCall(this, () => {
+                this.removeFromParent();
+                this.close();
+            });
         } else {
             this._myParent.maskEnabled = false;
             this._myParent.addChild(this);

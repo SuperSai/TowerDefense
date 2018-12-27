@@ -19,6 +19,8 @@ class PlayerInfo {
         this.dayGetGoldCount = 10;
         /** 关卡开放等级 */
         this.levelOffect = 2;
+        /** 是否从我的小程序进入游戏 */
+        this.isMySceneEnter = false;
     }
 }
 //# sourceMappingURL=PlayerInfo.js.map

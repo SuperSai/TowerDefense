@@ -20,4 +20,6 @@ class PlayerInfo {
     public dayGetGoldCount: number = 10;
     /** 关卡开放等级 */
     public levelOffect: number = 2;
+    /** 是否从我的小程序进入游戏 */
+    public isMySceneEnter:boolean = false;
 }

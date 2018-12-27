@@ -45,6 +45,8 @@ hallScene.label.txt.34:恭喜您获得金币加成
 hallScene.label.txt.35:半小时内不可以领取同一个群的奖励
 hallScene.label.txt.36:该界面没有到 ViewRegisterMgr 类中注册!
 hallScene.label.txt.37:购买失败
+hallScene.label.txt.38:在群里点击分享的链接进入游戏，领取奖励。
+hallScene.label.txt.39:请从“我的小程序”中进入游戏
 
 
 

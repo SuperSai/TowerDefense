@@ -8,7 +8,7 @@ class MainLoadingView extends Laya.Sprite {
         this.ui.probox.visible = false;
         this.addChild(this.ui);
 
-        
+
         this.tweenAd();
     }
 
@@ -41,12 +41,19 @@ class MainLoadingView extends Laya.Sprite {
     private startToLoad(): void {
         this.ui.probox.visible = true;
         this.ui.btnStart.visible = false;
-        this.startCountDown();
-        if (Laya.Browser.onMiniGame) {
-            this.loadSubPackages();
+        let launch: any = platform.getLaunchOptionsSync();
+        console.log("@David getLaunchOptionsSync:", launch);
+        if (launch.scene == 1104 || launch.scene == 1103 || launch.scene == 1023) {  //ios从我的小程序入口进
+            PlayerManager.Instance.Info.isMySceneEnter = true;
         } else {
-            this.loadRemoteRes();
+            PlayerManager.Instance.Info.isMySceneEnter = false;
         }
+        this.startCountDown();
+        // if (Laya.Browser.onMiniGame) {
+        //     this.loadSubPackages();
+        // } else {
+        this.loadRemoteRes();
+        // }
     }
 
     private loadSubPackages(): void {
@@ -138,8 +145,11 @@ class MainLoadingView extends Laya.Sprite {
         }
     }
 
-    private startGame():void{
+    private startGame(): void {
         HallScene.Create(M.layer.renderLayer);
+        if (Laya.Browser.onMiniGame) {
+            Laya.Browser.window.wx.postMessage({ message: "friendRank" });
+        }
         Laya.timer.clearAll(this);
         this.destroy();
     }

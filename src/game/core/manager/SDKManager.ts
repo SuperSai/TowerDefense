@@ -15,7 +15,6 @@ class SDKManager {
     public initWX(): void {
         platform.onShow(function (data: any) {
             console.log("@David onShow", data);
-            SDKManager.Instance.handlerShareType(data);
             SDKManager.Instance.handlerSceneValue(data);
             EventsManager.Instance.event(EventsType.BACK_GAME);
             M.more.applyMute();
@@ -81,7 +80,7 @@ class SDKManager {
             self._bannerAd = platform.createBannerAd({
                 adUnitId: 'adunit-439fc3b5508c60cc',
                 top: LayerManager.clientTop,
-                height:LayerManager.clientHeight
+                height: LayerManager.clientHeight
             });
         }
         if (self._bannerAd) {
@@ -187,7 +186,7 @@ class SDKManager {
                 console.log("好友互助UID:", data.query.userId);
                 HttpManager.Instance.requestFriendConcur(data.query.userId);
                 break;
-            case "clearanceReward":
+            case "stage":
                 this.checkIsGetClearanceReward(data);
                 break;
             default:
@@ -210,19 +209,23 @@ class SDKManager {
                     HttpManager.Instance.requestPublicAddress(data);
                 }
                 break;
+            case 1022:
+            
         }
     }
 
     /** 检查是否可以领取通关奖励 */
     private checkIsGetClearanceReward(data: any): void {
         if (!data || !data.prescene_note) return;
-        let chatRoom: string = data.prescene_note.split("@")[1];
-        let groupId: string = chatRoom.split(":")[1];
-        HttpManager.Instance.requestClearanceReward(userData.userId + "", groupId, (res) => {
-            if (res) {  //成功
+        let groupId: string = data.prescene_note.split("@")[0];
+        HttpManager.Instance.requestClearanceReward(userData.userId + "", groupId, HallManager.Instance.hallData.passStage, (result: boolean) => {
+            console.log("@David 检查是否可以领取通关奖励 返回结果 flag:", result);
+            if (result == true) {  //成功
                 HallManager.Instance.showClearanceRewardView();
-            } else {    //失败
-                MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.35"))
+                return;
+            } else if (result == false) {    //失败
+                MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.35"));
+                return;
             }
         })
     }

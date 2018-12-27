@@ -19,4 +19,6 @@ enum ViewConst {
     FreeGetPetView,
     /** 守卫升级界面 */
     EvolutionView,
+    /** 福利界面 */
+    WelfareView,
 }

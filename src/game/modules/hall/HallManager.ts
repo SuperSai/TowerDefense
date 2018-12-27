@@ -137,7 +137,11 @@ class HallManager extends Laya.EventDispatcher {
                 HttpManager.Instance.requestStagePrizeDiamond(lastStage, gem, bossM, (_res: any) => {
                     let stage = _res as number;
                     if (stage > 0) {
-                        ClearanceRewardView.Create(this._hall, null, null, stage);
+                        ClearanceRewardView.Create(this._hall, null, () => {
+                            if (this._hall.btnStagePrize.visible) {
+                                this._hall.showStagePrize(HallManager.Instance.hallData.stagePrizeList.length > 0);
+                            }
+                        }, stage);
                         HttpManager.Instance.requestDiamondData();
                         HttpManager.Instance.requestEssenceData();
                     }

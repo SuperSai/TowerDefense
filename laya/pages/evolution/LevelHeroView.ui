@@ -2,7 +2,7 @@
     "x":0,
     "type":"View",
     "selectedBox":29,
-    "selecteID":3,
+    "selecteID":4,
     "props":{"width":714,"sceneWidth":600,"sceneHeight":400,"sceneColor":"#000000","sceneBg":"laya/views/evolution/LevelHeroView.jpg","height":562},
     "nodeParent":-1,
     "label":"View",
@@ -41,7 +41,7 @@
                 {
                     "x":30,
                     "type":"Image",
-                    "props":{"y":35,"x":119,"skin":"images/levelHero/levelHero_titel.png"},
+                    "props":{"y":35,"x":166,"skin":"images/levelHero/levelHero_titel.png"},
                     "nodeParent":29,
                     "label":"Image",
                     "isDirectory":false,
@@ -278,7 +278,7 @@
                 {
                     "x":30,
                     "type":"Button",
-                    "props":{"y":433,"x":389,"var":"btn_sure","stateNum":"1","skin":"images/component/frame_btn_small_yellow.png","labelStrokeColor":"#825321","labelStroke":2,"labelSize":28,"labelColors":"#ffffff,#ffffff,#ffffff,#ffffff","label":"确定"},
+                    "props":{"y":418,"x":395,"var":"btn_sure","stateNum":"1","skin":"images/component/btn_yellow_yuan.png","labelStrokeColor":"#825321","labelStroke":2,"labelSize":40,"labelColors":"#ffffff,#ffffff,#ffffff,#ffffff","label":"确定"},
                     "nodeParent":29,
                     "label":"Button(btn_sure)",
                     "isOpen":false,
@@ -304,7 +304,7 @@
                 {
                     "x":30,
                     "type":"Button",
-                    "props":{"y":433,"x":142,"width":182,"var":"btn_next","stateNum":"1","skin":"images/component/frame_btn_small_blue.png","labelStrokeColor":"#306294","labelStroke":2,"labelSize":28,"labelColors":"#ffffff,#ffffff,#ffffff,#ffffff","label":"下次","height":62},
+                    "props":{"y":418,"x":95,"var":"btn_next","stateNum":"1","skin":"images/component/btn_blue_yuan.png","labelStrokeColor":"#306294","labelStroke":2,"labelSize":40,"labelColors":"#ffffff,#ffffff,#ffffff,#ffffff","label":"下次"},
                     "nodeParent":29,
                     "label":"Button(btn_next)",
                     "isOpen":false,

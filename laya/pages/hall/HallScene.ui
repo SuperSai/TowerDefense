@@ -1090,13 +1090,14 @@
                             "props":{"y":127,"width":457,"var":"menuBox","left":0,"height":109},
                             "nodeParent":37,
                             "label":"Box(menuBox)",
-                            "isOpen":false,
+                            "isOpen":true,
                             "isDirectory":true,
                             "isAniNode":true,
                             "hasChild":true,
                             "compId":410,
                             "child":[
                                 {
+                                    "x":60,
                                     "type":"Image",
                                     "props":{"width":457,"skin":"images/hall/hall_suofang_bg.png","sizeGrid":"45,44,50,0","mouseThrough":false,"mouseEnabled":false,"height":109},
                                     "nodeParent":410,
@@ -1109,6 +1110,7 @@
                                         ]
                                 },
                                 {
+                                    "x":60,
                                     "type":"Button",
                                     "props":{"y":54,"x":420,"var":"btn_arrow","stateNum":"1","skin":"images/hall/hall_arrow.png","scaleX":1,"anchorY":0.5,"anchorX":0.5},
                                     "nodeParent":410,
@@ -1122,6 +1124,7 @@
                                         ]
                                 },
                                 {
+                                    "x":60,
                                     "type":"Button",
                                     "props":{"y":11,"x":6,"var":"btn_ranking","stateNum":"1","skin":"images/hall/hall_rankBtn.png"},
                                     "nodeParent":410,
@@ -1133,6 +1136,7 @@
                                     "compId":399,
                                     "child":[
                                         {
+                                            "x":75,
                                             "type":"Script",
                                             "source":"laya/pages/ScaleAnimScript.script",
                                             "props":{},
@@ -1147,6 +1151,7 @@
                                         }]
                                 },
                                 {
+                                    "x":60,
                                     "type":"Button",
                                     "props":{"y":10,"x":101,"var":"btn_follow","stateNum":"1","skin":"images/hall/hall_followBtn.png"},
                                     "nodeParent":410,
@@ -1158,6 +1163,7 @@
                                     "compId":403,
                                     "child":[
                                         {
+                                            "x":75,
                                             "type":"Script",
                                             "source":"laya/pages/ScaleAnimScript.script",
                                             "props":{},
@@ -1171,6 +1177,7 @@
                                                 ]
                                         },
                                         {
+                                            "x":75,
                                             "type":"Image",
                                             "props":{"y":3,"x":57,"visible":false,"skin":"images/core/red_dot_hint.png","name":"imgRedPoint"},
                                             "nodeParent":403,
@@ -1184,6 +1191,7 @@
                                         }]
                                 },
                                 {
+                                    "x":60,
                                     "type":"Button",
                                     "props":{"y":11,"x":196,"var":"btn_concur","stateNum":"1","skin":"images/hall/hall_concurBtn.png"},
                                     "nodeParent":410,
@@ -1195,6 +1203,7 @@
                                     "compId":405,
                                     "child":[
                                         {
+                                            "x":75,
                                             "type":"Script",
                                             "source":"laya/pages/ScaleAnimScript.script",
                                             "props":{},
@@ -1208,6 +1217,7 @@
                                                 ]
                                         },
                                         {
+                                            "x":75,
                                             "type":"Image",
                                             "props":{"y":3,"x":57,"visible":false,"skin":"images/core/red_dot_hint.png","name":"imgRedPoint"},
                                             "nodeParent":405,
@@ -1221,6 +1231,7 @@
                                         }]
                                 },
                                 {
+                                    "x":60,
                                     "type":"Button",
                                     "props":{"y":9,"x":291,"var":"btn_sign","stateNum":"1","skin":"images/hall/hall_dailySingBtn.png"},
                                     "nodeParent":410,
@@ -1232,6 +1243,7 @@
                                     "compId":407,
                                     "child":[
                                         {
+                                            "x":75,
                                             "type":"Script",
                                             "source":"laya/pages/ScaleAnimScript.script",
                                             "props":{},
@@ -1245,6 +1257,7 @@
                                                 ]
                                         },
                                         {
+                                            "x":75,
                                             "type":"Image",
                                             "props":{"y":2,"x":59,"visible":false,"skin":"images/core/red_dot_hint.png","name":"imgRedPoint"},
                                             "nodeParent":407,
@@ -1258,6 +1271,7 @@
                                         }]
                                 },
                                 {
+                                    "x":60,
                                     "type":"Image",
                                     "props":{"y":-7,"x":425,"visible":false,"var":"menuRedPoint","skin":"images/core/red_dot_hint.png"},
                                     "nodeParent":410,
@@ -1268,6 +1282,46 @@
                                     "compId":416,
                                     "child":[
                                         ]
+                                },
+                                {
+                                    "x":60,
+                                    "type":"Button",
+                                    "props":{"y":10,"x":5,"var":"btn_welfare","stateNum":"1","skin":"images/hall/hall_rankBtn.png"},
+                                    "nodeParent":410,
+                                    "label":"Button(btn_welfare)",
+                                    "isOpen":true,
+                                    "isDirectory":true,
+                                    "isAniNode":true,
+                                    "hasChild":true,
+                                    "compId":418,
+                                    "child":[
+                                        {
+                                            "x":75,
+                                            "type":"Script",
+                                            "source":"laya/pages/ScaleAnimScript.script",
+                                            "props":{},
+                                            "nodeParent":418,
+                                            "label":"ScaleAnimScript",
+                                            "isDirectory":false,
+                                            "isAniNode":true,
+                                            "hasChild":false,
+                                            "compId":419,
+                                            "child":[
+                                                ]
+                                        },
+                                        {
+                                            "x":75,
+                                            "type":"Image",
+                                            "props":{"y":4,"x":60,"visible":false,"skin":"images/core/red_dot_hint.png","name":"imgRedPoint"},
+                                            "nodeParent":418,
+                                            "label":"Image(imgRedPoint)",
+                                            "isDirectory":false,
+                                            "isAniNode":true,
+                                            "hasChild":false,
+                                            "compId":420,
+                                            "child":[
+                                                ]
+                                        }]
                                 }]
                         }],
                     "$LOCKED":false,

@@ -265,7 +265,6 @@ class LuckPrizeView extends ui.luckPrize.LuckPrizeViewUI {
             }
             let itemData = that.prizeItemTable[_itemId - 1];
             if (itemData) {
-                let imgItemBg = bgView.getChildByName("imgItemBg") as Laya.Image;
                 let imgItem = bgView.getChildByName("imgItem") as Laya.Image;
                 if (imgItem && itemData.imgUrl) {
                     imgItem.visible = true;
@@ -358,8 +357,8 @@ class LuckPrizeView extends ui.luckPrize.LuckPrizeViewUI {
                     that.requestPrizeCensus(_itemId, 1);
                 }
             }
+            that.startBtnEnabled(false);
         }
-        that.startBtnEnabled(false);
     }
 
     private showMyDiamond(value: number): void {
@@ -369,7 +368,6 @@ class LuckPrizeView extends ui.luckPrize.LuckPrizeViewUI {
 
     //获取抽奖信息
     public requestPrizeInfo(_callback: any): void {
-        let that = this;
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/activity/get/roulette',

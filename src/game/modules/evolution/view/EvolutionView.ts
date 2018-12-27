@@ -86,13 +86,14 @@ class EvolutionView extends BaseView {
             self.ui.nameHbox.refresh();
             self.ui.btnUpdate.on(Laya.Event.CLICK, self, () => {
                 if (diamond >= needDiamond) {
-                    HttpManager.Instance.requestUpdateKingLevel(EvolutionView.kingEvolutionType, kingLevel, needDiamond, (_res: any) => {
-                        if (_res && _res.type) {
-                            this.evolutionLevelComplete(kingLevel + 1, _res.diamond);
-                        }
-                    });
                     if (GlobalConfig.DEBUG) {
                         this.evolutionLevelComplete(kingLevel + 1, userData.diamond - needDiamond);
+                    } else {
+                        HttpManager.Instance.requestUpdateKingLevel(EvolutionView.kingEvolutionType, kingLevel, needDiamond, (_res: any) => {
+                            if (_res && _res.type) {
+                                this.evolutionLevelComplete(kingLevel + 1, _res.diamond);
+                            }
+                        });
                     }
                 } else {
                     MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.04"));
@@ -105,7 +106,7 @@ class EvolutionView extends BaseView {
         let self = this;
         MessageUtils.showMsgTips("升级成功");
         HallManager.Instance.hallData.isUpdate = false;
-        if (diamond > 0) EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: userData.diamond -= diamond });
+        if (diamond > 0) EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: userData.diamond = diamond });
         EventsManager.Instance.event(EventsType.EVOLUTION_LEVEL_COMPLETE, kingLevel);
         self.refreshBoxUI();
     }

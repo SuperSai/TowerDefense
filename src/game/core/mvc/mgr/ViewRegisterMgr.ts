@@ -13,6 +13,7 @@ class ViewRegisterMgr {
         ViewMgr.Ins.register(ViewConst.AdditionalRewardView, new AdditionalRewardView());
         ViewMgr.Ins.register(ViewConst.FreeGetPetView, new FreeGetPetView());
         ViewMgr.Ins.register(ViewConst.EvolutionView, new EvolutionView());
+        ViewMgr.Ins.register(ViewConst.WelfareView, new WelfareView());
     }
 
     private static _instance: ViewRegisterMgr;
