@@ -13,6 +13,7 @@ class ViewRegisterMgr {
         ViewMgr.Ins.register(ViewConst.EvolutionView, new EvolutionView());
         ViewMgr.Ins.register(ViewConst.WelfareView, new WelfareView());
         ViewMgr.Ins.register(ViewConst.NoticeView, new NoticeView());
+        ViewMgr.Ins.register(ViewConst.RewardGetView, new RewardGetView());
     }
     static get Instance() {
         if (!ViewRegisterMgr._instance) {

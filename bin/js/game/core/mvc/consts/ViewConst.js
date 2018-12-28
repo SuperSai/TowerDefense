@@ -24,5 +24,7 @@ var ViewConst;
     ViewConst[ViewConst["WelfareView"] = 10011] = "WelfareView";
     /** 游戏公告 */
     ViewConst[ViewConst["NoticeView"] = 10012] = "NoticeView";
+    /** 奖励领取界面 */
+    ViewConst[ViewConst["RewardGetView"] = 10013] = "RewardGetView";
 })(ViewConst || (ViewConst = {}));
 //# sourceMappingURL=ViewConst.js.map

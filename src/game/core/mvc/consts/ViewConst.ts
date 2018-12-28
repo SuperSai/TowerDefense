@@ -23,4 +23,6 @@ enum ViewConst {
     WelfareView,
     /** 游戏公告 */
     NoticeView,
+    /** 奖励领取界面 */
+    RewardGetView,
 }

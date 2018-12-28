@@ -229,7 +229,7 @@ class ShopView extends BaseView {
                         HallManager.Instance.hall.saveCarStore(_carInfo.id);
                 }
                 MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.03"));
-                ViewMgr.Ins.open(ViewConst.FreeGetPetView, _carInfo);
+                ViewMgr.Ins.open(ViewConst.FreeGetPetView, null, _carInfo);
                 if (btnObj) {
                     //观看次数已用完
                     if (userData.getAdTimes(11) < 1 && userData.getShareTimes(11) < 1) {

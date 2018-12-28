@@ -73,13 +73,12 @@ class FriendConcurItem extends ui.friendConcur.FriendConcurItemUI {
         let self = this;
         if (self._data) {
             HttpManager.Instance.requestReward(self._data.id, (res) => {
-                RewardGetView.Create(self, () => {
+                self.btn_get.disabled = true;
+                FriendConcurView.redPointNum--;
+                ViewMgr.Ins.open(ViewConst.RewardGetView, () => {
                     M.layer.screenEffectLayer.addChild(new FlyEffect().play("rollingCoin", LayerManager.mouseX, LayerManager.mouseY));
-                    FriendConcurView.redPointNum--;
                     if (FriendConcurView.redPointNum < 1) {
-                        if (userData) {
-                            userData.removeFriendConcurRedPoint();
-                        }
+                        userData.removeFriendConcurRedPoint();
                         FriendConcurView.redPointNum = 0;
                     }
                     EventsManager.Instance.event(EventsType.GLOD_CHANGE, { money: userData.gold += self._gold });
@@ -87,7 +86,7 @@ class FriendConcurItem extends ui.friendConcur.FriendConcurItemUI {
                         EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: userData.diamond += self._rewards[1] });
                     }
                     EventsManager.Instance.event(EventsType.FRIEND_CONCUR_GET_REWARD);
-                }, self._rewards);
+                }, self._rewards, [1, 2])
             });
         }
     }

@@ -111,7 +111,7 @@ var ui;
                     this.createView(ui.common.view.MessageTipsUI.uiView);
                 }
             }
-            MessageTipsUI.uiView = { "type": "View", "props": {}, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "var": "bg", "skin": "images/component/frame_tips_bg.png", "sizeGrid": "34,62,36,71" } }, { "type": "HBox", "props": { "y": 18, "x": 12, "var": "hbox" }, "child": [{ "type": "Image", "props": { "skin": "images/core/core_tips_icon.png" } }, { "type": "Label", "props": { "y": 2, "x": 38, "var": "txt_content", "text": "消息提示", "fontSize": 30, "color": "#ffffff", "bold": true, "align": "left" } }] }] };
+            MessageTipsUI.uiView = { "type": "View", "props": {}, "child": [{ "type": "Box", "props": { "left": 0 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "var": "bg", "skin": "images/component/frame_tips_bg.png", "sizeGrid": "34,62,36,71" } }, { "type": "HBox", "props": { "y": 18, "x": 12, "var": "hbox" }, "child": [{ "type": "Image", "props": { "skin": "images/core/core_tips_icon.png" } }, { "type": "Label", "props": { "y": 2, "x": 38, "var": "txt_content", "text": "消息提示", "fontSize": 30, "color": "#ffffff", "bold": true, "align": "left" } }] }] }] };
             view.MessageTipsUI = MessageTipsUI;
         })(view = common.view || (common.view = {}));
     })(common = ui.common || (ui.common = {}));

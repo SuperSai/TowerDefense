@@ -43,6 +43,8 @@ class MainLoadingView extends Laya.Sprite {
         console.log("@David getLaunchOptionsSync:", launch);
         if (launch.scene == 1104 || launch.scene == 1103 || launch.scene == 1023) {  //ios从我的小程序入口进
             PlayerManager.Instance.Info.isMySceneEnter = true;
+        } if (launch.scene == 1008) {
+            SDKManager.Instance.handlerSceneValue(launch);
         } else {
             PlayerManager.Instance.Info.isMySceneEnter = false;
         }

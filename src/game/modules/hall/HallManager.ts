@@ -183,7 +183,7 @@ class HallManager extends Laya.EventDispatcher {
     /** 钻石购买 */
     public onDiamondBuy(heroInfo: any = null): void {
         let carPrice = BattleManager.Instance.getMonsterDiamondPrice(heroInfo.id, userData.queryBuyRecord(heroInfo.id, true));
-        ViewMgr.Ins.open(ViewConst.DiamondBuyView, DILOG_TYPE.PET, carPrice, heroInfo);
+        ViewMgr.Ins.open(ViewConst.DiamondBuyView,null, DILOG_TYPE.PET, carPrice, heroInfo);
     }
 
     //金币购买英雄

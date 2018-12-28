@@ -385,7 +385,7 @@ class UserData {
             if (_kind == 10) {
                 return that.shareAdTimes.share_acce_num;
             } else if (_kind == 11) {
-                return that.shareAdTimes.share_shop_num;
+                return that.shareAdTimes.share_free_car_num;
             } else if (_kind == 12) {
                 return that.shareAdTimes.share_no_money_num;
             }
@@ -400,7 +400,7 @@ class UserData {
             if (_kind == 10) {
                 that.shareAdTimes.ad_acce_num--;
             } else if (_kind == 11) {
-                that.shareAdTimes.share_shop_num--;
+                that.shareAdTimes.ad_free_car_num--;
             } else if (_kind == 12) {
                 that.shareAdTimes.ad_no_money_num--;
             } else {
@@ -414,7 +414,7 @@ class UserData {
             if (_kind == 10) {
                 that.shareAdTimes.share_acce_num--;
             } else if (_kind == 11) {
-                that.shareAdTimes.share_shop_num--;
+                that.shareAdTimes.share_free_car_num--;
             } else if (_kind == 12) {
                 that.shareAdTimes.share_no_money_num--;
             }
@@ -506,10 +506,8 @@ class UserData {
     //移除红点
     public removeFollowRedPoint(): void {
         this.showFollowRedPoint = false;
-        if (EventsManager.Instance) {
-            this.menuRedPointCount--;
-            EventsManager.Instance.event(EventsType.FOLLOW_RED_POINT, "remove");
-        }
+        this.menuRedPointCount--;
+        EventsManager.Instance.event(EventsType.FOLLOW_RED_POINT, "remove");
     }
 
     //显示好友互助红点
@@ -519,10 +517,8 @@ class UserData {
     //移除好友互助红点
     public removeFriendConcurRedPoint(): void {
         this.showFriendConcurRedPoint = false;
-        if (EventsManager.Instance) {
-            this.menuRedPointCount--;
-            EventsManager.Instance.event(EventsType.FRIEND_CONCUR_RED_POINT, "remove");
-        }
+        this.menuRedPointCount--;
+        EventsManager.Instance.event(EventsType.FRIEND_CONCUR_RED_POINT, "remove");
     }
 
     //显示福利红点
@@ -532,10 +528,8 @@ class UserData {
     //移除福利红点
     public removeEveryDayRewardRedPoint(): void {
         this.every_day_into_rewards = false;
-        if (EventsManager.Instance) {
-            this.menuRedPointCount--;
-            EventsManager.Instance.event(EventsType.EVERY_DAY_INTO_REWARD, "remove");
-        }
+        this.menuRedPointCount--;
+        EventsManager.Instance.event(EventsType.EVERY_DAY_INTO_REWARD, "remove");
     }
 
 

@@ -16,6 +16,7 @@ class MessageUtils {
         msg.zOrder = 999;
         msg.init(content);
         self._msgs.push(msg);
+        console.log("@David 飘字的宽度:", msg.width);
         AlignUtils.setToScreenGoldenPos(msg);
         LayerMgr.Instance.addToLayer(msg, LAYER_TYPE.ROLL_MSG_LAYER);
         if (self._msgs.length > 0) {

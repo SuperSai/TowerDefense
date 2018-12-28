@@ -34,13 +34,14 @@ class ViewMgr {
      * @param key 面板唯一标识
      * @param param 参数
      */
-    open(key, ...param) {
+    open(key, callback = null, ...param) {
         var view = this.getView(key);
         if (view == null) {
             MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.36"));
             return;
         }
         if (view.isShow()) {
+            view.callback = callback;
             view.initUI();
             view.open.apply(view, param);
             view.initData();
@@ -48,6 +49,7 @@ class ViewMgr {
         }
         if (view.isInit()) {
             view.addToParent();
+            view.callback = callback;
             view.initUI();
             view.addEvents();
             view.open.apply(view, param);
@@ -59,6 +61,7 @@ class ViewMgr {
                 view.initUIView();
                 view.addToParent();
             }.bind(this), function () {
+                view.callback = callback;
                 view.initUI();
                 view.addEvents();
                 view.open.apply(view, param);

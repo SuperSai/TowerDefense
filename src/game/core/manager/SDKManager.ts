@@ -190,7 +190,6 @@ class SDKManager {
                 this.checkIsGetClearanceReward(data);
                 break;
         }
-        HttpManager.Instance.requestShareGift(data);
     }
 
     /** 处理场景值 */
@@ -198,6 +197,7 @@ class SDKManager {
         switch (Math.floor(data.scene)) {
             case 1008:
             case 1044:
+                HttpManager.Instance.requestShareGift(data);
                 this.handlerShareType(data);
                 break;
             case 1020:

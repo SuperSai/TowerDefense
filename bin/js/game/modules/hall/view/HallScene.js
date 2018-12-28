@@ -156,7 +156,7 @@ class HallScene extends ui.hall.HallSceneUI {
         //检查守卫是否可以升级
         self.checkKingIsUpdate();
         StrengthenManager.Instance.checkRedPoint();
-        self.showStagePrize(true);
+        // self.showStagePrize(true);
         SDKManager.Instance.createBanner(false);
         //游戏公告
         HttpManager.Instance.requestAnnouncement();
@@ -580,7 +580,7 @@ class HallScene extends ui.hall.HallSceneUI {
     }
     /** 钻石购买加速 */
     onDiamondBuyAcce() {
-        ViewMgr.Ins.open(ViewConst.DiamondBuyView, DILOG_TYPE.ACC, 60);
+        ViewMgr.Ins.open(ViewConst.DiamondBuyView, null, DILOG_TYPE.ACC, 60);
     }
     onShowCarport() {
         ViewMgr.Ins.open(ViewConst.ShopView);
@@ -902,7 +902,7 @@ class HallScene extends ui.hall.HallSceneUI {
     /** 随机钻石奖励界面 */
     showRandomDiamondReward() {
         HttpManager.Instance.requestShowRandomRewardDiamond((res) => {
-            ViewMgr.Ins.open(ViewConst.AdditionalRewardView, res);
+            ViewMgr.Ins.open(ViewConst.AdditionalRewardView, null, res);
         });
     }
     //初始化兵营
@@ -1556,7 +1556,7 @@ class HallScene extends ui.hall.HallSceneUI {
     menuRedPointIsShow() {
         let self = this;
         self.menuRedPoint.visible = userData.menuRedPointCount > 0;
-        self.showMenu(!self.menuRedPoint.visible);
+        self.showMenu(self.menuRedPoint.visible);
     }
     /** 刷新金币 */
     onRefreshGold() {
@@ -1635,29 +1635,30 @@ class HallScene extends ui.hall.HallSceneUI {
     }
     onClickMenuHandler() {
         let self = this;
-        self.showMenu(self._isShowMenu);
+        if (self._isShowMenu) {
+            self.showMenu(false);
+        }
+        else {
+            self.showMenu(true);
+        }
     }
     showMenu(isShowMenu) {
         let self = this;
         self.btn_arrow.mouseEnabled = false;
-        if (isShowMenu) {
-            if (self.btn_arrow.scaleX == -1)
-                return;
-            self._isShowMenu = false;
-            Laya.Tween.to(self.menuBox, { left: -390 }, 350, null, Laya.Handler.create(self, () => {
-                Laya.Tween.clearTween(self.menuBox);
-                self.btn_arrow.mouseEnabled = true;
-                self.btn_arrow.scaleX = -1;
-            }, null, true));
-        }
-        else {
-            if (self.btn_arrow.scaleX == 1)
-                return;
+        if (isShowMenu) { //显示
             self._isShowMenu = true;
             Laya.Tween.to(self.menuBox, { left: 0 }, 350, null, Laya.Handler.create(self, () => {
                 Laya.Tween.clearTween(self.menuBox);
                 self.btn_arrow.mouseEnabled = true;
                 self.btn_arrow.scaleX = 1;
+            }, null, true));
+        }
+        else { //隐藏
+            self._isShowMenu = false;
+            Laya.Tween.to(self.menuBox, { left: -390 }, 350, null, Laya.Handler.create(self, () => {
+                Laya.Tween.clearTween(self.menuBox);
+                self.btn_arrow.mouseEnabled = true;
+                self.btn_arrow.scaleX = -1;
             }, null, true));
         }
     }
@@ -1727,7 +1728,7 @@ class HallScene extends ui.hall.HallSceneUI {
         let self = this;
         if (self._diamondTime < 1 && userData.offlineRewardCount > 0) {
             HttpManager.Instance.requestGetOffLineReward((res) => {
-                RewardGetView.Create(self, () => {
+                ViewMgr.Ins.open(ViewConst.RewardGetView, () => {
                     M.layer.screenEffectLayer.addChild(new FlyEffect().play("diamond", LayerManager.mouseX, LayerManager.mouseY, 38, 83));
                     MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.20", "钻石", res.diamond));
                     EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: userData.diamond = res.total_diamond });

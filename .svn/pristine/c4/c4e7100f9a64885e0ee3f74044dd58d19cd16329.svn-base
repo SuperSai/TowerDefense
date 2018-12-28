@@ -591,7 +591,7 @@ class HallScene extends ui.hall.HallSceneUI {
 
   /** 钻石购买加速 */
   private onDiamondBuyAcce(): void {
-    ViewMgr.Ins.open(ViewConst.DiamondBuyView, null, DILOG_TYPE.ACC, 60);
+    ViewMgr.Ins.open(ViewConst.DiamondBuyView, DILOG_TYPE.ACC, 60);
   }
 
   private onShowCarport(): void {
@@ -911,7 +911,7 @@ class HallScene extends ui.hall.HallSceneUI {
   /** 随机钻石奖励界面 */
   private showRandomDiamondReward(): void {
     HttpManager.Instance.requestShowRandomRewardDiamond((res) => {
-      ViewMgr.Ins.open(ViewConst.AdditionalRewardView, null, res);
+      ViewMgr.Ins.open(ViewConst.AdditionalRewardView, res);
     })
   }
 
@@ -1579,7 +1579,7 @@ class HallScene extends ui.hall.HallSceneUI {
   private menuRedPointIsShow(): void {
     let self = this;
     self.menuRedPoint.visible = userData.menuRedPointCount > 0;
-    self.showMenu(self.menuRedPoint.visible);
+    self.showMenu(!self.menuRedPoint.visible);
   }
 
   /** 刷新金币 */
@@ -1662,29 +1662,27 @@ class HallScene extends ui.hall.HallSceneUI {
   private _isShowMenu: boolean = true;
   private onClickMenuHandler(): void {
     let self = this;
-    if (self._isShowMenu) {
-      self.showMenu(false);
-    } else {
-      self.showMenu(true);
-    }
+    self.showMenu(self._isShowMenu);
   }
 
   private showMenu(isShowMenu: boolean): void {
     let self = this;
     self.btn_arrow.mouseEnabled = false;
-    if (isShowMenu) {//显示
-      self._isShowMenu = true;
-      Laya.Tween.to(self.menuBox, { left: 0 }, 350, null, Laya.Handler.create(self, () => {
-        Laya.Tween.clearTween(self.menuBox);
-        self.btn_arrow.mouseEnabled = true;
-        self.btn_arrow.scaleX = 1;
-      }, null, true));
-    } else {//隐藏
+    if (isShowMenu) {
+      if (self.btn_arrow.scaleX == -1) return;
       self._isShowMenu = false;
       Laya.Tween.to(self.menuBox, { left: -390 }, 350, null, Laya.Handler.create(self, () => {
         Laya.Tween.clearTween(self.menuBox);
         self.btn_arrow.mouseEnabled = true;
         self.btn_arrow.scaleX = -1;
+      }, null, true));
+    } else {
+      if (self.btn_arrow.scaleX == 1) return;
+      self._isShowMenu = true;
+      Laya.Tween.to(self.menuBox, { left: 0 }, 350, null, Laya.Handler.create(self, () => {
+        Laya.Tween.clearTween(self.menuBox);
+        self.btn_arrow.mouseEnabled = true;
+        self.btn_arrow.scaleX = 1;
       }, null, true));
     }
   }
@@ -1760,7 +1758,7 @@ class HallScene extends ui.hall.HallSceneUI {
     let self = this;
     if (self._diamondTime < 1 && userData.offlineRewardCount > 0) {
       HttpManager.Instance.requestGetOffLineReward((res) => {
-        ViewMgr.Ins.open(ViewConst.RewardGetView, () => {
+        RewardGetView.Create(self, () => {
           M.layer.screenEffectLayer.addChild(new FlyEffect().play("diamond", LayerManager.mouseX, LayerManager.mouseY, 38, 83));
           MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.20", "钻石", res.diamond));
           EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: userData.diamond = res.total_diamond });

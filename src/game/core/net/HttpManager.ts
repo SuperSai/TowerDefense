@@ -714,7 +714,7 @@ class HttpManager {
             url: 'v1/announcement',
             success: function (res) {
                 if (res.result) {
-                    ViewMgr.Ins.open(ViewConst.NoticeView, res.content);
+                    ViewMgr.Ins.open(ViewConst.NoticeView, null, res.content);
                 } else {
                     console.log("@David 显示游戏公告错误!!!!!!!!!!!!");
                 }

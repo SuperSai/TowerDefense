@@ -39,7 +39,7 @@ class WelfareView extends BaseView {
                 if (res.result) {
                     self.onCloseView();
                     userData.removeEveryDayRewardRedPoint();
-                    RewardGetView.Create(self, () => {
+                    ViewMgr.Ins.open(ViewConst.RewardGetView, () => {
                         M.layer.screenEffectLayer.addChild(new FlyEffect().play("diamond", LayerManager.mouseX, LayerManager.mouseY));
                         EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: userData.diamond += res.diamond });
                         userData.essence += res.essence;

@@ -2,6 +2,9 @@
  * View基类接口
  */
 interface IBaseView {
+
+    callback: Function;
+
     /**
      * 是否已经初始化
      * @returns {boolean}

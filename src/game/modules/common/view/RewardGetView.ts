@@ -1,63 +1,51 @@
 /*
 * 奖励领取界面;
 */
-class RewardGetView extends ui.common.view.RewardGetViewUI {
+class RewardGetView extends BaseView {
 
-    private _values: any[];
-    private _items: any[] = [1, 2];
     private _tween: Laya.Tween;
 
-    constructor(values: any[], items: any[]) {
-        super();
-        this._values = values;
-        this._items = items;
-        this.init();
+    constructor() {
+        super(LAYER_TYPE.SUB_FRAME_LAYER, ui.common.view.RewardGetViewUI);
     }
 
-    //新建并添加到节点
-    static Create(_parentNode: Laya.Node, callback: any = null, values: any[], items: any[] = [1, 2]): void {
-        if (_parentNode) {
-            let nodeView = new RewardGetView(values, items);
-            AlignUtils.setToScreenGoldenPos(nodeView);
-            LayerManager.getInstance().subFrameLayer.addChildWithMaskCall(nodeView, nodeView.removeSelf);
-            nodeView.once(Laya.Event.REMOVED, nodeView, () => {
-                callback && callback();
-                nodeView.removeView();
-            });
-        }
-    }
-
-    //初始化
-    private init(): void {
+    public initData(): void {
+        super.initData();
         let self = this;
-        self._tween = EffectUtils.objectRotate(self.imgLight);
-        for (let index = 0, len: number = this._values.length; index < len; index++) {
-            let price = this._values[index];
-            let itemInfo: ItemVO = GlobleData.getData(GlobleData.ItemVO, self._items[index]);
+        self._tween = EffectUtils.objectRotate(self.ui.imgLight);
+        for (let index = 0, len: number = self.datas[0].length; index < len; index++) {
+            let price = self.datas[0][index];
+            let itemInfo: ItemVO = GlobleData.getData(GlobleData.ItemVO, self.datas[1][index]);
             let rewardItem: RewardItem = ObjectPool.pop(RewardItem, "RewardItem");
             let url = PathConfig.ItemUrl.replace("{0}", itemInfo.bigIcon);
             rewardItem.create(url, price);
-            self.hbox.addChild(rewardItem);
+            self.ui.hbox.addChild(rewardItem);
         }
-        self.hbox.refresh();
-        self.addEvents();
+        self.ui.hbox.refresh();
     }
 
-    private addEvents(): void {
+    public addEvents(): void {
+        super.addEvents();
         let self = this;
-        self.btn_get.on(Laya.Event.CLICK, self, self.removeSelf);
+        self.ui.btn_get.on(Laya.Event.CLICK, self, self.onCloseHandler);
     }
 
-    private removeEvents(): void {
+    public removeEvents(): void {
+        super.removeEvents();
         let self = this;
-        self.btn_get.off(Laya.Event.CLICK, self, self.removeSelf);
+        self.ui.btn_get.off(Laya.Event.CLICK, self, self.onCloseHandler);
     }
 
-    private removeView(): void {
+    private onCloseHandler(): void {
+        ViewMgr.Ins.close(ViewConst.RewardGetView);
+    }
+
+    public close(...param: any[]): void {
+        super.close(param);
         let self = this;
+        self.ui.hbox.removeChildren();
         self._tween && (Laya.Tween.clear(self._tween));
         self._tween = null;
-        self.removeSelf();
-        self.removeEvents();
+        self.callback && self.callback();
     }
 }

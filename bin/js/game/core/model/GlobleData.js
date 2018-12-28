@@ -78,7 +78,6 @@ class GlobleData extends Laya.EventDispatcher {
         let DataClass = self._totalStepCsvList.getValueByIndex(self._currParseCount);
         let dic = CSVParser.ParseJsonData(DataClass, csvStr);
         GlobleData.AllCacheData.Add(key, dic);
-        console.log("@David csv key:", key, " -- values:", dic);
         self._currParseCount++;
     }
     /** 获取对应表的指定某条数据 */

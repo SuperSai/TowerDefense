@@ -102,7 +102,6 @@ class GlobleData extends Laya.EventDispatcher {
         let DataClass: any = self._totalStepCsvList.getValueByIndex(self._currParseCount);
         let dic: TSDictionary<number, any> = CSVParser.ParseJsonData(DataClass, csvStr);
         GlobleData.AllCacheData.Add(key, dic);
-        console.log("@David csv key:", key, " -- values:", dic);
         self._currParseCount++;
     }
 

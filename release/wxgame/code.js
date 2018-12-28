@@ -2035,6 +2035,7 @@ class MessageUtils {
         msg.zOrder = 999;
         msg.init(content);
         self._msgs.push(msg);
+        console.log("@David 飘字的宽度:", msg.width);
         AlignUtils.setToScreenGoldenPos(msg);
         LayerMgr.Instance.addToLayer(msg, LAYER_TYPE.ROLL_MSG_LAYER);
         if (self._msgs.length > 0) {
@@ -3300,7 +3301,7 @@ class HttpManager {
             url: 'v1/announcement',
             success: function (res) {
                 if (res.result) {
-                    ViewMgr.Ins.open(ViewConst.NoticeView, res.content);
+                    ViewMgr.Ins.open(ViewConst.NoticeView, null, res.content);
                 }
                 else {
                     console.log("@David 显示游戏公告错误!!!!!!!!!!!!");
@@ -3334,6 +3335,7 @@ class ViewRegisterMgr {
         ViewMgr.Ins.register(ViewConst.EvolutionView, new EvolutionView());
         ViewMgr.Ins.register(ViewConst.WelfareView, new WelfareView());
         ViewMgr.Ins.register(ViewConst.NoticeView, new NoticeView());
+        ViewMgr.Ins.register(ViewConst.RewardGetView, new RewardGetView());
     }
     static get Instance() {
         if (!ViewRegisterMgr._instance) {
@@ -3379,13 +3381,14 @@ class ViewMgr {
      * @param key 面板唯一标识
      * @param param 参数
      */
-    open(key, ...param) {
+    open(key, callback = null, ...param) {
         var view = this.getView(key);
         if (view == null) {
             MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.36"));
             return;
         }
         if (view.isShow()) {
+            view.callback = callback;
             view.initUI();
             view.open.apply(view, param);
             view.initData();
@@ -3393,6 +3396,7 @@ class ViewMgr {
         }
         if (view.isInit()) {
             view.addToParent();
+            view.callback = callback;
             view.initUI();
             view.addEvents();
             view.open.apply(view, param);
@@ -3404,6 +3408,7 @@ class ViewMgr {
                 view.initUIView();
                 view.addToParent();
             }.bind(this), function () {
+                view.callback = callback;
                 view.initUI();
                 view.addEvents();
                 view.open.apply(view, param);
@@ -3514,6 +3519,8 @@ var ViewConst;
     ViewConst[ViewConst["WelfareView"] = 10011] = "WelfareView";
     /** 游戏公告 */
     ViewConst[ViewConst["NoticeView"] = 10012] = "NoticeView";
+    /** 奖励领取界面 */
+    ViewConst[ViewConst["RewardGetView"] = 10013] = "RewardGetView";
 })(ViewConst || (ViewConst = {}));
 //# sourceMappingURL=ViewConst.js.map
 /*
@@ -3938,7 +3945,7 @@ class UserData {
                 return that.shareAdTimes.share_acce_num;
             }
             else if (_kind == 11) {
-                return that.shareAdTimes.share_shop_num;
+                return that.shareAdTimes.share_free_car_num;
             }
             else if (_kind == 12) {
                 return that.shareAdTimes.share_no_money_num;
@@ -3954,7 +3961,7 @@ class UserData {
                 that.shareAdTimes.ad_acce_num--;
             }
             else if (_kind == 11) {
-                that.shareAdTimes.share_shop_num--;
+                that.shareAdTimes.ad_free_car_num--;
             }
             else if (_kind == 12) {
                 that.shareAdTimes.ad_no_money_num--;
@@ -3971,7 +3978,7 @@ class UserData {
                 that.shareAdTimes.share_acce_num--;
             }
             else if (_kind == 11) {
-                that.shareAdTimes.share_shop_num--;
+                that.shareAdTimes.share_free_car_num--;
             }
             else if (_kind == 12) {
                 that.shareAdTimes.share_no_money_num--;
@@ -4058,10 +4065,8 @@ class UserData {
     //移除红点
     removeFollowRedPoint() {
         this.showFollowRedPoint = false;
-        if (EventsManager.Instance) {
-            this.menuRedPointCount--;
-            EventsManager.Instance.event(EventsType.FOLLOW_RED_POINT, "remove");
-        }
+        this.menuRedPointCount--;
+        EventsManager.Instance.event(EventsType.FOLLOW_RED_POINT, "remove");
     }
     //显示好友互助红点
     isShowFriendConcurRedPoint() {
@@ -4070,10 +4075,8 @@ class UserData {
     //移除好友互助红点
     removeFriendConcurRedPoint() {
         this.showFriendConcurRedPoint = false;
-        if (EventsManager.Instance) {
-            this.menuRedPointCount--;
-            EventsManager.Instance.event(EventsType.FRIEND_CONCUR_RED_POINT, "remove");
-        }
+        this.menuRedPointCount--;
+        EventsManager.Instance.event(EventsType.FRIEND_CONCUR_RED_POINT, "remove");
     }
     //显示福利红点
     isShowEveryDayRewardRedPoint() {
@@ -4082,10 +4085,8 @@ class UserData {
     //移除福利红点
     removeEveryDayRewardRedPoint() {
         this.every_day_into_rewards = false;
-        if (EventsManager.Instance) {
-            this.menuRedPointCount--;
-            EventsManager.Instance.event(EventsType.EVERY_DAY_INTO_REWARD, "remove");
-        }
+        this.menuRedPointCount--;
+        EventsManager.Instance.event(EventsType.EVERY_DAY_INTO_REWARD, "remove");
     }
     //是否新手
     isGuide() {
@@ -5097,13 +5098,13 @@ class SDKManager {
                 this.checkIsGetClearanceReward(data);
                 break;
         }
-        HttpManager.Instance.requestShareGift(data);
     }
     /** 处理场景值 */
     handlerSceneValue(data) {
         switch (Math.floor(data.scene)) {
             case 1008:
             case 1044:
+                HttpManager.Instance.requestShareGift(data);
                 this.handlerShareType(data);
                 break;
             case 1020:
@@ -6912,7 +6913,6 @@ class GlobleData extends Laya.EventDispatcher {
         let DataClass = self._totalStepCsvList.getValueByIndex(self._currParseCount);
         let dic = CSVParser.ParseJsonData(DataClass, csvStr);
         GlobleData.AllCacheData.Add(key, dic);
-        console.log("@David csv key:", key, " -- values:", dic);
         self._currParseCount++;
     }
     /** 获取对应表的指定某条数据 */
@@ -8343,7 +8343,7 @@ var ui;
                     this.createView(ui.common.view.MessageTipsUI.uiView);
                 }
             }
-            MessageTipsUI.uiView = { "type": "View", "props": {}, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "var": "bg", "skin": "images/component/frame_tips_bg.png", "sizeGrid": "34,62,36,71" } }, { "type": "HBox", "props": { "y": 18, "x": 12, "var": "hbox" }, "child": [{ "type": "Image", "props": { "skin": "images/core/core_tips_icon.png" } }, { "type": "Label", "props": { "y": 2, "x": 38, "var": "txt_content", "text": "消息提示", "fontSize": 30, "color": "#ffffff", "bold": true, "align": "left" } }] }] };
+            MessageTipsUI.uiView = { "type": "View", "props": {}, "child": [{ "type": "Box", "props": { "left": 0 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "var": "bg", "skin": "images/component/frame_tips_bg.png", "sizeGrid": "34,62,36,71" } }, { "type": "HBox", "props": { "y": 18, "x": 12, "var": "hbox" }, "child": [{ "type": "Image", "props": { "skin": "images/core/core_tips_icon.png" } }, { "type": "Label", "props": { "y": 2, "x": 38, "var": "txt_content", "text": "消息提示", "fontSize": 30, "color": "#ffffff", "bold": true, "align": "left" } }] }] }] };
             view.MessageTipsUI = MessageTipsUI;
         })(view = common.view || (common.view = {}));
     })(common = ui.common || (ui.common = {}));
@@ -9371,55 +9371,44 @@ class OfflineRewardsView extends ui.common.view.OfflineRewardsViewUI {
 /*
 * 奖励领取界面;
 */
-class RewardGetView extends ui.common.view.RewardGetViewUI {
-    constructor(values, items) {
-        super();
-        this._items = [1, 2];
-        this._values = values;
-        this._items = items;
-        this.init();
+class RewardGetView extends BaseView {
+    constructor() {
+        super(LAYER_TYPE.SUB_FRAME_LAYER, ui.common.view.RewardGetViewUI);
     }
-    //新建并添加到节点
-    static Create(_parentNode, callback = null, values, items = [1, 2]) {
-        if (_parentNode) {
-            let nodeView = new RewardGetView(values, items);
-            AlignUtils.setToScreenGoldenPos(nodeView);
-            LayerManager.getInstance().subFrameLayer.addChildWithMaskCall(nodeView, nodeView.removeSelf);
-            nodeView.once(Laya.Event.REMOVED, nodeView, () => {
-                callback && callback();
-                nodeView.removeView();
-            });
-        }
-    }
-    //初始化
-    init() {
+    initData() {
+        super.initData();
         let self = this;
-        self._tween = EffectUtils.objectRotate(self.imgLight);
-        for (let index = 0, len = this._values.length; index < len; index++) {
-            let price = this._values[index];
-            let itemInfo = GlobleData.getData(GlobleData.ItemVO, self._items[index]);
+        self._tween = EffectUtils.objectRotate(self.ui.imgLight);
+        for (let index = 0, len = self.datas[0].length; index < len; index++) {
+            let price = self.datas[0][index];
+            let itemInfo = GlobleData.getData(GlobleData.ItemVO, self.datas[1][index]);
             let rewardItem = ObjectPool.pop(RewardItem, "RewardItem");
             let url = PathConfig.ItemUrl.replace("{0}", itemInfo.bigIcon);
             rewardItem.create(url, price);
-            self.hbox.addChild(rewardItem);
+            self.ui.hbox.addChild(rewardItem);
         }
-        self.hbox.refresh();
-        self.addEvents();
+        self.ui.hbox.refresh();
     }
     addEvents() {
+        super.addEvents();
         let self = this;
-        self.btn_get.on(Laya.Event.CLICK, self, self.removeSelf);
+        self.ui.btn_get.on(Laya.Event.CLICK, self, self.onCloseHandler);
     }
     removeEvents() {
+        super.removeEvents();
         let self = this;
-        self.btn_get.off(Laya.Event.CLICK, self, self.removeSelf);
+        self.ui.btn_get.off(Laya.Event.CLICK, self, self.onCloseHandler);
     }
-    removeView() {
+    onCloseHandler() {
+        ViewMgr.Ins.close(ViewConst.RewardGetView);
+    }
+    close(...param) {
+        super.close(param);
         let self = this;
+        self.ui.hbox.removeChildren();
         self._tween && (Laya.Tween.clear(self._tween));
         self._tween = null;
-        self.removeSelf();
-        self.removeEvents();
+        self.callback && self.callback();
     }
 }
 //# sourceMappingURL=RewardGetView.js.map
@@ -10244,13 +10233,12 @@ class FriendConcurItem extends ui.friendConcur.FriendConcurItemUI {
         let self = this;
         if (self._data) {
             HttpManager.Instance.requestReward(self._data.id, (res) => {
-                RewardGetView.Create(self, () => {
+                self.btn_get.disabled = true;
+                FriendConcurView.redPointNum--;
+                ViewMgr.Ins.open(ViewConst.RewardGetView, () => {
                     M.layer.screenEffectLayer.addChild(new FlyEffect().play("rollingCoin", LayerManager.mouseX, LayerManager.mouseY));
-                    FriendConcurView.redPointNum--;
                     if (FriendConcurView.redPointNum < 1) {
-                        if (userData) {
-                            userData.removeFriendConcurRedPoint();
-                        }
+                        userData.removeFriendConcurRedPoint();
                         FriendConcurView.redPointNum = 0;
                     }
                     EventsManager.Instance.event(EventsType.GLOD_CHANGE, { money: userData.gold += self._gold });
@@ -10258,7 +10246,7 @@ class FriendConcurItem extends ui.friendConcur.FriendConcurItemUI {
                         EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: userData.diamond += self._rewards[1] });
                     }
                     EventsManager.Instance.event(EventsType.FRIEND_CONCUR_GET_REWARD);
-                }, self._rewards);
+                }, self._rewards, [1, 2]);
             });
         }
     }
@@ -10792,7 +10780,7 @@ class HallManager extends Laya.EventDispatcher {
     /** 钻石购买 */
     onDiamondBuy(heroInfo = null) {
         let carPrice = BattleManager.Instance.getMonsterDiamondPrice(heroInfo.id, userData.queryBuyRecord(heroInfo.id, true));
-        ViewMgr.Ins.open(ViewConst.DiamondBuyView, DILOG_TYPE.PET, carPrice, heroInfo);
+        ViewMgr.Ins.open(ViewConst.DiamondBuyView, null, DILOG_TYPE.PET, carPrice, heroInfo);
     }
     //金币购买英雄
     goldBuyHero(_carInfo = null, btnObj = null) {
@@ -11006,7 +10994,7 @@ class HallScene extends ui.hall.HallSceneUI {
         //检查守卫是否可以升级
         self.checkKingIsUpdate();
         StrengthenManager.Instance.checkRedPoint();
-        self.showStagePrize(true);
+        // self.showStagePrize(true);
         SDKManager.Instance.createBanner(false);
         //游戏公告
         HttpManager.Instance.requestAnnouncement();
@@ -11430,7 +11418,7 @@ class HallScene extends ui.hall.HallSceneUI {
     }
     /** 钻石购买加速 */
     onDiamondBuyAcce() {
-        ViewMgr.Ins.open(ViewConst.DiamondBuyView, DILOG_TYPE.ACC, 60);
+        ViewMgr.Ins.open(ViewConst.DiamondBuyView, null, DILOG_TYPE.ACC, 60);
     }
     onShowCarport() {
         ViewMgr.Ins.open(ViewConst.ShopView);
@@ -11752,7 +11740,7 @@ class HallScene extends ui.hall.HallSceneUI {
     /** 随机钻石奖励界面 */
     showRandomDiamondReward() {
         HttpManager.Instance.requestShowRandomRewardDiamond((res) => {
-            ViewMgr.Ins.open(ViewConst.AdditionalRewardView, res);
+            ViewMgr.Ins.open(ViewConst.AdditionalRewardView, null, res);
         });
     }
     //初始化兵营
@@ -12406,7 +12394,7 @@ class HallScene extends ui.hall.HallSceneUI {
     menuRedPointIsShow() {
         let self = this;
         self.menuRedPoint.visible = userData.menuRedPointCount > 0;
-        self.showMenu(!self.menuRedPoint.visible);
+        self.showMenu(self.menuRedPoint.visible);
     }
     /** 刷新金币 */
     onRefreshGold() {
@@ -12485,29 +12473,30 @@ class HallScene extends ui.hall.HallSceneUI {
     }
     onClickMenuHandler() {
         let self = this;
-        self.showMenu(self._isShowMenu);
+        if (self._isShowMenu) {
+            self.showMenu(false);
+        }
+        else {
+            self.showMenu(true);
+        }
     }
     showMenu(isShowMenu) {
         let self = this;
         self.btn_arrow.mouseEnabled = false;
-        if (isShowMenu) {
-            if (self.btn_arrow.scaleX == -1)
-                return;
-            self._isShowMenu = false;
-            Laya.Tween.to(self.menuBox, { left: -390 }, 350, null, Laya.Handler.create(self, () => {
-                Laya.Tween.clearTween(self.menuBox);
-                self.btn_arrow.mouseEnabled = true;
-                self.btn_arrow.scaleX = -1;
-            }, null, true));
-        }
-        else {
-            if (self.btn_arrow.scaleX == 1)
-                return;
+        if (isShowMenu) { //显示
             self._isShowMenu = true;
             Laya.Tween.to(self.menuBox, { left: 0 }, 350, null, Laya.Handler.create(self, () => {
                 Laya.Tween.clearTween(self.menuBox);
                 self.btn_arrow.mouseEnabled = true;
                 self.btn_arrow.scaleX = 1;
+            }, null, true));
+        }
+        else { //隐藏
+            self._isShowMenu = false;
+            Laya.Tween.to(self.menuBox, { left: -390 }, 350, null, Laya.Handler.create(self, () => {
+                Laya.Tween.clearTween(self.menuBox);
+                self.btn_arrow.mouseEnabled = true;
+                self.btn_arrow.scaleX = -1;
             }, null, true));
         }
     }
@@ -12577,7 +12566,7 @@ class HallScene extends ui.hall.HallSceneUI {
         let self = this;
         if (self._diamondTime < 1 && userData.offlineRewardCount > 0) {
             HttpManager.Instance.requestGetOffLineReward((res) => {
-                RewardGetView.Create(self, () => {
+                ViewMgr.Ins.open(ViewConst.RewardGetView, () => {
                     M.layer.screenEffectLayer.addChild(new FlyEffect().play("diamond", LayerManager.mouseX, LayerManager.mouseY, 38, 83));
                     MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.20", "钻石", res.diamond));
                     EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: userData.diamond = res.total_diamond });
@@ -14098,7 +14087,7 @@ class ShopView extends BaseView {
                         HallManager.Instance.hall.saveCarStore(_carInfo.id);
                 }
                 MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.03"));
-                ViewMgr.Ins.open(ViewConst.FreeGetPetView, _carInfo);
+                ViewMgr.Ins.open(ViewConst.FreeGetPetView, null, _carInfo);
                 if (btnObj) {
                     //观看次数已用完
                     if (userData.getAdTimes(11) < 1 && userData.getShareTimes(11) < 1) {
@@ -14667,7 +14656,7 @@ class WelfareView extends BaseView {
                 if (res.result) {
                     self.onCloseView();
                     userData.removeEveryDayRewardRedPoint();
-                    RewardGetView.Create(self, () => {
+                    ViewMgr.Ins.open(ViewConst.RewardGetView, () => {
                         M.layer.screenEffectLayer.addChild(new FlyEffect().play("diamond", LayerManager.mouseX, LayerManager.mouseY));
                         EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: userData.diamond += res.diamond });
                         userData.essence += res.essence;
@@ -14749,6 +14738,9 @@ class MainLoadingView extends Laya.Sprite {
         console.log("@David getLaunchOptionsSync:", launch);
         if (launch.scene == 1104 || launch.scene == 1103 || launch.scene == 1023) { //ios从我的小程序入口进
             PlayerManager.Instance.Info.isMySceneEnter = true;
+        }
+        if (launch.scene == 1008) {
+            SDKManager.Instance.handlerSceneValue(launch);
         }
         else {
             PlayerManager.Instance.Info.isMySceneEnter = false;

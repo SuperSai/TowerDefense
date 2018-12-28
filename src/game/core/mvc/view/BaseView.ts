@@ -3,6 +3,8 @@
  */
 class BaseView extends Laya.View implements IBaseView {
 
+    public callback: Function;
+
     private _myParent: MaskLayer;
     private _isInit: boolean;
     private _resources: string[] = null;
