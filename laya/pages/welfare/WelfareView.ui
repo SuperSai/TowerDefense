@@ -1,8 +1,8 @@
 {
     "x":0,
     "type":"View",
-    "selectedBox":38,
-    "selecteID":4,
+    "selectedBox":1,
+    "selecteID":38,
     "props":{"width":718,"sceneWidth":600,"sceneHeight":400,"sceneColor":"#000000","sceneBg":"laya/views/welfare/WelfareView.png","height":1016},
     "nodeParent":-1,
     "label":"View",
@@ -445,12 +445,25 @@
                     "nodeParent":38,
                     "label":"Button(btn_exit)",
                     "isOpen":true,
-                    "isDirectory":false,
+                    "isDirectory":true,
                     "isAniNode":true,
-                    "hasChild":false,
+                    "hasChild":true,
                     "compId":4,
                     "child":[
-                        ]
+                        {
+                            "x":45,
+                            "type":"Script",
+                            "source":"laya/pages/ScaleAnimScript.script",
+                            "props":{},
+                            "nodeParent":4,
+                            "label":"ScaleAnimScript",
+                            "isDirectory":false,
+                            "isAniNode":true,
+                            "hasChild":false,
+                            "compId":40,
+                            "child":[
+                                ]
+                        }]
                 },
                 {
                     "x":30,
@@ -458,12 +471,26 @@
                     "props":{"y":308,"x":125,"var":"btn_get","stateNum":"1","skin":"images/welfare/welfare_btn.png","labelStrokeColor":"#946430","labelStroke":2,"labelSize":35,"labelColors":"#ffffff,#ffffff,#ffffff,#ffffff","label":"领取"},
                     "nodeParent":38,
                     "label":"Button(btn_get)",
-                    "isDirectory":false,
+                    "isOpen":true,
+                    "isDirectory":true,
                     "isAniNode":true,
-                    "hasChild":false,
+                    "hasChild":true,
                     "compId":37,
                     "child":[
-                        ]
+                        {
+                            "x":45,
+                            "type":"Script",
+                            "source":"laya/pages/ScaleAnimScript.script",
+                            "props":{},
+                            "nodeParent":37,
+                            "label":"ScaleAnimScript",
+                            "isDirectory":false,
+                            "isAniNode":true,
+                            "hasChild":false,
+                            "compId":39,
+                            "child":[
+                                ]
+                        }]
                 }]
         }],
     "animations":[

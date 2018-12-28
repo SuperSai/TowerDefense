@@ -54,10 +54,10 @@ class LayerMgr extends EventDispatcher {
         container.addChild(this.getLayerByType(LAYER_TYPE.NOTE_LAYER));
         container.addChild(this.getLayerByType(LAYER_TYPE.DEBUG_LAYER));
 
-        // for (const layer of this._layers) {
-        //     layer.pos(left, top);
-        //     layer.scale(adaptScale, adaptScale);
-        // }
+        for (const layer of this._layers) {
+            layer.pos(left, top);
+            layer.scale(adaptScale, adaptScale);
+        }
     }
 
     private createAllLayers(): void {
@@ -104,6 +104,7 @@ enum LAYER_TYPE {
     ROLL_MSG_LAYER = 6,
     GUIDE_LAYER = 7,
     SMALL_LOADING_LAYER = 8,
+    /** 公告层 */
     NOTE_LAYER = 9,
     DEBUG_LAYER = 10
 }

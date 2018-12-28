@@ -47,10 +47,10 @@ class LayerMgr extends EventDispatcher {
         container.addChild(this.getLayerByType(LAYER_TYPE.SMALL_LOADING_LAYER));
         container.addChild(this.getLayerByType(LAYER_TYPE.NOTE_LAYER));
         container.addChild(this.getLayerByType(LAYER_TYPE.DEBUG_LAYER));
-        // for (const layer of this._layers) {
-        //     layer.pos(left, top);
-        //     layer.scale(adaptScale, adaptScale);
-        // }
+        for (const layer of this._layers) {
+            layer.pos(left, top);
+            layer.scale(adaptScale, adaptScale);
+        }
     }
     createAllLayers() {
         for (let i = 0; i < this._layerCount; i++) {
@@ -91,6 +91,7 @@ var LAYER_TYPE;
     LAYER_TYPE[LAYER_TYPE["ROLL_MSG_LAYER"] = 6] = "ROLL_MSG_LAYER";
     LAYER_TYPE[LAYER_TYPE["GUIDE_LAYER"] = 7] = "GUIDE_LAYER";
     LAYER_TYPE[LAYER_TYPE["SMALL_LOADING_LAYER"] = 8] = "SMALL_LOADING_LAYER";
+    /** 公告层 */
     LAYER_TYPE[LAYER_TYPE["NOTE_LAYER"] = 9] = "NOTE_LAYER";
     LAYER_TYPE[LAYER_TYPE["DEBUG_LAYER"] = 10] = "DEBUG_LAYER";
 })(LAYER_TYPE || (LAYER_TYPE = {}));

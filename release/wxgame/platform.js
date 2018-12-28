@@ -481,9 +481,8 @@ class WxgamePlatform {
     }
 
     getLaunchOptionsSync() {
-        return wx.getLaunchOptionsSync()
+        return wx.getLaunchOptionsSync();
     }
-
 
     //编码（名字表情）
     encode(_txt) {

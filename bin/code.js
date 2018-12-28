@@ -2037,13 +2037,11 @@ class MessageUtils {
         self._msgs.push(msg);
         AlignUtils.setToScreenGoldenPos(msg);
         LayerMgr.Instance.addToLayer(msg, LAYER_TYPE.ROLL_MSG_LAYER);
-        console.log("@David showMsgTips content:", content, " ----- length:", self._msgs.length);
         if (self._msgs.length > 0) {
             let time = self._msgTime * 250;
-            Laya.Tween.to(msg, { x: msg.x, y: msg.y - 100, alpha: 0 }, 2500, Laya.Ease.cubicInOut, Laya.Handler.create(self, ($msg) => {
+            Laya.Tween.to(msg, { x: msg.x, y: msg.y - 100, alpha: 0 }, 4000, Laya.Ease.cubicInOut, Laya.Handler.create(self, ($msg) => {
                 Laya.Tween.clearTween($msg);
                 DisplayUtils.removeFromArray($msg, self._msgs);
-                console.log("@David showMsgTips content:", content, " ----- length:", self._msgs.length);
                 $msg.zOrder = 1;
                 ObjectPool.push($msg);
                 $msg.removeSelf();
@@ -2098,7 +2096,7 @@ class MessageUtils {
             hbox.pos(global.x, global.y);
             LayerMgr.Instance.addToLayer(hbox, LAYER_TYPE.SCREEN_EFFECT_LAYER);
             hbox.x += (obj.width - hbox.width) / 2;
-            Laya.Tween.to(hbox, { y: hbox.y - 50, alpha: 0 }, 1000, null, Laya.Handler.create(this, () => {
+            Laya.Tween.to(hbox, { y: hbox.y - 50, alpha: 0 }, 2000, null, Laya.Handler.create(this, () => {
                 Laya.Tween.clearTween(hbox);
                 hbox.removeSelf();
             }, null, true));
@@ -2108,7 +2106,7 @@ class MessageUtils {
             label.pos(global.x, global.y);
             LayerMgr.Instance.addToLayer(label, LAYER_TYPE.SCREEN_EFFECT_LAYER);
             label.x += (obj.width - label.width) / 2;
-            Laya.Tween.to(label, { y: label.y - 50, alpha: 0 }, 1000, null, Laya.Handler.create(this, () => {
+            Laya.Tween.to(label, { y: label.y - 50, alpha: 0 }, 2000, null, Laya.Handler.create(this, () => {
                 Laya.Tween.clearTween(label);
                 label.removeSelf();
                 ObjectPool.push(label);
@@ -7005,10 +7003,10 @@ class LayerMgr extends EventDispatcher {
         container.addChild(this.getLayerByType(LAYER_TYPE.SMALL_LOADING_LAYER));
         container.addChild(this.getLayerByType(LAYER_TYPE.NOTE_LAYER));
         container.addChild(this.getLayerByType(LAYER_TYPE.DEBUG_LAYER));
-        // for (const layer of this._layers) {
-        //     layer.pos(left, top);
-        //     layer.scale(adaptScale, adaptScale);
-        // }
+        for (const layer of this._layers) {
+            layer.pos(left, top);
+            layer.scale(adaptScale, adaptScale);
+        }
     }
     createAllLayers() {
         for (let i = 0; i < this._layerCount; i++) {
@@ -7049,6 +7047,7 @@ var LAYER_TYPE;
     LAYER_TYPE[LAYER_TYPE["ROLL_MSG_LAYER"] = 6] = "ROLL_MSG_LAYER";
     LAYER_TYPE[LAYER_TYPE["GUIDE_LAYER"] = 7] = "GUIDE_LAYER";
     LAYER_TYPE[LAYER_TYPE["SMALL_LOADING_LAYER"] = 8] = "SMALL_LOADING_LAYER";
+    /** 公告层 */
     LAYER_TYPE[LAYER_TYPE["NOTE_LAYER"] = 9] = "NOTE_LAYER";
     LAYER_TYPE[LAYER_TYPE["DEBUG_LAYER"] = 10] = "DEBUG_LAYER";
 })(LAYER_TYPE || (LAYER_TYPE = {}));
@@ -8335,6 +8334,23 @@ var ui;
     (function (common) {
         var view;
         (function (view) {
+            class NoticeViewUI extends View {
+                constructor() { super(); }
+                createChildren() {
+                    super.createChildren();
+                    this.createView(ui.common.view.NoticeViewUI.uiView);
+                }
+            }
+            NoticeViewUI.uiView = { "type": "View", "props": { "width": 725, "height": 782 }, "child": [{ "type": "Box", "props": { "y": 0, "x": 0, "width": 725, "height": 782 }, "child": [{ "type": "Image", "props": { "y": 217, "x": 0, "width": 716, "skin": "images/component/frame_9calce_01.png", "height": 565, "sizeGrid": "168,65,62,82" } }, { "type": "Image", "props": { "y": 213, "x": 632, "skin": "images/component/frame_close_btn.png" } }, { "type": "Image", "props": { "y": 0, "x": 47, "skin": "images/fontImg/game_Notice_title.png" } }, { "type": "TextArea", "props": { "y": 373, "x": 60, "width": 600, "var": "txt_content", "text": "我只是一个公共而已...", "height": 358, "fontSize": 28, "color": "#884a00" } }, { "type": "Label", "props": { "y": 780, "x": 257, "text": "点击空白处关闭", "fontSize": 30, "color": "#ffffff" } }] }] };
+            view.NoticeViewUI = NoticeViewUI;
+        })(view = common.view || (common.view = {}));
+    })(common = ui.common || (ui.common = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var common;
+    (function (common) {
+        var view;
+        (function (view) {
             class OfflineRewardsViewUI extends View {
                 constructor() { super(); }
                 createChildren() {
@@ -8831,11 +8847,12 @@ var ui;
         class WelfareViewUI extends View {
             constructor() { super(); }
             createChildren() {
+                View.regComponent("ScaleAnimScript", ScaleAnimScript);
                 super.createChildren();
                 this.createView(ui.welfare.WelfareViewUI.uiView);
             }
         }
-        WelfareViewUI.uiView = { "type": "View", "props": { "width": 718, "height": 1016 }, "child": [{ "type": "Box", "props": { "y": 0, "x": 0, "width": 718, "height": 1016 }, "child": [{ "type": "Image", "props": { "y": 5, "width": 716, "skin": "images/component/frame_9calce_01.png", "height": 1017, "sizeGrid": "168,65,62,82" } }, { "type": "Image", "props": { "y": 144, "x": 34, "width": 649, "skin": "images/component/frame_9calce_02.png", "sizeGrid": "32,27,32,29", "height": 750 } }, { "type": "Image", "props": { "y": 36, "x": 297, "skin": "images/welfare/welfare_title.png" } }, { "type": "Image", "props": { "y": 163, "x": 50, "skin": "images/welfare/banner.png" } }, { "type": "Image", "props": { "y": 412, "x": 51, "skin": "images/welfare/welfare_bg.png" } }, { "type": "Image", "props": { "y": 529, "x": 51, "skin": "images/welfare/welfare_bg.png" } }, { "type": "Image", "props": { "y": 647, "x": 51, "skin": "images/welfare/welfare_bg.png" } }, { "type": "Image", "props": { "y": 765, "x": 51, "skin": "images/welfare/welfare_bg.png" } }, { "type": "Box", "props": { "y": 431, "x": 83 }, "child": [{ "type": "Image", "props": { "skin": "images/welfare/welfare_icon_bg.png" } }, { "type": "Label", "props": { "y": 13, "x": 23, "text": "1", "strokeColor": "#884f1e", "stroke": 3, "fontSize": 40, "color": "#fff4e1" } }] }, { "type": "Label", "props": { "y": 450, "x": 167, "text": "点击", "fontSize": 30, "color": "#6c4234" } }, { "type": "Label", "props": { "y": 450, "x": 239, "text": "\"右上角三个点\"", "fontSize": 30, "color": "#ff7e00" } }, { "type": "Image", "props": { "y": 436, "x": 483, "skin": "images/welfare/welfare_icon.png" } }, { "type": "Box", "props": { "y": 548, "x": 83 }, "child": [{ "type": "Image", "props": { "skin": "images/welfare/welfare_icon_bg.png" } }, { "type": "Label", "props": { "y": 13, "x": 23, "text": "2", "strokeColor": "#884f1e", "stroke": 3, "fontSize": 40, "color": "#fff4e1" } }] }, { "type": "Label", "props": { "y": 567, "x": 167, "text": "点击", "fontSize": 30, "color": "#6c4234" } }, { "type": "Label", "props": { "y": 567, "x": 239, "text": "\"添加我的小程序\"", "fontSize": 30, "color": "#ff7e00" } }, { "type": "Box", "props": { "y": 667, "x": 83 }, "child": [{ "type": "Image", "props": { "skin": "images/welfare/welfare_icon_bg.png" } }, { "type": "Label", "props": { "y": 13, "x": 23, "text": "3", "strokeColor": "#884f1e", "stroke": 3, "fontSize": 40, "color": "#fff4e1" } }] }, { "type": "Label", "props": { "y": 686, "x": 167, "text": "点击", "fontSize": 30, "color": "#6c4234" } }, { "type": "Label", "props": { "y": 686, "x": 239, "text": "\"关闭圆圈\"", "fontSize": 30, "color": "#ff7e00" } }, { "type": "Image", "props": { "y": 672, "x": 483, "skin": "images/welfare/welfare_icon.png" } }, { "type": "Box", "props": { "y": 786, "x": 83 }, "child": [{ "type": "Image", "props": { "skin": "images/welfare/welfare_icon_bg.png" } }, { "type": "Label", "props": { "y": 13, "x": 23, "text": "4", "strokeColor": "#884f1e", "stroke": 3, "fontSize": 40, "color": "#fff4e1" } }] }, { "type": "Label", "props": { "y": 786, "x": 166, "text": "点击我的小程序", "fontSize": 30, "color": "#6c4234" } }, { "type": "Label", "props": { "y": 822, "x": 166, "text": "\"英雄挺住\" 开始游戏", "fontSize": 30, "color": "#ff7e00" } }, { "type": "Label", "props": { "y": 929, "x": 123, "text": "从“我的小程序”登入领取大礼包！", "fontSize": 32, "color": "#ef4f00" } }, { "type": "Label", "props": { "y": 1016, "x": 269, "text": "点击空白处关闭", "fontSize": 25, "color": "#ffffff", "bold": true, "align": "center" } }, { "type": "Button", "props": { "x": 634, "var": "btn_exit", "stateNum": 1, "skin": "images/component/frame_close_btn.png" } }, { "type": "Button", "props": { "y": 308, "x": 125, "var": "btn_get", "stateNum": 1, "skin": "images/welfare/welfare_btn.png", "labelStrokeColor": "#946430", "labelStroke": 2, "labelSize": 35, "labelColors": "#ffffff,#ffffff,#ffffff,#ffffff", "label": "领取" } }] }] };
+        WelfareViewUI.uiView = { "type": "View", "props": { "width": 718, "height": 1016 }, "child": [{ "type": "Box", "props": { "y": 0, "x": 0, "width": 718, "height": 1016 }, "child": [{ "type": "Image", "props": { "y": 5, "width": 716, "skin": "images/component/frame_9calce_01.png", "height": 1017, "sizeGrid": "168,65,62,82" } }, { "type": "Image", "props": { "y": 144, "x": 34, "width": 649, "skin": "images/component/frame_9calce_02.png", "sizeGrid": "32,27,32,29", "height": 750 } }, { "type": "Image", "props": { "y": 36, "x": 297, "skin": "images/welfare/welfare_title.png" } }, { "type": "Image", "props": { "y": 163, "x": 50, "skin": "images/welfare/banner.png" } }, { "type": "Image", "props": { "y": 412, "x": 51, "skin": "images/welfare/welfare_bg.png" } }, { "type": "Image", "props": { "y": 529, "x": 51, "skin": "images/welfare/welfare_bg.png" } }, { "type": "Image", "props": { "y": 647, "x": 51, "skin": "images/welfare/welfare_bg.png" } }, { "type": "Image", "props": { "y": 765, "x": 51, "skin": "images/welfare/welfare_bg.png" } }, { "type": "Box", "props": { "y": 431, "x": 83 }, "child": [{ "type": "Image", "props": { "skin": "images/welfare/welfare_icon_bg.png" } }, { "type": "Label", "props": { "y": 13, "x": 23, "text": "1", "strokeColor": "#884f1e", "stroke": 3, "fontSize": 40, "color": "#fff4e1" } }] }, { "type": "Label", "props": { "y": 450, "x": 167, "text": "点击", "fontSize": 30, "color": "#6c4234" } }, { "type": "Label", "props": { "y": 450, "x": 239, "text": "\"右上角三个点\"", "fontSize": 30, "color": "#ff7e00" } }, { "type": "Image", "props": { "y": 436, "x": 483, "skin": "images/welfare/welfare_icon.png" } }, { "type": "Box", "props": { "y": 548, "x": 83 }, "child": [{ "type": "Image", "props": { "skin": "images/welfare/welfare_icon_bg.png" } }, { "type": "Label", "props": { "y": 13, "x": 23, "text": "2", "strokeColor": "#884f1e", "stroke": 3, "fontSize": 40, "color": "#fff4e1" } }] }, { "type": "Label", "props": { "y": 567, "x": 167, "text": "点击", "fontSize": 30, "color": "#6c4234" } }, { "type": "Label", "props": { "y": 567, "x": 239, "text": "\"添加我的小程序\"", "fontSize": 30, "color": "#ff7e00" } }, { "type": "Box", "props": { "y": 667, "x": 83 }, "child": [{ "type": "Image", "props": { "skin": "images/welfare/welfare_icon_bg.png" } }, { "type": "Label", "props": { "y": 13, "x": 23, "text": "3", "strokeColor": "#884f1e", "stroke": 3, "fontSize": 40, "color": "#fff4e1" } }] }, { "type": "Label", "props": { "y": 686, "x": 167, "text": "点击", "fontSize": 30, "color": "#6c4234" } }, { "type": "Label", "props": { "y": 686, "x": 239, "text": "\"关闭圆圈\"", "fontSize": 30, "color": "#ff7e00" } }, { "type": "Image", "props": { "y": 672, "x": 483, "skin": "images/welfare/welfare_icon.png" } }, { "type": "Box", "props": { "y": 786, "x": 83 }, "child": [{ "type": "Image", "props": { "skin": "images/welfare/welfare_icon_bg.png" } }, { "type": "Label", "props": { "y": 13, "x": 23, "text": "4", "strokeColor": "#884f1e", "stroke": 3, "fontSize": 40, "color": "#fff4e1" } }] }, { "type": "Label", "props": { "y": 786, "x": 166, "text": "点击我的小程序", "fontSize": 30, "color": "#6c4234" } }, { "type": "Label", "props": { "y": 822, "x": 166, "text": "\"英雄挺住\" 开始游戏", "fontSize": 30, "color": "#ff7e00" } }, { "type": "Label", "props": { "y": 929, "x": 123, "text": "从“我的小程序”登入领取大礼包！", "fontSize": 32, "color": "#ef4f00" } }, { "type": "Label", "props": { "y": 1016, "x": 269, "text": "点击空白处关闭", "fontSize": 25, "color": "#ffffff", "bold": true, "align": "center" } }, { "type": "Button", "props": { "x": 634, "var": "btn_exit", "stateNum": 1, "skin": "images/component/frame_close_btn.png" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }, { "type": "Button", "props": { "y": 308, "x": 125, "var": "btn_get", "stateNum": 1, "skin": "images/welfare/welfare_btn.png", "labelStrokeColor": "#946430", "labelStroke": 2, "labelSize": 35, "labelColors": "#ffffff,#ffffff,#ffffff,#ffffff", "label": "领取" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }] }] };
         welfare.WelfareViewUI = WelfareViewUI;
     })(welfare = ui.welfare || (ui.welfare = {}));
 })(ui || (ui = {}));
@@ -9244,12 +9261,25 @@ class MessageTips extends ui.common.view.MessageTipsUI {
     init(content) {
         let self = this;
         self.txt_content.text = content;
-        self.bg.width = self.hbox.displayWidth + 50;
         self.hbox.refresh();
+        self.bg.width = self.hbox.displayWidth + 50;
         self.width = self.bg.width;
     }
 }
 //# sourceMappingURL=MessageTips.js.map
+/*
+* 游戏公告;
+*/
+class NoticeView extends BaseView {
+    constructor() {
+        super(LAYER_TYPE.NOTE_LAYER, ui.common.view.NoticeViewUI);
+    }
+    initData() {
+        super.initData();
+        this.ui.txt_content.text = this.datas[0];
+    }
+}
+//# sourceMappingURL=NoticeView.js.map
 /*
 * 离线奖励;
 */
@@ -14577,38 +14607,45 @@ class WelfareView extends BaseView {
     constructor() {
         super(LAYER_TYPE.SUB_FRAME_LAYER, ui.welfare.WelfareViewUI);
         this.setResources(["welfare"]);
-        this._view = this.ui;
     }
     initUI() {
         super.initUI();
         if (userData.isShowEveryDayRewardRedPoint()) {
-            this._view.btn_get.label = "领取";
-            this._view.btn_get.disabled = false;
+            this.ui.btn_get.label = "领取";
+            this.ui.btn_get.disabled = false;
         }
         else {
-            this._view.btn_get.label = "已领取";
-            this._view.btn_get.disabled = true;
+            this.ui.btn_get.label = "已领取";
+            this.ui.btn_get.disabled = true;
         }
     }
     addEvents() {
         super.addEvents();
-        this._view.btn_get.on(Laya.Event.CLICK, this, this.onGetReward);
-        this._view.btn_exit.on(Laya.Event.CLICK, this, this.onCloseView);
+        this.ui.btn_get.on(Laya.Event.CLICK, this, this.onGetReward);
+        this.ui.btn_exit.on(Laya.Event.CLICK, this, this.onCloseView);
     }
     removeEvents() {
         super.removeEvents();
-        this._view.btn_get.off(Laya.Event.CLICK, this, this.onGetReward);
-        this._view.btn_exit.off(Laya.Event.CLICK, this, this.onCloseView);
+        this.ui.btn_get.off(Laya.Event.CLICK, this, this.onGetReward);
+        this.ui.btn_exit.off(Laya.Event.CLICK, this, this.onCloseView);
     }
     onGetReward() {
         let self = this;
         if (PlayerManager.Instance.Info.isMySceneEnter && userData.isShowEveryDayRewardRedPoint()) {
             HttpManager.Instance.requestWelfareReward((res) => {
-                let diamond = res.diamond;
-                RewardGetView.Create(self, () => {
-                    M.layer.screenEffectLayer.addChild(new FlyEffect().play("diamond", LayerManager.mouseX, LayerManager.mouseY));
-                    EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: userData.diamond = diamond });
-                }, [diamond, res.essence], [2, 3]);
+                if (res.result) {
+                    self.onCloseView();
+                    userData.removeEveryDayRewardRedPoint();
+                    RewardGetView.Create(self, () => {
+                        M.layer.screenEffectLayer.addChild(new FlyEffect().play("diamond", LayerManager.mouseX, LayerManager.mouseY));
+                        EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: userData.diamond += res.diamond });
+                        userData.essence += res.essence;
+                        HallManager.Instance.updateEssence(userData.essence);
+                    }, [res.diamond, res.essence], [2, 3]);
+                }
+                else {
+                    console.log("@David 领取福利奖励失败...");
+                }
             });
         }
         else {
@@ -14824,11 +14861,12 @@ class DebugPlatform {
     onHide(_callback) {
         return __awaiter(this, void 0, void 0, function* () { });
     }
+    getLaunchOptionsSync() { }
     getShareInfo(shareTicket, callback, failCallback) {
         return __awaiter(this, void 0, void 0, function* () { });
     }
     httpToken(_url, _callback, _forceNew = false) {
-        return "yaoguai_8f4cd7953ac7232e79ea04a7f9e27947"; //M.player.token;
+        return M.player.token;
     }
     httpRequest(_url, _params, _noToken = false) {
     }

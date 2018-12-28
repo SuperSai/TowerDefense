@@ -33,11 +33,12 @@ class DebugPlatform {
     onHide(_callback) {
         return __awaiter(this, void 0, void 0, function* () { });
     }
+    getLaunchOptionsSync() { }
     getShareInfo(shareTicket, callback, failCallback) {
         return __awaiter(this, void 0, void 0, function* () { });
     }
     httpToken(_url, _callback, _forceNew = false) {
-        return "yaoguai_8f4cd7953ac7232e79ea04a7f9e27947"; //M.player.token;
+        return M.player.token;
     }
     httpRequest(_url, _params, _noToken = false) {
     }

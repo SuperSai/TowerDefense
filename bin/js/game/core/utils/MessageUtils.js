@@ -18,13 +18,11 @@ class MessageUtils {
         self._msgs.push(msg);
         AlignUtils.setToScreenGoldenPos(msg);
         LayerMgr.Instance.addToLayer(msg, LAYER_TYPE.ROLL_MSG_LAYER);
-        console.log("@David showMsgTips content:", content, " ----- length:", self._msgs.length);
         if (self._msgs.length > 0) {
             let time = self._msgTime * 250;
-            Laya.Tween.to(msg, { x: msg.x, y: msg.y - 100, alpha: 0 }, 2500, Laya.Ease.cubicInOut, Laya.Handler.create(self, ($msg) => {
+            Laya.Tween.to(msg, { x: msg.x, y: msg.y - 100, alpha: 0 }, 4000, Laya.Ease.cubicInOut, Laya.Handler.create(self, ($msg) => {
                 Laya.Tween.clearTween($msg);
                 DisplayUtils.removeFromArray($msg, self._msgs);
-                console.log("@David showMsgTips content:", content, " ----- length:", self._msgs.length);
                 $msg.zOrder = 1;
                 ObjectPool.push($msg);
                 $msg.removeSelf();
@@ -79,7 +77,7 @@ class MessageUtils {
             hbox.pos(global.x, global.y);
             LayerMgr.Instance.addToLayer(hbox, LAYER_TYPE.SCREEN_EFFECT_LAYER);
             hbox.x += (obj.width - hbox.width) / 2;
-            Laya.Tween.to(hbox, { y: hbox.y - 50, alpha: 0 }, 1000, null, Laya.Handler.create(this, () => {
+            Laya.Tween.to(hbox, { y: hbox.y - 50, alpha: 0 }, 2000, null, Laya.Handler.create(this, () => {
                 Laya.Tween.clearTween(hbox);
                 hbox.removeSelf();
             }, null, true));
@@ -89,7 +87,7 @@ class MessageUtils {
             label.pos(global.x, global.y);
             LayerMgr.Instance.addToLayer(label, LAYER_TYPE.SCREEN_EFFECT_LAYER);
             label.x += (obj.width - label.width) / 2;
-            Laya.Tween.to(label, { y: label.y - 50, alpha: 0 }, 1000, null, Laya.Handler.create(this, () => {
+            Laya.Tween.to(label, { y: label.y - 50, alpha: 0 }, 2000, null, Laya.Handler.create(this, () => {
                 Laya.Tween.clearTween(label);
                 label.removeSelf();
                 ObjectPool.push(label);

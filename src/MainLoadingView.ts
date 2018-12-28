@@ -7,8 +7,6 @@ class MainLoadingView extends Laya.Sprite {
         this.ui = new ui.login.LoginSceneUI();
         this.ui.probox.visible = false;
         this.addChild(this.ui);
-
-
         this.tweenAd();
     }
 

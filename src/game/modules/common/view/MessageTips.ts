@@ -11,8 +11,8 @@ class MessageTips extends ui.common.view.MessageTipsUI {
     public init(content: string): void {
         let self = this;
         self.txt_content.text = content;
-        self.bg.width = self.hbox.displayWidth + 50;
         self.hbox.refresh();
+        self.bg.width = self.hbox.displayWidth + 50;
         self.width = self.bg.width;
     }
 }

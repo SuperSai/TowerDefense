@@ -42,4 +42,5 @@
    <item name="images/fontImg/reward_get_title.png" type="Image" compress="0" pack="1" quality="80" props="" picType="0" scale="0"/>
    <item name="images/welfare/welfare_bg.png" type="Image" compress="0" pack="1" quality="80" props="" picType="0" scale="0"/>
    <item name="images/welfare/banner.png" type="Image" compress="0" pack="1" quality="80" props="" picType="0" scale="0"/>
+   <item name="images/fontImg/game_Notice_title.png" type="Image" compress="0" pack="1" quality="80" props="" picType="0" scale="0"/>
 </res>

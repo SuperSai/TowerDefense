@@ -55,9 +55,10 @@ class DebugPlatform implements Platform {
 
     async onShow(_callback: any) { }
     async onHide(_callback: any) { }
+    getLaunchOptionsSync(): any { }
     async getShareInfo(shareTicket: string, callback: any, failCallback: any) { }
     httpToken(_url: string, _callback: any, _forceNew: boolean = false) {
-        return "yaoguai_8f4cd7953ac7232e79ea04a7f9e27947";//M.player.token;
+        return M.player.token;
     }
     httpRequest(_url: string, _params: any, _noToken: boolean = false) {
     }

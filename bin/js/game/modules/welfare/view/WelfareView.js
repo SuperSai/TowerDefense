@@ -5,38 +5,45 @@ class WelfareView extends BaseView {
     constructor() {
         super(LAYER_TYPE.SUB_FRAME_LAYER, ui.welfare.WelfareViewUI);
         this.setResources(["welfare"]);
-        this._view = this.ui;
     }
     initUI() {
         super.initUI();
         if (userData.isShowEveryDayRewardRedPoint()) {
-            this._view.btn_get.label = "领取";
-            this._view.btn_get.disabled = false;
+            this.ui.btn_get.label = "领取";
+            this.ui.btn_get.disabled = false;
         }
         else {
-            this._view.btn_get.label = "已领取";
-            this._view.btn_get.disabled = true;
+            this.ui.btn_get.label = "已领取";
+            this.ui.btn_get.disabled = true;
         }
     }
     addEvents() {
         super.addEvents();
-        this._view.btn_get.on(Laya.Event.CLICK, this, this.onGetReward);
-        this._view.btn_exit.on(Laya.Event.CLICK, this, this.onCloseView);
+        this.ui.btn_get.on(Laya.Event.CLICK, this, this.onGetReward);
+        this.ui.btn_exit.on(Laya.Event.CLICK, this, this.onCloseView);
     }
     removeEvents() {
         super.removeEvents();
-        this._view.btn_get.off(Laya.Event.CLICK, this, this.onGetReward);
-        this._view.btn_exit.off(Laya.Event.CLICK, this, this.onCloseView);
+        this.ui.btn_get.off(Laya.Event.CLICK, this, this.onGetReward);
+        this.ui.btn_exit.off(Laya.Event.CLICK, this, this.onCloseView);
     }
     onGetReward() {
         let self = this;
         if (PlayerManager.Instance.Info.isMySceneEnter && userData.isShowEveryDayRewardRedPoint()) {
             HttpManager.Instance.requestWelfareReward((res) => {
-                let diamond = res.diamond;
-                RewardGetView.Create(self, () => {
-                    M.layer.screenEffectLayer.addChild(new FlyEffect().play("diamond", LayerManager.mouseX, LayerManager.mouseY));
-                    EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: userData.diamond = diamond });
-                }, [diamond, res.essence], [2, 3]);
+                if (res.result) {
+                    self.onCloseView();
+                    userData.removeEveryDayRewardRedPoint();
+                    RewardGetView.Create(self, () => {
+                        M.layer.screenEffectLayer.addChild(new FlyEffect().play("diamond", LayerManager.mouseX, LayerManager.mouseY));
+                        EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: userData.diamond += res.diamond });
+                        userData.essence += res.essence;
+                        HallManager.Instance.updateEssence(userData.essence);
+                    }, [res.diamond, res.essence], [2, 3]);
+                }
+                else {
+                    console.log("@David 领取福利奖励失败...");
+                }
             });
         }
         else {
