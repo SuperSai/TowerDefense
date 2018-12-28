@@ -11,20 +11,15 @@ class RewardGetView extends ui.common.view.RewardGetViewUI {
     }
     //新建并添加到节点
     static Create(_parentNode, callback = null, values, items = [1, 2]) {
-        let resList = [
-            { url: "res/atlas/images.atlas", type: Laya.Loader.ATLAS }
-        ];
-        Laya.loader.load(resList, Handler.create(null, () => {
-            if (_parentNode) {
-                let nodeView = new RewardGetView(values, items);
-                AlignUtils.setToScreenGoldenPos(nodeView);
-                LayerManager.getInstance().subFrameLayer.addChildWithMaskCall(nodeView, nodeView.removeSelf);
-                nodeView.once(Laya.Event.REMOVED, nodeView, () => {
-                    callback && callback();
-                    nodeView.removeView();
-                });
-            }
-        }));
+        if (_parentNode) {
+            let nodeView = new RewardGetView(values, items);
+            AlignUtils.setToScreenGoldenPos(nodeView);
+            LayerManager.getInstance().subFrameLayer.addChildWithMaskCall(nodeView, nodeView.removeSelf);
+            nodeView.once(Laya.Event.REMOVED, nodeView, () => {
+                callback && callback();
+                nodeView.removeView();
+            });
+        }
     }
     //初始化
     init() {

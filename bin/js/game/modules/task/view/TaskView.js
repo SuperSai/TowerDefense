@@ -14,7 +14,6 @@ class TaskView extends ui.task.TaskViewUI {
     //新建并添加到节点
     static Create(_parentNode, _callback = null, _isTask = false) {
         let resList = [
-            { url: "res/atlas/images.atlas", type: Laya.Loader.ATLAS },
             { url: "res/atlas/images/quest.atlas", type: Laya.Loader.ATLAS },
             { url: "res/atlas/images/component.atlas", type: Laya.Loader.ATLAS }
         ];

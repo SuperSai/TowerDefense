@@ -10,17 +10,12 @@ class OfflineRewardsView extends ui.common.view.OfflineRewardsViewUI {
     }
     //新建并添加到节点
     static Create(_parentNode, callback = null, _removeCallback = null, ...arge) {
-        let resList = [
-            { url: "res/atlas/images.atlas", type: Laya.Loader.ATLAS }
-        ];
-        Laya.loader.load(resList, Handler.create(null, () => {
-            if (_parentNode) {
-                let nodeView = new OfflineRewardsView(arge, callback);
-                AlignUtils.setToScreenGoldenPos(nodeView);
-                M.layer.subFrameLayer.addChildWithMaskCall(nodeView, nodeView.removeView);
-                nodeView.once(Laya.Event.REMOVED, nodeView, _removeCallback);
-            }
-        }));
+        if (_parentNode) {
+            let nodeView = new OfflineRewardsView(arge, callback);
+            AlignUtils.setToScreenGoldenPos(nodeView);
+            M.layer.subFrameLayer.addChildWithMaskCall(nodeView, nodeView.removeView);
+            nodeView.once(Laya.Event.REMOVED, nodeView, _removeCallback);
+        }
     }
     //初始化
     init() {

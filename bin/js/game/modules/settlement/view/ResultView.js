@@ -47,6 +47,21 @@ class ResultView extends ui.settlement.ResultViewUI {
                     that.removeSelf();
                 });
             }
+            let btnGet = imgBg.getChildByName("btn_get");
+            if (btnGet) {
+                btnGet.offAll(Laya.Event.CLICK);
+                btnGet.on(Laya.Event.CLICK, btnGet, () => {
+                    that.prizeList.pop(); //移除最后一个
+                    _callback && _callback(that.lastStage);
+                    if (that.prizeList.length > 0) {
+                        that.showPrizeUI(that.prizeList, _callback);
+                    }
+                    else {
+                        DisplayUtils.removeAllChildren(this.hbox);
+                        that.removeSelf();
+                    }
+                });
+            }
             let btnShare = imgBg.getChildByName("btnShare");
             if (btnShare) {
                 btnShare.offAll(Laya.Event.CLICK);
@@ -81,7 +96,6 @@ class ResultView extends ui.settlement.ResultViewUI {
             }
             let imgItemBg = imgBg.getChildByName("imgItemBg");
             if (imgItemBg) {
-                this.hbox.removeChildren();
                 imgItemBg.removeChildren();
                 //可奖励关卡
                 let prizeCount = _prizeList.length;
@@ -124,6 +138,7 @@ class ResultView extends ui.settlement.ResultViewUI {
                 let stagePrizeCfg = GlobleData.getData(GlobleData.BarrierRewardVO, that.lastStage);
                 if (stagePrizeCfg == null)
                     return;
+                this.hbox.removeChildren();
                 let bossM = MathUtils.parseStringNum(stagePrizeCfg.bossM);
                 let gold = BattleManager.Instance.getBarrierRewardToGold(that.lastStage, MathUtils.parseStringNum(stagePrizeCfg.gold));
                 let gem = MathUtils.parseStringNum(stagePrizeCfg.gem);

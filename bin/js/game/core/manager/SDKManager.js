@@ -182,10 +182,8 @@ class SDKManager {
             case "stage":
                 this.checkIsGetClearanceReward(data);
                 break;
-            default:
-                HttpManager.Instance.requestShareGift(data);
-                break;
         }
+        HttpManager.Instance.requestShareGift(data);
     }
     /** 处理场景值 */
     handlerSceneValue(data) {
@@ -212,7 +210,7 @@ class SDKManager {
         HttpManager.Instance.requestClearanceReward(userData.userId + "", groupId, HallManager.Instance.hallData.passStage, (result) => {
             console.log("@David 检查是否可以领取通关奖励 返回结果 flag:", result);
             if (result == true) { //成功
-                HallManager.Instance.showClearanceRewardView();
+                HallManager.Instance.showClearanceRewardView(true);
                 return;
             }
             else if (result == false) { //失败

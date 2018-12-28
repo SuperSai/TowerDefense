@@ -667,6 +667,24 @@ class HttpManager {
             }
         });
     }
+    /** 游戏公告 */
+    requestAnnouncement() {
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+        HttpReqHelper.request({
+            url: 'v1/announcement',
+            success: function (res) {
+                if (res.result) {
+                    ViewMgr.Ins.open(ViewConst.NoticeView, res.content);
+                }
+                else {
+                    console.log("@David 显示游戏公告错误!!!!!!!!!!!!");
+                }
+            },
+            fail: function (res) {
+                console.log("@David 显示游戏公告异常!!!!!!!!!!!!");
+            }
+        });
+    }
     static get Instance() {
         if (HttpManager._instance == null) {
             HttpManager._instance = new HttpManager();

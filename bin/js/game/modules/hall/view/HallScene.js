@@ -8,6 +8,8 @@ class HallScene extends ui.hall.HallSceneUI {
         this.curMonsterSprite = null;
         this._giveCarTime = 0; //定时赠送怪物
         this._giveTempTime = 0; //定时赠送怪物
+        /** 功能菜单 */
+        this._isShowMenu = true;
         /** 更新在线奖励时间 */
         this._diamondTime = 0;
         var self = this;
@@ -156,6 +158,8 @@ class HallScene extends ui.hall.HallSceneUI {
         StrengthenManager.Instance.checkRedPoint();
         self.showStagePrize(true);
         SDKManager.Instance.createBanner(false);
+        //游戏公告
+        HttpManager.Instance.requestAnnouncement();
     }
     /** 初始化用户数据 */
     initUserData() {
@@ -1552,6 +1556,7 @@ class HallScene extends ui.hall.HallSceneUI {
     menuRedPointIsShow() {
         let self = this;
         self.menuRedPoint.visible = userData.menuRedPointCount > 0;
+        self.showMenu(!self.menuRedPoint.visible);
     }
     /** 刷新金币 */
     onRefreshGold() {
@@ -1628,11 +1633,17 @@ class HallScene extends ui.hall.HallSceneUI {
             }
         });
     }
-    /** 功能菜单 */
     onClickMenuHandler() {
         let self = this;
+        self.showMenu(self._isShowMenu);
+    }
+    showMenu(isShowMenu) {
+        let self = this;
         self.btn_arrow.mouseEnabled = false;
-        if (self.btn_arrow.scaleX == 1) {
+        if (isShowMenu) {
+            if (self.btn_arrow.scaleX == -1)
+                return;
+            self._isShowMenu = false;
             Laya.Tween.to(self.menuBox, { left: -390 }, 350, null, Laya.Handler.create(self, () => {
                 Laya.Tween.clearTween(self.menuBox);
                 self.btn_arrow.mouseEnabled = true;
@@ -1640,6 +1651,9 @@ class HallScene extends ui.hall.HallSceneUI {
             }, null, true));
         }
         else {
+            if (self.btn_arrow.scaleX == 1)
+                return;
+            self._isShowMenu = true;
             Laya.Tween.to(self.menuBox, { left: 0 }, 350, null, Laya.Handler.create(self, () => {
                 Laya.Tween.clearTween(self.menuBox);
                 self.btn_arrow.mouseEnabled = true;

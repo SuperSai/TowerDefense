@@ -34,7 +34,7 @@ class HallModel {
         /** 定时赠送精灵 */
         this.giveMonsterAllTime = 0;
         /** 赠送怪物的掉落时间 */
-        this.dropTime = 5;
+        this.dropTime = 10;
         /** 当前最新怪物ID-快捷购怪物按钮 */
         this.curNewMonsterId = 0;
         /** 本地保存兵营怪物 */

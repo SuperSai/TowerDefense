@@ -115,7 +115,7 @@ class HallManager extends Laya.EventDispatcher {
         return false;
     }
     /** 显示通关奖励礼包界面 */
-    showClearanceRewardView() {
+    showClearanceRewardView(isDouble = false) {
         if (this._hall) {
             let lastStage = HallManager.Instance.hallData.stagePrizeList.pop();
             //显示获得的奖品
@@ -124,14 +124,13 @@ class HallManager extends Laya.EventDispatcher {
                 //发送奖励
                 let bossM = MathUtils.parseStringNum(stagePrizeCfg.bossM);
                 let gold = BattleManager.Instance.getBarrierRewardToGold(lastStage, MathUtils.parseStringNum(stagePrizeCfg.gold));
+                gold = isDouble ? gold * 2 : gold;
                 let gem = MathUtils.parseStringNum(stagePrizeCfg.gem);
                 HttpManager.Instance.requestStagePrizeDiamond(lastStage, gem, bossM, (_res) => {
                     let stage = _res;
                     if (stage > 0) {
                         ClearanceRewardView.Create(this._hall, null, () => {
-                            if (this._hall.btnStagePrize.visible) {
-                                this._hall.showStagePrize(HallManager.Instance.hallData.stagePrizeList.length > 0);
-                            }
+                            this._hall.showStagePrize(HallManager.Instance.hallData.stagePrizeList.length > 0);
                         }, stage);
                         HttpManager.Instance.requestDiamondData();
                         HttpManager.Instance.requestEssenceData();

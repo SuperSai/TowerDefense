@@ -9,18 +9,13 @@ class ClearanceFail extends ui.settlement.ClearanceFailUI {
     }
     //新建并添加到节点
     static Create(_parentNode, callback = null, _removeCallback = null, ...arge) {
-        let resList = [
-            { url: "res/atlas/images.atlas", type: Laya.Loader.ATLAS }
-        ];
-        Laya.loader.load(resList, Handler.create(null, () => {
-            if (_parentNode) {
-                let nodeView = new ClearanceFail();
-                nodeView.removeCallback = _removeCallback;
-                AlignUtils.setToScreenGoldenPos(nodeView);
-                M.layer.subFrameLayer.addChildWithMaskCall(nodeView, nodeView.removeSelf);
-                nodeView.once(Laya.Event.REMOVED, nodeView, nodeView.removeView);
-            }
-        }));
+        if (_parentNode) {
+            let nodeView = new ClearanceFail();
+            nodeView.removeCallback = _removeCallback;
+            AlignUtils.setToScreenGoldenPos(nodeView);
+            M.layer.subFrameLayer.addChildWithMaskCall(nodeView, nodeView.removeSelf);
+            nodeView.once(Laya.Event.REMOVED, nodeView, nodeView.removeView);
+        }
     }
     //显示失败界面
     showFailedUI() {
