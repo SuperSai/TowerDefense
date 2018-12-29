@@ -17,7 +17,7 @@ class AdditionalRewardView extends BaseView {
         let self = this;
         self.ui.txt_count.text = "x" + self.datas[0].diamond;
     }
-    addEvetns() {
+    addEvents() {
         super.addEvents();
         let self = this;
         self.ui.btn_get.on(Laya.Event.CLICK, self, self.onGetReward);
@@ -31,7 +31,7 @@ class AdditionalRewardView extends BaseView {
     onGetReward() {
         let self = this;
         userData.toShareAd(() => {
-            HttpManager.Instance.requestRandomRewardDiamond(self.datas[0].diamond, (res) => {
+            HttpManager.Instance.requestRandomRewardDiamond(Number(self.datas[0].diamond), (res) => {
                 self.removeView();
                 let point = PointUtils.localToGlobal(self.ui.btn_get);
                 M.layer.screenEffectLayer.addChild(new FlyEffect().play("diamond", point.x, point.y, 38, 73));

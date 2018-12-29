@@ -7,6 +7,9 @@ class SDKManager {
     initWX() {
         platform.onShow(function (data) {
             console.log("@David onShow", data);
+            if (data.scene == 1104 || data.scene == 1103 || data.scene == 1023) { //ios从我的小程序入口进
+                PlayerManager.Instance.Info.isMySceneEnter = true;
+            }
             SDKManager.Instance.handlerSceneValue(data);
             EventsManager.Instance.event(EventsType.BACK_GAME);
             M.more.applyMute();

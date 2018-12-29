@@ -357,7 +357,7 @@ class UserData {
         }
         return 0;
     }
-    //减少分享广告可点击次数
+    /** 减少观看视频的次数 */
     decreAdTimes(_kind) {
         let that = this;
         if (that.shareAdTimes) {
@@ -375,6 +375,7 @@ class UserData {
             }
         }
     }
+    /** 减少分享广告的次数 */
     decreShareTimes(_kind) {
         let that = this;
         if (that.shareAdTimes) {
@@ -790,6 +791,7 @@ class UserData {
         Laya.stage.timerOnce(1000, self, () => {
             self.isOpenShareAd = false;
         });
+        console.log("@David 分享/视频 type:", type);
         //是否优先视频广告
         if (self.getAdTimes(type) > 0) {
             SDKManager.Instance.showVideoAd((_res) => {

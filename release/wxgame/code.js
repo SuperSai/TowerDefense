@@ -3953,7 +3953,7 @@ class UserData {
         }
         return 0;
     }
-    //减少分享广告可点击次数
+    /** 减少观看视频的次数 */
     decreAdTimes(_kind) {
         let that = this;
         if (that.shareAdTimes) {
@@ -3971,6 +3971,7 @@ class UserData {
             }
         }
     }
+    /** 减少分享广告的次数 */
     decreShareTimes(_kind) {
         let that = this;
         if (that.shareAdTimes) {
@@ -4386,6 +4387,7 @@ class UserData {
         Laya.stage.timerOnce(1000, self, () => {
             self.isOpenShareAd = false;
         });
+        console.log("@David 分享/视频 type:", type);
         //是否优先视频广告
         if (self.getAdTimes(type) > 0) {
             SDKManager.Instance.showVideoAd((_res) => {
@@ -4926,6 +4928,9 @@ class SDKManager {
     initWX() {
         platform.onShow(function (data) {
             console.log("@David onShow", data);
+            if (data.scene == 1104 || data.scene == 1103 || data.scene == 1023) { //ios从我的小程序入口进
+                PlayerManager.Instance.Info.isMySceneEnter = true;
+            }
             SDKManager.Instance.handlerSceneValue(data);
             EventsManager.Instance.event(EventsType.BACK_GAME);
             M.more.applyMute();
@@ -5370,6 +5375,8 @@ EventsType.UPDATE_HALL_DATA = "UPDATE_HALL_DATA";
 EventsType.FRIEND_CONCUR_GET_REWARD = "FRIEND_CONCUR_GET_REWARD";
 /** 守卫升级完毕 */
 EventsType.EVOLUTION_LEVEL_COMPLETE = "EVOLUTION_LEVEL_COMPLETE";
+/** 更新货币数据 */
+EventsType.UPDATE_CURRENCY = "UPDATE_CURRENCY";
 //# sourceMappingURL=EventsType.js.map
 class Time {
 }
@@ -11785,6 +11792,7 @@ class HallScene extends ui.hall.HallSceneUI {
                 Laya.Tween.clearTween(that.imgMoney);
             }, null, true));
         }
+        EventsManager.Instance.event(EventsType.UPDATE_CURRENCY);
         //刷新快捷买怪物按钮
         that.refreshShortcutCreateBtn(HallManager.Instance.hallData.buyMonsterType);
         //本地保存
@@ -11797,6 +11805,7 @@ class HallScene extends ui.hall.HallSceneUI {
         if (that.txtDiamond) {
             that.txtDiamond.changeText(MathUtils.bytesToSize(PlayerManager.Instance.Info.userDiamond).toString());
         }
+        EventsManager.Instance.event(EventsType.UPDATE_CURRENCY);
         //本地保存
         userData.setDiamond(PlayerManager.Instance.Info.userDiamond);
     }
@@ -13228,7 +13237,7 @@ class AdditionalRewardView extends BaseView {
         let self = this;
         self.ui.txt_count.text = "x" + self.datas[0].diamond;
     }
-    addEvetns() {
+    addEvents() {
         super.addEvents();
         let self = this;
         self.ui.btn_get.on(Laya.Event.CLICK, self, self.onGetReward);
@@ -13242,7 +13251,7 @@ class AdditionalRewardView extends BaseView {
     onGetReward() {
         let self = this;
         userData.toShareAd(() => {
-            HttpManager.Instance.requestRandomRewardDiamond(self.datas[0].diamond, (res) => {
+            HttpManager.Instance.requestRandomRewardDiamond(Number(self.datas[0].diamond), (res) => {
                 self.removeView();
                 let point = PointUtils.localToGlobal(self.ui.btn_get);
                 M.layer.screenEffectLayer.addChild(new FlyEffect().play("diamond", point.x, point.y, 38, 73));
@@ -13267,7 +13276,7 @@ class HeroLevelView extends ui.randomReward.HeroLevelViewUI {
         super();
         this._callback = callBack;
         this._arg = arg;
-        this.addEvetns();
+        this.addEvents();
         this.init();
     }
     //新建并添加到节点
@@ -13295,7 +13304,7 @@ class HeroLevelView extends ui.randomReward.HeroLevelViewUI {
         self.newHero.skin = "images/carImg/" + newInfo.imgUrl;
         self.txt_newLevel.text = (userData.isEvolution() ? newInfo.id - 1000 : newInfo.id - 100) + "级";
     }
-    addEvetns() {
+    addEvents() {
         let self = this;
         self.btn_level.on(Laya.Event.CLICK, self, self.onHeroLevel);
         self.btn_exit.on(Laya.Event.CLICK, self, self.onCancelHandler);
@@ -13655,6 +13664,7 @@ class ClearanceRewardView extends ui.settlement.ClearanceRewardViewUI {
         }
         let bossM = MathUtils.parseStringNum(stagePrizeCfg.bossM);
         let gold = BattleManager.Instance.getBarrierRewardToGold(self._data[0], MathUtils.parseStringNum(stagePrizeCfg.gold));
+        console.log("@David 通关奖励：", this._data, " ------ ", this._data[1]);
         gold = this._data[1] == true ? gold * 2 : gold;
         let gem = MathUtils.parseStringNum(stagePrizeCfg.gem);
         let itemArray = [
@@ -13883,16 +13893,20 @@ class ShopView extends BaseView {
         let self = this;
         self.ui.btnExit.on(Laya.Event.CLICK, self, self.onClickExit);
         self.ui.btn_skillExplain.on(Laya.Event.CLICK, self, self.onSkillExplain);
+        EventsManager.Instance.on(EventsType.UPDATE_CURRENCY, self, self.onUpdateCurrency);
     }
     removeEvents() {
         super.removeEvents();
         let self = this;
         self.ui.btnExit.off(Laya.Event.CLICK, self, self.onClickExit);
         self.ui.btn_skillExplain.off(Laya.Event.CLICK, self, self.onSkillExplain);
+        EventsManager.Instance.off(EventsType.UPDATE_CURRENCY, self, self.onUpdateCurrency);
     }
     onSkillExplain() {
-        let self = this;
         ViewMgr.Ins.open(ViewConst.SkillExplainView);
+    }
+    onUpdateCurrency() {
+        this.refreshMoney(PlayerManager.Instance.Info.userMoney, PlayerManager.Instance.Info.userDiamond);
     }
     //点击事件
     onClickExit() {

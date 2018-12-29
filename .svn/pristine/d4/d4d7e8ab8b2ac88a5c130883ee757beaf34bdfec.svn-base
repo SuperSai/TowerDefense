@@ -41,6 +41,7 @@ private init(): void {
         }
         let bossM: number = MathUtils.parseStringNum(stagePrizeCfg.bossM);
         let gold: number = BattleManager.Instance.getBarrierRewardToGold(self._data[0], MathUtils.parseStringNum(stagePrizeCfg.gold));
+        console.log("@David 通关奖励：", this._data, " ------ ", this._data[1]);
         gold = (this._data[1] as boolean) == true ? gold * 2 : gold;
         let gem: number = MathUtils.parseStringNum(stagePrizeCfg.gem);
         let itemArray = [

@@ -20,16 +20,20 @@ class ShopView extends BaseView {
         let self = this;
         self.ui.btnExit.on(Laya.Event.CLICK, self, self.onClickExit);
         self.ui.btn_skillExplain.on(Laya.Event.CLICK, self, self.onSkillExplain);
+        EventsManager.Instance.on(EventsType.UPDATE_CURRENCY, self, self.onUpdateCurrency);
     }
     removeEvents() {
         super.removeEvents();
         let self = this;
         self.ui.btnExit.off(Laya.Event.CLICK, self, self.onClickExit);
         self.ui.btn_skillExplain.off(Laya.Event.CLICK, self, self.onSkillExplain);
+        EventsManager.Instance.off(EventsType.UPDATE_CURRENCY, self, self.onUpdateCurrency);
     }
     onSkillExplain() {
-        let self = this;
         ViewMgr.Ins.open(ViewConst.SkillExplainView);
+    }
+    onUpdateCurrency() {
+        this.refreshMoney(PlayerManager.Instance.Info.userMoney, PlayerManager.Instance.Info.userDiamond);
     }
     //点击事件
     onClickExit() {

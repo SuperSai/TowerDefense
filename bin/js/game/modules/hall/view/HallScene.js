@@ -943,6 +943,7 @@ class HallScene extends ui.hall.HallSceneUI {
                 Laya.Tween.clearTween(that.imgMoney);
             }, null, true));
         }
+        EventsManager.Instance.event(EventsType.UPDATE_CURRENCY);
         //刷新快捷买怪物按钮
         that.refreshShortcutCreateBtn(HallManager.Instance.hallData.buyMonsterType);
         //本地保存
@@ -955,6 +956,7 @@ class HallScene extends ui.hall.HallSceneUI {
         if (that.txtDiamond) {
             that.txtDiamond.changeText(MathUtils.bytesToSize(PlayerManager.Instance.Info.userDiamond).toString());
         }
+        EventsManager.Instance.event(EventsType.UPDATE_CURRENCY);
         //本地保存
         userData.setDiamond(PlayerManager.Instance.Info.userDiamond);
     }

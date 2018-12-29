@@ -6,7 +6,7 @@ class HeroLevelView extends ui.randomReward.HeroLevelViewUI {
         super();
         this._callback = callBack;
         this._arg = arg;
-        this.addEvetns();
+        this.addEvents();
         this.init();
     }
     //新建并添加到节点
@@ -34,7 +34,7 @@ class HeroLevelView extends ui.randomReward.HeroLevelViewUI {
         self.newHero.skin = "images/carImg/" + newInfo.imgUrl;
         self.txt_newLevel.text = (userData.isEvolution() ? newInfo.id - 1000 : newInfo.id - 100) + "级";
     }
-    addEvetns() {
+    addEvents() {
         let self = this;
         self.btn_level.on(Laya.Event.CLICK, self, self.onHeroLevel);
         self.btn_exit.on(Laya.Event.CLICK, self, self.onCancelHandler);
