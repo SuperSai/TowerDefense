@@ -34,6 +34,7 @@ class ClearanceRewardView extends ui.settlement.ClearanceRewardViewUI {
         }
         let bossM = MathUtils.parseStringNum(stagePrizeCfg.bossM);
         let gold = BattleManager.Instance.getBarrierRewardToGold(self._data[0], MathUtils.parseStringNum(stagePrizeCfg.gold));
+        gold = this._data[1] == true ? gold * 2 : gold;
         let gem = MathUtils.parseStringNum(stagePrizeCfg.gem);
         let itemArray = [
             { img: "images/ClearanceReward/result_prize_item2.png", value: gold },

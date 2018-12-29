@@ -1,0 +1,178 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset='utf-8' />
+	<title>www.layabox.com</title>
+	<meta name='viewport' content='width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no'
+	/>
+	<meta name="renderer" content="webkit"/>
+	<meta name='apple-mobile-web-app-capable' content='yes' />
+	<meta name='full-screen' content='true' />
+	<meta name='x5-fullscreen' content='true' />
+	<meta name='360-fullscreen' content='true' />
+	<meta name="laya" screenorientation ="landscape"/>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+	<meta http-equiv='expires' content='0' />
+	<meta http-equiv="Cache-Control" content="no-siteapp"/>
+</head>
+
+<body>
+	<!--以下引用了常用类库，如果不使用，可以删除-->
+	
+    <!--核心包，封装了显示对象渲染，事件，时间管理，时间轴动画，缓动，消息交互,socket，本地存储，鼠标触摸，声音，加载，颜色滤镜，位图字体等-->
+	<script type="text/javascript" src="libs/min/laya.core.min.js"></script>
+	<!--提供了微信小游戏的适配-->
+	<script type="text/javascript" src="libs/min/laya.wxmini.min.js"></script>
+	<!--封装了webgl渲染管线，如果使用webgl渲染，可以在初始化时调用Laya.init(1000,800,laya.webgl.WebGL);-->
+    <script type="text/javascript" src="libs/min/laya.webgl.min.js"></script>
+	<!--是动画模块，包含了swf动画，骨骼动画等-->
+    <script type="text/javascript" src="libs/min/laya.ani.min.js"></script>
+	<!--包含更多webgl滤镜，比如外发光，阴影，模糊以及更多-->
+    <script type="text/javascript" src="libs/min/laya.filter.min.js"></script>
+	<!--封装了html动态排版功能-->
+    <!--<script type="text/javascript" src="libs/min/laya.html.min.js"></script>-->
+	<!--粒子类库-->
+    <!--<script type="text/javascript" src="libs/min/laya.particle.min.js"></script>-->
+	<!--提供tileMap解析支持-->
+    <!--<script type="text/javascript" src="libs/min/laya.tiledmap.min.js"></script>-->
+	<!--提供了制作UI的各种组件实现-->
+    <script type="text/javascript" src="libs/min/laya.ui.min.js"></script>
+	<!-- 物理引擎matter.js -->
+	<!--用户自定义顺序文件添加到这里-->
+	<!--jsfile--Custom-->
+	<!--jsfile--Custom-->
+
+	<!--自定义的js(src文件夹下)文件自动添加到下面jsfile模块标签里面里-->
+	<!--删除标签，ide不会自动添加js文件，请谨慎操作-->
+	<!--jsfile--startTag-->
+	<script src="js/Token.js"></script>
+	<script src="js/game/sheet/Sheet.js"></script>
+	<script src="js/game/modules/strengthen/StrengthenManager.js"></script>
+	<script src="js/game/modules/more/model/MoreViewListItemVO.js"></script>
+	<script src="js/game/modules/more/model/MoreQuestCompleteStatus.js"></script>
+	<script src="js/game/modules/more/events/MoreEvent.js"></script>
+	<script src="js/game/modules/hall/model/HallModel.js"></script>
+	<script src="js/game/modules/guide/view/GuideView.js"></script>
+	<script src="js/game/modules/evolution/EvolutionManager.js"></script>
+	<script src="js/game/modules/common/component/ScaleAnimScript.js"></script>
+	<script src="js/game/modules/common/component/layers/LayerEvent.js"></script>
+	<script src="js/game/modules/common/component/layers/ILayer.js"></script>
+	<script src="js/game/modules/common/component/datas/KeyValue.js"></script>
+	<script src="js/game/modules/common/CommonManager.js"></script>
+	<script src="js/game/modules/battle/SkillManager.js"></script>
+	<script src="js/game/modules/battle/model/BattleModel.js"></script>
+	<script src="js/game/modules/battle/config/BattleEventsConst.js"></script>
+	<script src="js/game/core/utils/TSDictionary.js"></script>
+	<script src="js/game/core/utils/TimeUtil.js"></script>
+	<script src="js/game/core/utils/StringUtils.js"></script>
+	<script src="js/game/core/utils/ResUtils.js"></script>
+	<script src="js/game/core/utils/RandomUtils.js"></script>
+	<script src="js/game/core/utils/PointUtils.js"></script>
+	<script src="js/game/core/utils/PathUtils.js"></script>
+	<script src="js/game/core/utils/ObjectUtils.js"></script>
+	<script src="js/game/core/utils/ObjectPool.js"></script>
+	<script src="js/game/core/utils/MessageUtils.js"></script>
+	<script src="js/game/core/utils/MathUtils.js"></script>
+	<script src="js/game/core/utils/DisplayUtils.js"></script>
+	<script src="js/game/core/utils/DebugUtils.js"></script>
+	<script src="js/game/core/utils/CSVParser.js"></script>
+	<script src="js/game/core/utils/AnimationUtils.js"></script>
+	<script src="js/game/core/utils/AlignUtils.js"></script>
+	<script src="js/game/core/net/HttpRequestHelper.js"></script>
+	<script src="js/game/core/net/HttpManager.js"></script>
+	<script src="js/game/core/mvc/mgr/ViewRegisterMgr.js"></script>
+	<script src="js/game/core/mvc/mgr/ViewMgr.js"></script>
+	<script src="js/game/core/mvc/consts/ViewConst.js"></script>
+	<script src="js/game/core/model/vo/TrainDropVO.js"></script>
+	<script src="js/game/core/model/vo/SkillStrengthenVO.js"></script>
+	<script src="js/game/core/model/vo/SkillConfigVO.js"></script>
+	<script src="js/game/core/model/vo/MonsterVO.js"></script>
+	<script src="js/game/core/model/vo/KindLevelConfigVO.js"></script>
+	<script src="js/game/core/model/vo/ItemVO.js"></script>
+	<script src="js/game/core/model/vo/BarrierRewardVO.js"></script>
+	<script src="js/game/core/model/vo/BarrierConfigVO.js"></script>
+	<script src="js/game/core/model/data/WXSystemInfo.js"></script>
+	<script src="js/game/core/model/data/UserData.js"></script>
+	<script src="js/game/core/model/data/PlayerInfo.js"></script>
+	<script src="js/game/core/manager/TimerManager.js"></script>
+	<script src="js/game/core/manager/TimerHandlers.js"></script>
+	<script src="js/game/core/manager/SDKManager.js"></script>
+	<script src="js/game/core/manager/PoolManager.js"></script>
+	<script src="js/game/core/manager/LanguageManager.js"></script>
+	<script src="js/game/core/manager/GameEnterManager.js"></script>
+	<script src="js/game/core/event/EventsType.js"></script>
+	<script src="js/game/core/consts/Time.js"></script>
+	<script src="js/game/core/consts/Color.js"></script>
+	<script src="js/game/core/consts/Align.js"></script>
+	<script src="js/game/config/PathConfig.js"></script>
+	<script src="js/game/config/Imports.js"></script>
+	<script src="js/game/config/GlobalConfig.js"></script>
+	<script src="js/game/core/event/EventsManager.js"></script>
+	<script src="js/game/core/manager/BuffController.js"></script>
+	<script src="js/game/core/manager/LayerManager.js"></script>
+	<script src="js/game/core/manager/PlayerManager.js"></script>
+	<script src="js/game/core/manager/SkyDropController.js"></script>
+	<script src="js/game/core/model/data/Bullet.js"></script>
+	<script src="js/game/core/model/data/Monster.js"></script>
+	<script src="js/game/core/model/GlobleData.js"></script>
+	<script src="js/game/core/mvc/mgr/LayerMgr.js"></script>
+	<script src="js/game/core/mvc/view/IBaseView.js"></script>
+	<script src="js/game/core/mvc/view/BaseView.js"></script>
+	<script src="js/game/core/utils/EffectUtils.js"></script>
+	<script src="js/game/core/utils/FlyEffect.js"></script>
+	<script src="js/game/modules/battle/BattleManager.js"></script>
+	<script src="js/ui/layaUI.max.all.js"></script>
+	<script src="js/game/modules/buff/view/BuffTipsView.js"></script>
+	<script src="js/game/modules/buff/view/SkillItem.js"></script>
+	<script src="js/game/modules/common/component/buttons/TabGroup.js"></script>
+	<script src="js/game/modules/common/component/layers/Layer.js"></script>
+	<script src="js/game/modules/common/component/layers/MaskLayer.js"></script>
+	<script src="js/game/modules/common/item/RewardItem.js"></script>
+	<script src="js/game/modules/common/view/DiamondBuyView.js"></script>
+	<script src="js/game/modules/common/view/FreeGetPetView.js"></script>
+	<script src="js/game/modules/common/view/MessageTips.js"></script>
+	<script src="js/game/modules/common/view/NoticeView.js"></script>
+	<script src="js/game/modules/common/view/OfflineRewardsView.js"></script>
+	<script src="js/game/modules/common/view/RewardGetView.js"></script>
+	<script src="js/game/modules/common/view/RewardGoldView.js"></script>
+	<script src="js/game/modules/common/view/SkillExplainView.js"></script>
+	<script src="js/game/modules/daySign/view/DaySignView.js"></script>
+	<script src="js/game/modules/debug/DebugView.js"></script>
+	<script src="js/game/modules/evolution/view/EvolutionAdvancedView.js"></script>
+	<script src="js/game/modules/evolution/view/EvolutionView.js"></script>
+	<script src="js/game/modules/evolution/view/LevelHeroView.js"></script>
+	<script src="js/game/modules/followReward/view/FollowRewardView.js"></script>
+	<script src="js/game/modules/friendConcur/view/FriendConcurItem.js"></script>
+	<script src="js/game/modules/friendConcur/view/FriendConcurView.js"></script>
+	<script src="js/game/modules/guide/NoviceManager.js"></script>
+	<script src="js/game/modules/hall/HallManager.js"></script>
+	<script src="js/game/modules/hall/view/HallScene.js"></script>
+	<script src="js/game/modules/luckPrize/view/LuckPrizeView.js"></script>
+	<script src="js/game/modules/more/controller/MoreController.js"></script>
+	<script src="js/game/modules/more/model/MoreModel.js"></script>
+	<script src="js/game/modules/more/view/MoreView.js"></script>
+	<script src="js/game/modules/more/view/MoreViewListItem.js"></script>
+	<script src="js/game/modules/randomReward/view/AdditionalRewardView.js"></script>
+	<script src="js/game/modules/randomReward/view/HeroLevelView.js"></script>
+	<script src="js/game/modules/rank/view/RankingView.js"></script>
+	<script src="js/game/modules/settlement/view/ClearanceFail.js"></script>
+	<script src="js/game/modules/settlement/view/ClearanceRewardView.js"></script>
+	<script src="js/game/modules/settlement/view/ResultView.js"></script>
+	<script src="js/game/modules/shop/view/ShopView.js"></script>
+	<script src="js/game/modules/strengthen/view/StrengthenView.js"></script>
+	<script src="js/game/modules/task/view/TaskView.js"></script>
+	<script src="js/game/modules/welfare/view/WelfareView.js"></script>
+	<script src="js/LoginView.js"></script>
+	<script src="js/MainLoadingView.js"></script>
+	<script src="js/platform.js"></script>
+	<!--jsfile--endTag-->
+
+	<!--启动类添加到这里-->
+	<!--jsfile--Main-->
+	<script src="js/game/config/ManagerShortcuts.js"></script>
+	<script src="js/Main.js"></script>
+	<!--jsfile--Main-->
+</body>
+
+</html>

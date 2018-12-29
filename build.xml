@@ -79,7 +79,7 @@
 			</preserveintarget>
 		</sync> -->
 
-		<copy todir="${local_home_wx}">
+		<copy todir="${local_home_wx}" failonerror="true" verbose="true">
 			<fileset dir="${copySourcePath}">
 				<include name="code.js" />
 			</fileset>

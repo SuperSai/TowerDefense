@@ -2,102 +2,70 @@
 * terry 2018/7/16;
 * 用户数据本地存储
 */
-
 class CacheKey {
-    static GOLD = "gold";
-    static SOUND_MUTE = "sound_mute";
-    /** 好友互助 */
-    static CONCUR = "concur";
 }
-
+CacheKey.GOLD = "gold";
+CacheKey.SOUND_MUTE = "sound_mute";
+/** 好友互助 */
+CacheKey.CONCUR = "concur";
 class UserData {
-
-    private _cache: any;
-    private _noviceGroupId: number = 1; // 新手节点
-
-    get noviceGroupId(): number {
-        return this._noviceGroupId;
-    }
-
-    set noviceGroupId(value: number) {
-        this._noviceGroupId = value;
-    }
-
-    get dayGetGoldCount(): number {
-        return PlayerManager.Instance.Info.dayGetGoldCount;
-    }
-    set dayGetGoldCount(value: number) {
-        PlayerManager.Instance.Info.dayGetGoldCount = value;
-    }
-
-    /** 合成次数 */
-    public synthesisCount: number = 0;
-    /** 金币 */
-    public gold: number = 2000; //拥有金币
-    /** 钻石 */
-    public diamond: number = 30; //拥有元宝
-    /** 精华 */
-    public essence: number = 0; //精华碎片
-    /** 怪物缓存池的名字 */
-    public MONSTER_POOL_NAME: string = "MONSTER_POOL_NAME";
-    /** 怪物子弹 */
-    public MONSTER_BULLET: string = "MONSTER_BULLET";
-    public ANIMATION_POOL_NAME: string = "ANIMATION_POOL_NAME";
-    public parkcarInfoArray: Array<any> = []; //车位信息({id: index, carId: 0, isRunning:false})
-    public carBuyRecordArray: Array<any> = []; //车购买记录({carId: 1, buyTimes:0})
-    public skillAdditionArray: Array<any> = []; //技能加成表({skillId: 1, buyTimes:0})
-
-    public carLevel: number = 1; //当前车最高等级
-    public level: number = 2; //玩家等级
-    public kingLevel: number = 1; //森林王进化等级
-    public evolutionLevel: number = 1; //商店进化等级
-
-    public passStage: number = 1; //通关的游戏关卡
-    private passSection: number = 1; //通过的游戏章节
-
-    private s_user_old = 'user_data'; //保存本地v1.0
-    private s_user: string = "user_storage"; //保存本地
-    private s_offline_time = 's_offline_time'; //离线服务器时间
-    private s_offlinePrize_time = 's_offlinePrize_time'; //离线奖励时间
-    private s_version_clear = 's_version_clear'; //版本清理
-
-    private s_shopRedPoint_time = 's_shopRedPoint_time'; //商城红点再次检测倒计时启动时间
-
-    private s_acceLeft_time = 's_acceLeft_time'; //加速剩余时间
-
-    private _isLoadStorage: boolean = false; //是否已加载本地数据
-    private cs_time_diff: number = 0; //客户端与服务器时间差
-    public hasOfflinePrize: boolean = false; //是否领取离线奖励
-
-    public shareSwitchOpen: boolean = false; //分享开关打开
-
-    public userId: number = 0; //用户id-用于分享奖励
-
-    public shareAdTimes: any = {}; //分享广告可点击次数
-    /** 在线奖励剩余次数 */
-    public offlineRewardCount: number = 0;
-    private shareAdStage: any = {}; //分享或广告状态
-    private hasVideoAd: boolean = true; //是否有视频广告
-
-    private showShareGiftRedPoint: boolean = false; //分享礼包红点
-    private showDailySignRedPoint: boolean = false; //每日签到红点
-    private showStrengthenRedPoint: boolean = false;//强化红点
-    private showTaskRedPoint: boolean = false; //任务红点
-    private showLuckPrizeRedPoint: boolean = false; //转盘红点
-    private showFollowRedPoint: boolean = false; //关注奖励红点
-    private showFriendConcurRedPoint: boolean = false;//好友互助红点
-    /** 福利 */
-    private every_day_into_rewards: boolean = false;//福利
-    private isOpenShareAd: boolean = false; //打开视频分享
-    private advert: Array<any> = []; //广告
-    private diamond_acce_num: number = 0; //每日元宝加速次数
-    private shareFailedTimes: number = 0; //分享失败保底
-
-    public carparkJsonRecord: string = ''; //防止提交相同数据给服务器
-    public carshopJsonRecord: string = ''; //防止提交相同数据给服务器
-    public menuRedPointCount: number = 0;
-
     constructor() {
+        this._noviceGroupId = 1; // 新手节点
+        /** 合成次数 */
+        this.synthesisCount = 0;
+        /** 金币 */
+        this.gold = 2000; //拥有金币
+        /** 钻石 */
+        this.diamond = 30; //拥有元宝
+        /** 精华 */
+        this.essence = 0; //精华碎片
+        /** 怪物缓存池的名字 */
+        this.MONSTER_POOL_NAME = "MONSTER_POOL_NAME";
+        /** 怪物子弹 */
+        this.MONSTER_BULLET = "MONSTER_BULLET";
+        this.ANIMATION_POOL_NAME = "ANIMATION_POOL_NAME";
+        this.parkcarInfoArray = []; //车位信息({id: index, carId: 0, isRunning:false})
+        this.carBuyRecordArray = []; //车购买记录({carId: 1, buyTimes:0})
+        this.skillAdditionArray = []; //技能加成表({skillId: 1, buyTimes:0})
+        this.carLevel = 1; //当前车最高等级
+        this.level = 2; //玩家等级
+        this.kingLevel = 1; //森林王进化等级
+        this.evolutionLevel = 1; //商店进化等级
+        this.passStage = 1; //通关的游戏关卡
+        this.passSection = 1; //通过的游戏章节
+        this.s_user_old = 'user_data'; //保存本地v1.0
+        this.s_user = "user_storage"; //保存本地
+        this.s_offline_time = 's_offline_time'; //离线服务器时间
+        this.s_offlinePrize_time = 's_offlinePrize_time'; //离线奖励时间
+        this.s_version_clear = 's_version_clear'; //版本清理
+        this.s_shopRedPoint_time = 's_shopRedPoint_time'; //商城红点再次检测倒计时启动时间
+        this.s_acceLeft_time = 's_acceLeft_time'; //加速剩余时间
+        this._isLoadStorage = false; //是否已加载本地数据
+        this.cs_time_diff = 0; //客户端与服务器时间差
+        this.hasOfflinePrize = false; //是否领取离线奖励
+        this.shareSwitchOpen = false; //分享开关打开
+        this.userId = 0; //用户id-用于分享奖励
+        this.shareAdTimes = {}; //分享广告可点击次数
+        /** 在线奖励剩余次数 */
+        this.offlineRewardCount = 0;
+        this.shareAdStage = {}; //分享或广告状态
+        this.hasVideoAd = true; //是否有视频广告
+        this.showShareGiftRedPoint = false; //分享礼包红点
+        this.showDailySignRedPoint = false; //每日签到红点
+        this.showStrengthenRedPoint = false; //强化红点
+        this.showTaskRedPoint = false; //任务红点
+        this.showLuckPrizeRedPoint = false; //转盘红点
+        this.showFollowRedPoint = false; //关注奖励红点
+        this.showFriendConcurRedPoint = false; //好友互助红点
+        /** 福利 */
+        this.every_day_into_rewards = false; //福利
+        this.isOpenShareAd = false; //打开视频分享
+        this.advert = []; //广告
+        this.diamond_acce_num = 0; //每日元宝加速次数
+        this.shareFailedTimes = 0; //分享失败保底
+        this.carparkJsonRecord = ''; //防止提交相同数据给服务器
+        this.carshopJsonRecord = ''; //防止提交相同数据给服务器
+        this.menuRedPointCount = 0;
         //初始化车位
         for (let index = 0; index < 20; index++) {
             this.parkcarInfoArray[index] = { id: index, carId: 0, isRunning: false };
@@ -107,13 +75,23 @@ class UserData {
         this.shareAdStage[11] = true;
         this.shareAdStage[12] = true;
     }
-
-    public getUserId() {
+    get noviceGroupId() {
+        return this._noviceGroupId;
+    }
+    set noviceGroupId(value) {
+        this._noviceGroupId = value;
+    }
+    get dayGetGoldCount() {
+        return PlayerManager.Instance.Info.dayGetGoldCount;
+    }
+    set dayGetGoldCount(value) {
+        PlayerManager.Instance.Info.dayGetGoldCount = value;
+    }
+    getUserId() {
         let that = this;
         return ("user_" + that.userId);
     }
-
-    public saveNovice(groupId: number): void {
+    saveNovice(groupId) {
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/novice/' + groupId,
@@ -127,21 +105,20 @@ class UserData {
         this.noviceGroupId = groupId;
         this.saveLocal();
     }
-
     /** 刷新购买记录 */
-    public refreshBuyRecord(_carId, _isDiamond: boolean = false): void {
+    refreshBuyRecord(_carId, _isDiamond = false) {
         let that = this;
-        let mLevel: number = BattleManager.Instance.getLevel(_carId);
+        let mLevel = BattleManager.Instance.getLevel(_carId);
         let isNew = true;
         for (let key in that.carBuyRecordArray) {
             let element = that.carBuyRecordArray[key];
             if (element && element.carId == mLevel) {
                 if (_isDiamond) {
                     that.carBuyRecordArray[key].diamondBuyTimes++;
-                } else {
+                }
+                else {
                     that.carBuyRecordArray[key].buyTimes++;
                 }
-
                 isNew = false;
                 return;
             }
@@ -149,24 +126,25 @@ class UserData {
         if (isNew) {
             if (_isDiamond) {
                 that.carBuyRecordArray.push({ carId: mLevel, buyTimes: 0, diamondBuyTimes: 1 });
-            } else {
+            }
+            else {
                 that.carBuyRecordArray.push({ carId: mLevel, buyTimes: 1, diamondBuyTimes: 0 });
             }
         }
         Laya.timer.callLater(that, that.saveLocal, [true, { petShop: true }]);
     }
-
     /** 查询购买记录 */
-    public queryBuyRecord(_carId: number, _isDiamond: boolean = false): number {
+    queryBuyRecord(_carId, _isDiamond = false) {
         let that = this;
-        let mLevel: number = BattleManager.Instance.getLevel(_carId);
+        let mLevel = BattleManager.Instance.getLevel(_carId);
         for (let key in that.carBuyRecordArray) {
             let element = that.carBuyRecordArray[key];
             if (element) {
                 if (element.carId == mLevel) {
                     if (_isDiamond) {
                         return that.carBuyRecordArray[key].diamondBuyTimes;
-                    } else {
+                    }
+                    else {
                         return that.carBuyRecordArray[key].buyTimes;
                     }
                 }
@@ -174,9 +152,8 @@ class UserData {
         }
         return 0;
     }
-
     /** 刷新技能加成 */
-    public refreshSkillAddition(_skillId): void {
+    refreshSkillAddition(_skillId) {
         let that = this;
         let isNew = true;
         for (let key in that.skillAdditionArray) {
@@ -190,14 +167,12 @@ class UserData {
         if (isNew) {
             that.skillAdditionArray.push({ skillId: _skillId, buyTimes: 1 });
         }
-
         //保存数据
         // userData.saveLocal();
         Laya.timer.callLater(that, that.saveLocal, [true, { skill: true }]);
     }
-
     /** 查询技能加成 */
-    public querySkillAddition(_skillId: number): number {
+    querySkillAddition(_skillId) {
         let that = this;
         for (let key in that.skillAdditionArray) {
             let element = that.skillAdditionArray[key];
@@ -209,18 +184,17 @@ class UserData {
         }
         return 0;
     }
-
     /** 获取技能加成或触发几率 */
-    public getSkillAdditionProbability(_skillId: number): number {
+    getSkillAdditionProbability(_skillId) {
         let that = this;
-        let strengthenLevel: number = that.querySkillAddition(_skillId);
-        if (strengthenLevel == 0) return 0;
-        let probability: number = SkillManager.Instance.getSkillStrengthenLevelProbability(_skillId, strengthenLevel);
+        let strengthenLevel = that.querySkillAddition(_skillId);
+        if (strengthenLevel == 0)
+            return 0;
+        let probability = SkillManager.Instance.getSkillStrengthenLevelProbability(_skillId, strengthenLevel);
         return probability;
     }
-
     /** 升级车辆等级 */
-    public updateCarLevel(_level: number): boolean {
+    updateCarLevel(_level) {
         let that = this;
         if (that.carLevel < that.carLevelMax()) {
             if (that.carLevel < _level) {
@@ -231,43 +205,37 @@ class UserData {
                 Laya.timer.callLater(that, that.saveLocal, [true]);
                 return true;
             }
-        } else {
-            console.log("已达到最高等级")
+        }
+        else {
+            console.log("已达到最高等级");
         }
         return false;
     }
-
-    public getCarLevel(): number {
+    getCarLevel() {
         return this.carLevel;
     }
-
-    public carLevelMax(): number {
+    carLevelMax() {
         return BattleManager.Instance.model.monsterMaxLevel;
     }
-
-    public resetMonsterLevel(): void {
+    resetMonsterLevel() {
         this.carLevel = 1;
     }
-
     //设置金币并保存
-    public setGoldSave($gold: number): void {
+    setGoldSave($gold) {
         this.gold = Math.floor($gold);
         Laya.timer.callLater(this, this.saveLocal);
     }
-
     /** 设置钻石 */
-    public setDiamond(_value: number): void {
+    setDiamond(_value) {
         this.diamond = Math.floor(_value);
         Laya.timer.callLater(this, this.saveLocal);
     }
-
     /** 设置精华 */
-    public setEssence(_value: number): void {
+    setEssence(_value) {
         this.essence = Math.floor(_value);
     }
-
     /** 升级森林王等级 */
-    public updateKingLevel(_level: number): boolean {
+    updateKingLevel(_level) {
         let that = this;
         if (that.kingLevel < that.kingLevelMax()) {
             if (that.kingLevel < _level) {
@@ -279,22 +247,20 @@ class UserData {
                 that.kingLevel = _level;
                 Laya.timer.callLater(that, that.saveLocal);
             }
-        } else {
-            console.log("已达到最高等级")
+        }
+        else {
+            console.log("已达到最高等级");
         }
         return false;
     }
-
-    public getKingLevel(): number {
+    getKingLevel() {
         return this.kingLevel;
     }
-
-    public kingLevelMax(): number {
+    kingLevelMax() {
         return 60;
     }
-
     /** 升级森林王等级 */
-    public updateEvolutionLevel(_level: number): boolean {
+    updateEvolutionLevel(_level) {
         let that = this;
         if (that.evolutionLevel < that.evolutionLevelMax()) {
             if (that.evolutionLevel < _level) {
@@ -302,24 +268,24 @@ class UserData {
                 Laya.timer.callLater(that, that.saveLocal, [true]);
                 return true;
             }
-        } else {
-            console.log("已达到最高等级")
+        }
+        else {
+            console.log("已达到最高等级");
         }
         return false;
     }
-    public getEvolutionLevel(): number {
+    getEvolutionLevel() {
         return this.evolutionLevel;
     }
-    public evolutionLevelMax(): number {
+    evolutionLevelMax() {
         return 2;
     }
     //是否已进化
-    public isEvolution(): boolean {
+    isEvolution() {
         return (this.evolutionLevel > 1);
     }
-
     //设置车位并保存
-    public setCarparkSave(_carParkSp: MonsterSprite, _carParkSp2: MonsterSprite = null): void {
+    setCarparkSave(_carParkSp, _carParkSp2 = null) {
         let that = this;
         if (that.parkcarInfoArray) {
             for (let key in that.parkcarInfoArray) {
@@ -342,219 +308,211 @@ class UserData {
         Laya.timer.callLater(that, that.saveLocal);
         Laya.timer.once(3e3, that, HttpManager.Instance.requestSaveCarparkData);
     }
-
     //通关的游戏关卡
-    public updatePassStage(_value: number): void {
+    updatePassStage(_value) {
         let that = this;
         that.passStage = _value;
         Laya.timer.callLater(that, that.saveLocal, [true]);
     }
-    public getPassStage(): number {
+    getPassStage() {
         return this.passStage;
     }
-
     //通过的游戏章节
-    public updatePassSection(_value: number): void {
+    updatePassSection(_value) {
         let that = this;
         that.passSection = _value;
         Laya.timer.callLater(that, that.saveLocal, [true]);
     }
-
-    public getPassSection(): number {
+    getPassSection() {
         return this.passSection;
     }
-
     //分享广告可点击次数
-    public getAdTimes(_kind: number): number {
+    getAdTimes(_kind) {
         let that = this;
         if (that.shareAdTimes && that.hasVideoAd) {
             if (_kind == 10) {
                 return that.shareAdTimes.ad_acce_num;
-            } else if (_kind == 11) {
+            }
+            else if (_kind == 11) {
                 return that.shareAdTimes.ad_free_car_num;
-            } else if (_kind == 12) {
+            }
+            else if (_kind == 12) {
                 return that.shareAdTimes.ad_no_money_num;
             }
         }
         return 0;
     }
-
-    public getShareTimes(_kind: number): number {
+    getShareTimes(_kind) {
         let that = this;
         if (that.shareAdTimes) {
             if (_kind == 10) {
                 return that.shareAdTimes.share_acce_num;
-            } else if (_kind == 11) {
+            }
+            else if (_kind == 11) {
                 return that.shareAdTimes.share_free_car_num;
-            } else if (_kind == 12) {
+            }
+            else if (_kind == 12) {
                 return that.shareAdTimes.share_no_money_num;
             }
         }
         return 0;
     }
-
     //减少分享广告可点击次数
-    public decreAdTimes(_kind: number): void {
+    decreAdTimes(_kind) {
         let that = this;
         if (that.shareAdTimes) {
             if (_kind == 10) {
                 that.shareAdTimes.ad_acce_num--;
-            } else if (_kind == 11) {
+            }
+            else if (_kind == 11) {
                 that.shareAdTimes.ad_free_car_num--;
-            } else if (_kind == 12) {
+            }
+            else if (_kind == 12) {
                 that.shareAdTimes.ad_no_money_num--;
-            } else {
+            }
+            else {
                 that.shareAdTimes.ad_num--;
             }
         }
     }
-    public decreShareTimes(_kind: number): void {
+    decreShareTimes(_kind) {
         let that = this;
         if (that.shareAdTimes) {
             if (_kind == 10) {
                 that.shareAdTimes.share_acce_num--;
-            } else if (_kind == 11) {
+            }
+            else if (_kind == 11) {
                 that.shareAdTimes.share_free_car_num--;
-            } else if (_kind == 12) {
+            }
+            else if (_kind == 12) {
                 that.shareAdTimes.share_no_money_num--;
             }
         }
-        console.log("decreShareTimes", that.shareAdTimes)
+        console.log("decreShareTimes", that.shareAdTimes);
     }
-
     //分享或广告开关
-    public isAdStage(_kind: number): boolean {
+    isAdStage(_kind) {
         let that = this;
         return (that.getAdTimes(_kind) > 0);
     }
-
     //显示分享礼包红点
-    public isShowShareGiftRedPoint(): boolean {
+    isShowShareGiftRedPoint() {
         return this.showShareGiftRedPoint;
     }
     //移除分享礼包红点
-    public removeShareGiftRedPoint(): void {
+    removeShareGiftRedPoint() {
         this.showShareGiftRedPoint = false;
         if (EventsManager.Instance) {
             EventsManager.Instance.event(EventsType.SHARE_GIFT_RED_POINT, "remove");
         }
     }
     //显示每日签到红点
-    public isShowDailySignRedPoint(): boolean {
+    isShowDailySignRedPoint() {
         return this.showDailySignRedPoint;
     }
     //移除红点
-    public removeDailySignRedPoint(): void {
+    removeDailySignRedPoint() {
         this.showDailySignRedPoint = false;
         if (EventsManager.Instance) {
             this.menuRedPointCount--;
             EventsManager.Instance.event(EventsType.DAY_SIGN_RED_POINT, "remove");
         }
     }
-
     //显示强化红点
-    public isShowStrengthenRedPoint(): boolean {
+    isShowStrengthenRedPoint() {
         return this.showStrengthenRedPoint;
     }
-
     //移除红点
-    public removeStrengthenRedPoint(): void {
+    removeStrengthenRedPoint() {
         this.showStrengthenRedPoint = false;
         if (EventsManager.Instance) {
             EventsManager.Instance.event(EventsType.STRENGTHEN_RED_POINT, "remove");
         }
     }
-
     //显示车商店红点
-    public isShowCarShopRedPoint(): boolean {
+    isShowCarShopRedPoint() {
         let that = this;
         return ((that.getAdTimes(11) + that.getShareTimes(11)) > 0) && (that.carLevel >= 6 && that.carLevel < 30);
     }
     //移除车商店红点
-    public removeCarShopRedPoin(): void {
+    removeCarShopRedPoin() {
         if (EventsManager.Instance) {
             EventsManager.Instance.event(EventsType.HERO_SHOP_RED_POINT, "remove");
         }
     }
-
     //显示任务红点
-    public isShowTaskRedPoint(): boolean {
+    isShowTaskRedPoint() {
         return this.showTaskRedPoint;
     }
     //移除红点
-    public removeTaskRedPoint(): void {
+    removeTaskRedPoint() {
         this.showTaskRedPoint = false;
         if (EventsManager.Instance) {
             EventsManager.Instance.event(EventsType.TASK_RED_POINT, "remove");
         }
     }
     //显示转盘红点
-    public isShowLuckPrizeRedPoint(): boolean {
+    isShowLuckPrizeRedPoint() {
         return this.showLuckPrizeRedPoint;
     }
     //移除红点
-    public removeLuckPrizeRedPoint(): void {
+    removeLuckPrizeRedPoint() {
         this.showLuckPrizeRedPoint = false;
         if (EventsManager.Instance) {
             EventsManager.Instance.event(EventsType.LUCK_PRIZED_RED_POINT, "remove");
         }
     }
     //显示关注红点
-    public isShowFollowRedPoint(): boolean {
+    isShowFollowRedPoint() {
         return this.showFollowRedPoint;
     }
     //移除红点
-    public removeFollowRedPoint(): void {
+    removeFollowRedPoint() {
         this.showFollowRedPoint = false;
         this.menuRedPointCount--;
         EventsManager.Instance.event(EventsType.FOLLOW_RED_POINT, "remove");
     }
-
     //显示好友互助红点
-    public isShowFriendConcurRedPoint(): boolean {
+    isShowFriendConcurRedPoint() {
         return this.showFriendConcurRedPoint;
     }
     //移除好友互助红点
-    public removeFriendConcurRedPoint(): void {
+    removeFriendConcurRedPoint() {
         this.showFriendConcurRedPoint = false;
         this.menuRedPointCount--;
         EventsManager.Instance.event(EventsType.FRIEND_CONCUR_RED_POINT, "remove");
     }
-
-    /** 显示福利红点 */
-    public isShowEveryDayRewardRedPoint(): boolean {
+    //显示福利红点
+    isShowEveryDayRewardRedPoint() {
         return this.every_day_into_rewards;
     }
-    /** 移除福利红点 */
-    public removeEveryDayRewardRedPoint(): void {
+    //移除福利红点
+    removeEveryDayRewardRedPoint() {
         this.every_day_into_rewards = false;
         this.menuRedPointCount--;
         EventsManager.Instance.event(EventsType.EVERY_DAY_INTO_REWARD, "remove");
     }
-
-
     //是否新手
-    public isGuide(): boolean {
+    isGuide() {
         let that = this;
         return false;
     }
-
     //小程序跳转
-    public miniCode(): string {
+    miniCode() {
         let that = this;
         if (that.advert && that.advert[0]) {
             return that.advert[0].url;
         }
         return "wx57ab0ba00d80503a";
     }
-    public miniPagePath(): string {
+    miniPagePath() {
         let that = this;
         if (that.advert && that.advert[0]) {
             return that.advert[0].jump_path;
         }
         return "";
     }
-    public miniImageUrl(): string {
+    miniImageUrl() {
         let that = this;
         if (that.advert && that.advert[0]) {
             return that.advert[0].icon;
@@ -562,7 +520,7 @@ class UserData {
         return "";
     }
     //每日元宝加速次数
-    public diamondAcceTimes(_isAdd: boolean = false): number {
+    diamondAcceTimes(_isAdd = false) {
         let that = this;
         let diamondAcceTimes = that.diamond_acce_num;
         if (_isAdd) {
@@ -570,29 +528,27 @@ class UserData {
         }
         return diamondAcceTimes;
     }
-
     //保存本地
-    public saveLocal(_upload: boolean = false, saveOptions?: { petList: boolean, petShop: boolean, skill: boolean }): void {
+    saveLocal(_upload = false, saveOptions) {
         let that = this;
         if (that._isLoadStorage == false) {
             console.log("未同步本地/服务器数据");
             return;
-        } else if (that.isGuide()) {
+        }
+        else if (that.isGuide()) {
             console.log("新手引导不保存");
             return;
         }
-
-        let localData: any = {};
+        let localData = {};
         ["gold", "diamond", "parkcarInfoArray", "carBuyRecordArray", "skillAdditionArray", "kingLevel", "evolutionLevel",
             "carLevel", "level", "exp", "userId", "shareAdStage", "passStage", "noviceGroupId", "dayGetGoldCount"].forEach(element => {
-                localData[element] = that[element];
-            });
+            localData[element] = that[element];
+        });
         let dataJson = JSON.stringify(localData);
         if (dataJson) {
             let storage = window.localStorage;
             storage.setItem(M.player.account, dataJson);
         }
-
         if (_upload) {
             HttpManager.Instance.requestSaveUserinfoData();
             saveOptions && saveOptions.petList && HttpManager.Instance.requestSaveCarparkData();
@@ -601,7 +557,7 @@ class UserData {
         }
     }
     //取出本地数据
-    public loadStorage(_callback: any): void {
+    loadStorage(_callback) {
         let that = this;
         that._isLoadStorage = true;
         if (GlobalConfig.DEBUG) {
@@ -613,9 +569,8 @@ class UserData {
                 return;
             }
         }
-
         let storage = window.localStorage;
-        let dataJson = null;// storage.getItem(M.player.account);
+        let dataJson = null; // storage.getItem(M.player.account);
         if (dataJson) {
             let jsonObj = JSON.parse(dataJson);
             if (jsonObj) {
@@ -634,36 +589,34 @@ class UserData {
         }
         //从服务器同步数据
         let serverDataProgress = 4;
-        HttpManager.Instance.requestCarparkData((_res: any) => {
+        HttpManager.Instance.requestCarparkData((_res) => {
             serverDataProgress--;
             if (serverDataProgress < 1) {
                 _callback && _callback(true);
             }
         });
-
-        HttpManager.Instance.requestCarshopData((_res: any) => {
-            if (_res) that.carBuyRecordArray = _res;
+        HttpManager.Instance.requestCarshopData((_res) => {
+            if (_res)
+                that.carBuyRecordArray = _res;
             serverDataProgress--;
             if (serverDataProgress < 1) {
                 _callback && _callback(true);
             }
         });
-
-        HttpManager.Instance.requestUserinfoData((_res: any) => {
+        HttpManager.Instance.requestUserinfoData((_res) => {
             serverDataProgress--;
             if (serverDataProgress < 1) {
                 _callback && _callback(true);
             }
         });
-
-        HttpManager.Instance.requestSkillAddtionData((_res: any) => {
-            if (_res) that.skillAdditionArray = _res;
+        HttpManager.Instance.requestSkillAddtionData((_res) => {
+            if (_res)
+                that.skillAdditionArray = _res;
             serverDataProgress--;
             if (serverDataProgress < 1) {
                 _callback && _callback(true);
             }
         });
-
         //超时尝试重新请求
         Laya.stage.timerOnce(12000, that, () => {
             console.log("serverDataProgress:", serverDataProgress);
@@ -671,17 +624,14 @@ class UserData {
                 that.loadStorage(_callback);
             }
         });
-
         //请求分享开关
         HttpManager.Instance.requestShareFlag();
         that.requestUserBaseData();
     }
-
-    public isLoadStorage(): boolean {
+    isLoadStorage() {
         return this._isLoadStorage;
     }
-
-    public clearLocalData(): void {
+    clearLocalData() {
         let that = this;
         let storage = window.localStorage;
         if (storage) {
@@ -689,89 +639,84 @@ class UserData {
             console.log("@FREEMAN: 本地缓存{" + M.player.account + "}已清除。");
         }
     }
-
     //离线奖励
-    public offlinePrize(): number {
+    offlinePrize() {
         let that = this;
         let storage = window.localStorage;
         let dataJson = storage.getItem(that.s_offlinePrize_time);
-        let offlineTime: number = MathUtils.parseInt(dataJson);
+        let offlineTime = MathUtils.parseInt(dataJson);
         if (offlineTime > 0) {
             storage.removeItem(that.s_offlinePrize_time);
         }
         return offlineTime;
     }
-
     //保存离线时间
-    public saveOfflineTime(): void {
+    saveOfflineTime() {
         let that = this;
         let storage = window.localStorage;
-        let offlineServerTime: number = that.serverTime();
+        let offlineServerTime = that.serverTime();
         storage.setItem(that.s_offline_time, offlineServerTime.toString());
     }
-
-
     //保存加速剩余时间
-    public saveAcceLeftTime(_acceLeftTime: number): void {
+    saveAcceLeftTime(_acceLeftTime) {
         let that = this;
         let storage = window.localStorage;
         if (_acceLeftTime > 0) {
             storage.setItem(that.s_acceLeft_time, _acceLeftTime.toString());
-        } else {
+        }
+        else {
             storage.removeItem(that.s_acceLeft_time);
         }
     }
     //获取加速剩余时间
-    public getAcceLeftTime(): number {
+    getAcceLeftTime() {
         let that = this;
         let storage = window.localStorage;
         let dataJson = storage.getItem(that.s_acceLeft_time);
         if (dataJson) {
-            let acceLeftTime: number = MathUtils.parseInt(dataJson);
+            let acceLeftTime = MathUtils.parseInt(dataJson);
             storage.removeItem(that.s_acceLeft_time);
             return acceLeftTime;
         }
         return 0;
     }
-
     //获取本地与服务器时间差(s减c)
-    public csDiffTime(): number {
+    csDiffTime() {
         let that = this;
         return that.cs_time_diff;
     }
     //获取服务器当前时间
-    public serverTime(): number {
+    serverTime() {
         let that = this;
-        let cur_time: number = (new Date()).getTime() / 1000;
+        let cur_time = (new Date()).getTime() / 1000;
         return (cur_time + that.csDiffTime());
     }
     //获取上次离线服务器时间
-    public offlineServerTime(): number {
+    offlineServerTime() {
         let that = this;
         let storage = window.localStorage;
         let dataJson = storage.getItem(that.s_offline_time);
         console.log("获取上次离线服务器时间:", dataJson);
         if (dataJson) {
-            let offlineServerTime: number = MathUtils.parseInt(dataJson); //上次离线时间
+            let offlineServerTime = MathUtils.parseInt(dataJson); //上次离线时间
             if (offlineServerTime > 0) {
                 return offlineServerTime;
             }
         }
         return 0;
     }
-
     //保存商城红点开始时间
-    public saveShopRedpointTime(_checkTime: number) {
+    saveShopRedpointTime(_checkTime) {
         let that = this;
         let storage = window.localStorage;
-        let nextCheckTime: number = that.serverTime() + _checkTime;
+        let nextCheckTime = that.serverTime() + _checkTime;
         storage.setItem(that.s_shopRedPoint_time, nextCheckTime.toString());
     }
-    public shiftShopRedpointTime(_isRemove: boolean = true): number {
+    shiftShopRedpointTime(_isRemove = true) {
         let that = this;
         let storage = window.localStorage;
         let dataJson = storage.getItem(that.s_shopRedPoint_time);
-        let saveServerTime: number = MathUtils.parseInt(dataJson);
+        let saveServerTime = MathUtils.parseInt(dataJson);
         if (saveServerTime > 0) {
             let leftTime = saveServerTime - that.serverTime();
             if (_isRemove) {
@@ -783,46 +728,45 @@ class UserData {
         }
         return 0;
     }
-
-    public isShareEnable(): boolean {
+    isShareEnable() {
         return this.shareSwitchOpen;
     }
     //请求分享
-    private toShare(_callback: any = null, _isTask: boolean = false, _isGroupShare: boolean = false, shareType: string = "share"): void {
+    toShare(_callback = null, _isTask = false, _isGroupShare = false, shareType = "share") {
         let that = this;
-        let isTask: boolean = _isTask;
-        let isGroupShare: boolean = _isGroupShare;
+        let isTask = _isTask;
+        let isGroupShare = _isGroupShare;
         HttpManager.Instance.requestShareSubject(shareType, (_res) => {
             if (!_res) {
                 MessageUtils.showMsgTips("今日分享次数已用完");
                 return;
             }
             let shareCfg = { imageUrl: _res.image, content: _res.describe, id: _res.id };
-            let queryData: string = null;
+            let queryData = null;
             if (isTask) {
                 queryData = "userId=" + userData.userId + "&shareId=" + shareCfg.id + "&shareType=task";
-            } else {
+            }
+            else {
                 queryData = "userId=" + userData.userId + "&shareId=" + shareCfg.id + "&shareType=" + shareType;
             }
-
             //重返游戏
-            let curTime: number = (new Date()).getTime() / 1000;
-            let isAutoShare: boolean = true;
-            EventsManager.Instance.once(EventsType.BACK_GAME, that, (_data: any) => {
-                let backTime: number = (new Date()).getTime() / 1000;
+            let curTime = (new Date()).getTime() / 1000;
+            let isAutoShare = true;
+            EventsManager.Instance.once(EventsType.BACK_GAME, that, (_data) => {
+                let backTime = (new Date()).getTime() / 1000;
                 let leaveTime = backTime - curTime;
                 if (isAutoShare && leaveTime > 2.3) {
                     if (true) {
                         that.shareFailedTimes = 0;
                         _callback && _callback(shareCfg.id);
                         HttpManager.Instance.requestShareFinish(shareCfg.id);
-                    } else {
+                    }
+                    else {
                         // that.shareFailedTimes++;
                         // MessageUtils.showMsgTips("分享失败，请尝试重新分享");
                     }
                 }
             });
-
             platform.onShare({
                 title: shareCfg.content,
                 imageUrl: shareCfg.imageUrl,
@@ -835,30 +779,33 @@ class UserData {
                 }
             });
             // }))
-        })
+        });
     }
     //请求分享/视频
-    public toShareAd(callback: any = null, type: number = 0, isTask: boolean = false, isGroupShare: boolean = false): number {
+    toShareAd(callback = null, type = 0, isTask = false, isGroupShare = false) {
         let self = this;
-        if (self.isOpenShareAd) return 0;
+        if (self.isOpenShareAd)
+            return 0;
         self.isOpenShareAd = true;
         Laya.stage.timerOnce(1000, self, () => {
             self.isOpenShareAd = false;
         });
         //是否优先视频广告
         if (self.getAdTimes(type) > 0) {
-            SDKManager.Instance.showVideoAd((_res: any) => {
+            SDKManager.Instance.showVideoAd((_res) => {
                 // 用户点击了【关闭广告】按钮
                 // 小于 2.1.0 的基础库版本，res 是一个 undefined
                 if (_res && _res.isEnded || _res === undefined) {
                     // 正常播放结束，可以下发游戏奖励
                     self.decreAdTimes(type);
-                    let adKey: string = "ad";
+                    let adKey = "ad";
                     if (type == 10) {
                         adKey = "ad_acce";
-                    } else if (type == 11) {
+                    }
+                    else if (type == 11) {
                         adKey = "ad_free_car";
-                    } else if (type == 12) {
+                    }
+                    else if (type == 12) {
                         adKey = "ad_no_money";
                     }
                     HttpManager.Instance.requestShareAdFinish(adKey);
@@ -874,7 +821,7 @@ class UserData {
         }
         switch (type) {
             case 1:
-                SDKManager.Instance.showVideoAd((_res: any) => {
+                SDKManager.Instance.showVideoAd((_res) => {
                     if (_res && _res.isEnded || _res === undefined) {
                         callback && callback();
                         HttpManager.Instance.requestShareAdFinish("ad_other", _res);
@@ -891,7 +838,7 @@ class UserData {
                 if (self.getShareTimes(type) < 1) {
                     return 1;
                 }
-                self.toShare((_res: any) => {
+                self.toShare((_res) => {
                     self.decreShareTimes(type);
                     HttpManager.Instance.requestShareAdFinish("share_acce", _res);
                     callback && callback();
@@ -903,7 +850,7 @@ class UserData {
                     MessageUtils.showMsgTips("今日分享次数已用完");
                     return 1;
                 }
-                self.toShare((_res: any) => {
+                self.toShare((_res) => {
                     self.decreShareTimes(type);
                     HttpManager.Instance.requestShareAdFinish("share_shop_car", _res);
                     callback && callback();
@@ -915,12 +862,11 @@ class UserData {
                     MessageUtils.showMsgTips("今日分享次数已用完");
                     return 1;
                 }
-                self.toShare((_res: any) => {
+                self.toShare((_res) => {
                     MessageUtils.showMsgTips("求助已发出");
                     Laya.timer.once(30000, self, () => {
                         callback && callback();
                     });
-
                     self.decreShareTimes(type);
                     HttpManager.Instance.requestShareAdFinish("share_no_money", _res);
                 }, isTask, isGroupShare);
@@ -932,7 +878,7 @@ class UserData {
                     HttpManager.Instance.requestShareAdFinish("share_sky_drop", res);
                 }, isTask, isGroupShare);
                 break;
-            case 14://好友互助分享
+            case 14: //好友互助分享
                 self.toShare((res) => {
                     callback && callback();
                     HttpManager.Instance.requestShareAdFinish("share_friend_concur", res);
@@ -946,7 +892,7 @@ class UserData {
                 break;
             //分享无限次数
             default: {
-                self.toShare((_res: any) => {
+                self.toShare((_res) => {
                     callback && callback();
                     HttpManager.Instance.requestShareAdFinish("share_other", _res);
                 }, isTask, isGroupShare);
@@ -957,10 +903,9 @@ class UserData {
         }
         return 0;
     }
-
     //计算精灵个数
-    public caculateMonsterCount(_id: number): number {
-        let num: number = 0;
+    caculateMonsterCount(_id) {
+        let num = 0;
         if (this.parkcarInfoArray) {
             this.parkcarInfoArray.forEach(element => {
                 if (element && element.carId == _id) {
@@ -970,30 +915,28 @@ class UserData {
         }
         return num;
     }
-
     //上传腾讯云
-    public setUserCloudStorage(): void {
+    setUserCloudStorage() {
         let that = this;
         //上传微信云
         let money = Math.floor(that.getPassStage()).toString();
         let kvDataList = [{
-            key: "score",
-            value: money
-        }, {
-            key: "city",
-            value: (PlayerManager.Instance.Info.wxUserInfo ? PlayerManager.Instance.Info.wxUserInfo.city : '火星')
-        }, {
-            key: "userId",
-            value: that.getUserId()
-        }];
+                key: "score",
+                value: money
+            }, {
+                key: "city",
+                value: (PlayerManager.Instance.Info.wxUserInfo ? PlayerManager.Instance.Info.wxUserInfo.city : '火星')
+            }, {
+                key: "userId",
+                value: that.getUserId()
+            }];
         platform.setUserCloudStorage(kvDataList);
     }
-
     //新老版本更新检测（防止老数据覆盖）
-    public versionCheck(_callback: any): void {
+    versionCheck(_callback) {
         let that = this;
         let storage = window.localStorage;
-        HttpManager.Instance.requestVersionCheck((_res: any) => {
+        HttpManager.Instance.requestVersionCheck((_res) => {
             if (_res && _res.clear_flag) {
                 //清理老数据
                 storage.setItem(that.s_version_clear, 'true');
@@ -1003,18 +946,18 @@ class UserData {
         let dataJson = storage.getItem(that.s_version_clear);
         if (dataJson) {
             //需要清理数据
-            HttpManager.Instance.requestVersionClear((_res: any) => {
+            HttpManager.Instance.requestVersionClear((_res) => {
                 storage.removeItem(that.s_version_clear);
                 that.clearLocalData();
                 _callback && _callback();
             });
-        } else {
+        }
+        else {
             _callback && _callback();
         }
     }
-
     //用户基础数据
-    public requestUserBaseData(_callback: any = null): void {
+    requestUserBaseData(_callback = null) {
         let self = this;
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
@@ -1059,10 +1002,6 @@ class UserData {
                             self.menuRedPointCount++;
                             EventsManager.Instance.event(EventsType.FRIEND_CONCUR_RED_POINT, "show");
                         }
-                        if (self.isShowEveryDayRewardRedPoint()) {
-                            self.menuRedPointCount++;
-                            EventsManager.Instance.event(EventsType.EVERY_DAY_INTO_REWARD, "show");
-                        }
                         EventsManager.Instance.event(EventsType.ACCE_CHANGE, "refresh");
                     }
                 }
@@ -1073,9 +1012,8 @@ class UserData {
             }
         });
     }
-
     //查询离线奖励
-    public requestOfflinePrizeData(): void {
+    requestOfflinePrizeData() {
         let that = this;
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
@@ -1110,29 +1048,25 @@ class UserData {
             }
         });
     }
-
-    public setCache(key: string, value: any): void {
+    setCache(key, value) {
         this._cache[key] = value;
         const storage = window.localStorage;
         if (storage) {
             storage.setItem("F_" + M.player.account, JSON.stringify(this._cache));
         }
     }
-
-    public getCache(key: string): any {
+    getCache(key) {
         return this._cache[key];
     }
-
-    public hasCache(key: string): boolean {
+    hasCache(key) {
         return this._cache.hasOwnProperty(key);
     }
-
-    public loadCache(): void {
+    loadCache() {
         GameEnterManager.Instance.init();
         LanguageManager.Instance.loadLanguage();
         const storage = window.localStorage;
         if (storage) {
-            const jsonStr: string = storage.getItem("F_" + M.player.account);
+            const jsonStr = storage.getItem("F_" + M.player.account);
             if (jsonStr) {
                 if (jsonStr) {
                     const cache = JSON.parse(jsonStr);
@@ -1144,19 +1078,16 @@ class UserData {
                         // 不管有没有缓存都需要赋值
                         M.more.model.mute = cache.hasOwnProperty(CacheKey.SOUND_MUTE) ? cache[CacheKey.SOUND_MUTE] : false;
                         console.log("@David 声音开关 SOUND_MUTE：", cache[CacheKey.SOUND_MUTE], " ----- hasOwnProperty:", cache.hasOwnProperty(CacheKey.SOUND_MUTE));
-
                     }
                 }
             }
         }
-
         if (!this._cache) {
             console.log("@FREEMAN: 缓存数据为空或有异常，缓存：{ " + "F_" + M.player.account + " }");
             this._cache = {};
         }
     }
-
-    public clearCache(): void {
+    clearCache() {
         this._cache = {};
         const storage = window.localStorage;
         if (storage) {
@@ -1164,11 +1095,11 @@ class UserData {
             console.log("@FREEMAN: 本地缓存{" + "F_" + M.player.account + "}已清除。");
         }
     }
-
     //设置金币并保存
-    public setMoneySave(money: number): void {
+    setMoneySave(money) {
         this.gold = Math.floor(money);
         this.setCache(CacheKey.GOLD, money);
         Laya.timer.callLater(this, this.saveLocal);
     }
 }
+//# sourceMappingURL=UserData.js.map

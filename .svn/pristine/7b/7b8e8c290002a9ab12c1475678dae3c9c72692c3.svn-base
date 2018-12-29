@@ -131,7 +131,7 @@ class HallManager extends Laya.EventDispatcher {
                     if (stage > 0) {
                         ClearanceRewardView.Create(this._hall, null, () => {
                             this._hall.showStagePrize(HallManager.Instance.hallData.stagePrizeList.length > 0);
-                        }, stage, isDouble);
+                        }, stage);
                         HttpManager.Instance.requestDiamondData();
                         HttpManager.Instance.requestEssenceData();
                     }

@@ -2,15 +2,20 @@
 * 大厅管理类
 */
 class HallManager extends Laya.EventDispatcher {
-    setup() {
+
+    private _model: HallModel;
+    private _hall: HallScene;
+
+    public setup(): void {
         let self = this;
         self._model = new HallModel();
     }
+
     /** 创建英雄 */
-    createPet(carparkList, iKind, isBackward = false) {
+    public createPet(carparkList: Laya.List, iKind: number, isBackward: boolean = false): MonsterSprite {
         let self = this;
-        let curIndex = 0;
-        let element = null;
+        let curIndex: number = 0;
+        let element: any = null;
         for (let index = 0; index < self._model.parkMonsterCount; index++) {
             curIndex = index;
             if (isBackward) {
@@ -18,7 +23,7 @@ class HallManager extends Laya.EventDispatcher {
             }
             element = carparkList.getCell(curIndex);
             if (element) {
-                let carParkSp = element.getChildByName('car');
+                let carParkSp: MonsterSprite = <MonsterSprite>element.getChildByName('car');
                 if (carParkSp && carParkSp.isEmpty() && !carParkSp.isBox() && !carParkSp.isLock()) {
                     carParkSp.setKind(iKind, curIndex);
                     carParkSp.setStage(1);
@@ -33,16 +38,17 @@ class HallManager extends Laya.EventDispatcher {
             return null;
         }
     }
+
     /** 获取每秒收益 */
-    getCalculateIncomePerSec(carparkList) {
+    public getCalculateIncomePerSec(carparkList: Laya.List): number {
         let self = this;
         let incomePerSec = 0;
-        let element = null;
+        let element: any = null;
         if (carparkList) {
             for (let index = 0; index < self._model.parkMonsterCount; index++) {
                 element = carparkList.getCell(index);
                 if (element) {
-                    let carParkSp = element.getChildByName('car');
+                    let carParkSp = element.getChildByName('car') as MonsterSprite;
                     if (carParkSp && carParkSp.isRunning()) {
                         incomePerSec += carParkSp.getIncomePerSecond() *
                             self._model.userExtraIncome *
@@ -54,113 +60,118 @@ class HallManager extends Laya.EventDispatcher {
         }
         return incomePerSec;
     }
+
     /** 获取森林王是否可以升级 */
-    getKingIsUpgrade() {
+    public getKingIsUpgrade(): boolean {
         let self = this;
         if (!HallManager.Instance.hallData.isUpdate) {
-            let kingLevel = userData.getKingLevel();
-            let kingVO = GlobleData.getData(GlobleData.KindLevelConfigVO, kingLevel);
+            let kingLevel: number = userData.getKingLevel();
+            let kingVO: KindLevelConfigVO = GlobleData.getData(GlobleData.KindLevelConfigVO, kingLevel);
             //需要钻石
-            let diamond = userData.diamond;
-            let needDiamond = kingVO.gemxh;
+            let diamond: number = userData.diamond;
+            let needDiamond: number = kingVO.gemxh;
             //升级条件
-            let monsterLevel = 0;
-            let itemId1 = 0;
-            let itemId2 = 0;
-            let itemId3 = 0;
+            let monsterLevel: number = 0;
+            let itemId1: number = 0
+            let itemId2: number = 0;
+            let itemId3: number = 0;
             //进化设定
             if (userData.isEvolution()) {
                 monsterLevel = ((kingLevel - 30) % 60) + 1;
                 itemId1 = 1000 + monsterLevel;
                 itemId2 = 2000 + monsterLevel;
                 itemId3 = 3000 + monsterLevel;
-            }
-            else {
+            } else {
                 monsterLevel = ((kingLevel - 1) % 30) + 1;
                 itemId1 = 100 + monsterLevel;
                 itemId2 = 200 + monsterLevel;
                 itemId3 = 300 + monsterLevel;
             }
-            let itemNum1 = userData.caculateMonsterCount(itemId1);
-            let itemNum2 = userData.caculateMonsterCount(itemId2);
-            let itemNum3 = userData.caculateMonsterCount(itemId3);
-            let needItemNum1 = 1;
-            let needItemNum2 = 1;
-            let needItemNum3 = 1;
+            let itemNum1: number = userData.caculateMonsterCount(itemId1);
+            let itemNum2: number = userData.caculateMonsterCount(itemId2);
+            let itemNum3: number = userData.caculateMonsterCount(itemId3);
+            let needItemNum1: number = 1;
+            let needItemNum2: number = 1;
+            let needItemNum3: number = 1;
             if (kingLevel > 10) {
                 HallManager.Instance.hallData.isUpdate = !((diamond < needDiamond) || (itemNum1 < needItemNum1) || (itemNum2 < needItemNum2) || (itemNum3 < needItemNum3));
-            }
-            else {
+            } else {
                 HallManager.Instance.hallData.isUpdate = !((diamond < needDiamond));
             }
         }
         return HallManager.Instance.hallData.isUpdate;
     }
+
     /** 更新精华碎片数 */
-    updateEssence(value) {
+    public updateEssence(value: number): void {
         let that = this;
         PlayerManager.Instance.Info.userEssence = value;
         //本地保存
         userData.setEssence(PlayerManager.Instance.Info.userEssence);
     }
+
     /** 更新每秒收益 */
-    updateIncomePerSec(value) {
+    public updateIncomePerSec(value: number): void {
         HallManager.Instance.hallData.userIncomePerSec = value;
     }
+
     /** 新手引导 */
-    isGuide() {
+    public isGuide(): boolean {
         if (userData && userData.isGuide()) {
             return true;
         }
         return false;
     }
+
     /** 显示通关奖励礼包界面 */
-    showClearanceRewardView(isDouble = false) {
+    public showClearanceRewardView(isDouble: boolean = false): void {
         if (this._hall) {
             let lastStage = HallManager.Instance.hallData.stagePrizeList.pop();
             //显示获得的奖品
-            let stagePrizeCfg = GlobleData.getData(GlobleData.BarrierRewardVO, lastStage);
+            let stagePrizeCfg: any = GlobleData.getData(GlobleData.BarrierRewardVO, lastStage);
             if (stagePrizeCfg) {
                 //发送奖励
-                let bossM = MathUtils.parseStringNum(stagePrizeCfg.bossM);
-                let gold = BattleManager.Instance.getBarrierRewardToGold(lastStage, MathUtils.parseStringNum(stagePrizeCfg.gold));
+                let bossM: number = MathUtils.parseStringNum(stagePrizeCfg.bossM);
+                let gold: number = BattleManager.Instance.getBarrierRewardToGold(lastStage, MathUtils.parseStringNum(stagePrizeCfg.gold));
                 gold = isDouble ? gold * 2 : gold;
-                let gem = MathUtils.parseStringNum(stagePrizeCfg.gem);
-                HttpManager.Instance.requestStagePrizeDiamond(lastStage, gem, bossM, (_res) => {
-                    let stage = _res;
+                let gem: number = MathUtils.parseStringNum(stagePrizeCfg.gem);
+                HttpManager.Instance.requestStagePrizeDiamond(lastStage, gem, bossM, (_res: any) => {
+                    let stage = _res as number;
                     if (stage > 0) {
                         ClearanceRewardView.Create(this._hall, null, () => {
                             this._hall.showStagePrize(HallManager.Instance.hallData.stagePrizeList.length > 0);
-                        }, stage, isDouble);
+                        }, stage);
                         HttpManager.Instance.requestDiamondData();
                         HttpManager.Instance.requestEssenceData();
                     }
                 });
-                if (gold > 0) { //金币礼包
+                if (gold > 0) {//金币礼包
                     this._hall.updateGold(PlayerManager.Instance.Info.userMoney + gold);
                 }
             }
         }
     }
+
     /** 30分钟后检测是否还有红点 */
-    startShopRedpointTime(time = 1800) {
+    public startShopRedpointTime(time: number = 1800): void {
         let that = this;
         Laya.timer.once(1000 * time, this, () => {
             userData.shiftShopRedpointTime();
             if (userData.isShowCarShopRedPoint()) {
                 that.showCarportRedPoint();
             }
-        });
+        })
         userData.saveShopRedpointTime(time);
     }
+
     /** 显示怪物商店红点 */
-    showCarportRedPoint(isShow = true) {
+    public showCarportRedPoint(isShow: boolean = true): void {
         let that = this;
         if (that.hall && that.hall.btnShop) {
-            let imgRedPoint = that.hall.btnShop.getChildByName("imgRedPoint");
+            let imgRedPoint = that.hall.btnShop.getChildByName("imgRedPoint") as Laya.Image;
             if (imgRedPoint) {
                 imgRedPoint.visible = isShow;
-                let checkTime = userData.shiftShopRedpointTime(false);
+                let checkTime: number = userData.shiftShopRedpointTime(false);
                 if (checkTime > 0) {
                     that.startShopRedpointTime(checkTime);
                     imgRedPoint.visible = false;
@@ -168,25 +179,26 @@ class HallManager extends Laya.EventDispatcher {
             }
         }
     }
+
     /** 钻石购买 */
-    onDiamondBuy(heroInfo = null) {
+    public onDiamondBuy(heroInfo: any = null): void {
         let carPrice = BattleManager.Instance.getMonsterDiamondPrice(heroInfo.id, userData.queryBuyRecord(heroInfo.id, true));
-        ViewMgr.Ins.open(ViewConst.DiamondBuyView, null, DILOG_TYPE.PET, carPrice, heroInfo);
+        ViewMgr.Ins.open(ViewConst.DiamondBuyView,null, DILOG_TYPE.PET, carPrice, heroInfo);
     }
+
     //金币购买英雄
-    goldBuyHero(_carInfo = null, btnObj = null) {
+    public goldBuyHero(_carInfo: any = null, btnObj: Laya.Button = null): void {
         let carPrice = BattleManager.Instance.getMonsterPrice(_carInfo.buyPrice, userData.queryBuyRecord(_carInfo.id));
         if (PlayerManager.Instance.Info.userMoney >= carPrice) {
-            if (BattleManager.Instance.createPet(_carInfo.id) == null)
-                return;
+            if (BattleManager.Instance.createPet(_carInfo.id) == null) return;
             HallManager.Instance.hall.updateGold(PlayerManager.Instance.Info.userMoney - carPrice);
             //刷新消费记录
             userData.refreshBuyRecord(_carInfo.id);
             let curPrice = BattleManager.Instance.getMonsterPrice(_carInfo.buyPrice, userData.queryBuyRecord(_carInfo.id));
             if (btnObj) {
-                let imgPrice = btnObj.getChildByName("imgPrice");
+                let imgPrice = btnObj.getChildByName("imgPrice") as Laya.Image;
                 if (imgPrice) {
-                    let txtPrice = imgPrice.getChildByName("txtPrice");
+                    let txtPrice = imgPrice.getChildByName("txtPrice") as Laya.Label;
                     if (txtPrice) {
                         txtPrice.text = MathUtils.bytesToSize(curPrice);
                     }
@@ -194,36 +206,37 @@ class HallManager extends Laya.EventDispatcher {
                 }
             }
             HallManager.Instance.hall.refreshShortcutCreateBtn();
-        }
-        else {
+        } else {
             if (PlayerManager.Instance.Info.dayGetGoldCount > 0) {
                 ViewMgr.Ins.open(ViewConst.RewardGoldView);
-            }
-            else {
+            } else {
                 MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.19"));
                 ViewMgr.Ins.open(ViewConst.FriendConcurView);
             }
         }
     }
-    set hallData(value) { this._model = value; }
+
+
+    set hallData(value: HallModel) { this._model = value; }
     /** 大厅中的数据 */
-    get hallData() { return this._model; }
-    get hall() {
+    get hallData(): HallModel { return this._model; }
+    public get hall(): HallScene {
         return this._hall;
     }
-    set hall(value) {
+    public set hall(value: HallScene) {
         this._hall = value;
     }
-    static get Instance() {
+
+    private static _instance: HallManager;
+    public static get Instance(): HallManager {
         if (HallManager._instance == null) {
             HallManager._instance = new HallManager();
         }
         return HallManager._instance;
     }
 }
-var ITEM_ID;
-(function (ITEM_ID) {
-    ITEM_ID[ITEM_ID["GOLD"] = 1] = "GOLD";
-    ITEM_ID[ITEM_ID["DIAMOND"] = 2] = "DIAMOND";
-})(ITEM_ID || (ITEM_ID = {}));
-//# sourceMappingURL=HallManager.js.map
+
+enum ITEM_ID {
+    GOLD = 1,
+    DIAMOND = 2,
+}

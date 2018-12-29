@@ -1159,7 +1159,7 @@ class HallScene extends ui.hall.HallSceneUI {
                         if (that.btnStagePrize.visible) {
                           that.showPassStageResult(HallManager.Instance.hallData.passStage, null, true);
                         }
-                      }, stage, false);
+                      }, stage);
                       HttpManager.Instance.requestDiamondData();
                       HttpManager.Instance.requestEssenceData();
                     }

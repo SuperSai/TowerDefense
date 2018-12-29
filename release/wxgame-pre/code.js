@@ -4078,11 +4078,11 @@ class UserData {
         this.menuRedPointCount--;
         EventsManager.Instance.event(EventsType.FRIEND_CONCUR_RED_POINT, "remove");
     }
-    //显示福利红点
+    /** 显示福利红点 */
     isShowEveryDayRewardRedPoint() {
         return this.every_day_into_rewards;
     }
-    //移除福利红点
+    /** 移除福利红点 */
     removeEveryDayRewardRedPoint() {
         this.every_day_into_rewards = false;
         this.menuRedPointCount--;
@@ -4597,6 +4597,10 @@ class UserData {
                         if (self.isShowFriendConcurRedPoint()) {
                             self.menuRedPointCount++;
                             EventsManager.Instance.event(EventsType.FRIEND_CONCUR_RED_POINT, "show");
+                        }
+                        if (self.isShowEveryDayRewardRedPoint()) {
+                            self.menuRedPointCount++;
+                            EventsManager.Instance.event(EventsType.EVERY_DAY_INTO_REWARD, "show");
                         }
                         EventsManager.Instance.event(EventsType.ACCE_CHANGE, "refresh");
                     }
@@ -10740,7 +10744,7 @@ class HallManager extends Laya.EventDispatcher {
                     if (stage > 0) {
                         ClearanceRewardView.Create(this._hall, null, () => {
                             this._hall.showStagePrize(HallManager.Instance.hallData.stagePrizeList.length > 0);
-                        }, stage);
+                        }, stage, isDouble);
                         HttpManager.Instance.requestDiamondData();
                         HttpManager.Instance.requestEssenceData();
                     }
@@ -11987,7 +11991,7 @@ class HallScene extends ui.hall.HallSceneUI {
                                                 if (that.btnStagePrize.visible) {
                                                     that.showPassStageResult(HallManager.Instance.hallData.passStage, null, true);
                                                 }
-                                            }, stage);
+                                            }, stage, false);
                                             HttpManager.Instance.requestDiamondData();
                                             HttpManager.Instance.requestEssenceData();
                                         }
@@ -13651,6 +13655,7 @@ class ClearanceRewardView extends ui.settlement.ClearanceRewardViewUI {
         }
         let bossM = MathUtils.parseStringNum(stagePrizeCfg.bossM);
         let gold = BattleManager.Instance.getBarrierRewardToGold(self._data[0], MathUtils.parseStringNum(stagePrizeCfg.gold));
+        gold = this._data[1] == true ? gold * 2 : gold;
         let gem = MathUtils.parseStringNum(stagePrizeCfg.gem);
         let itemArray = [
             { img: "images/ClearanceReward/result_prize_item2.png", value: gold },

@@ -4078,11 +4078,11 @@ class UserData {
         this.menuRedPointCount--;
         EventsManager.Instance.event(EventsType.FRIEND_CONCUR_RED_POINT, "remove");
     }
-    /** 显示福利红点 */
+    //显示福利红点
     isShowEveryDayRewardRedPoint() {
         return this.every_day_into_rewards;
     }
-    /** 移除福利红点 */
+    //移除福利红点
     removeEveryDayRewardRedPoint() {
         this.every_day_into_rewards = false;
         this.menuRedPointCount--;
@@ -4597,10 +4597,6 @@ class UserData {
                         if (self.isShowFriendConcurRedPoint()) {
                             self.menuRedPointCount++;
                             EventsManager.Instance.event(EventsType.FRIEND_CONCUR_RED_POINT, "show");
-                        }
-                        if (self.isShowEveryDayRewardRedPoint()) {
-                            self.menuRedPointCount++;
-                            EventsManager.Instance.event(EventsType.EVERY_DAY_INTO_REWARD, "show");
                         }
                         EventsManager.Instance.event(EventsType.ACCE_CHANGE, "refresh");
                     }
