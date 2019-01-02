@@ -26,5 +26,7 @@ var ViewConst;
     ViewConst[ViewConst["NoticeView"] = 10012] = "NoticeView";
     /** 奖励领取界面 */
     ViewConst[ViewConst["RewardGetView"] = 10013] = "RewardGetView";
+    /** 通关获得奖励提示框 */
+    ViewConst[ViewConst["ClearanceRewardView"] = 10014] = "ClearanceRewardView";
 })(ViewConst || (ViewConst = {}));
 //# sourceMappingURL=ViewConst.js.map

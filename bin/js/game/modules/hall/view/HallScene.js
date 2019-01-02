@@ -160,6 +160,7 @@ class HallScene extends ui.hall.HallSceneUI {
         SDKManager.Instance.createBanner(false);
         //游戏公告
         HttpManager.Instance.requestAnnouncement();
+        MessageUtils.showMsgTips("");
     }
     /** 初始化用户数据 */
     initUserData() {
@@ -1147,7 +1148,7 @@ class HallScene extends ui.hall.HallSceneUI {
                                         let stage = _res;
                                         if (stage > 0) {
                                             _nodeView.removeSelf();
-                                            ClearanceRewardView.Create(that, null, () => {
+                                            ViewMgr.Ins.open(ViewConst.ClearanceRewardView, () => {
                                                 if (that.btnStagePrize.visible) {
                                                     that.showPassStageResult(HallManager.Instance.hallData.passStage, null, true);
                                                 }

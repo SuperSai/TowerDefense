@@ -2031,11 +2031,10 @@ class MessageUtils {
     static showMsgTips(content) {
         let self = this;
         let msg = ObjectPool.pop(MessageTips, "MessageTips");
-        msg.visible = true;
-        msg.zOrder = 999;
         msg.init(content);
         self._msgs.push(msg);
-        console.log("@David 飘字的宽度:", msg.width);
+        msg.visible = content == "" ? false : true;
+        msg.zOrder = 999;
         AlignUtils.setToScreenGoldenPos(msg);
         LayerMgr.Instance.addToLayer(msg, LAYER_TYPE.ROLL_MSG_LAYER);
         if (self._msgs.length > 0) {
@@ -3336,6 +3335,7 @@ class ViewRegisterMgr {
         ViewMgr.Ins.register(ViewConst.WelfareView, new WelfareView());
         ViewMgr.Ins.register(ViewConst.NoticeView, new NoticeView());
         ViewMgr.Ins.register(ViewConst.RewardGetView, new RewardGetView());
+        ViewMgr.Ins.register(ViewConst.ClearanceRewardView, new ClearanceRewardView());
     }
     static get Instance() {
         if (!ViewRegisterMgr._instance) {
@@ -3521,6 +3521,8 @@ var ViewConst;
     ViewConst[ViewConst["NoticeView"] = 10012] = "NoticeView";
     /** 奖励领取界面 */
     ViewConst[ViewConst["RewardGetView"] = 10013] = "RewardGetView";
+    /** 通关获得奖励提示框 */
+    ViewConst[ViewConst["ClearanceRewardView"] = 10014] = "ClearanceRewardView";
 })(ViewConst || (ViewConst = {}));
 //# sourceMappingURL=ViewConst.js.map
 /*
@@ -5130,6 +5132,7 @@ class SDKManager {
     checkIsGetClearanceReward(data) {
         if (!data || !data.prescene_note)
             return;
+        console.log("@David 检查是否可以领取通关奖励 -- start", data);
         let groupId = data.prescene_note.split("@")[0];
         HttpManager.Instance.requestClearanceReward(userData.userId + "", groupId, HallManager.Instance.hallData.passStage, (result) => {
             console.log("@David 检查是否可以领取通关奖励 返回结果 flag:", result);
@@ -8354,7 +8357,7 @@ var ui;
                     this.createView(ui.common.view.MessageTipsUI.uiView);
                 }
             }
-            MessageTipsUI.uiView = { "type": "View", "props": {}, "child": [{ "type": "Box", "props": { "left": 0 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "var": "bg", "skin": "images/component/frame_tips_bg.png", "sizeGrid": "34,62,36,71" } }, { "type": "HBox", "props": { "y": 18, "x": 12, "var": "hbox" }, "child": [{ "type": "Image", "props": { "skin": "images/core/core_tips_icon.png" } }, { "type": "Label", "props": { "y": 2, "x": 38, "var": "txt_content", "text": "消息提示", "fontSize": 30, "color": "#ffffff", "bold": true, "align": "left" } }] }] }] };
+            MessageTipsUI.uiView = { "type": "View", "props": {}, "child": [{ "type": "Image", "props": { "y": 0, "var": "bg", "skin": "images/component/frame_tips_bg.png", "sizeGrid": "34,62,36,71" } }, { "type": "Image", "props": { "y": 18, "x": 12, "skin": "images/core/core_tips_icon.png" } }, { "type": "Label", "props": { "y": 20, "x": 50, "var": "txt_content", "text": "消息提示", "fontSize": 30, "color": "#ffffff", "bold": true, "align": "left" } }] };
             view.MessageTipsUI = MessageTipsUI;
         })(view = common.view || (common.view = {}));
     })(common = ui.common || (ui.common = {}));
@@ -9291,8 +9294,7 @@ class MessageTips extends ui.common.view.MessageTipsUI {
     init(content) {
         let self = this;
         self.txt_content.text = content;
-        self.hbox.refresh();
-        self.bg.width = self.hbox.displayWidth + 50;
+        self.bg.width = self.txt_content.width + 100;
         self.width = self.bg.width;
     }
 }
@@ -9582,19 +9584,20 @@ class DaySignView extends ui.daySign.DaySignViewUI {
             let day = DaySignView.signData.sign.day;
             that.requestPrize(day, (_res) => {
                 if (_res) {
-                    if (_res.code === 1) {
+                    if (_res.code == 1) {
                         MessageUtils.showMsgTips("领取成功");
                         MessageUtils.shopMsgByObj(that.btnGet, " +" + DaySignView.signData.prize['day_' + day]["diamond"], EFFECT_TYPE.DIAMOND);
                         const essenceNum = DaySignView.signData.prize['day_' + day]["essence"];
                         if (essenceNum) {
+                            userData.setEssence(_res.essence);
                             Laya.timer.once(Time.SEC_IN_MILI, this, () => {
                                 MessageUtils.shopMsgByObj(that.btnGet, " +" + essenceNum, EFFECT_TYPE.ESSENCE);
                             });
                         }
+                        EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: _res.diamond });
                         DaySignView.signData.sign.status = 1;
-                        HttpManager.Instance.requestDiamondData();
                         userData.removeDailySignRedPoint();
-                        that.removeSelf();
+                        that.refreshList(DaySignView.signData);
                     }
                     else if (_res.code == 2) {
                         MessageUtils.showMsgTips("今日奖励已领取");
@@ -10749,7 +10752,7 @@ class HallManager extends Laya.EventDispatcher {
                 HttpManager.Instance.requestStagePrizeDiamond(lastStage, gem, bossM, (_res) => {
                     let stage = _res;
                     if (stage > 0) {
-                        ClearanceRewardView.Create(this._hall, null, () => {
+                        ViewMgr.Ins.open(ViewConst.ClearanceRewardView, () => {
                             this._hall.showStagePrize(HallManager.Instance.hallData.stagePrizeList.length > 0);
                         }, stage, isDouble);
                         HttpManager.Instance.requestDiamondData();
@@ -11009,6 +11012,7 @@ class HallScene extends ui.hall.HallSceneUI {
         SDKManager.Instance.createBanner(false);
         //游戏公告
         HttpManager.Instance.requestAnnouncement();
+        MessageUtils.showMsgTips("");
     }
     /** 初始化用户数据 */
     initUserData() {
@@ -11996,7 +12000,7 @@ class HallScene extends ui.hall.HallSceneUI {
                                         let stage = _res;
                                         if (stage > 0) {
                                             _nodeView.removeSelf();
-                                            ClearanceRewardView.Create(that, null, () => {
+                                            ViewMgr.Ins.open(ViewConst.ClearanceRewardView, () => {
                                                 if (that.btnStagePrize.visible) {
                                                     that.showPassStageResult(HallManager.Instance.hallData.passStage, null, true);
                                                 }
@@ -13320,6 +13324,7 @@ class HeroLevelView extends ui.randomReward.HeroLevelViewUI {
         if (GlobalConfig.DEBUG) {
             if (self._callback)
                 self._callback();
+            self.removeView();
         }
         else {
             if (Math.random() < 0.5) {
@@ -13631,41 +13636,25 @@ class ClearanceFail extends ui.settlement.ClearanceFailUI {
 /*
 * 通关获得奖励提示框;
 */
-class ClearanceRewardView extends ui.settlement.ClearanceRewardViewUI {
-    constructor(data = null, callback = null) {
-        super();
-        this._data = data;
-        this._callback = callback;
-        this.init();
-    }
-    //新建并添加到节点
-    static Create(_parentNode, callback = null, _removeCallback = null, ...arge) {
-        let resList = [
-            { url: "res/atlas/images/ClearanceReward.atlas", type: Laya.Loader.ATLAS }
-        ];
-        Laya.loader.load(resList, Handler.create(null, () => {
-            if (_parentNode) {
-                let nodeView = new ClearanceRewardView(arge, callback);
-                AlignUtils.setToScreenGoldenPos(nodeView);
-                LayerManager.getInstance().subFrameLayer.addChildWithMaskCall(nodeView, nodeView.removeSelf);
-                nodeView.once(Laya.Event.REMOVED, nodeView, nodeView.removeView);
-            }
-        }));
+class ClearanceRewardView extends BaseView {
+    constructor() {
+        super(LAYER_TYPE.SUB_FRAME_LAYER, ui.settlement.ClearanceRewardViewUI);
+        this.setResources(["ClearanceReward"]);
     }
     //初始化
-    init() {
+    initData() {
+        super.initData();
         let self = this;
         //关卡
-        self.txtStage.text = self._data[0] + "";
+        self.ui.txtStage.text = self.datas[0] + "";
         //当前奖励物品
-        let stagePrizeCfg = GlobleData.getData(GlobleData.BarrierRewardVO, self._data[0]);
+        let stagePrizeCfg = GlobleData.getData(GlobleData.BarrierRewardVO, self.datas[0]);
         if (stagePrizeCfg == null) {
             return;
         }
         let bossM = MathUtils.parseStringNum(stagePrizeCfg.bossM);
-        let gold = BattleManager.Instance.getBarrierRewardToGold(self._data[0], MathUtils.parseStringNum(stagePrizeCfg.gold));
-        console.log("@David 通关奖励：", this._data, " ------ ", this._data[1]);
-        gold = this._data[1] == true ? gold * 2 : gold;
+        let gold = BattleManager.Instance.getBarrierRewardToGold(self.datas[0], MathUtils.parseStringNum(stagePrizeCfg.gold));
+        gold = self.datas[1] == true ? gold * 2 : gold;
         let gem = MathUtils.parseStringNum(stagePrizeCfg.gem);
         let itemArray = [
             { img: "images/ClearanceReward/result_prize_item2.png", value: gold },
@@ -13676,22 +13665,23 @@ class ClearanceRewardView extends ui.settlement.ClearanceRewardViewUI {
             let cfgData = itemArray[index];
             let rewardItem = ObjectPool.pop(RewardItem, "RewardItem");
             rewardItem.create(cfgData.img, cfgData.value);
-            self.hbox.addChild(rewardItem);
+            self.ui.hbox.addChild(rewardItem);
         }
-        self._tween = EffectUtils.objectRotate(self.lightImg);
-        self.addEvents();
+        self._tween = EffectUtils.objectRotate(self.ui.lightImg);
     }
     addEvents() {
+        super.addEvents();
         let self = this;
-        self.btnExit.on(Laya.Event.CLICK, self, self.onCloseHandler);
+        self.ui.btnExit.on(Laya.Event.CLICK, self, self.onCloseHandler);
     }
     removeEvents() {
+        super.removeEvents();
         let self = this;
-        self.btnExit.off(Laya.Event.CLICK, self, self.onCloseHandler);
+        self.ui.btnExit.off(Laya.Event.CLICK, self, self.onCloseHandler);
     }
     onCloseHandler() {
         let self = this;
-        let rewardItem = self.hbox.getChildAt(0);
+        let rewardItem = self.ui.hbox.getChildAt(0);
         if (rewardItem) {
             let pos = PointUtils.localToGlobal(rewardItem);
             LayerManager.getInstance().screenEffectLayer.addChild(new FlyEffect().play("rollingCoin", pos.x, pos.y));
@@ -13699,15 +13689,15 @@ class ClearanceRewardView extends ui.settlement.ClearanceRewardViewUI {
         else {
             LayerManager.getInstance().screenEffectLayer.addChild(new FlyEffect().play("rollingCoin", LayerManager.mouseX, LayerManager.mouseY));
         }
-        DisplayUtils.removeAllChildren(self.hbox);
-        self.removeSelf();
+        ViewMgr.Ins.close(ViewConst.ClearanceRewardView);
     }
-    removeView() {
+    close(...param) {
+        super.close(param);
         let self = this;
         if (self._tween)
             Laya.Tween.clear(self._tween);
-        self.removeSelf();
-        self.removeEvents();
+        DisplayUtils.removeAllChildren(self.ui.hbox);
+        self.callback && self.callback();
     }
 }
 //# sourceMappingURL=ClearanceRewardView.js.map

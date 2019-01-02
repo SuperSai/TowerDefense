@@ -209,6 +209,7 @@ class SDKManager {
     checkIsGetClearanceReward(data) {
         if (!data || !data.prescene_note)
             return;
+        console.log("@David 检查是否可以领取通关奖励 -- start", data);
         let groupId = data.prescene_note.split("@")[0];
         HttpManager.Instance.requestClearanceReward(userData.userId + "", groupId, HallManager.Instance.hallData.passStage, (result) => {
             console.log("@David 检查是否可以领取通关奖励 返回结果 flag:", result);

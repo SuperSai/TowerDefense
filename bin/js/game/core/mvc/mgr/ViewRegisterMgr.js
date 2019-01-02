@@ -14,6 +14,7 @@ class ViewRegisterMgr {
         ViewMgr.Ins.register(ViewConst.WelfareView, new WelfareView());
         ViewMgr.Ins.register(ViewConst.NoticeView, new NoticeView());
         ViewMgr.Ins.register(ViewConst.RewardGetView, new RewardGetView());
+        ViewMgr.Ins.register(ViewConst.ClearanceRewardView, new ClearanceRewardView());
     }
     static get Instance() {
         if (!ViewRegisterMgr._instance) {

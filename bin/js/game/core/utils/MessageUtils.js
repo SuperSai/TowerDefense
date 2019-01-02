@@ -12,11 +12,10 @@ class MessageUtils {
     static showMsgTips(content) {
         let self = this;
         let msg = ObjectPool.pop(MessageTips, "MessageTips");
-        msg.visible = true;
-        msg.zOrder = 999;
         msg.init(content);
         self._msgs.push(msg);
-        console.log("@David 飘字的宽度:", msg.width);
+        msg.visible = content == "" ? false : true;
+        msg.zOrder = 999;
         AlignUtils.setToScreenGoldenPos(msg);
         LayerMgr.Instance.addToLayer(msg, LAYER_TYPE.ROLL_MSG_LAYER);
         if (self._msgs.length > 0) {

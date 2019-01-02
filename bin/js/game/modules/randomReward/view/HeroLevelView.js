@@ -50,6 +50,7 @@ class HeroLevelView extends ui.randomReward.HeroLevelViewUI {
         if (GlobalConfig.DEBUG) {
             if (self._callback)
                 self._callback();
+            self.removeView();
         }
         else {
             if (Math.random() < 0.5) {

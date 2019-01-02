@@ -166,7 +166,6 @@ class HallScene extends ui.hall.HallSceneUI {
     SDKManager.Instance.createBanner(false);
     //游戏公告
     HttpManager.Instance.requestAnnouncement();
-    MessageUtils.showMsgTips("");
   }
 
   /** 初始化用户数据 */
