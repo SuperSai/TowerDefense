@@ -2,7 +2,7 @@
     "x":0,
     "type":"View",
     "selectedBox":62,
-    "selecteID":78,
+    "selecteID":76,
     "props":{"y":0,"x":0,"width":750,"sceneColor":"#000000","name":"rolledTIme","height":1092},
     "nodeParent":-1,
     "label":"View(rolledTIme)",
@@ -49,20 +49,6 @@
                             "child":[
                                 ],
                             "$HIDDEN":false
-                        },
-                        {
-                            "x":45,
-                            "type":"Image",
-                            "props":{"y":0,"x":0,"visible":false,"skin":"images/luck_huanpan_light.png","name":"imgEffect2"},
-                            "nodeParent":67,
-                            "label":"Image(imgEffect2)",
-                            "isDirectory":false,
-                            "isAniNode":true,
-                            "hasChild":false,
-                            "compId":69,
-                            "child":[
-                                ],
-                            "$HIDDEN":true
                         }],
                     "$HIDDEN":false
                 },
@@ -268,36 +254,6 @@
                                 "tweenMethod":"linearNone",
                                 "tween":true,
                                 "target":68,
-                                "key":"alpha",
-                                "index":20
-                            }]
-                    }
-                },
-                {
-                    "target":69,
-                    "keyframes":{
-                        "alpha":[
-                            {
-                                "value":0,
-                                "tweenMethod":"linearNone",
-                                "tween":true,
-                                "target":69,
-                                "key":"alpha",
-                                "index":0
-                            },
-                            {
-                                "value":1,
-                                "tweenMethod":"linearNone",
-                                "tween":true,
-                                "target":69,
-                                "key":"alpha",
-                                "index":10
-                            },
-                            {
-                                "value":0,
-                                "tweenMethod":"linearNone",
-                                "tween":true,
-                                "target":69,
                                 "key":"alpha",
                                 "index":20
                             }]

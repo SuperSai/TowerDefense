@@ -30,13 +30,13 @@ class DebugView extends Laya.View {
             DebugView.GameView.setKingLevel(1);
         });
         this.ui.btnResetGold.on(Laya.Event.CLICK, this, () => {
-            EventsManager.Instance.event(EventsType.GLOD_CHANGE, { money: userData.gold = 0 });
+            EventsManager.Instance.event(EventsType.GLOD_CHANGE, { money: M.player.Info.userMoney = 0 });
         });
         this.ui.btnAddGold.on(Laya.Event.CLICK, this, () => {
-            EventsManager.Instance.event(EventsType.GLOD_CHANGE, { money: userData.gold += (userData.gold * 2) + 1e100 });
+            EventsManager.Instance.event(EventsType.GLOD_CHANGE, { money: M.player.Info.userMoney += (M.player.Info.userMoney * 2) + 1e100 });
         });
         this.ui.btnAddDiamond.on(Laya.Event.CLICK, this, () => {
-            EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: userData.diamond += 1000 });
+            EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: M.player.Info.userDiamond += 1000 });
         });
         this.ui.btnCrearStorage.on(Laya.Event.CLICK, this, () => {
             userData.clearLocalData();

@@ -1,6 +1,6 @@
 xiaoduo = window.xiaoduo;
 const M = new ManagerShortcuts();
-const userData = new UserData();
+let userData;
 let systemInfo;
 class Main {
     constructor() {
@@ -18,10 +18,13 @@ class Main {
         Laya.stage.scaleMode = Laya.Stage.SCALE_NOSCALE;
         Laya.URL.basePath = PathConfig.AppResUrl + "index/";
         M.layer.initLayer(Laya.stage, 750, 1334);
+        userData = new UserData();
         LayerMgr.Instance.initLayer(Laya.stage, 750, 1334);
         SDKManager.Instance.initWX();
+        systemInfo = new WXSystemInfo();
         try {
-            systemInfo = Laya.Browser.window.wx.getSystemInfoSync();
+            const infoSync = Laya.Browser.window.wx.getSystemInfoSync();
+            ObjectUtils.assign(systemInfo, infoSync);
         }
         catch (e) {
             console.log("@FREEMAN: 获取系统信息失败");
@@ -62,13 +65,22 @@ class Main {
         });
     }
     beginLoad() {
-        Laya.loader.load(["loading/start_bg.jpg", "loading/start_btn.png", "loading/tip_bg.png", "loading/loading01.png", "loading/loading02.png", "loading/tip_symbol_01.png"], Handler.create(this, () => {
+        const domain = PathConfig.AppResUrl + "index/";
+        Laya.loader.load([
+            "loading/start_bg.jpg",
+            "loading/loading_bg.jpg",
+            "loading/bar.png",
+            "loading/bar_bg.png",
+            "loading/loading01.png",
+            domain + "loading/start_btn.png",
+            domain + "config/language.txt",
+            domain + "sheets/sheet.json",
+        ], Handler.create(this, () => {
             EffectUtils.stopWaitEffect();
             M.layer.renderLayer.addChild(new MainLoadingView());
+            Laya.URL.basePath = domain;
         }));
     }
 }
-setTimeout(() => {
-    new Main();
-}, 1e3);
+new Main();
 //# sourceMappingURL=Main.js.map

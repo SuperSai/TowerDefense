@@ -53,7 +53,7 @@ class RewardGoldView extends BaseView {
     }
     onComplete() {
         PlayerManager.Instance.Info.dayGetGoldCount--;
-        EventsManager.Instance.event(EventsType.GLOD_CHANGE, { money: userData.gold += this._money });
+        EventsManager.Instance.event(EventsType.GLOD_CHANGE, { money: M.player.Info.userMoney += this._money });
     }
     onCloseHandler() {
         ViewMgr.Ins.close(ViewConst.RewardGoldView);

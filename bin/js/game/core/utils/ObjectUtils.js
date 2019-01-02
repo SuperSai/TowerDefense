@@ -84,6 +84,20 @@ class ObjectUtils {
             }
         }
     }
+    static assign(target, source, useTargetKeys) {
+        if (target && source) {
+            if (useTargetKeys) {
+                for (const key in target) {
+                    target[key] = source[key];
+                }
+            }
+            else {
+                for (const key in source) {
+                    target[key] = source[key];
+                }
+            }
+        }
+    }
     static shuffle(arr) {
         let len = arr.length;
         let i = len;

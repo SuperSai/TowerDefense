@@ -23,6 +23,7 @@ class MainLoadingView extends Laya.Sprite {
         }
     }
     loadCache(complete) {
+        GameEnterManager.Instance.init();
         userData.loadCache();
         GlobleData.Instance.setup(() => {
             userData.loadStorage(() => {
@@ -67,6 +68,13 @@ class MainLoadingView extends Laya.Sprite {
         //     return;
         // }
         let resList = BattleManager.Instance.getStartLoadPetData();
+        resList = resList.concat([
+            { url: "res/atlas/images/component.atlas", type: Laya.Loader.ATLAS },
+            { url: "res/atlas/images/core.atlas", type: Laya.Loader.ATLAS },
+            { url: "res/atlas/images/novice.atlas", type: Laya.Loader.ATLAS },
+            { url: "res/atlas/images/hall.atlas", type: Laya.Loader.ATLAS },
+            { url: "images/bg.jpg", type: Laya.Loader.IMAGE }
+        ]);
         if (resList.length) {
             console.log("@David 预加载英雄资源，数量：" + resList.length);
             Laya.loader.load(resList, Handler.create(this, () => {

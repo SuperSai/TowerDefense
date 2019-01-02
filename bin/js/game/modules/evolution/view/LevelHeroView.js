@@ -26,7 +26,7 @@ class LevelHeroView extends ui.evolution.LevelHeroViewUI {
         let levelData = EvolutionManager.Instance.getEvolutionLevelData();
         this.txt_name.text = levelData.name + "Lv" + EvolutionManager.Instance.getHeroLevel();
         this.txt_count.text = "x" + EvolutionManager.Instance.needHeroCount;
-        this.txt_diamond.text = userData.diamond + "/" + EvolutionManager.Instance.getEvolutionLevelDiamond();
+        this.txt_diamond.text = M.player.Info.userDiamond + "/" + EvolutionManager.Instance.getEvolutionLevelDiamond();
         this.txt_level.text = "Lv" + userData.getKingLevel();
         this.txt_uplevel.text = "Lv" + (userData.getKingLevel() + 1);
         this.btn_sure.disabled = !EvolutionManager.Instance.getIsEvolutionLevel();
@@ -46,7 +46,7 @@ class LevelHeroView extends ui.evolution.LevelHeroViewUI {
             if (GlobalConfig.DEBUG) {
                 MessageUtils.showMsgTips("升级成功");
                 HallManager.Instance.hallData.isUpdate = false;
-                this._callback && this._callback(userData.getKingLevel() + 1, userData.diamond - EvolutionManager.Instance.getEvolutionLevelDiamond());
+                this._callback && this._callback(userData.getKingLevel() + 1, M.player.Info.userDiamond - EvolutionManager.Instance.getEvolutionLevelDiamond());
             }
             else {
                 HttpManager.Instance.requestUpdateKingLevel(EvolutionView.kingEvolutionType, userData.getKingLevel(), EvolutionManager.Instance.getEvolutionLevelDiamond(), (_res) => {

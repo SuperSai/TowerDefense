@@ -43,9 +43,6 @@ class MoreController extends Laya.EventDispatcher {
     }
     applyMute(mute) {
         if (!mute) {
-            if (this._model.mute === undefined) {
-                return;
-            }
             mute = this._model.mute;
         }
         Laya.SoundManager.musicMuted = mute;
@@ -54,6 +51,7 @@ class MoreController extends Laya.EventDispatcher {
             if (!this._bgChannel) {
                 Laya.loader.load("musics/bgmusic.mp3", Laya.Handler.create(this, () => {
                     this._bgChannel = Laya.SoundManager.playMusic("musics/bgmusic.mp3", 0);
+                    M.event.on(EventsType.BACK_GAME, this, this.applyMute);
                 }));
             }
             else {

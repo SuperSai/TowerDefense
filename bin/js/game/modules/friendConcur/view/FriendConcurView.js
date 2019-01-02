@@ -10,6 +10,7 @@ class FriendConcurView extends BaseView {
     initUI() {
         super.initUI();
         let self = this;
+        SDKManager.Instance.showBannerAd(true);
         self.ui.rewardList.visible = false;
         self.ui.rewardList.itemRender = FriendConcurItem;
         self.ui.rewardList.vScrollBarSkin = "";

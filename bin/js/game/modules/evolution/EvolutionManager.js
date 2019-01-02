@@ -31,10 +31,10 @@ class EvolutionManager {
     getIsEvolutionLevel() {
         let kingLevel = userData.getKingLevel();
         if (kingLevel > 10) {
-            return !((userData.diamond < this.getEvolutionLevelDiamond()) || (userData.caculateMonsterCount(this.getHeroId()) < this.needHeroCount));
+            return !((M.player.Info.userDiamond < this.getEvolutionLevelDiamond()) || (userData.caculateMonsterCount(this.getHeroId()) < this.needHeroCount));
         }
         else {
-            return !(userData.diamond < this.getEvolutionLevelDiamond());
+            return !(M.player.Info.userDiamond < this.getEvolutionLevelDiamond());
         }
     }
     static get Instance() {

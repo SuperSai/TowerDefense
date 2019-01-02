@@ -1,4 +1,7 @@
 class WXSystemInfo {
+    constructor() {
+        this.SDKVersion = "1.0.0";
+    }
     canUseVersion(version) {
         if (this.SDKVersion) {
             const curr = StringUtils.splitStringToArr(this.SDKVersion, ".");

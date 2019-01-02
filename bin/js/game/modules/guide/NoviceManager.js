@@ -5,7 +5,6 @@ class NoviceManager extends EventDispatcher {
         }
         return this._instance;
     }
-    // private _targetCircleAnim: Animation;
     init(groupId = 1) {
         this._currGroupId = groupId;
         this._finalGroupId =

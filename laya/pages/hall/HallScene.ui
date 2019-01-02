@@ -683,13 +683,14 @@
                             "props":{"y":809,"x":-3,"var":"btn_online","stateNum":1,"skin":"images/hall/hall_online_reward.png"},
                             "nodeParent":37,
                             "label":"Button(btn_online)",
-                            "isOpen":false,
+                            "isOpen":true,
                             "isDirectory":true,
                             "isAniNode":true,
                             "hasChild":true,
                             "compId":19,
                             "child":[
                                 {
+                                    "x":60,
                                     "type":"Script",
                                     "source":"laya/pages/ScaleAnimScript.script",
                                     "props":{},
@@ -703,6 +704,7 @@
                                         ]
                                 },
                                 {
+                                    "x":60,
                                     "type":"Label",
                                     "props":{"y":60,"x":2,"width":86,"var":"txt_diamondTime","text":"05:00","strokeColor":"#8d5d2e","stroke":2,"height":26,"fontSize":22,"color":"#ffffff","bold":true,"align":"center"},
                                     "nodeParent":19,
@@ -768,16 +770,17 @@
                         {
                             "x":45,
                             "type":"Button",
-                            "props":{"y":563,"x":-15,"var":"btnLuckPrize","stateNum":1,"skin":"images/hall/gbtn_luck.png","name":"btnLuckPrize"},
+                            "props":{"y":546,"x":-18,"var":"btnLuckPrize","stateNum":1,"skin":"images/hall/gbtn_luck.png","name":"btnLuckPrize"},
                             "nodeParent":37,
                             "label":"Button(btnLuckPrize)",
-                            "isOpen":false,
+                            "isOpen":true,
                             "isDirectory":true,
                             "isAniNode":true,
                             "hasChild":true,
                             "compId":245,
                             "child":[
                                 {
+                                    "x":60,
                                     "type":"Script",
                                     "source":"laya/pages/ScaleAnimScript.script",
                                     "props":{},
@@ -791,6 +794,7 @@
                                         ]
                                 },
                                 {
+                                    "x":60,
                                     "type":"Image",
                                     "props":{"y":10,"x":82,"visible":false,"skin":"images/core/red_dot_hint.png","name":"imgRedPoint"},
                                     "nodeParent":245,
@@ -803,6 +807,7 @@
                                         ]
                                 },
                                 {
+                                    "x":60,
                                     "type":"Image",
                                     "props":{"y":-4,"x":-2,"skin":"images/effect/uiLight/dx_zpd_3.png"},
                                     "nodeParent":245,
@@ -1025,7 +1030,7 @@
                         {
                             "x":45,
                             "type":"Button",
-                            "props":{"y":700,"x":0,"width":88,"visible":false,"var":"btnStagePrize","name":"btnStagePrize","labelSize":30,"height":106},
+                            "props":{"y":705,"x":0,"width":88,"visible":false,"var":"btnStagePrize","name":"btnStagePrize","labelSize":30,"height":106},
                             "nodeParent":37,
                             "label":"Button(btnStagePrize)",
                             "isOpen":false,

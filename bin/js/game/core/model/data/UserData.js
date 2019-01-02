@@ -1,24 +1,7 @@
-/*
-* terry 2018/7/16;
-* 用户数据本地存储
-*/
-class CacheKey {
-}
-CacheKey.GOLD = "gold";
-CacheKey.SOUND_MUTE = "sound_mute";
-/** 好友互助 */
-CacheKey.CONCUR = "concur";
 class UserData {
     constructor() {
-        this._noviceGroupId = 1; // 新手节点
         /** 合成次数 */
         this.synthesisCount = 0;
-        /** 金币 */
-        this.gold = 2000; //拥有金币
-        /** 钻石 */
-        this.diamond = 30; //拥有元宝
-        /** 精华 */
-        this.essence = 0; //精华碎片
         /** 怪物缓存池的名字 */
         this.MONSTER_POOL_NAME = "MONSTER_POOL_NAME";
         /** 怪物子弹 */
@@ -65,21 +48,17 @@ class UserData {
         this.shareFailedTimes = 0; //分享失败保底
         this.carparkJsonRecord = ''; //防止提交相同数据给服务器
         this.carshopJsonRecord = ''; //防止提交相同数据给服务器
+        this.skillStrengthenJsonRecord = ''; //防止提交相同数据给服务器
+        this.lastHeartBeatQueryObj = {}; //防止提交相同心跳数据给服务器
         this.menuRedPointCount = 0;
         //初始化车位
         for (let index = 0; index < 20; index++) {
-            this.parkcarInfoArray[index] = { id: index, carId: 0, isRunning: false };
+            this.parkcarInfoArray[index] = { id: index, carId: 0 };
         }
         //分享广告
-        this.shareAdStage[10] = true;
-        this.shareAdStage[11] = true;
-        this.shareAdStage[12] = true;
-    }
-    get noviceGroupId() {
-        return this._noviceGroupId;
-    }
-    set noviceGroupId(value) {
-        this._noviceGroupId = value;
+        [this.shareAdStage[10], this.shareAdStage[11], this.shareAdStage[12]] = [true, true, true];
+        this.cache = new CacheObject();
+        this.cache.startCacheThread();
     }
     get dayGetGoldCount() {
         return PlayerManager.Instance.Info.dayGetGoldCount;
@@ -95,15 +74,16 @@ class UserData {
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/novice/' + groupId,
-            success: (res) => {
+            success: () => {
                 console.log("@FREEMAN: saveNovice: success, currGroupId =>", groupId);
             },
-            fail: (res) => {
+            fail: () => {
                 console.log("@FREEMAN: saveNovice: fail, currGroupId =>", groupId);
             }
         });
         this.noviceGroupId = groupId;
-        this.saveLocal();
+        this.cache.setCache(CacheKey.NOVICE_GROUP_ID, groupId);
+        Laya.timer.callLater(this, this.saveLocal, [true]);
     }
     /** 刷新购买记录 */
     refreshBuyRecord(_carId, _isDiamond = false) {
@@ -120,7 +100,7 @@ class UserData {
                     that.carBuyRecordArray[key].buyTimes++;
                 }
                 isNew = false;
-                return;
+                break;
             }
         }
         if (isNew) {
@@ -131,7 +111,8 @@ class UserData {
                 that.carBuyRecordArray.push({ carId: mLevel, buyTimes: 1, diamondBuyTimes: 0 });
             }
         }
-        Laya.timer.callLater(that, that.saveLocal, [true, { petShop: true }]);
+        this.cache.setCache(CacheKey.SHOP_DATA, this.carBuyRecordArray);
+        Laya.timer.once(10 * Time.SEC_IN_MILI, this, HttpManager.Instance.requestSaveCarshopData);
     }
     /** 查询购买记录 */
     queryBuyRecord(_carId, _isDiamond = false) {
@@ -161,15 +142,14 @@ class UserData {
             if (element && element.skillId == _skillId) {
                 that.skillAdditionArray[key].buyTimes++;
                 isNew = false;
-                return;
+                break;
             }
         }
         if (isNew) {
             that.skillAdditionArray.push({ skillId: _skillId, buyTimes: 1 });
         }
-        //保存数据
-        // userData.saveLocal();
-        Laya.timer.callLater(that, that.saveLocal, [true, { skill: true }]);
+        this.cache.setCache(CacheKey.SKILL_DATA, this.skillAdditionArray);
+        Laya.timer.once(10 * Time.SEC_IN_MILI, this, HttpManager.Instance.requestSaveSkillAdditionData);
     }
     /** 查询技能加成 */
     querySkillAddition(_skillId) {
@@ -199,9 +179,7 @@ class UserData {
         if (that.carLevel < that.carLevelMax()) {
             if (that.carLevel < _level) {
                 that.carLevel = _level;
-                console.log("等级提升:", that.carLevel);
-                //保存数据
-                // userData.saveLocal();
+                this.cache.setCache(CacheKey.MAX_SYNTHESIS_LEVEL, _level);
                 Laya.timer.callLater(that, that.saveLocal, [true]);
                 return true;
             }
@@ -212,6 +190,12 @@ class UserData {
         return false;
     }
     getCarLevel() {
+        if (!this.carLevel) {
+            this.carLevel = 1;
+            this.parkcarInfoArray.map((item) => {
+                this.carLevel = Math.max(BattleManager.Instance.getLevel(item.carId), this.carLevel);
+            });
+        }
         return this.carLevel;
     }
     carLevelMax() {
@@ -221,18 +205,19 @@ class UserData {
         this.carLevel = 1;
     }
     //设置金币并保存
-    setGoldSave($gold) {
-        this.gold = Math.floor($gold);
-        Laya.timer.callLater(this, this.saveLocal);
+    setMoney(value) {
+        M.player.Info.userMoney = Math.floor(value);
+        this.cache.setCache(CacheKey.GOLD, value);
     }
     /** 设置钻石 */
-    setDiamond(_value) {
-        this.diamond = Math.floor(_value);
-        Laya.timer.callLater(this, this.saveLocal);
+    setDiamond(value) {
+        M.player.Info.userDiamond = Math.floor(value);
+        this.cache.setCache(CacheKey.DIAMOND, value);
     }
     /** 设置精华 */
-    setEssence(_value) {
-        this.essence = Math.floor(_value);
+    setEssence(value) {
+        M.player.Info.userEssence = Math.floor(value);
+        this.cache.setCache(CacheKey.ESSENCE, value);
     }
     /** 升级森林王等级 */
     updateKingLevel(_level) {
@@ -240,12 +225,9 @@ class UserData {
         if (that.kingLevel < that.kingLevelMax()) {
             if (that.kingLevel < _level) {
                 that.kingLevel = _level;
+                this.cache.setCache(CacheKey.GUARD_LEVEL, _level);
                 Laya.timer.callLater(that, that.saveLocal, [true]);
                 return true;
-            }
-            if (GlobalConfig.DEBUG) {
-                that.kingLevel = _level;
-                Laya.timer.callLater(that, that.saveLocal);
             }
         }
         else {
@@ -265,6 +247,7 @@ class UserData {
         if (that.evolutionLevel < that.evolutionLevelMax()) {
             if (that.evolutionLevel < _level) {
                 that.evolutionLevel = _level;
+                this.cache.setCache(CacheKey.EVOLUTION_LEVEL, _level);
                 Laya.timer.callLater(that, that.saveLocal, [true]);
                 return true;
             }
@@ -286,32 +269,16 @@ class UserData {
     }
     //设置车位并保存
     setCarparkSave(_carParkSp, _carParkSp2 = null) {
-        let that = this;
-        if (that.parkcarInfoArray) {
-            for (let key in that.parkcarInfoArray) {
-                let element = that.parkcarInfoArray[key];
-                if (_carParkSp) {
-                    if (element && element.id == _carParkSp.parkIndex) {
-                        element.carId = _carParkSp.monsterId;
-                        element.isRunning = _carParkSp.isRunning();
-                    }
-                }
-                //交换车辆
-                if (_carParkSp2) {
-                    if (element && element.id == _carParkSp2.parkIndex) {
-                        element.carId = _carParkSp2.monsterId;
-                        element.isRunning = _carParkSp2.isRunning();
-                    }
-                }
-            }
-        }
-        Laya.timer.callLater(that, that.saveLocal);
-        Laya.timer.once(3e3, that, HttpManager.Instance.requestSaveCarparkData);
+        this.parkcarInfoArray[_carParkSp.parkIndex].carId = _carParkSp.monsterId;
+        _carParkSp2 && (this.parkcarInfoArray[_carParkSp2.parkIndex].carId = _carParkSp2.monsterId);
+        this.cache.setCache(CacheKey.PET_LIST, this.parkcarInfoArray);
+        Laya.timer.once(10 * Time.SEC_IN_MILI, this, HttpManager.Instance.requestSaveCarparkData);
     }
     //通关的游戏关卡
     updatePassStage(_value) {
         let that = this;
         that.passStage = _value;
+        this.cache.setCache(CacheKey.STAGE_PASSED, _value);
         Laya.timer.callLater(that, that.saveLocal, [true]);
     }
     getPassStage() {
@@ -530,37 +497,21 @@ class UserData {
         return diamondAcceTimes;
     }
     //保存本地
-    saveLocal(_upload = false, saveOptions) {
-        let that = this;
-        if (that._isLoadStorage == false) {
+    saveLocal(_upload = false, saveOptions, forceRightNow = false) {
+        if (this._isLoadStorage == false) {
             console.log("未同步本地/服务器数据");
             return;
         }
-        else if (that.isGuide()) {
-            console.log("新手引导不保存");
-            return;
-        }
-        let localData = {};
-        ["gold", "diamond", "parkcarInfoArray", "carBuyRecordArray", "skillAdditionArray", "kingLevel", "evolutionLevel",
-            "carLevel", "level", "exp", "userId", "shareAdStage", "passStage", "noviceGroupId", "dayGetGoldCount"].forEach(element => {
-            localData[element] = that[element];
-        });
-        let dataJson = JSON.stringify(localData);
-        if (dataJson) {
-            let storage = window.localStorage;
-            storage.setItem(M.player.account, dataJson);
-        }
         if (_upload) {
-            HttpManager.Instance.requestSaveUserinfoData();
-            saveOptions && saveOptions.petList && HttpManager.Instance.requestSaveCarparkData();
-            saveOptions && saveOptions.petShop && HttpManager.Instance.requestSaveCarshopData();
-            saveOptions && saveOptions.skill && HttpManager.Instance.requestSaveSkillAdditionData();
+            HttpManager.Instance.requestSaveUserinfoData(forceRightNow);
+            saveOptions && saveOptions.petList && HttpManager.Instance.requestSaveCarparkData(forceRightNow);
+            saveOptions && saveOptions.petShop && HttpManager.Instance.requestSaveCarshopData(forceRightNow);
+            saveOptions && saveOptions.skill && HttpManager.Instance.requestSaveSkillAdditionData(forceRightNow);
         }
     }
     //取出本地数据
-    loadStorage(_callback) {
-        let that = this;
-        that._isLoadStorage = true;
+    loadStorage(_callback, dataType) {
+        this._isLoadStorage = true;
         if (GlobalConfig.DEBUG) {
             // if (GlobalConfig.USER) {
             //     M.player.account = GlobalConfig.USER;
@@ -570,164 +521,111 @@ class UserData {
                 return;
             }
         }
-        let storage = window.localStorage;
-        let dataJson = null; // storage.getItem(M.player.account);
-        if (dataJson) {
-            let jsonObj = JSON.parse(dataJson);
-            if (jsonObj) {
-                console.log("@FREEMAN: 本地缓存 {" + M.player.account + "} 读取成功：{", jsonObj, "}");
-                for (let key in jsonObj) {
-                    if (jsonObj.hasOwnProperty(key)) {
-                        // console.log(key, jsonObj[key]);
-                        // if (key !="hasOfflinePrize" && key !="diamond" && key !="_isLoadStorage") {
-                        //     that[key] = jsonObj[key];
-                        // }
-                        that[key] = jsonObj[key];
-                    }
+        let serverDataProgress = 6;
+        const status = {
+            userInfo: dataType && dataType.userInfo,
+            petList: dataType && dataType.petList,
+            shopData: dataType && dataType.shopData,
+            skillData: dataType && dataType.skillData,
+            shareData: dataType && dataType.shareData,
+            extraData: dataType && dataType.extraData,
+        };
+        if (!this.cache.hasCache(CacheKey.USER_ID) && !status.userInfo) {
+            M.http.requestUserinfoData((res) => {
+                status.userInfo = true;
+                serverDataProgress--;
+                if (serverDataProgress < 1) {
+                    _callback && _callback(true);
                 }
-            }
+            });
+        }
+        else {
+            serverDataProgress--;
+            status.userInfo = true;
+        }
+        if (!this.cache.hasCache(CacheKey.PET_LIST) && !status.petList) {
+            M.http.requestCarparkData((res) => {
+                status.petList = true;
+                serverDataProgress--;
+                if (serverDataProgress < 1) {
+                    _callback && _callback(true);
+                }
+            });
+        }
+        else {
+            serverDataProgress--;
+            status.petList = true;
+        }
+        if (!this.cache.hasCache(CacheKey.SHOP_DATA) && !status.shopData) {
+            M.http.requestCarshopData((res) => {
+                status.shopData = true;
+                serverDataProgress--;
+                if (serverDataProgress < 1) {
+                    _callback && _callback(true);
+                }
+            });
+        }
+        else {
+            serverDataProgress--;
+            status.shopData = true;
+        }
+        if (!this.cache.hasCache(CacheKey.SKILL_DATA) && !status.skillData) {
+            M.http.requestSkillAddtionData((res) => {
+                status.skillData = true;
+                serverDataProgress--;
+                if (serverDataProgress < 1) {
+                    _callback && _callback(true);
+                }
+            });
+        }
+        else {
+            serverDataProgress--;
+            status.skillData = true;
+        }
+        //请求分享开关
+        if (!status.shareData) {
+            M.http.requestShareFlag(() => {
+                status.shareData = true;
+                serverDataProgress--;
+                if (serverDataProgress < 1) {
+                    _callback && _callback(true);
+                }
+            });
+        }
+        //用户更多信息
+        if (!status.extraData) {
+            this.requestUserBaseData(() => {
+                status.extraData = true;
+                serverDataProgress--;
+                if (serverDataProgress < 1) {
+                    _callback && _callback(true);
+                }
+            });
+        }
+        if (serverDataProgress) {
+            //超时尝试重新请求
+            Laya.stage.timerOnce(5e3, this, () => {
+                if (serverDataProgress > 0) {
+                    console.log("@FREEMAN: 从服务器获取数据失败，当前状态", status);
+                    this.loadStorage(_callback, status);
+                }
+            });
+        }
+        else {
             _callback && _callback(true);
         }
-        //从服务器同步数据
-        let serverDataProgress = 4;
-        HttpManager.Instance.requestCarparkData((_res) => {
-            serverDataProgress--;
-            if (serverDataProgress < 1) {
-                _callback && _callback(true);
-            }
-        });
-        HttpManager.Instance.requestCarshopData((_res) => {
-            if (_res)
-                that.carBuyRecordArray = _res;
-            serverDataProgress--;
-            if (serverDataProgress < 1) {
-                _callback && _callback(true);
-            }
-        });
-        HttpManager.Instance.requestUserinfoData((_res) => {
-            serverDataProgress--;
-            if (serverDataProgress < 1) {
-                _callback && _callback(true);
-            }
-        });
-        HttpManager.Instance.requestSkillAddtionData((_res) => {
-            if (_res)
-                that.skillAdditionArray = _res;
-            serverDataProgress--;
-            if (serverDataProgress < 1) {
-                _callback && _callback(true);
-            }
-        });
-        //超时尝试重新请求
-        Laya.stage.timerOnce(12000, that, () => {
-            console.log("serverDataProgress:", serverDataProgress);
-            if (serverDataProgress > 0) {
-                that.loadStorage(_callback);
-            }
-        });
-        //请求分享开关
-        HttpManager.Instance.requestShareFlag();
-        that.requestUserBaseData();
     }
     isLoadStorage() {
         return this._isLoadStorage;
     }
     clearLocalData() {
         let that = this;
+        this.cache.clearCache();
         let storage = window.localStorage;
         if (storage) {
             storage.removeItem(M.player.account);
             console.log("@FREEMAN: 本地缓存{" + M.player.account + "}已清除。");
         }
-    }
-    //离线奖励
-    offlinePrize() {
-        let that = this;
-        let storage = window.localStorage;
-        let dataJson = storage.getItem(that.s_offlinePrize_time);
-        let offlineTime = MathUtils.parseInt(dataJson);
-        if (offlineTime > 0) {
-            storage.removeItem(that.s_offlinePrize_time);
-        }
-        return offlineTime;
-    }
-    //保存离线时间
-    saveOfflineTime() {
-        let that = this;
-        let storage = window.localStorage;
-        let offlineServerTime = that.serverTime();
-        storage.setItem(that.s_offline_time, offlineServerTime.toString());
-    }
-    //保存加速剩余时间
-    saveAcceLeftTime(_acceLeftTime) {
-        let that = this;
-        let storage = window.localStorage;
-        if (_acceLeftTime > 0) {
-            storage.setItem(that.s_acceLeft_time, _acceLeftTime.toString());
-        }
-        else {
-            storage.removeItem(that.s_acceLeft_time);
-        }
-    }
-    //获取加速剩余时间
-    getAcceLeftTime() {
-        let that = this;
-        let storage = window.localStorage;
-        let dataJson = storage.getItem(that.s_acceLeft_time);
-        if (dataJson) {
-            let acceLeftTime = MathUtils.parseInt(dataJson);
-            storage.removeItem(that.s_acceLeft_time);
-            return acceLeftTime;
-        }
-        return 0;
-    }
-    //获取本地与服务器时间差(s减c)
-    csDiffTime() {
-        let that = this;
-        return that.cs_time_diff;
-    }
-    //获取服务器当前时间
-    serverTime() {
-        let that = this;
-        let cur_time = (new Date()).getTime() / 1000;
-        return (cur_time + that.csDiffTime());
-    }
-    //获取上次离线服务器时间
-    offlineServerTime() {
-        let that = this;
-        let storage = window.localStorage;
-        let dataJson = storage.getItem(that.s_offline_time);
-        console.log("获取上次离线服务器时间:", dataJson);
-        if (dataJson) {
-            let offlineServerTime = MathUtils.parseInt(dataJson); //上次离线时间
-            if (offlineServerTime > 0) {
-                return offlineServerTime;
-            }
-        }
-        return 0;
-    }
-    //保存商城红点开始时间
-    saveShopRedpointTime(_checkTime) {
-        let that = this;
-        let storage = window.localStorage;
-        let nextCheckTime = that.serverTime() + _checkTime;
-        storage.setItem(that.s_shopRedPoint_time, nextCheckTime.toString());
-    }
-    shiftShopRedpointTime(_isRemove = true) {
-        let that = this;
-        let storage = window.localStorage;
-        let dataJson = storage.getItem(that.s_shopRedPoint_time);
-        let saveServerTime = MathUtils.parseInt(dataJson);
-        if (saveServerTime > 0) {
-            let leftTime = saveServerTime - that.serverTime();
-            if (_isRemove) {
-                storage.removeItem(that.s_shopRedPoint_time);
-            }
-            if (leftTime > 0) {
-                return leftTime;
-            }
-        }
-        return 0;
     }
     isShareEnable() {
         return this.shareSwitchOpen;
@@ -757,15 +655,9 @@ class UserData {
                 let backTime = (new Date()).getTime() / 1000;
                 let leaveTime = backTime - curTime;
                 if (isAutoShare && leaveTime > 2.3) {
-                    if (true) {
-                        that.shareFailedTimes = 0;
-                        _callback && _callback(shareCfg.id);
-                        HttpManager.Instance.requestShareFinish(shareCfg.id);
-                    }
-                    else {
-                        // that.shareFailedTimes++;
-                        // MessageUtils.showMsgTips("分享失败，请尝试重新分享");
-                    }
+                    that.shareFailedTimes = 0;
+                    _callback && _callback(shareCfg.id);
+                    HttpManager.Instance.requestShareFinish(shareCfg.id);
                 }
             });
             platform.onShare({
@@ -779,7 +671,6 @@ class UserData {
                     console.log("转发失败!!!");
                 }
             });
-            // }))
         });
     }
     //请求分享/视频
@@ -900,9 +791,6 @@ class UserData {
                 }, isTask, isGroupShare);
             }
         }
-        if (!Laya.Browser.onMiniGame) {
-            callback && callback();
-        }
         return 0;
     }
     //计算精灵个数
@@ -972,10 +860,10 @@ class UserData {
                     PlayerManager.Instance.Info.dayGetGoldCount = self.shareAdTimes.share_no_money_num;
                     self.showShareGiftRedPoint = res.share_reward_flag;
                     self.showDailySignRedPoint = res.sign_flag;
+                    // that.showCarShopRedPoint = res.car_shop_flag;
                     self.showTaskRedPoint = res.task_flag;
                     self.showLuckPrizeRedPoint = res.roulette_flag;
                     self.showFollowRedPoint = res.subscribe_flag;
-                    self.showFriendConcurRedPoint = res.friend_help_flag;
                     self.every_day_into_rewards = res.every_day_into_rewards;
                     self.advert = res.advert;
                     self.diamond_acce_num = res.diamond_acce_num;
@@ -1010,102 +898,39 @@ class UserData {
                         }
                         EventsManager.Instance.event(EventsType.ACCE_CHANGE, "refresh");
                     }
+                    _callback && _callback(res);
                 }
-                _callback && _callback(res);
             },
             fail: function (res) {
                 console.log(res);
             }
         });
-    }
-    //查询离线奖励
-    requestOfflinePrizeData() {
-        let that = this;
-        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
-        HttpReqHelper.request({
-            url: 'v1/login',
-            success: function (res) {
-                let offlineTime = MathUtils.parseInt(res.time); //离线时长
-                let login_time = MathUtils.parseInt(res.login_time); //登录当前服务器时间
-                let cur_time = (new Date()).getTime() / 1000;
-                that.cs_time_diff = login_time - cur_time;
-                let storage = window.localStorage;
-                let dataJson = storage.getItem(that.s_offline_time);
-                console.log("读取本地离线:", dataJson);
-                if (dataJson) {
-                    offlineTime = 0;
-                    let last_logout_time = MathUtils.parseInt(dataJson); //上次离线时间
-                    console.log(login_time, cur_time, last_logout_time, (login_time - last_logout_time), that.cs_time_diff);
-                    if (!isNaN(last_logout_time) && login_time > last_logout_time) {
-                        offlineTime = login_time - last_logout_time;
-                    }
-                    storage.removeItem(that.s_offline_time);
-                }
-                if (offlineTime > 0) {
-                    storage.setItem(that.s_offlinePrize_time, offlineTime.toString());
-                    if (EventsManager.Instance) {
-                        EventsManager.Instance.event(EventsType.OFFLINE, true);
-                    }
-                }
-                HttpManager.Instance.requestNotifyServerPrize();
-            },
-            fail: function (res) {
-                console.log(res);
-            }
-        });
-    }
-    setCache(key, value) {
-        this._cache[key] = value;
-        const storage = window.localStorage;
-        if (storage) {
-            storage.setItem("F_" + M.player.account, JSON.stringify(this._cache));
-        }
-    }
-    getCache(key) {
-        return this._cache[key];
-    }
-    hasCache(key) {
-        return this._cache.hasOwnProperty(key);
     }
     loadCache() {
-        GameEnterManager.Instance.init();
-        LanguageManager.Instance.loadLanguage();
-        const storage = window.localStorage;
-        if (storage) {
-            const jsonStr = storage.getItem("F_" + M.player.account);
-            if (jsonStr) {
-                if (jsonStr) {
-                    const cache = JSON.parse(jsonStr);
-                    if (cache) {
-                        this._cache = cache;
-                        // 有缓存才赋值
-                        cache.hasOwnProperty(CacheKey.GOLD) && (this.gold = cache[CacheKey.GOLD]);
-                        cache.hasOwnProperty(CacheKey.CONCUR) && (HallManager.Instance.hallData.concurGoldDic.fromJsonObject(cache[CacheKey.CONCUR]));
-                        // 不管有没有缓存都需要赋值
-                        M.more.model.mute = cache.hasOwnProperty(CacheKey.SOUND_MUTE) ? cache[CacheKey.SOUND_MUTE] : false;
-                        console.log("@David 声音开关 SOUND_MUTE：", cache[CacheKey.SOUND_MUTE], " ----- hasOwnProperty:", cache.hasOwnProperty(CacheKey.SOUND_MUTE));
-                    }
-                }
+        this.cache.setCacheKey("xd_" + M.player.account);
+        this.cache.loadCache(Laya.Handler.create(this, (cache) => {
+            // 有缓存才赋值
+            cache.hasCache(CacheKey.PET_LIST) && (this.parkcarInfoArray = cache.getCache(CacheKey.PET_LIST));
+            cache.hasCache(CacheKey.SHOP_DATA) && (this.carBuyRecordArray = cache.getCache(CacheKey.SHOP_DATA));
+            cache.hasCache(CacheKey.SKILL_DATA) && (this.skillAdditionArray = cache.getCache(CacheKey.SKILL_DATA));
+            cache.hasCache(CacheKey.CONCUR) && (HallManager.Instance.hallData.concurGoldDic.fromJsonObject(cache.getCache(CacheKey.CONCUR)));
+            if (cache.hasCache(CacheKey.USER_ID)) {
+                this.userId = cache.getCache(CacheKey.USER_ID);
+                M.player.Info.userMoney = cache.getCache(CacheKey.GOLD);
+                this.level = cache.getCache(CacheKey.LEVEL);
+                // this.exp = cache.getCache(CacheKey.EXP);
+                M.player.Info.userDiamond = cache.getCache(CacheKey.DIAMOND);
+                this.carLevel = cache.getCache(CacheKey.MAX_SYNTHESIS_LEVEL);
+                M.player.Info.userEssence = cache.getCache(CacheKey.ESSENCE);
+                HallManager.Instance.hallData.passStage = this.passStage = cache.getCache(CacheKey.STAGE_PASSED);
+                this.kingLevel = cache.getCache(CacheKey.GUARD_LEVEL);
+                this.evolutionLevel = cache.getCache(CacheKey.EVOLUTION_LEVEL);
+                this.noviceGroupId = cache.getCache(CacheKey.NOVICE_GROUP_ID);
             }
-        }
-        if (!this._cache) {
-            console.log("@FREEMAN: 缓存数据为空或有异常，缓存：{ " + "F_" + M.player.account + " }");
-            this._cache = {};
-        }
-    }
-    clearCache() {
-        this._cache = {};
-        const storage = window.localStorage;
-        if (storage) {
-            storage.removeItem("F_" + M.player.account);
-            console.log("@FREEMAN: 本地缓存{" + "F_" + M.player.account + "}已清除。");
-        }
-    }
-    //设置金币并保存
-    setMoneySave(money) {
-        this.gold = Math.floor(money);
-        this.setCache(CacheKey.GOLD, money);
-        Laya.timer.callLater(this, this.saveLocal);
+        }));
+        // 不管有没有缓存都需要赋值
+        M.more.model.mute = this.cache.hasCache(CacheKey.SOUND_MUTE) ? this.cache.getCache(CacheKey.SOUND_MUTE) : false;
+        userData.lastHeartBeatTime = this.cache.hasCache(CacheKey.LAST_HEART_BEAT_TIME) ? this.cache.getCache(CacheKey.LAST_HEART_BEAT_TIME) : 0;
     }
 }
 //# sourceMappingURL=UserData.js.map

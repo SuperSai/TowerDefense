@@ -48,7 +48,7 @@ class FriendConcurItem extends ui.friendConcur.FriendConcurItemUI {
                 let curPrice = BattleManager.Instance.getMonsterPrice(monsterInfo.buyPrice, userData.queryBuyRecord(monsterInfo.id));
                 self._gold = curPrice * 0.4;
                 HallManager.Instance.hallData.concurGoldDic.Add(self._data.id, self._gold);
-                userData.setCache(CacheKey.CONCUR, HallManager.Instance.hallData.concurGoldDic.toJsonObject());
+                userData.cache.setCache(CacheKey.CONCUR, HallManager.Instance.hallData.concurGoldDic.toJsonObject());
             }
             self.txt_gold.text = MathUtils.bytesToSize(self._gold) + "";
             self._rewards.push(self._gold);
@@ -75,9 +75,9 @@ class FriendConcurItem extends ui.friendConcur.FriendConcurItemUI {
                         userData.removeFriendConcurRedPoint();
                         FriendConcurView.redPointNum = 0;
                     }
-                    EventsManager.Instance.event(EventsType.GLOD_CHANGE, { money: userData.gold += self._gold });
+                    EventsManager.Instance.event(EventsType.GLOD_CHANGE, { money: M.player.Info.userMoney += self._gold });
                     if (self.diamondBox.visible && self._rewards.length > 1) {
-                        EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: userData.diamond += self._rewards[1] });
+                        EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: M.player.Info.userDiamond += self._rewards[1] });
                     }
                     EventsManager.Instance.event(EventsType.FRIEND_CONCUR_GET_REWARD);
                 }, self._rewards, [1, 2]);

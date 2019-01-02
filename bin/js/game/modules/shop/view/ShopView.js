@@ -250,7 +250,7 @@ class ShopView extends BaseView {
                 }
                 userData.removeCarShopRedPoin();
                 // 30分钟后检测是否还有红点
-                HallManager.Instance.startShopRedpointTime();
+                M.hall.resolveShopRedPoint();
             }
         }, 11, false, true);
     }

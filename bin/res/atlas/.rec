@@ -112,7 +112,7 @@ P 9DAC9B01 right_link.png
 P 7BF6BEEA title.png
 D images/effect
 D images/followReward
-P 2ED49B66 followReward_bg.jpg
+R 2ED49B66 followReward_bg.jpg
 P A94025F7 followReward_btn.png
 D images/fontImg
 P 1838323E accelerate_title.png
@@ -151,7 +151,7 @@ P 3C15D3B7 gameLastTimeTip.png
 P 87CB7A5C gbtn_acce.png
 P 8283E3EC gbtn_feedback.png
 P 78ED3472 gbtn_fire.png
-P FC544D37 gbtn_luck.png
+P 167FCAED gbtn_luck.png
 P C65F6639 gbtn_shop.png
 P 777B2825 gbtn_strengthen.png
 P 47FECC2F gbtn_task.png

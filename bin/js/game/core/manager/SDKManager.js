@@ -12,12 +12,11 @@ class SDKManager {
             }
             SDKManager.Instance.handlerSceneValue(data);
             EventsManager.Instance.event(EventsType.BACK_GAME);
-            M.more.applyMute();
             if (platform.isSharing())
                 return;
             //离线收益
             if (userData && userData.isLoadStorage()) {
-                userData.requestOfflinePrizeData();
+                M.http.requestOfflinePrizeData();
             }
         });
         platform.onHide(function () {
@@ -25,10 +24,8 @@ class SDKManager {
                 return;
             try {
                 //保存数据
-                if (userData && userData.isLoadStorage()) {
+                if (userData) {
                     userData.saveLocal(true, { petList: true, petShop: true, skill: true });
-                    userData.saveOfflineTime();
-                    //上传腾讯云
                     userData.setUserCloudStorage();
                 }
             }
@@ -44,7 +41,10 @@ class SDKManager {
      * @returns {*}
      * @memberof SDKManager
      */
-    showBannerAd(force = false, offsetY = 0) {
+    showBannerAd(force = false) {
+        if (!systemInfo.canUseVersion("2.0.4")) {
+            return;
+        }
         let self = this;
         if (self._isForbidBannerAd && force == false) {
             return;
@@ -58,6 +58,9 @@ class SDKManager {
      * @memberof SDKManager
      */
     closeBannerAd(forbid = false) {
+        if (!systemInfo.canUseVersion("2.0.4")) {
+            return;
+        }
         let self = this;
         if (forbid) {
             self._isForbidBannerAd = true;
@@ -117,6 +120,14 @@ class SDKManager {
             videoAd.onClose(closeCallback);
             let errCallback = (err) => {
                 console.log(err);
+                if (noAdCallback) {
+                    noAdCallback();
+                    return;
+                }
+                else {
+                    userData.toShareAd();
+                    return;
+                }
                 //无视频可看弹窗
                 let hintDialog = new ui.common.view.VideoAdViewUI();
                 AlignUtils.setToScreenGoldenPos(hintDialog);

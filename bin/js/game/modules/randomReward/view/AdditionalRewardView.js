@@ -35,7 +35,8 @@ class AdditionalRewardView extends BaseView {
                 self.removeView();
                 let point = PointUtils.localToGlobal(self.ui.btn_get);
                 M.layer.screenEffectLayer.addChild(new FlyEffect().play("diamond", point.x, point.y, 38, 73));
-                EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: userData.diamond = res.total_diamond });
+                EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: M.player.Info.userDiamond = res.total_diamond });
+                console.log("@David 随机奖励获得钻石:", res.total_diamond);
                 MessageUtils.showMsgTips("获得钻石:" + self.datas[0].diamond);
             });
         });

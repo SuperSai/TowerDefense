@@ -222,7 +222,7 @@ class BattleManager extends Laya.EventDispatcher {
         if (self._model.saveTime > 1000) {
             self._model.saveTime = 0;
             if (userData) {
-                userData.saveLocal(true);
+                userData.saveLocal(true, null, true);
             }
         }
         self._model.saveTime++;

@@ -13,7 +13,7 @@ class StrengthenManager {
             let skillId = self.skillArr[i];
             let strengthenLevel = userData.querySkillAddition(skillId);
             let price = SkillManager.Instance.getSkillStrengthenCost(skillId, strengthenLevel + 1);
-            if (userData.essence >= price) {
+            if (M.player.Info.userEssence >= price) {
                 value = true;
                 break;
             }

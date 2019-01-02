@@ -1,0 +1,59 @@
+/*
+* 额外奖励界面;
+*/
+class AdditionalRewardView extends BaseView {
+
+    private _tween: Laya.Tween;
+
+    constructor() {
+        super(LAYER_TYPE.SUB_FRAME_LAYER, ui.randomReward.AdditionalRewardViewUI);
+        this.setResources(["randomReward"]);
+    }
+
+    //初始化
+    public initUI(): void {
+        super.initUI();
+        let self = this;
+        self._tween = EffectUtils.objectRotate(self.ui.imgLight);
+    }
+
+    public initData(): void {
+        super.initData();
+        let self = this;
+        self.ui.txt_count.text = "x" + self.datas[0].diamond;
+    }
+
+    public addEvents(): void {
+        super.addEvents();
+        let self = this;
+        self.ui.btn_get.on(Laya.Event.CLICK, self, self.onGetReward);
+    }
+
+    public removeEvents(): void {
+        super.removeEvents();
+        let self = this;
+        self.ui.btn_get.off(Laya.Event.CLICK, self, self.onGetReward);
+    }
+
+    /** 领取奖励 */
+    private onGetReward(): void {
+        let self = this;
+        userData.toShareAd(() => {
+            HttpManager.Instance.requestRandomRewardDiamond(Number(self.datas[0].diamond), (res) => {
+                self.removeView();
+                let point: Laya.Point = PointUtils.localToGlobal(self.ui.btn_get)
+                M.layer.screenEffectLayer.addChild(new FlyEffect().play("diamond", point.x, point.y, 38, 73));
+                EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: userData.diamond = res.total_diamond });
+                console.log("@David 随机奖励获得钻石:", res.total_diamond);
+                MessageUtils.showMsgTips("获得钻石:" + self.datas[0].diamond);
+            });
+        })
+    }
+
+    private removeView(): void {
+        let self = this;
+        self._tween && (Laya.Tween.clear(self._tween));
+        self._tween = null;
+        ViewMgr.Ins.close(ViewConst.AdditionalRewardView);
+    }
+}

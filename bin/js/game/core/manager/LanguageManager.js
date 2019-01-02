@@ -17,6 +17,9 @@ class LanguageManager {
      * 初始化数据
      */
     init(data) {
+        if (!data) {
+            data = Laya.Loader.getRes(PathConfig.Language);
+        }
         let self = this;
         let languageArr = String(data).split("\r\n");
         if (languageArr.length) {

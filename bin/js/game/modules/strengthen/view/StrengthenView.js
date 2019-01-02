@@ -36,9 +36,9 @@ class StrengthenView extends BaseView {
             self.refreshBoxUI(skillId);
         }
         //精华碎片刷新
-        self.setEssence(userData.essence);
+        self.setEssence(M.player.Info.userEssence);
         EventsManager.Instance.on(EventsType.ESSENCE_CHANGE, self, (_data) => {
-            self.setEssence(userData.essence);
+            self.setEssence(M.player.Info.userEssence);
         });
         HttpManager.Instance.requestEssenceData();
     }
@@ -64,13 +64,13 @@ class StrengthenView extends BaseView {
                     let strBoxKey = "boxItem" + (index + 1);
                     let boxItem = imgBg.getChildByName(strBoxKey);
                     if (boxItem) {
-                        //加成
-                        let txtAdd = boxItem.getChildByName("txtAdd");
-                        if (txtAdd) {
-                            txtAdd.text = (MathUtils.numToPercent(curProbability));
-                        }
                         let hbox = boxItem.getChildByName("hbox");
                         if (hbox) {
+                            //加成
+                            let txtAdd = hbox.getChildByName("txtAdd");
+                            if (txtAdd) {
+                                txtAdd.text = (MathUtils.numToPercent(curProbability));
+                            }
                             hbox.refresh();
                         }
                         let txtLevel = boxItem.getChildByName("txtLevel");
@@ -82,7 +82,7 @@ class StrengthenView extends BaseView {
                         if (btnStrengthen) {
                             btnStrengthen.offAll(Laya.Event.CLICK);
                             btnStrengthen.on(Laya.Event.CLICK, that, (_btnObj, _btnInfo) => {
-                                if (userData.essence < _btnInfo.price) {
+                                if (M.player.Info.userEssence < _btnInfo.price) {
                                     MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.17"));
                                     return;
                                 }
@@ -97,7 +97,7 @@ class StrengthenView extends BaseView {
                                         StrengthenManager.Instance.checkRedPoint();
                                         if (_res.hasOwnProperty("essence")) {
                                             userData.setEssence(MathUtils.parseInt(_res.essence));
-                                            that.setEssence(userData.essence);
+                                            that.setEssence(M.player.Info.userEssence);
                                         }
                                     }
                                 });

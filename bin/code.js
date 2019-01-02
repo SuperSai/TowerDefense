@@ -156,7 +156,7 @@ class StrengthenManager {
             let skillId = self.skillArr[i];
             let strengthenLevel = userData.querySkillAddition(skillId);
             let price = SkillManager.Instance.getSkillStrengthenCost(skillId, strengthenLevel + 1);
-            if (userData.essence >= price) {
+            if (M.player.Info.userEssence >= price) {
                 value = true;
                 break;
             }
@@ -609,10 +609,10 @@ class EvolutionManager {
     getIsEvolutionLevel() {
         let kingLevel = userData.getKingLevel();
         if (kingLevel > 10) {
-            return !((userData.diamond < this.getEvolutionLevelDiamond()) || (userData.caculateMonsterCount(this.getHeroId()) < this.needHeroCount));
+            return !((M.player.Info.userDiamond < this.getEvolutionLevelDiamond()) || (userData.caculateMonsterCount(this.getHeroId()) < this.needHeroCount));
         }
         else {
-            return !(userData.diamond < this.getEvolutionLevelDiamond());
+            return !(M.player.Info.userDiamond < this.getEvolutionLevelDiamond());
         }
     }
     static get Instance() {
@@ -727,6 +727,94 @@ class KeyValue {
     }
 }
 //# sourceMappingURL=KeyValue.js.map
+class CacheObject {
+    constructor(key = "FREEMAN") {
+        this._key = key;
+        this._cache = {};
+        this._waitingCaches = {};
+    }
+    setCacheKey(key) {
+        this._key = key;
+        return this;
+    }
+    startCacheThread(interval = Time.SEC_IN_MILI) {
+        Laya.timer.loop(interval, this, this.__save);
+    }
+    setCache(key, value) {
+        this._waitingCaches[key] = value;
+        Laya.timer.callLater(this, this.__save);
+    }
+    setCacheGroup(cacheObj) {
+        for (const key in cacheObj) {
+            this._waitingCaches[key] = cacheObj[key];
+        }
+        Laya.timer.callLater(this, this.__save);
+    }
+    getCache(key) {
+        if (this._waitingCaches.hasOwnProperty(key)) {
+            return this._waitingCaches[key];
+        }
+        return this._cache[key];
+    }
+    removeCache(key) {
+        delete this._cache[key];
+    }
+    hasCache(key) {
+        if (this._waitingCaches.hasOwnProperty(key)) {
+            return true;
+        }
+        return this._cache.hasOwnProperty(key);
+    }
+    loadCache(success, fail) {
+        const storage = window.localStorage;
+        let b;
+        if (storage) {
+            const jsonStr = storage.getItem(this._key);
+            if (jsonStr) {
+                if (jsonStr) {
+                    const cache = JSON.parse(jsonStr);
+                    if (cache) {
+                        b = true;
+                        this._cache = cache;
+                        success && success.runWith(this);
+                    }
+                }
+            }
+        }
+        if (!b) {
+            fail && fail.run();
+            console.log("@FREEMAN: 缓存数据为空或有异常，缓存：{ " + this._key + " }");
+        }
+    }
+    clearCache() {
+        this._cache = {};
+        this._waitingCaches = {};
+        const storage = window.localStorage;
+        if (storage) {
+            storage.removeItem(this._key);
+            console.log("@FREEMAN: 本地缓存{" + this._key + "}已清除。");
+        }
+    }
+    __save() {
+        if (Object.keys(this._waitingCaches).length) {
+            for (const key in this._waitingCaches) {
+                this._cache[key] = this._waitingCaches[key];
+            }
+            try {
+                const storage = window.localStorage;
+                if (storage) {
+                    storage.setItem(this._key, JSON.stringify(this._cache));
+                }
+            }
+            catch (e) {
+                console.log("@FREEMAN: 缓存数据时出现错误：", e, " cache：", this._cache);
+                MessageUtils.showMsgTips("缓存数据时出现错误!");
+            }
+            this._waitingCaches = {};
+        }
+    }
+}
+//# sourceMappingURL=CacheObject.js.map
 /*
 * name;
 */
@@ -1805,6 +1893,20 @@ class ObjectUtils {
             }
         }
     }
+    static assign(target, source, useTargetKeys) {
+        if (target && source) {
+            if (useTargetKeys) {
+                for (const key in target) {
+                    target[key] = source[key];
+                }
+            }
+            else {
+                for (const key in source) {
+                    target[key] = source[key];
+                }
+            }
+        }
+    }
     static shuffle(arr) {
         let len = arr.length;
         let i = len;
@@ -2833,6 +2935,47 @@ class HttpManager {
             }
         });
     }
+    //查询离线奖励
+    requestOfflinePrizeData() {
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+        HttpReqHelper.request({
+            url: 'v1/login',
+            success: res => {
+                let offlineTimeSpan = MathUtils.parseInt(res.time); //离线时长
+                // let login_time = MathUtils.parseInt(res.login_time); //登录当前服务器时间
+                if (offlineTimeSpan > 10 * Time.MIN) {
+                    M.event.event(EventsType.OFFLINE, offlineTimeSpan);
+                    this.requestNotifyServerPrize();
+                }
+                userData.cache.setCache(CacheKey.LAST_HEART_BEAT_TIME, new Date().getTime());
+                //
+                // let cur_time = (new Date()).getTime() / 1000;
+                //
+                // userData.cs_time_diff = login_time - cur_time;
+                // let storage = window.localStorage;
+                // let dataJson = storage.getItem(userData.s_offline_time);
+                // console.log("读取本地离线:", dataJson);
+                // if (dataJson) {
+                //     offlineTime = 0;
+                //     let last_logout_time = MathUtils.parseInt(dataJson); //上次离线时间
+                //     // console.log(login_time, cur_time, last_logout_time, (login_time - last_logout_time), userData.cs_time_diff);
+                //     if (!isNaN(last_logout_time) && login_time > last_logout_time) {
+                //         offlineTime = login_time - last_logout_time;
+                //     }
+                //     storage.removeItem(userData.s_offline_time);
+                // }
+                // if (offlineTime > 0) {
+                //     storage.setItem(userData.s_offlinePrize_time, offlineTime.toString());
+                //     if (EventsManager.Instance) {
+                //         EventsManager.Instance.event(EventsType.OFFLINE, true);
+                //     }
+                // }
+            },
+            fail: function (res) {
+                console.log(res);
+            }
+        });
+    }
     /** 通知服务器已领取离线收益 */
     requestNotifyServerPrize() {
         let that = this;
@@ -2853,13 +2996,18 @@ class HttpManager {
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/get/intensify',
-            success: function (res) {
-                _callback && _callback(res);
+            success: res => {
+                console.log("requestSkillAddtionData:", res);
+                if (res) {
+                    userData.skillAdditionArray = res;
+                    userData.cache.setCache(CacheKey.SKILL_DATA, res);
+                    _callback && _callback(res);
+                }
             },
             fail: function (res) {
                 console.log(res);
                 EffectUtils.stopWaitEffect();
-                MessageUtils.showMsgTips("网络异常");
+                MessageUtils.showMsgTips("@FREEMAN: 获取技能强化数据时发生网络异常，请检查网络！");
             }
         });
     }
@@ -2869,13 +3017,18 @@ class HttpManager {
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/shop/get',
-            success: function (res) {
-                _callback && _callback(res);
+            success: res => {
+                console.log("requestCarshopData:", res);
+                if (res) {
+                    userData.carBuyRecordArray = res;
+                    userData.cache.setCache(CacheKey.SHOP_DATA, res);
+                    _callback && _callback(res);
+                }
             },
             fail: function (res) {
                 console.log(res);
                 EffectUtils.stopWaitEffect();
-                MessageUtils.showMsgTips("网络异常");
+                MessageUtils.showMsgTips("@FREEMAN: 获取商店数据时发生网络异常，请检查网络！");
             }
         });
     }
@@ -2887,7 +3040,7 @@ class HttpManager {
             url: 'v1/userinfo/get_essence',
             success: function (res) {
                 if (res) {
-                    userData.essence = MathUtils.parseStringNum(res.essence);
+                    userData.setEssence(MathUtils.parseStringNum(res.essence));
                     if (EventsManager.Instance) {
                         EventsManager.Instance.event(EventsType.ESSENCE_CHANGE, res);
                     }
@@ -2900,13 +3053,14 @@ class HttpManager {
     }
     /** 用户钻石 */
     requestDiamondData() {
-        let that = this;
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/userinfo/get_diamond',
             success: function (res) {
+                console.log("requestDiamondData:", res);
+                // if (res && (typeof res != 'string')) {
                 if (res) {
-                    userData.diamond = MathUtils.parseStringNum(res.diamond);
+                    M.player.Info.userDiamond = MathUtils.parseStringNum(res.diamond);
                     if (EventsManager.Instance) {
                         EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, res);
                     }
@@ -2923,24 +3077,24 @@ class HttpManager {
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/seat/get',
-            success: function (res) {
+            success: res => {
                 console.log("requestCarparkData:", res);
                 if (res) {
-                    for (var key in userData.parkcarInfoArray) {
-                        if (userData.parkcarInfoArray.hasOwnProperty(key)) {
-                            var element = res[key];
-                            if (element) {
-                                userData.parkcarInfoArray[key] = element;
+                    if (res.length) {
+                        userData.parkcarInfoArray.map((item, index) => {
+                            for (const key in item) {
+                                item[key] = res[index][key];
                             }
-                        }
+                        });
                     }
+                    userData.cache.setCache(CacheKey.PET_LIST, userData.parkcarInfoArray);
                     _callback && _callback(res);
                 }
             },
             fail: function (res) {
                 console.log(res);
                 EffectUtils.stopWaitEffect();
-                MessageUtils.showMsgTips("网络异常");
+                MessageUtils.showMsgTips("@FREEMAN: 获取英雄列表时发生网络异常，请检查网络！");
             }
         });
     }
@@ -2967,43 +3121,41 @@ class HttpManager {
             success: function (res) {
                 console.log("requestUserinfoData:", res);
                 if (res) {
-                    // @FREEMAN 金币默认读缓存，如果缓存没有读取成功就按服务器返回的结果
-                    if (!userData.hasCache(CacheKey.GOLD)) {
-                        userData.setMoneySave(MathUtils.parseStringNum(res.money));
+                    const group = {};
+                    group[CacheKey.USER_ID] = userData.userId = res.id;
+                    userData.setMoney(MathUtils.parseStringNum(res.money));
+                    userData.setDiamond(MathUtils.parseStringNum(res.diamond));
+                    group[CacheKey.LEVEL] = userData.level = MathUtils.parseInt(res.level);
+                    // group[CacheKey.EXP] = userData.exp = MathUtils.parseStringNum(res.exp);
+                    group[CacheKey.MAX_SYNTHESIS_LEVEL] = userData.carLevel = MathUtils.parseInt(res.car_level);
+                    if (res.essence) {
+                        userData.setEssence(MathUtils.parseInt(res.essence));
                     }
-                    console.log("获取服务器发送过来金币数量：" + userData.gold);
-                    userData.carLevel = MathUtils.parseInt(res.car_level);
-                    userData.level = MathUtils.parseInt(res.level);
-                    userData.diamond = MathUtils.parseStringNum(res.diamond);
-                    if (res.hasOwnProperty("essence")) {
-                        userData.essence = MathUtils.parseInt(res.essence);
+                    if (res.stage) {
+                        group[CacheKey.STAGE_PASSED] = HallManager.Instance.hallData.passStage = userData.passStage = MathUtils.parseInt(res.stage);
                     }
-                    if (res.hasOwnProperty("stage")) {
-                        userData.passStage = MathUtils.parseInt(res.stage);
+                    if (res.king_level) {
+                        group[CacheKey.GUARD_LEVEL] = userData.kingLevel = MathUtils.parseStringNum(res.king_level);
                     }
-                    if (res.hasOwnProperty("king_level")) {
-                        userData.kingLevel = MathUtils.parseStringNum(res.king_level);
-                    }
-                    if (res.hasOwnProperty("evolution_level")) {
-                        userData.evolutionLevel = MathUtils.parseStringNum(res.evolution_level);
+                    if (res.evolution_level) {
+                        group[CacheKey.EVOLUTION_LEVEL] = userData.evolutionLevel = MathUtils.parseStringNum(res.evolution_level);
                     }
                     if (res.tutorial) {
-                        userData.noviceGroupId = parseInt(res.tutorial);
+                        group[CacheKey.NOVICE_GROUP_ID] = userData.noviceGroupId = parseInt(res.tutorial);
                     }
-                    userData.userId = res.id;
-                    console.log("@FREEMAN: UserId = {" + userData.userId + "}");
+                    userData.cache.setCacheGroup(group);
                     EventsManager.Instance.event(EventsType.UPDATE_HALL_DATA);
                     _callback && _callback(res);
                 }
                 else {
-                    this.requestUserinfoData(_callback);
+                    that.requestUserinfoData(_callback);
                 }
             },
             fail: function (res) {
                 console.log(res);
                 EffectUtils.stopWaitEffect();
                 MessageUtils.showMsgTips("网络异常");
-                this.requestUserinfoData(_callback);
+                that.requestUserinfoData(_callback);
             }
         });
     }
@@ -3026,37 +3178,56 @@ class HttpManager {
         });
     }
     /** 强化数据 */
-    requestSaveSkillAdditionData() {
+    requestSaveSkillAdditionData(forceRightNow = false) {
         let dataJson = JSON.stringify(userData.skillAdditionArray);
+        //非法数据过滤
+        if (dataJson == null || dataJson.length < 1 || userData.skillAdditionArray.length < 1) {
+            return;
+        }
+        if (userData.skillStrengthenJsonRecord == dataJson && !forceRightNow) {
+            console.log("@FREEMAN: 技能强化数据距上次上传时未有变化，无需再次上传");
+            return;
+        }
         let dataString = 'info=' + dataJson;
-        console.log("requestSaveSkillAdditionData:", dataString);
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/update/intensify',
             method: 'Post',
             data: dataString,
-            success: function (res) {
-                console.log("requestSaveSkillAdditionData:", res);
+            success: res => {
+                console.log("@FREEMAN: 技能强化数据上传成功：", userData.skillAdditionArray);
             },
-            fail: function (res) {
-                console.log(res);
+            fail: res => {
+                console.log("@FREEMAN: 技能强化数据上传时发生服务器异常：", res);
             }
         });
     }
     /** 用户基础数据 */
-    requestSaveUserinfoData() {
-        let that = this;
-        let dataString = 'money=' + userData.gold + '&car_level=' + userData.carLevel;
-        dataString += '&stage=' + userData.getPassStage();
-        dataString += '&king_level=' + userData.getKingLevel();
-        console.log("requestSaveUserinfoData:", dataString);
+    requestSaveUserinfoData(forceRightNow = false) {
+        const data = {
+            money: M.player.Info.userMoney,
+            car_level: userData.getCarLevel(),
+            stage: userData.getPassStage(),
+            king_level: userData.getKingLevel()
+        };
+        if (!forceRightNow) {
+            const notUpload = ["car_level", "stage", "king_level"].every((key) => {
+                return data[key] === userData.lastHeartBeatQueryObj[key];
+            });
+            if (notUpload)
+                return;
+        }
+        userData.cache.setCache(CacheKey.LAST_HEART_BEAT_TIME, new Date().getTime());
+        userData.lastHeartBeatQueryObj = data;
+        const dataString = StringUtils.toUrlQueryString(data);
+        console.log("@FREEMAN: 请求心跳保存数据：", data);
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/userinfo/post',
             method: 'Post',
             data: dataString,
             success: function (res) {
-                console.log("@FREEMAN: 请求心跳保存数据：", res);
+                console.log("@FREEMAN: 请求心跳保存数据成功：", res);
                 if (res) {
                     if (res.task_flag) {
                         EventsManager.Instance.event(EventsType.TASK_RED_POINT, "show");
@@ -3069,11 +3240,14 @@ class HttpManager {
         });
     }
     /** 保存坑位数据 */
-    requestSaveCarparkData() {
-        let that = this;
+    requestSaveCarparkData(forceRightNow = false) {
         let dataJson = JSON.stringify(userData.parkcarInfoArray);
         //非法数据过滤
-        if (dataJson == null || dataJson.length < 1 || userData.parkcarInfoArray.length < 1 || userData.carparkJsonRecord == dataJson) {
+        if (dataJson == null || dataJson.length < 1 || userData.parkcarInfoArray.length < 1) {
+            return;
+        }
+        if (userData.carparkJsonRecord == dataJson && !forceRightNow) {
+            console.log("@FREEMAN: 参战宠物列表距上次上传时未有变化，无需再次上传");
             return;
         }
         userData.carparkJsonRecord = dataJson;
@@ -3083,20 +3257,23 @@ class HttpManager {
             url: 'v1/seat/post',
             method: 'Post',
             data: dataString,
-            success: function (res) {
-                console.log("requestSaveCarparkData2:", res);
+            success: res => {
+                console.log("@FREEMAN: 参战宠物列表上传成功：", userData.parkcarInfoArray);
             },
-            fail: function (res) {
-                console.log(res);
+            fail: res => {
+                console.log("@FREEMAN: 参战宠物列表数据上传时发生服务器异常：", res);
             }
         });
     }
     /** 保存英雄商店数据 */
-    requestSaveCarshopData() {
-        let that = this;
+    requestSaveCarshopData(forceRightNow = false) {
         let dataJson = JSON.stringify(userData.carBuyRecordArray);
         //非法数据过滤
-        if (dataJson == null || dataJson.length < 1 || userData.carBuyRecordArray.length < 1 || userData.carshopJsonRecord == dataJson) {
+        if (dataJson == null || dataJson.length < 1 || userData.carBuyRecordArray.length < 1) {
+            return;
+        }
+        if (userData.carshopJsonRecord == dataJson && !forceRightNow) {
+            console.log("@FREEMAN: 商店购买数据距上次上传时未有变化，无需再次上传");
             return;
         }
         userData.carshopJsonRecord = dataJson;
@@ -3106,16 +3283,16 @@ class HttpManager {
             url: 'v1/shop/post',
             method: 'Post',
             data: dataString,
-            success: function (res) {
-                console.log("requestSaveCarshopData2:", res);
+            success: res => {
+                console.log("@FREEMAN: 商店购买数据上传成功：", userData.carBuyRecordArray);
             },
-            fail: function (res) {
-                console.log(res);
+            fail: res => {
+                console.log("@FREEMAN: 商店购买数据上传时发生服务器异常：", res);
             }
         });
     }
     /** 分享标志 */
-    requestShareFlag() {
+    requestShareFlag(callback) {
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/share/flag',
@@ -3125,6 +3302,7 @@ class HttpManager {
                 if (EventsManager.Instance) {
                     EventsManager.Instance.event(EventsType.SHARE_SWITCH, res);
                 }
+                callback && callback();
             },
             fail: function (res) {
                 console.log(res);
@@ -3311,6 +3489,20 @@ class HttpManager {
             }
         });
     }
+    /** 获取抽奖信息 */
+    requestPrizeInfo(callback) {
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+        HttpReqHelper.request({
+            url: 'v1/activity/get/roulette',
+            success: function (res) {
+                console.log("requestPrizeInfo", res);
+                callback && callback(res);
+            },
+            fail: function (res) {
+                console.log(res);
+            }
+        });
+    }
     static get Instance() {
         if (HttpManager._instance == null) {
             HttpManager._instance = new HttpManager();
@@ -3336,6 +3528,7 @@ class ViewRegisterMgr {
         ViewMgr.Ins.register(ViewConst.NoticeView, new NoticeView());
         ViewMgr.Ins.register(ViewConst.RewardGetView, new RewardGetView());
         ViewMgr.Ins.register(ViewConst.ClearanceRewardView, new ClearanceRewardView());
+        ViewMgr.Ins.register(ViewConst.SkyDropView, new SkyDropView());
     }
     static get Instance() {
         if (!ViewRegisterMgr._instance) {
@@ -3523,6 +3716,8 @@ var ViewConst;
     ViewConst[ViewConst["RewardGetView"] = 10013] = "RewardGetView";
     /** 通关获得奖励提示框 */
     ViewConst[ViewConst["ClearanceRewardView"] = 10014] = "ClearanceRewardView";
+    /** 天降惊喜 */
+    ViewConst[ViewConst["SkyDropView"] = 10015] = "SkyDropView";
 })(ViewConst || (ViewConst = {}));
 //# sourceMappingURL=ViewConst.js.map
 /*
@@ -3574,6 +3769,9 @@ class BarrierConfigVO {
 }
 //# sourceMappingURL=BarrierConfigVO.js.map
 class WXSystemInfo {
+    constructor() {
+        this.SDKVersion = "1.0.0";
+    }
     canUseVersion(version) {
         if (this.SDKVersion) {
             const curr = StringUtils.splitStringToArr(this.SDKVersion, ".");
@@ -3596,27 +3794,10 @@ class WXSystemInfo {
     }
 }
 //# sourceMappingURL=WXSystemInfo.js.map
-/*
-* terry 2018/7/16;
-* 用户数据本地存储
-*/
-class CacheKey {
-}
-CacheKey.GOLD = "gold";
-CacheKey.SOUND_MUTE = "sound_mute";
-/** 好友互助 */
-CacheKey.CONCUR = "concur";
 class UserData {
     constructor() {
-        this._noviceGroupId = 1; // 新手节点
         /** 合成次数 */
         this.synthesisCount = 0;
-        /** 金币 */
-        this.gold = 2000; //拥有金币
-        /** 钻石 */
-        this.diamond = 30; //拥有元宝
-        /** 精华 */
-        this.essence = 0; //精华碎片
         /** 怪物缓存池的名字 */
         this.MONSTER_POOL_NAME = "MONSTER_POOL_NAME";
         /** 怪物子弹 */
@@ -3663,21 +3844,17 @@ class UserData {
         this.shareFailedTimes = 0; //分享失败保底
         this.carparkJsonRecord = ''; //防止提交相同数据给服务器
         this.carshopJsonRecord = ''; //防止提交相同数据给服务器
+        this.skillStrengthenJsonRecord = ''; //防止提交相同数据给服务器
+        this.lastHeartBeatQueryObj = {}; //防止提交相同心跳数据给服务器
         this.menuRedPointCount = 0;
         //初始化车位
         for (let index = 0; index < 20; index++) {
-            this.parkcarInfoArray[index] = { id: index, carId: 0, isRunning: false };
+            this.parkcarInfoArray[index] = { id: index, carId: 0 };
         }
         //分享广告
-        this.shareAdStage[10] = true;
-        this.shareAdStage[11] = true;
-        this.shareAdStage[12] = true;
-    }
-    get noviceGroupId() {
-        return this._noviceGroupId;
-    }
-    set noviceGroupId(value) {
-        this._noviceGroupId = value;
+        [this.shareAdStage[10], this.shareAdStage[11], this.shareAdStage[12]] = [true, true, true];
+        this.cache = new CacheObject();
+        this.cache.startCacheThread();
     }
     get dayGetGoldCount() {
         return PlayerManager.Instance.Info.dayGetGoldCount;
@@ -3693,15 +3870,16 @@ class UserData {
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/novice/' + groupId,
-            success: (res) => {
+            success: () => {
                 console.log("@FREEMAN: saveNovice: success, currGroupId =>", groupId);
             },
-            fail: (res) => {
+            fail: () => {
                 console.log("@FREEMAN: saveNovice: fail, currGroupId =>", groupId);
             }
         });
         this.noviceGroupId = groupId;
-        this.saveLocal();
+        this.cache.setCache(CacheKey.NOVICE_GROUP_ID, groupId);
+        Laya.timer.callLater(this, this.saveLocal, [true]);
     }
     /** 刷新购买记录 */
     refreshBuyRecord(_carId, _isDiamond = false) {
@@ -3718,7 +3896,7 @@ class UserData {
                     that.carBuyRecordArray[key].buyTimes++;
                 }
                 isNew = false;
-                return;
+                break;
             }
         }
         if (isNew) {
@@ -3729,7 +3907,8 @@ class UserData {
                 that.carBuyRecordArray.push({ carId: mLevel, buyTimes: 1, diamondBuyTimes: 0 });
             }
         }
-        Laya.timer.callLater(that, that.saveLocal, [true, { petShop: true }]);
+        this.cache.setCache(CacheKey.SHOP_DATA, this.carBuyRecordArray);
+        Laya.timer.once(10 * Time.SEC_IN_MILI, this, HttpManager.Instance.requestSaveCarshopData);
     }
     /** 查询购买记录 */
     queryBuyRecord(_carId, _isDiamond = false) {
@@ -3759,15 +3938,14 @@ class UserData {
             if (element && element.skillId == _skillId) {
                 that.skillAdditionArray[key].buyTimes++;
                 isNew = false;
-                return;
+                break;
             }
         }
         if (isNew) {
             that.skillAdditionArray.push({ skillId: _skillId, buyTimes: 1 });
         }
-        //保存数据
-        // userData.saveLocal();
-        Laya.timer.callLater(that, that.saveLocal, [true, { skill: true }]);
+        this.cache.setCache(CacheKey.SKILL_DATA, this.skillAdditionArray);
+        Laya.timer.once(10 * Time.SEC_IN_MILI, this, HttpManager.Instance.requestSaveSkillAdditionData);
     }
     /** 查询技能加成 */
     querySkillAddition(_skillId) {
@@ -3797,9 +3975,7 @@ class UserData {
         if (that.carLevel < that.carLevelMax()) {
             if (that.carLevel < _level) {
                 that.carLevel = _level;
-                console.log("等级提升:", that.carLevel);
-                //保存数据
-                // userData.saveLocal();
+                this.cache.setCache(CacheKey.MAX_SYNTHESIS_LEVEL, _level);
                 Laya.timer.callLater(that, that.saveLocal, [true]);
                 return true;
             }
@@ -3810,6 +3986,12 @@ class UserData {
         return false;
     }
     getCarLevel() {
+        if (!this.carLevel) {
+            this.carLevel = 1;
+            this.parkcarInfoArray.map((item) => {
+                this.carLevel = Math.max(BattleManager.Instance.getLevel(item.carId), this.carLevel);
+            });
+        }
         return this.carLevel;
     }
     carLevelMax() {
@@ -3819,18 +4001,19 @@ class UserData {
         this.carLevel = 1;
     }
     //设置金币并保存
-    setGoldSave($gold) {
-        this.gold = Math.floor($gold);
-        Laya.timer.callLater(this, this.saveLocal);
+    setMoney(value) {
+        M.player.Info.userMoney = Math.floor(value);
+        this.cache.setCache(CacheKey.GOLD, value);
     }
     /** 设置钻石 */
-    setDiamond(_value) {
-        this.diamond = Math.floor(_value);
-        Laya.timer.callLater(this, this.saveLocal);
+    setDiamond(value) {
+        M.player.Info.userDiamond = Math.floor(value);
+        this.cache.setCache(CacheKey.DIAMOND, value);
     }
     /** 设置精华 */
-    setEssence(_value) {
-        this.essence = Math.floor(_value);
+    setEssence(value) {
+        M.player.Info.userEssence = Math.floor(value);
+        this.cache.setCache(CacheKey.ESSENCE, value);
     }
     /** 升级森林王等级 */
     updateKingLevel(_level) {
@@ -3838,12 +4021,9 @@ class UserData {
         if (that.kingLevel < that.kingLevelMax()) {
             if (that.kingLevel < _level) {
                 that.kingLevel = _level;
+                this.cache.setCache(CacheKey.GUARD_LEVEL, _level);
                 Laya.timer.callLater(that, that.saveLocal, [true]);
                 return true;
-            }
-            if (GlobalConfig.DEBUG) {
-                that.kingLevel = _level;
-                Laya.timer.callLater(that, that.saveLocal);
             }
         }
         else {
@@ -3863,6 +4043,7 @@ class UserData {
         if (that.evolutionLevel < that.evolutionLevelMax()) {
             if (that.evolutionLevel < _level) {
                 that.evolutionLevel = _level;
+                this.cache.setCache(CacheKey.EVOLUTION_LEVEL, _level);
                 Laya.timer.callLater(that, that.saveLocal, [true]);
                 return true;
             }
@@ -3884,32 +4065,16 @@ class UserData {
     }
     //设置车位并保存
     setCarparkSave(_carParkSp, _carParkSp2 = null) {
-        let that = this;
-        if (that.parkcarInfoArray) {
-            for (let key in that.parkcarInfoArray) {
-                let element = that.parkcarInfoArray[key];
-                if (_carParkSp) {
-                    if (element && element.id == _carParkSp.parkIndex) {
-                        element.carId = _carParkSp.monsterId;
-                        element.isRunning = _carParkSp.isRunning();
-                    }
-                }
-                //交换车辆
-                if (_carParkSp2) {
-                    if (element && element.id == _carParkSp2.parkIndex) {
-                        element.carId = _carParkSp2.monsterId;
-                        element.isRunning = _carParkSp2.isRunning();
-                    }
-                }
-            }
-        }
-        Laya.timer.callLater(that, that.saveLocal);
-        Laya.timer.once(3e3, that, HttpManager.Instance.requestSaveCarparkData);
+        this.parkcarInfoArray[_carParkSp.parkIndex].carId = _carParkSp.monsterId;
+        _carParkSp2 && (this.parkcarInfoArray[_carParkSp2.parkIndex].carId = _carParkSp2.monsterId);
+        this.cache.setCache(CacheKey.PET_LIST, this.parkcarInfoArray);
+        Laya.timer.once(10 * Time.SEC_IN_MILI, this, HttpManager.Instance.requestSaveCarparkData);
     }
     //通关的游戏关卡
     updatePassStage(_value) {
         let that = this;
         that.passStage = _value;
+        this.cache.setCache(CacheKey.STAGE_PASSED, _value);
         Laya.timer.callLater(that, that.saveLocal, [true]);
     }
     getPassStage() {
@@ -4128,37 +4293,21 @@ class UserData {
         return diamondAcceTimes;
     }
     //保存本地
-    saveLocal(_upload = false, saveOptions) {
-        let that = this;
-        if (that._isLoadStorage == false) {
+    saveLocal(_upload = false, saveOptions, forceRightNow = false) {
+        if (this._isLoadStorage == false) {
             console.log("未同步本地/服务器数据");
             return;
         }
-        else if (that.isGuide()) {
-            console.log("新手引导不保存");
-            return;
-        }
-        let localData = {};
-        ["gold", "diamond", "parkcarInfoArray", "carBuyRecordArray", "skillAdditionArray", "kingLevel", "evolutionLevel",
-            "carLevel", "level", "exp", "userId", "shareAdStage", "passStage", "noviceGroupId", "dayGetGoldCount"].forEach(element => {
-            localData[element] = that[element];
-        });
-        let dataJson = JSON.stringify(localData);
-        if (dataJson) {
-            let storage = window.localStorage;
-            storage.setItem(M.player.account, dataJson);
-        }
         if (_upload) {
-            HttpManager.Instance.requestSaveUserinfoData();
-            saveOptions && saveOptions.petList && HttpManager.Instance.requestSaveCarparkData();
-            saveOptions && saveOptions.petShop && HttpManager.Instance.requestSaveCarshopData();
-            saveOptions && saveOptions.skill && HttpManager.Instance.requestSaveSkillAdditionData();
+            HttpManager.Instance.requestSaveUserinfoData(forceRightNow);
+            saveOptions && saveOptions.petList && HttpManager.Instance.requestSaveCarparkData(forceRightNow);
+            saveOptions && saveOptions.petShop && HttpManager.Instance.requestSaveCarshopData(forceRightNow);
+            saveOptions && saveOptions.skill && HttpManager.Instance.requestSaveSkillAdditionData(forceRightNow);
         }
     }
     //取出本地数据
-    loadStorage(_callback) {
-        let that = this;
-        that._isLoadStorage = true;
+    loadStorage(_callback, dataType) {
+        this._isLoadStorage = true;
         if (GlobalConfig.DEBUG) {
             // if (GlobalConfig.USER) {
             //     M.player.account = GlobalConfig.USER;
@@ -4168,164 +4317,111 @@ class UserData {
                 return;
             }
         }
-        let storage = window.localStorage;
-        let dataJson = null; // storage.getItem(M.player.account);
-        if (dataJson) {
-            let jsonObj = JSON.parse(dataJson);
-            if (jsonObj) {
-                console.log("@FREEMAN: 本地缓存 {" + M.player.account + "} 读取成功：{", jsonObj, "}");
-                for (let key in jsonObj) {
-                    if (jsonObj.hasOwnProperty(key)) {
-                        // console.log(key, jsonObj[key]);
-                        // if (key !="hasOfflinePrize" && key !="diamond" && key !="_isLoadStorage") {
-                        //     that[key] = jsonObj[key];
-                        // }
-                        that[key] = jsonObj[key];
-                    }
+        let serverDataProgress = 6;
+        const status = {
+            userInfo: dataType && dataType.userInfo,
+            petList: dataType && dataType.petList,
+            shopData: dataType && dataType.shopData,
+            skillData: dataType && dataType.skillData,
+            shareData: dataType && dataType.shareData,
+            extraData: dataType && dataType.extraData,
+        };
+        if (!this.cache.hasCache(CacheKey.USER_ID) && !status.userInfo) {
+            M.http.requestUserinfoData((res) => {
+                status.userInfo = true;
+                serverDataProgress--;
+                if (serverDataProgress < 1) {
+                    _callback && _callback(true);
                 }
-            }
+            });
+        }
+        else {
+            serverDataProgress--;
+            status.userInfo = true;
+        }
+        if (!this.cache.hasCache(CacheKey.PET_LIST) && !status.petList) {
+            M.http.requestCarparkData((res) => {
+                status.petList = true;
+                serverDataProgress--;
+                if (serverDataProgress < 1) {
+                    _callback && _callback(true);
+                }
+            });
+        }
+        else {
+            serverDataProgress--;
+            status.petList = true;
+        }
+        if (!this.cache.hasCache(CacheKey.SHOP_DATA) && !status.shopData) {
+            M.http.requestCarshopData((res) => {
+                status.shopData = true;
+                serverDataProgress--;
+                if (serverDataProgress < 1) {
+                    _callback && _callback(true);
+                }
+            });
+        }
+        else {
+            serverDataProgress--;
+            status.shopData = true;
+        }
+        if (!this.cache.hasCache(CacheKey.SKILL_DATA) && !status.skillData) {
+            M.http.requestSkillAddtionData((res) => {
+                status.skillData = true;
+                serverDataProgress--;
+                if (serverDataProgress < 1) {
+                    _callback && _callback(true);
+                }
+            });
+        }
+        else {
+            serverDataProgress--;
+            status.skillData = true;
+        }
+        //请求分享开关
+        if (!status.shareData) {
+            M.http.requestShareFlag(() => {
+                status.shareData = true;
+                serverDataProgress--;
+                if (serverDataProgress < 1) {
+                    _callback && _callback(true);
+                }
+            });
+        }
+        //用户更多信息
+        if (!status.extraData) {
+            this.requestUserBaseData(() => {
+                status.extraData = true;
+                serverDataProgress--;
+                if (serverDataProgress < 1) {
+                    _callback && _callback(true);
+                }
+            });
+        }
+        if (serverDataProgress) {
+            //超时尝试重新请求
+            Laya.stage.timerOnce(5e3, this, () => {
+                if (serverDataProgress > 0) {
+                    console.log("@FREEMAN: 从服务器获取数据失败，当前状态", status);
+                    this.loadStorage(_callback, status);
+                }
+            });
+        }
+        else {
             _callback && _callback(true);
         }
-        //从服务器同步数据
-        let serverDataProgress = 4;
-        HttpManager.Instance.requestCarparkData((_res) => {
-            serverDataProgress--;
-            if (serverDataProgress < 1) {
-                _callback && _callback(true);
-            }
-        });
-        HttpManager.Instance.requestCarshopData((_res) => {
-            if (_res)
-                that.carBuyRecordArray = _res;
-            serverDataProgress--;
-            if (serverDataProgress < 1) {
-                _callback && _callback(true);
-            }
-        });
-        HttpManager.Instance.requestUserinfoData((_res) => {
-            serverDataProgress--;
-            if (serverDataProgress < 1) {
-                _callback && _callback(true);
-            }
-        });
-        HttpManager.Instance.requestSkillAddtionData((_res) => {
-            if (_res)
-                that.skillAdditionArray = _res;
-            serverDataProgress--;
-            if (serverDataProgress < 1) {
-                _callback && _callback(true);
-            }
-        });
-        //超时尝试重新请求
-        Laya.stage.timerOnce(12000, that, () => {
-            console.log("serverDataProgress:", serverDataProgress);
-            if (serverDataProgress > 0) {
-                that.loadStorage(_callback);
-            }
-        });
-        //请求分享开关
-        HttpManager.Instance.requestShareFlag();
-        that.requestUserBaseData();
     }
     isLoadStorage() {
         return this._isLoadStorage;
     }
     clearLocalData() {
         let that = this;
+        this.cache.clearCache();
         let storage = window.localStorage;
         if (storage) {
             storage.removeItem(M.player.account);
             console.log("@FREEMAN: 本地缓存{" + M.player.account + "}已清除。");
         }
-    }
-    //离线奖励
-    offlinePrize() {
-        let that = this;
-        let storage = window.localStorage;
-        let dataJson = storage.getItem(that.s_offlinePrize_time);
-        let offlineTime = MathUtils.parseInt(dataJson);
-        if (offlineTime > 0) {
-            storage.removeItem(that.s_offlinePrize_time);
-        }
-        return offlineTime;
-    }
-    //保存离线时间
-    saveOfflineTime() {
-        let that = this;
-        let storage = window.localStorage;
-        let offlineServerTime = that.serverTime();
-        storage.setItem(that.s_offline_time, offlineServerTime.toString());
-    }
-    //保存加速剩余时间
-    saveAcceLeftTime(_acceLeftTime) {
-        let that = this;
-        let storage = window.localStorage;
-        if (_acceLeftTime > 0) {
-            storage.setItem(that.s_acceLeft_time, _acceLeftTime.toString());
-        }
-        else {
-            storage.removeItem(that.s_acceLeft_time);
-        }
-    }
-    //获取加速剩余时间
-    getAcceLeftTime() {
-        let that = this;
-        let storage = window.localStorage;
-        let dataJson = storage.getItem(that.s_acceLeft_time);
-        if (dataJson) {
-            let acceLeftTime = MathUtils.parseInt(dataJson);
-            storage.removeItem(that.s_acceLeft_time);
-            return acceLeftTime;
-        }
-        return 0;
-    }
-    //获取本地与服务器时间差(s减c)
-    csDiffTime() {
-        let that = this;
-        return that.cs_time_diff;
-    }
-    //获取服务器当前时间
-    serverTime() {
-        let that = this;
-        let cur_time = (new Date()).getTime() / 1000;
-        return (cur_time + that.csDiffTime());
-    }
-    //获取上次离线服务器时间
-    offlineServerTime() {
-        let that = this;
-        let storage = window.localStorage;
-        let dataJson = storage.getItem(that.s_offline_time);
-        console.log("获取上次离线服务器时间:", dataJson);
-        if (dataJson) {
-            let offlineServerTime = MathUtils.parseInt(dataJson); //上次离线时间
-            if (offlineServerTime > 0) {
-                return offlineServerTime;
-            }
-        }
-        return 0;
-    }
-    //保存商城红点开始时间
-    saveShopRedpointTime(_checkTime) {
-        let that = this;
-        let storage = window.localStorage;
-        let nextCheckTime = that.serverTime() + _checkTime;
-        storage.setItem(that.s_shopRedPoint_time, nextCheckTime.toString());
-    }
-    shiftShopRedpointTime(_isRemove = true) {
-        let that = this;
-        let storage = window.localStorage;
-        let dataJson = storage.getItem(that.s_shopRedPoint_time);
-        let saveServerTime = MathUtils.parseInt(dataJson);
-        if (saveServerTime > 0) {
-            let leftTime = saveServerTime - that.serverTime();
-            if (_isRemove) {
-                storage.removeItem(that.s_shopRedPoint_time);
-            }
-            if (leftTime > 0) {
-                return leftTime;
-            }
-        }
-        return 0;
     }
     isShareEnable() {
         return this.shareSwitchOpen;
@@ -4355,15 +4451,9 @@ class UserData {
                 let backTime = (new Date()).getTime() / 1000;
                 let leaveTime = backTime - curTime;
                 if (isAutoShare && leaveTime > 2.3) {
-                    if (true) {
-                        that.shareFailedTimes = 0;
-                        _callback && _callback(shareCfg.id);
-                        HttpManager.Instance.requestShareFinish(shareCfg.id);
-                    }
-                    else {
-                        // that.shareFailedTimes++;
-                        // MessageUtils.showMsgTips("分享失败，请尝试重新分享");
-                    }
+                    that.shareFailedTimes = 0;
+                    _callback && _callback(shareCfg.id);
+                    HttpManager.Instance.requestShareFinish(shareCfg.id);
                 }
             });
             platform.onShare({
@@ -4377,7 +4467,6 @@ class UserData {
                     console.log("转发失败!!!");
                 }
             });
-            // }))
         });
     }
     //请求分享/视频
@@ -4498,9 +4587,6 @@ class UserData {
                 }, isTask, isGroupShare);
             }
         }
-        if (!Laya.Browser.onMiniGame) {
-            callback && callback();
-        }
         return 0;
     }
     //计算精灵个数
@@ -4570,10 +4656,10 @@ class UserData {
                     PlayerManager.Instance.Info.dayGetGoldCount = self.shareAdTimes.share_no_money_num;
                     self.showShareGiftRedPoint = res.share_reward_flag;
                     self.showDailySignRedPoint = res.sign_flag;
+                    // that.showCarShopRedPoint = res.car_shop_flag;
                     self.showTaskRedPoint = res.task_flag;
                     self.showLuckPrizeRedPoint = res.roulette_flag;
                     self.showFollowRedPoint = res.subscribe_flag;
-                    self.showFriendConcurRedPoint = res.friend_help_flag;
                     self.every_day_into_rewards = res.every_day_into_rewards;
                     self.advert = res.advert;
                     self.diamond_acce_num = res.diamond_acce_num;
@@ -4608,102 +4694,39 @@ class UserData {
                         }
                         EventsManager.Instance.event(EventsType.ACCE_CHANGE, "refresh");
                     }
+                    _callback && _callback(res);
                 }
-                _callback && _callback(res);
             },
             fail: function (res) {
                 console.log(res);
             }
         });
-    }
-    //查询离线奖励
-    requestOfflinePrizeData() {
-        let that = this;
-        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
-        HttpReqHelper.request({
-            url: 'v1/login',
-            success: function (res) {
-                let offlineTime = MathUtils.parseInt(res.time); //离线时长
-                let login_time = MathUtils.parseInt(res.login_time); //登录当前服务器时间
-                let cur_time = (new Date()).getTime() / 1000;
-                that.cs_time_diff = login_time - cur_time;
-                let storage = window.localStorage;
-                let dataJson = storage.getItem(that.s_offline_time);
-                console.log("读取本地离线:", dataJson);
-                if (dataJson) {
-                    offlineTime = 0;
-                    let last_logout_time = MathUtils.parseInt(dataJson); //上次离线时间
-                    console.log(login_time, cur_time, last_logout_time, (login_time - last_logout_time), that.cs_time_diff);
-                    if (!isNaN(last_logout_time) && login_time > last_logout_time) {
-                        offlineTime = login_time - last_logout_time;
-                    }
-                    storage.removeItem(that.s_offline_time);
-                }
-                if (offlineTime > 0) {
-                    storage.setItem(that.s_offlinePrize_time, offlineTime.toString());
-                    if (EventsManager.Instance) {
-                        EventsManager.Instance.event(EventsType.OFFLINE, true);
-                    }
-                }
-                HttpManager.Instance.requestNotifyServerPrize();
-            },
-            fail: function (res) {
-                console.log(res);
-            }
-        });
-    }
-    setCache(key, value) {
-        this._cache[key] = value;
-        const storage = window.localStorage;
-        if (storage) {
-            storage.setItem("F_" + M.player.account, JSON.stringify(this._cache));
-        }
-    }
-    getCache(key) {
-        return this._cache[key];
-    }
-    hasCache(key) {
-        return this._cache.hasOwnProperty(key);
     }
     loadCache() {
-        GameEnterManager.Instance.init();
-        LanguageManager.Instance.loadLanguage();
-        const storage = window.localStorage;
-        if (storage) {
-            const jsonStr = storage.getItem("F_" + M.player.account);
-            if (jsonStr) {
-                if (jsonStr) {
-                    const cache = JSON.parse(jsonStr);
-                    if (cache) {
-                        this._cache = cache;
-                        // 有缓存才赋值
-                        cache.hasOwnProperty(CacheKey.GOLD) && (this.gold = cache[CacheKey.GOLD]);
-                        cache.hasOwnProperty(CacheKey.CONCUR) && (HallManager.Instance.hallData.concurGoldDic.fromJsonObject(cache[CacheKey.CONCUR]));
-                        // 不管有没有缓存都需要赋值
-                        M.more.model.mute = cache.hasOwnProperty(CacheKey.SOUND_MUTE) ? cache[CacheKey.SOUND_MUTE] : false;
-                        console.log("@David 声音开关 SOUND_MUTE：", cache[CacheKey.SOUND_MUTE], " ----- hasOwnProperty:", cache.hasOwnProperty(CacheKey.SOUND_MUTE));
-                    }
-                }
+        this.cache.setCacheKey("xd_" + M.player.account);
+        this.cache.loadCache(Laya.Handler.create(this, (cache) => {
+            // 有缓存才赋值
+            cache.hasCache(CacheKey.PET_LIST) && (this.parkcarInfoArray = cache.getCache(CacheKey.PET_LIST));
+            cache.hasCache(CacheKey.SHOP_DATA) && (this.carBuyRecordArray = cache.getCache(CacheKey.SHOP_DATA));
+            cache.hasCache(CacheKey.SKILL_DATA) && (this.skillAdditionArray = cache.getCache(CacheKey.SKILL_DATA));
+            cache.hasCache(CacheKey.CONCUR) && (HallManager.Instance.hallData.concurGoldDic.fromJsonObject(cache.getCache(CacheKey.CONCUR)));
+            if (cache.hasCache(CacheKey.USER_ID)) {
+                this.userId = cache.getCache(CacheKey.USER_ID);
+                M.player.Info.userMoney = cache.getCache(CacheKey.GOLD);
+                this.level = cache.getCache(CacheKey.LEVEL);
+                // this.exp = cache.getCache(CacheKey.EXP);
+                M.player.Info.userDiamond = cache.getCache(CacheKey.DIAMOND);
+                this.carLevel = cache.getCache(CacheKey.MAX_SYNTHESIS_LEVEL);
+                M.player.Info.userEssence = cache.getCache(CacheKey.ESSENCE);
+                HallManager.Instance.hallData.passStage = this.passStage = cache.getCache(CacheKey.STAGE_PASSED);
+                this.kingLevel = cache.getCache(CacheKey.GUARD_LEVEL);
+                this.evolutionLevel = cache.getCache(CacheKey.EVOLUTION_LEVEL);
+                this.noviceGroupId = cache.getCache(CacheKey.NOVICE_GROUP_ID);
             }
-        }
-        if (!this._cache) {
-            console.log("@FREEMAN: 缓存数据为空或有异常，缓存：{ " + "F_" + M.player.account + " }");
-            this._cache = {};
-        }
-    }
-    clearCache() {
-        this._cache = {};
-        const storage = window.localStorage;
-        if (storage) {
-            storage.removeItem("F_" + M.player.account);
-            console.log("@FREEMAN: 本地缓存{" + "F_" + M.player.account + "}已清除。");
-        }
-    }
-    //设置金币并保存
-    setMoneySave(money) {
-        this.gold = Math.floor(money);
-        this.setCache(CacheKey.GOLD, money);
-        Laya.timer.callLater(this, this.saveLocal);
+        }));
+        // 不管有没有缓存都需要赋值
+        M.more.model.mute = this.cache.hasCache(CacheKey.SOUND_MUTE) ? this.cache.getCache(CacheKey.SOUND_MUTE) : false;
+        userData.lastHeartBeatTime = this.cache.hasCache(CacheKey.LAST_HEART_BEAT_TIME) ? this.cache.getCache(CacheKey.LAST_HEART_BEAT_TIME) : 0;
     }
 }
 //# sourceMappingURL=UserData.js.map
@@ -4733,6 +4756,27 @@ class PlayerInfo {
     }
 }
 //# sourceMappingURL=PlayerInfo.js.map
+class CacheKey {
+}
+CacheKey.SOUND_MUTE = "sound_mute";
+CacheKey.CONCUR = "concur";
+CacheKey.USER_ID = "user_id"; //用户ID @FREEMAN
+CacheKey.LAST_HEART_BEAT_TIME = "last_heart_beat_time"; //最后保存心跳数据的时间戳 @FREEMAN
+CacheKey.ACCELERATE_SEC_REMAINING = "accelerate_sec_remaining"; //加速剩余时间（秒） @FREEMAN
+CacheKey.LEVEL = "level";
+CacheKey.EXP = "exp";
+CacheKey.DIAMOND = "diamond";
+CacheKey.GOLD = "gold";
+CacheKey.ESSENCE = "essence"; //精华 @FREEMAN
+CacheKey.MAX_SYNTHESIS_LEVEL = "max_synthesis_level"; ///最大合成等级 @FREEMAN
+CacheKey.STAGE_PASSED = "stage_passed"; //已通过的关卡 @FREEMAN
+CacheKey.GUARD_LEVEL = "guard_level"; //守护等级 @FREEMAN
+CacheKey.EVOLUTION_LEVEL = "evolution_level"; //进化等级 @FREEMAN
+CacheKey.NOVICE_GROUP_ID = "novice_group_id"; //新手节点ID @FREEMAN
+CacheKey.PET_LIST = "pet_list"; //参战的宠物列表 @FREEMAN
+CacheKey.SHOP_DATA = "shop_data"; //商店数据 @FREEMAN
+CacheKey.SKILL_DATA = "skill_data"; //技能数据 @FREEMAN
+//# sourceMappingURL=CacheKey.js.map
 /**
  * Timer管理类
  */
@@ -4935,12 +4979,11 @@ class SDKManager {
             }
             SDKManager.Instance.handlerSceneValue(data);
             EventsManager.Instance.event(EventsType.BACK_GAME);
-            M.more.applyMute();
             if (platform.isSharing())
                 return;
             //离线收益
             if (userData && userData.isLoadStorage()) {
-                userData.requestOfflinePrizeData();
+                M.http.requestOfflinePrizeData();
             }
         });
         platform.onHide(function () {
@@ -4948,10 +4991,8 @@ class SDKManager {
                 return;
             try {
                 //保存数据
-                if (userData && userData.isLoadStorage()) {
+                if (userData) {
                     userData.saveLocal(true, { petList: true, petShop: true, skill: true });
-                    userData.saveOfflineTime();
-                    //上传腾讯云
                     userData.setUserCloudStorage();
                 }
             }
@@ -4967,7 +5008,10 @@ class SDKManager {
      * @returns {*}
      * @memberof SDKManager
      */
-    showBannerAd(force = false, offsetY = 0) {
+    showBannerAd(force = false) {
+        if (!systemInfo.canUseVersion("2.0.4")) {
+            return;
+        }
         let self = this;
         if (self._isForbidBannerAd && force == false) {
             return;
@@ -4981,6 +5025,9 @@ class SDKManager {
      * @memberof SDKManager
      */
     closeBannerAd(forbid = false) {
+        if (!systemInfo.canUseVersion("2.0.4")) {
+            return;
+        }
         let self = this;
         if (forbid) {
             self._isForbidBannerAd = true;
@@ -5040,6 +5087,14 @@ class SDKManager {
             videoAd.onClose(closeCallback);
             let errCallback = (err) => {
                 console.log(err);
+                if (noAdCallback) {
+                    noAdCallback();
+                    return;
+                }
+                else {
+                    userData.toShareAd();
+                    return;
+                }
                 //无视频可看弹窗
                 let hintDialog = new ui.common.view.VideoAdViewUI();
                 AlignUtils.setToScreenGoldenPos(hintDialog);
@@ -5211,6 +5266,9 @@ class LanguageManager {
      * 初始化数据
      */
     init(data) {
+        if (!data) {
+            data = Laya.Loader.getRes(PathConfig.Language);
+        }
         let self = this;
         let languageArr = String(data).split("\r\n");
         if (languageArr.length) {
@@ -5338,6 +5396,7 @@ LanguageManager.isOpenLanguage = true;
 */
 class GameEnterManager {
     init() {
+        LanguageManager.Instance.init();
         ViewRegisterMgr.Instance.initRegisterView();
         HallManager.Instance.setup();
         PlayerManager.Instance.setup();
@@ -5710,228 +5769,6 @@ class PlayerManager extends Laya.EventDispatcher {
     }
 }
 //# sourceMappingURL=PlayerManager.js.map
-class SkyDropController extends Laya.EventDispatcher {
-    static getInstance() {
-        if (!this._instance) {
-            this._instance = new SkyDropController();
-        }
-        return this._instance;
-    }
-    init(parent) {
-        this._container = parent;
-        this._container.mouseThrough = true;
-        this._package = new Laya.Image("images/sk_package.png");
-        this._package.pivot(34, 42);
-        this._awardType = -1;
-        // this.dropPackage(1);
-        Laya.timer.once(5 * 1000, this, this.requestSkyDropPackage);
-    }
-    dropPackage(awardType) {
-        this._awardType = awardType;
-        this._package.pos(153, -80);
-        if (this._container) {
-            this._container.addChild(this._package);
-            this.dropTween();
-        }
-    }
-    retrievePackage() {
-        this._awardType = -1;
-        this._package.removeSelf();
-        Laya.Tween.clearTween(this._package);
-    }
-    get packageOnScreen() {
-        return Boolean(this._package.parent);
-    }
-    dropTween() {
-        if (this._package) {
-            Laya.Tween.to(this._package, { y: 430 }, 800, Laya.Ease.quadIn, Handler.create(this, this.onDropTweenComplete));
-        }
-    }
-    onDropTweenComplete() {
-        this._package.on(Laya.Event.CLICK, this, this.onPackageClick);
-        Laya.Tween.clearTween(this._package);
-        this.bouncingUp();
-    }
-    bouncingDown() {
-        Laya.Tween.to(this._package, { scaleX: 1.1, scaleY: 0.85, y: 430 }, 400, Laya.Ease.quadIn, Handler.create(this, this.bouncingUp));
-    }
-    bouncingUp() {
-        Laya.Tween.to(this._package, { scaleX: 0.9, scaleY: 1.1, y: 400 }, 400, Laya.Ease.quadOut, Handler.create(this, this.bouncingDown));
-    }
-    onPackageClick() {
-        if (this._awardType < 100) {
-            const sheet = SkyDropSheet.getSheetById(this._awardType);
-            if (!this._skyDropFrame) {
-                this._skyDropFrame = new SkyDropView();
-                this._skyDropFrame.renew(sheet);
-            }
-            M.layer.subFrameLayer.addChildWithMaskCall(this._skyDropFrame, this._skyDropFrame.removeSelf);
-        }
-        else {
-            if (!this._skyDropObtainFrame) {
-                this._skyDropObtainFrame = new SkyDropObtainView();
-                this._skyDropObtainFrame.renew("images/core/diamond_icon.png", LanguageManager.Instance.getLanguageText("hallScene.label.txt.10", Math.round(Math.random() * 30)));
-            }
-            this._container.addChild(this._skyDropObtainFrame);
-        }
-    }
-    activatePackageAward() {
-        const sheet = SkyDropSheet.getSheetById(this._awardType);
-        BuffController.getInstance().addBuffFromSkyDrop(sheet);
-        this.retrievePackage();
-        BuffTipsView.Create(sheet);
-    }
-    requestSkyDropPackage() {
-        let that = this;
-        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
-        HttpReqHelper.request({
-            url: 'v1/skyDropPackage/status',
-            success: function (res) {
-                const bool = res.isShowPackage;
-                if (bool) {
-                    that.dropPackage(res.type);
-                }
-                else {
-                    const timeSpan = res.nextPackageTimeSpan;
-                    if (timeSpan > 0) {
-                        Laya.timer.once(timeSpan * 1000, that, that.requestSkyDropPackage);
-                    }
-                    else {
-                        Laya.timer.clear(that, that.requestSkyDropPackage);
-                    }
-                }
-                console.log("@FREEMAN: 请求天降礼包数据:", res);
-            },
-            fail: (res) => {
-                console.log("@FREEMAN: getSkyDropPackage: fail =>", res);
-            }
-        });
-    }
-    postSkyDropPackage() {
-        let that = this;
-        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
-        HttpReqHelper.request({
-            url: 'v1/skyDropPackage/open/' + this._awardType,
-            success: ({ legal }) => {
-                if (legal) {
-                    that.activatePackageAward();
-                    Laya.timer.once(10 * 1000, that, that.requestSkyDropPackage);
-                }
-                else {
-                    console.log("@FREEMAN: postSkyDropPackage:", "领取时间无效，您暂时无法领取天降惊喜礼包！");
-                }
-                console.log("@FREEMAN: postSkyDropPackage: legal =>", legal);
-            },
-            fail: (res) => {
-                console.log("@FREEMAN: postSkyDropPackage: fail =>", res);
-            }
-        });
-    }
-}
-class SkyDropSheet {
-    constructor(id, num, duration) {
-        this.id = id;
-        this.num = num;
-        this.duration = duration;
-    }
-    static getSheetById(id) {
-        for (const sheet of this.sheets) {
-            if (sheet.id === id) {
-                return sheet;
-            }
-        }
-        return null;
-    }
-}
-/** 攻击速度按百分比增加 */
-SkyDropSheet.ATTACK_SPEED_INCREASE = 0;
-/** 攻击力按百分比增加 */
-SkyDropSheet.ATTACK_VALUE_INCREASE = 1;
-/** 暴击率按百分比增加 */
-SkyDropSheet.CRIT_RATE_INCREASE = 2;
-/** 金币获得按百分比增加 */
-SkyDropSheet.COIN_OBTAIN_INCREASE = 3;
-SkyDropSheet.sheets = [
-    new SkyDropSheet(0, 0.5, 60 * 1000),
-    new SkyDropSheet(1, 1, 30 * 1000),
-    new SkyDropSheet(2, 0.5, 30 * 1000),
-    new SkyDropSheet(3, 1, 120 * 1000),
-];
-class SkyDropView extends Laya.View {
-    constructor() {
-        super();
-        this.init();
-    }
-    init() {
-        this.ui = new ui.common.view.SkyDropViewUI();
-        this.addChild(this.ui);
-        this.ui.imgCloseBtn.on(Laya.Event.CLICK, this, this.removeSelf);
-        this.ui.btnHelp.on(Laya.Event.CLICK, this, this.onHelpBtnClick);
-        this.ui.btnVideo.on(Laya.Event.CLICK, this, this.onVideoBtnClick);
-    }
-    renew(sheet) {
-        this.sheet = sheet;
-        switch (sheet.id) {
-            case SkyDropSheet.ATTACK_SPEED_INCREASE: {
-                this.ui.lblDesc.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.11");
-                break;
-            }
-            case SkyDropSheet.ATTACK_VALUE_INCREASE: {
-                this.ui.lblDesc.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.12");
-                break;
-            }
-            case SkyDropSheet.CRIT_RATE_INCREASE: {
-                this.ui.lblDesc.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.13");
-                break;
-            }
-            case SkyDropSheet.COIN_OBTAIN_INCREASE: {
-                this.ui.lblDesc.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.14");
-                break;
-            }
-        }
-        const numStr = (sheet.num * 100).toString() + "%";
-        this.ui.lblNum.text = numStr;
-        this.ui.lblDuration.text = (sheet.duration * 0.001).toString();
-        this.ui.hbox1.refresh();
-        this.ui.hbox2.refresh();
-    }
-    onHelpBtnClick() {
-        if (GlobalConfig.DEBUG) {
-            this.success();
-        }
-        else {
-            userData.toShareAd(() => {
-                this.success();
-            });
-        }
-    }
-    onVideoBtnClick() {
-        SDKManager.Instance.showVideoAd(() => {
-            this.success();
-        }, () => {
-            MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.15"));
-        }, false);
-    }
-    success() {
-        this.removeSelf();
-        SkyDropController.getInstance().postSkyDropPackage();
-    }
-}
-class SkyDropObtainView extends SkyDropView {
-    init() {
-        this.ui = new ui.common.view.SkyDropObtainViewUI();
-        this.addChild(this.ui);
-        this.ui.imgCloseBtn.on(Laya.Event.CLICK, this, this.removeSelf);
-        this.ui.btnHelp.on(Laya.Event.CLICK, this, this.onHelpBtnClick);
-        this.ui.btnVideo.on(Laya.Event.CLICK, this, this.onVideoBtnClick);
-    }
-    // @ts-ignore
-    renew(iconStr, desc) {
-        this.ui.imgIcon.skin = iconStr;
-        this.ui.lblDesc.text = desc;
-    }
-}
-//# sourceMappingURL=SkyDropController.js.map
 /*
 * 子弹
 */
@@ -7889,7 +7726,7 @@ class BattleManager extends Laya.EventDispatcher {
         if (self._model.saveTime > 1000) {
             self._model.saveTime = 0;
             if (userData) {
-                userData.saveLocal(true);
+                userData.saveLocal(true, null, true);
             }
         }
         self._model.saveTime++;
@@ -8392,7 +8229,7 @@ var ui;
                     this.createView(ui.common.view.OfflineRewardsViewUI.uiView);
                 }
             }
-            OfflineRewardsViewUI.uiView = { "type": "View", "props": { "width": 724, "height": 654 }, "child": [{ "type": "Box", "props": { "y": 87, "x": 0 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "width": 716, "skin": "images/component/frame_9calce_01.png", "height": 567, "sizeGrid": "168,65,62,82" } }, { "type": "Image", "props": { "y": 231, "x": 351, "var": "lightImg", "skin": "images/core/light_01.png", "anchorY": 0.5, "anchorX": 0.5 } }, { "type": "Image", "props": { "y": -59, "x": 63, "skin": "images/offlineReward/title.png" } }, { "type": "Image", "props": { "y": 164, "x": 290, "width": 146, "skin": "images/component/frame_9calce_03.png", "height": 145, "sizeGrid": "26,31,23,28" } }, { "type": "Label", "props": { "y": 502, "x": 224, "text": "离线收益最多两个小时", "fontSize": 28, "color": "#f1774e", "bold": true } }, { "type": "Image", "props": { "y": 181, "x": 307, "var": "imgMoney", "skin": "images/core/coin_stack_01.png", "name": "imgMoney" }, "child": [{ "type": "Label", "props": { "y": 150, "x": -196, "width": 500, "var": "txtMoney", "text": "264.78M", "strokeColor": "#a86c42", "stroke": 4, "name": "txtMoney", "fontSize": 50, "color": "#fff4e1", "bold": true, "align": "center" } }] }, { "type": "Button", "props": { "y": 390, "x": 208, "var": "btnShare", "stateNum": 1, "skin": "images/component/normal_btn.png", "name": "btnShare" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }, { "type": "Label", "props": { "y": 28, "x": 2, "width": 304, "text": "免费领取x2", "strokeColor": "#946430", "stroke": 5, "height": 40, "fontSize": 40, "color": "#fff4e1", "bold": true, "align": "center" } }] }, { "type": "Button", "props": { "y": 389, "x": 209, "var": "btnVideo", "stateNum": 1, "skin": "images/component/normal_btn.png", "name": "btnVideo" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }, { "type": "Label", "props": { "y": 28, "x": 2, "width": 262, "text": "视频领取x2", "strokeColor": "#946430", "stroke": 5, "height": 40, "fontSize": 40, "color": "#fff4e1", "bold": true, "align": "center" } }, { "type": "Image", "props": { "y": 28, "x": 246, "skin": "images/core/video_icon.png" } }] }, { "type": "Button", "props": { "y": 0, "x": 631, "var": "btnExit", "stateNum": 1, "skin": "images/component/frame_close_btn.png", "name": "btnExit" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }] }] };
+            OfflineRewardsViewUI.uiView = { "type": "View", "props": { "width": 724, "height": 654 }, "child": [{ "type": "Box", "props": { "y": 87, "x": 0, "width": 714, "height": 564 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "width": 716, "skin": "images/component/frame_9calce_01.png", "height": 567, "sizeGrid": "168,65,62,82" } }, { "type": "Image", "props": { "y": 231, "x": 351, "var": "lightImg", "skin": "images/core/light_01.png", "anchorY": 0.5, "anchorX": 0.5 } }, { "type": "Image", "props": { "y": -59, "x": 63, "skin": "images/offlineReward/title.png" } }, { "type": "Image", "props": { "y": 164, "x": 290, "width": 146, "skin": "images/component/frame_9calce_03.png", "height": 145, "sizeGrid": "26,31,23,28" } }, { "type": "Label", "props": { "y": 502, "x": 224, "text": "离线收益最多两个小时", "fontSize": 28, "color": "#f1774e", "bold": true } }, { "type": "Image", "props": { "y": 181, "x": 307, "var": "imgMoney", "skin": "images/core/coin_stack_01.png", "name": "imgMoney" }, "child": [{ "type": "Label", "props": { "y": 150, "x": -196, "width": 500, "var": "txtMoney", "text": "264.78M", "strokeColor": "#a86c42", "stroke": 4, "name": "txtMoney", "fontSize": 50, "color": "#fff4e1", "bold": true, "align": "center" } }] }, { "type": "Button", "props": { "y": 390, "x": 208, "var": "btnShare", "stateNum": 1, "skin": "images/component/normal_btn.png", "name": "btnShare" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }, { "type": "Label", "props": { "y": 28, "x": 2, "width": 304, "text": "免费领取x2", "strokeColor": "#946430", "stroke": 5, "height": 40, "fontSize": 40, "color": "#fff4e1", "bold": true, "align": "center" } }] }, { "type": "Button", "props": { "y": 389, "x": 209, "var": "btnVideo", "stateNum": 1, "skin": "images/component/normal_btn.png", "name": "btnVideo" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }, { "type": "Label", "props": { "y": 28, "x": 2, "width": 262, "text": "视频领取x2", "strokeColor": "#946430", "stroke": 5, "height": 40, "fontSize": 40, "color": "#fff4e1", "bold": true, "align": "center" } }, { "type": "Image", "props": { "y": 28, "x": 246, "skin": "images/core/video_icon.png" } }] }, { "type": "Button", "props": { "y": 0, "x": 631, "var": "btnExit", "stateNum": 1, "skin": "images/component/frame_close_btn.png", "name": "btnExit" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }] }] };
             view.OfflineRewardsViewUI = OfflineRewardsViewUI;
         })(view = common.view || (common.view = {}));
     })(common = ui.common || (ui.common = {}));
@@ -8480,7 +8317,7 @@ var ui;
                     this.createView(ui.common.view.SkyDropViewUI.uiView);
                 }
             }
-            SkyDropViewUI.uiView = { "type": "View", "props": {}, "child": [{ "type": "Image", "props": { "y": 359, "x": 17, "width": 716, "skin": "images/component/frame_9calce_01.png", "height": 565, "sizeGrid": "168,65,62,82" } }, { "type": "Image", "props": { "y": 355, "x": 649, "var": "imgCloseBtn", "skin": "images/component/frame_close_btn.png" } }, { "type": "Image", "props": { "y": 290, "x": 80, "skin": "images/skyDrop/title.png" } }, { "type": "Button", "props": { "y": 758, "x": 93, "var": "btnHelp", "stateNum": 1, "skin": "images/component/blue_btn.png", "labelStrokeColor": "#306294", "labelStroke": 4, "labelSize": 32, "labelColors": "#FFFFFF", "labelBold": true, "label": "求助" } }, { "type": "Button", "props": { "y": 758, "x": 422, "width": 240, "var": "btnVideo", "stateNum": 1, "skin": "images/component/normal_btn.png", "sizeGrid": "40,77,43,84", "labelStrokeColor": "#946430", "labelStroke": 4, "labelSize": 32, "labelColors": "#FFFFFF", "labelBold": true, "label": "领取", "height": 100 } }, { "type": "HBox", "props": { "y": 691, "x": 375, "var": "hbox2", "anchorY": 0.5, "anchorX": 0.5, "align": "middle" }, "child": [{ "type": "Label", "props": { "y": 2, "x": 196, "text": "秒", "fontSize": 40, "font": "SimHei", "color": "#884a00", "bold": true } }, { "type": "Label", "props": { "text": "持续", "fontSize": 40, "font": "SimHei", "color": "#884a00", "bold": true } }, { "type": "Label", "props": { "y": 0, "x": 81.5625, "width": 68.578125, "var": "lblDuration", "text": "180", "height": 44, "fontSize": 44, "font": "SimHei", "color": "#eb6626", "bold": true, "align": "center" } }] }, { "type": "HBox", "props": { "y": 604, "x": 375, "var": "hbox1", "anchorY": 0.5, "anchorX": 0.5, "align": "middle" }, "child": [{ "type": "Label", "props": { "var": "lblDesc", "text": "英雄攻击力增加", "fontSize": 40, "font": "SimHei", "color": "#884a00", "bold": true, "align": "right" } }, { "type": "Label", "props": { "y": 3, "x": 294, "var": "lblNum", "text": "50%", "fontSize": 44, "font": "SimHei", "color": "#eb6626", "bold": true } }] }] };
+            SkyDropViewUI.uiView = { "type": "View", "props": { "width": 717, "height": 634 }, "child": [{ "type": "Box", "props": { "y": 0, "x": 0, "width": 717, "height": 634 }, "child": [{ "type": "Image", "props": { "y": 69, "width": 716, "skin": "images/component/frame_9calce_01.png", "height": 565, "sizeGrid": "168,65,62,82" } }, { "type": "Image", "props": { "y": 65, "x": 632, "var": "imgCloseBtn", "skin": "images/component/frame_close_btn.png" } }, { "type": "Image", "props": { "x": 63, "skin": "images/skyDrop/title.png" } }, { "type": "Button", "props": { "y": 468, "x": 76, "var": "btnHelp", "stateNum": 1, "skin": "images/component/blue_btn.png", "labelStrokeColor": "#306294", "labelStroke": 4, "labelSize": 32, "labelColors": "#FFFFFF", "labelBold": true, "label": "求助" } }, { "type": "Button", "props": { "y": 468, "x": 405, "width": 240, "var": "btnVideo", "stateNum": 1, "skin": "images/component/normal_btn.png", "sizeGrid": "40,77,43,84", "labelStrokeColor": "#946430", "labelStroke": 4, "labelSize": 32, "labelColors": "#FFFFFF", "labelBold": true, "label": "领取", "height": 100 } }, { "type": "HBox", "props": { "y": 401, "x": 358, "var": "hbox2", "anchorY": 0.5, "anchorX": 0.5, "align": "middle" }, "child": [{ "type": "Label", "props": { "y": 2, "x": 196, "text": "秒", "fontSize": 40, "font": "SimHei", "color": "#884a00", "bold": true } }, { "type": "Label", "props": { "text": "持续", "fontSize": 40, "font": "SimHei", "color": "#884a00", "bold": true } }, { "type": "Label", "props": { "y": 0, "x": 81.5625, "width": 68.578125, "var": "lblDuration", "text": "180", "height": 44, "fontSize": 44, "font": "SimHei", "color": "#eb6626", "bold": true, "align": "center" } }] }, { "type": "HBox", "props": { "y": 314, "x": 358, "var": "hbox1", "anchorY": 0.5, "anchorX": 0.5, "align": "middle" }, "child": [{ "type": "Label", "props": { "var": "lblDesc", "text": "英雄攻击力增加", "fontSize": 40, "font": "SimHei", "color": "#884a00", "bold": true, "align": "right" } }, { "type": "Label", "props": { "y": 3, "x": 294, "var": "lblNum", "text": "50%", "fontSize": 44, "font": "SimHei", "color": "#eb6626", "bold": true } }] }] }] };
             view.SkyDropViewUI = SkyDropViewUI;
         })(view = common.view || (common.view = {}));
     })(common = ui.common || (ui.common = {}));
@@ -8649,7 +8486,7 @@ var ui;
                 this.createView(ui.hall.HallSceneUI.uiView);
             }
         }
-        HallSceneUI.uiView = { "type": "View", "props": { "y": 0, "x": 0, "width": 750, "height": 1334 }, "child": [{ "type": "View", "props": { "width": 750, "var": "mainView", "name": "mainView", "height": 1334, "centerY": 0, "centerX": 0 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "skin": "images/hall/bg.jpg", "cacheAs": "bitmap" }, "child": [{ "type": "Image", "props": { "y": 68, "x": 140, "skin": "images/effect/uiElectric/electric_4.png" }, "compId": 356 }] }, { "type": "Image", "props": { "y": 0, "x": 375, "width": 1, "var": "imgUserInfo", "name": "imgUserInfo", "height": 1 }, "child": [{ "type": "ProgressBar", "props": { "y": 31, "x": -120, "var": "progressBarExp", "value": 0, "skin": "images/hall/game_exp_pro.png", "name": "progressBarExp" } }, { "type": "Image", "props": { "y": 13, "x": -161, "skin": "images/core/game_exp_pro_head.png" }, "child": [{ "type": "Image", "props": { "y": -4, "x": 275, "skin": "images/hall/gicon_boss.png" } }] }, { "type": "Label", "props": { "y": 38, "x": -52, "width": 100, "var": "txtSection", "text": "1/10", "strokeColor": "#946430", "stroke": 3, "name": "txtSection", "fontSize": 24, "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "y": 32, "x": -198, "width": 150, "var": "txtLevel", "text": 1, "strokeColor": "#946430", "stroke": 3, "name": "txtLevel", "fontSize": 30, "color": "#ffffff", "bold": true, "align": "center" } }, { "type": "Image", "props": { "y": 17, "x": -347, "skin": "images/component/coin_frame.png", "name": "imgMoney" }, "child": [{ "type": "Image", "props": { "y": 25, "x": 10, "var": "imgMoney", "skin": "images/core/coin_big.png", "name": "imgMoney", "anchorY": 0.5, "anchorX": 0.5 }, "child": [{ "type": "Label", "props": { "y": 15, "x": 63, "width": 200, "var": "txtMoney", "text": 1000, "name": "txtMoney", "fontSize": 30, "color": "#ffffff", "bold": true, "align": "left" } }] }] }, { "type": "Image", "props": { "y": 76, "x": -341, "var": "imgDiamond", "skin": "images/component/coin_frame.png", "name": "imgDiamond" }, "child": [{ "type": "Image", "props": { "y": -5, "x": -22, "skin": "images/core/diamond_icon.png" } }, { "type": "Label", "props": { "y": 10, "x": 43, "width": 107, "var": "txtDiamond", "text": 0, "name": "txtDiamond", "height": 30, "fontSize": 30, "color": "#ffffff", "align": "left" } }] }, { "type": "Label", "props": { "y": 208, "x": 160, "width": 80, "var": "txtKingLevel", "text": 1, "strokeColor": "#946430", "stroke": 3, "skewY": -10, "name": "txtKingLevel", "fontSize": 26, "color": "#ffffff", "bold": true, "align": "center" } }, { "type": "Image", "props": { "y": 1083, "x": -90, "var": "imgTrain", "skin": "images/component/frame_9calce_08.png", "name": "imgTrain" }, "child": [{ "type": "Label", "props": { "y": 21, "x": 31, "text": "训练中...", "strokeColor": "#946430", "stroke": 3, "name": "txtTrain", "fontSize": 30, "color": "#ffffff", "bold": true, "alpha": 0.8, "align": "center" } }] }, { "type": "Image", "props": { "y": 126, "x": -145, "var": "gameTimebg", "skin": "images/hall/hall_time_bg.png" } }, { "type": "Label", "props": { "y": 145, "x": -135, "width": 80, "var": "txtGameTime", "text": "00:00", "strokeColor": "#ffffff", "stroke": 2, "name": "txtGameTime", "fontSize": 26, "color": "#3568fd", "bold": true, "alpha": 1, "align": "center" } }, { "type": "Image", "props": { "y": 102, "x": -162, "var": "gameTimeImg", "skin": "images/hall/game_gameLasttime.png", "sizeGrid": "29,48,27,42" } }] }, { "type": "Image", "props": { "y": 550, "x": 1, "width": 110, "visible": false, "var": "imgBorn", "name": "imgBorn", "mouseEnabled": false, "height": 90, "cacheAs": "bitmap", "anchorY": 0.5, "anchorX": 0.5, "alpha": 0.5 } }, { "type": "Image", "props": { "y": 112, "x": 220, "width": 110, "visible": false, "var": "imgDestination", "name": "imgDestination", "mouseEnabled": false, "height": 90, "alpha": 0.5 } }, { "type": "Image", "props": { "y": 211, "x": 240, "var": "btnDelete", "skin": "images/hall/huishou_icon_0.png", "name": "btnDelete" } }, { "type": "List", "props": { "y": 320, "width": 572, "var": "carparkList", "spaceY": 16, "spaceX": 10, "repeatY": 5, "repeatX": 4, "name": "carparkList", "mouseEnabled": false, "height": 700, "centerX": 45 }, "child": [{ "type": "Box", "props": { "y": 80, "x": 67, "width": 100, "visible": false, "renderType": "render", "height": 100 }, "child": [{ "type": "Sprite", "props": { "y": -14, "x": -14, "width": 128, "runtime": "MonsterSprite", "name": "car", "height": 128 }, "child": [{ "type": "Image", "props": { "y": 75, "x": 64, "width": 100, "visible": false, "skin": "images/hall/game_select_light.png", "name": "imgLight", "height": 50, "anchorY": 0.5, "anchorX": 0.5 } }, { "type": "Image", "props": { "y": 64, "x": 64, "visible": false, "skin": "images/hall/game_lockIcon.png", "name": "imgLock", "anchorY": 0.5, "anchorX": 0.5 } }, { "type": "Image", "props": { "y": 87, "x": 79, "width": 31, "visible": false, "skin": "images/hall/lv_001.png", "sizeGrid": "10,9,11,8", "name": "imgLevel", "height": 25 }, "child": [{ "type": "Label", "props": { "y": 3, "x": 4, "width": 23, "text": "0", "name": "txtLevel", "height": 18, "fontSize": 18, "color": "#ffffff", "align": "center" } }] }, { "type": "Label", "props": { "y": 24, "x": 34, "width": 53, "text": "18关", "strokeColor": "#83551a", "stroke": 2, "name": "txt_openLevel", "height": 18, "fontSize": 18, "color": "#ffffff", "align": "center" } }, { "type": "Sprite", "props": { "y": 74, "x": 62, "width": 1, "name": "heroPos", "height": 1 } }] }] }] }, { "type": "Sprite", "props": { "y": 170, "x": 535, "width": 32, "var": "spMountGuard", "runtime": "MonsterSprite", "name": "spMountGuard", "height": 32 } }, { "type": "View", "props": { "y": 0, "x": 0, "var": "roadView", "name": "roadView" } }, { "type": "View", "props": { "y": 10, "x": 10, "name": "effectView" } }, { "type": "View", "props": { "y": 1, "x": 0, "var": "menuView", "name": "menuView", "cacheAs": "bitmap" }, "child": [{ "type": "Button", "props": { "y": 1093, "x": 30, "var": "btnAcce", "stateNum": 1, "skin": "images/hall/gbtn_acce.png", "scaleY": 1, "scaleX": 1, "name": "btnAcce" }, "compId": 11, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }, { "type": "Image", "props": { "y": 60, "x": 75, "visible": false, "skin": "images/core/video_icon.png", "name": "imgAd" } }, { "type": "Image", "props": { "y": -16, "x": 0, "visible": false, "skin": "images/hall/daojishi_di.png", "name": "imgAcce" }, "child": [{ "type": "Label", "props": { "y": 8, "x": 8, "width": 80, "text": "00:00", "name": "txtAcceTime", "fontSize": 28, "color": "#ffffff", "align": "center" } }] }] }, { "type": "Button", "props": { "y": 1163, "x": 183, "var": "btnShopShortcut", "stateNum": 1, "skin": "images/hall/gbtn_shop.png", "name": "btnShopShortcut" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }, { "type": "Image", "props": { "y": 109, "x": 30, "skin": "images/core/coin_40x40.png", "name": "imgPrice", "anchorY": 0.5, "anchorX": 0.5 }, "child": [{ "type": "Label", "props": { "y": 4, "x": 45, "width": 150, "text": 1000, "strokeColor": "#946430", "stroke": 3, "name": "txtPrice", "height": 32, "fontSize": 30, "color": "#ffffff", "bold": true, "align": "left" } }] }, { "type": "Label", "props": { "y": 33, "x": 13, "width": 150, "text": "英雄 Lv1", "strokeColor": "#ffe7b0", "stroke": 3, "name": "txtLevel", "fontSize": 28, "color": "#98592e", "bold": true, "align": "center" } }] }, { "type": "Button", "props": { "y": 1163, "x": 400, "var": "btnShop", "stateNum": 1, "skin": "images/hall/gbtn_shop.png", "name": "btnShop" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }, { "type": "Image", "props": { "y": -12, "x": 41, "skin": "images/hall/shop_btn_icon.png" } }, { "type": "Label", "props": { "y": 91, "x": 13, "width": 150, "text": "酒馆", "strokeColor": "#946430", "stroke": 3, "name": "txtPrice", "fontSize": 34, "color": "#ffffff", "bold": true, "align": "center" } }, { "type": "Image", "props": { "y": -3, "x": 136, "visible": false, "skin": "images/core/red_dot_hint.png", "name": "imgRedPoint" } }] }, { "type": "Button", "props": { "y": 809, "x": -3, "var": "btn_online", "stateNum": 1, "skin": "images/hall/hall_online_reward.png" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }, { "type": "Label", "props": { "y": 60, "x": 2, "width": 86, "var": "txt_diamondTime", "text": "05:00", "strokeColor": "#8d5d2e", "stroke": 2, "height": 26, "fontSize": 22, "color": "#ffffff", "bold": true, "align": "center" } }] }, { "type": "Button", "props": { "y": 273, "x": 2, "var": "btnTask", "stateNum": 1, "skin": "images/hall/gbtn_task.png", "name": "btnTask" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }, { "type": "Image", "props": { "y": 4, "x": 86, "visible": false, "skin": "images/core/red_dot_hint.png", "name": "imgRedPoint" } }, { "type": "Image", "props": { "y": -56, "x": 35, "skin": "images/effect/uiBird/niao_1.png" }, "compId": 355 }] }, { "type": "Button", "props": { "y": 563, "x": -15, "var": "btnLuckPrize", "stateNum": 1, "skin": "images/hall/gbtn_luck.png", "name": "btnLuckPrize" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }, { "type": "Image", "props": { "y": 10, "x": 82, "visible": false, "skin": "images/core/red_dot_hint.png", "name": "imgRedPoint" } }, { "type": "Image", "props": { "y": -4, "x": -2, "skin": "images/effect/uiLight/dx_zpd_3.png" }, "compId": 357 }] }, { "type": "Button", "props": { "y": 898, "x": -3, "var": "btnFeedback", "stateNum": 1, "skin": "images/hall/gbtn_feedback.png", "name": "btnFeedback" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }, { "type": "Button", "props": { "y": 988, "x": -3, "var": "btnMore", "stateNum": 1, "skin": "images/hall/more_icon.png", "name": "btnMore" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }, { "type": "Image", "props": { "y": 3, "x": 59, "visible": false, "var": "followRedPoint", "skin": "images/core/red_dot_hint.png", "name": "followRedPoint" } }] }, { "type": "Button", "props": { "y": 1095, "x": 606, "var": "btnStrengthen", "stateNum": 1, "skin": "images/hall/gbtn_strengthen.png", "name": "btnStrengthen" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }, { "type": "Image", "props": { "y": 0, "x": 71, "visible": false, "var": "strengthenRedPoint", "skin": "images/core/red_dot_hint.png", "name": "strengthenRedPoint" } }] }, { "type": "Button", "props": { "y": 1064, "x": 599, "visible": false, "var": "btnPower", "stateNum": 1, "skin": "images/hall/gbtn_fire.png", "name": "btnPower" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }, { "type": "Button", "props": { "y": 132, "x": 497, "width": 100, "var": "btnEvolution", "name": "btnEvolution", "height": 100 }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }, { "type": "Image", "props": { "y": 1, "x": 86, "skin": "images/hall/evolution_hint_frame.png" }, "child": [{ "type": "Image", "props": { "y": 10, "x": 57, "visible": false, "skin": "" } }, { "type": "Label", "props": { "y": 28, "x": -3, "width": 80, "text": "守卫", "skewY": -20, "name": "txtKingLevel", "height": 30, "fontSize": 26, "color": "#4f8d2d", "bold": true, "align": "center" } }] }, { "type": "Image", "props": { "y": 12, "x": 140, "var": "kingUpdateImg", "skin": "images/core/red_dot_hint.png" } }] }, { "type": "Button", "props": { "y": 700, "x": 0, "width": 88, "visible": false, "var": "btnStagePrize", "name": "btnStagePrize", "labelSize": 30, "height": 106 }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }, { "type": "Button", "props": { "y": 1200, "x": 30, "var": "btn_fly", "stateNum": 1, "skin": "images/core/core_fly_icon.png", "rotation": 0 }, "compId": 392 }, { "type": "Button", "props": { "y": 1200, "x": 604, "var": "btn_eliminate", "stateNum": 1, "skin": "images/core/core_eliminate_icon.png", "rotation": 0 }, "compId": 393 }, { "type": "Button", "props": { "y": 266, "x": 638, "var": "btn_block", "stateNum": 1, "skin": "images/core/core_block_icon.png", "rotation": 0 }, "compId": 394 }, { "type": "Box", "props": { "y": 127, "width": 457, "var": "menuBox", "left": 0, "height": 109 }, "child": [{ "type": "Image", "props": { "width": 457, "skin": "images/hall/hall_suofang_bg.png", "sizeGrid": "45,44,50,0", "mouseThrough": false, "mouseEnabled": false, "height": 109 } }, { "type": "Button", "props": { "y": 54, "x": 420, "var": "btn_arrow", "stateNum": 1, "skin": "images/hall/hall_arrow.png", "scaleX": 1, "anchorY": 0.5, "anchorX": 0.5 } }, { "type": "Button", "props": { "y": 11, "x": 6, "var": "btn_ranking", "stateNum": 1, "skin": "images/hall/hall_rankBtn.png" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }, { "type": "Button", "props": { "y": 10, "x": 101, "var": "btn_follow", "stateNum": 1, "skin": "images/hall/hall_followBtn.png" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }, { "type": "Image", "props": { "y": 3, "x": 57, "visible": false, "skin": "images/core/red_dot_hint.png", "name": "imgRedPoint" } }] }, { "type": "Button", "props": { "y": 11, "x": 196, "var": "btn_concur", "stateNum": 1, "skin": "images/hall/hall_concurBtn.png" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }, { "type": "Image", "props": { "y": 3, "x": 57, "visible": false, "skin": "images/core/red_dot_hint.png", "name": "imgRedPoint" } }] }, { "type": "Button", "props": { "y": 9, "x": 291, "var": "btn_sign", "stateNum": 1, "skin": "images/hall/hall_dailySingBtn.png" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }, { "type": "Image", "props": { "y": 2, "x": 59, "visible": false, "skin": "images/core/red_dot_hint.png", "name": "imgRedPoint" } }] }, { "type": "Image", "props": { "y": -7, "x": 425, "visible": false, "var": "menuRedPoint", "skin": "images/core/red_dot_hint.png" } }, { "type": "Button", "props": { "y": 10, "x": 5, "var": "btn_welfare", "stateNum": 1, "skin": "images/hall/btn_welfare_icon.png" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }, { "type": "Image", "props": { "y": 4, "x": 60, "visible": false, "skin": "images/core/red_dot_hint.png", "name": "imgRedPoint" } }] }] }] }, { "type": "Button", "props": { "y": 1269, "x": 654, "width": 84, "visible": false, "var": "btnMiniProgram", "stateNum": 1, "skin": "images/hall/miniProgram_icon.png", "name": "btnMiniProgram", "labelSize": 30, "height": 61, "anchorY": 0.5, "anchorX": 0.5 }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }, { "type": "Button", "props": { "y": 410, "x": 4, "visible": false, "var": "btnCarStore", "stateNum": 1, "skin": "images/hall/box_001.png", "name": "btnCarStore", "labelSize": 30 }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }, { "type": "Image", "props": { "y": 1201, "x": 725, "visible": false, "var": "imgPowerBg", "skin": "images/hall/gpro_powerBg.png", "name": "imgPowerBg", "anchorY": 1, "anchorX": 0.5 }, "child": [{ "type": "ProgressBar", "props": { "y": 90, "x": 11, "var": "progressBarPower", "value": 0, "skin": "images/hall/gpro_power.png", "rotation": -90, "name": "progressBarPower", "anchorY": 0.5 } }, { "type": "Image", "props": { "y": 80, "x": 11, "visible": false, "var": "imgPowerCar", "skin": "images/core/coin_40x40.png", "name": "imgPowerCar", "anchorY": 0.5, "anchorX": 0.5, "alpha": 0.9 } }] }, { "type": "View", "props": { "y": 110, "x": 654, "width": 96, "visible": false, "var": "surpassView", "name": "surpassView", "height": 160 } }] }, { "type": "View", "props": { "y": 10, "x": 10, "var": "viewBuffContainer" } }, { "type": "View", "props": { "y": 0, "x": 0, "var": "viewSkyDropContainer" } }, { "type": "View", "props": { "width": 750, "visible": false, "var": "acceEffectView", "name": "acceEffectView", "height": 1334, "centerY": 0, "centerX": 0 }, "child": [{ "type": "Image", "props": { "y": 565, "x": 375, "skin": "images/hall/acce_effect.png", "anchorY": 0.5, "anchorX": 0.5 }, "compId": 127 }] }, { "type": "View", "props": { "y": 10, "x": 10, "var": "viewNoviceContainer" } }], "animations": [{ "nodes": [{ "target": 11, "keyframes": { "scaleY": [{ "value": 1, "tweenMethod": "linearNone", "tween": true, "target": 11, "key": "scaleY", "index": 0 }, { "value": 0.96, "tweenMethod": "linearNone", "tween": true, "target": 11, "key": "scaleY", "index": 15 }, { "value": 1, "tweenMethod": "linearNone", "tween": true, "target": 11, "key": "scaleY", "index": 30 }], "scaleX": [{ "value": 1, "tweenMethod": "linearNone", "tween": true, "target": 11, "key": "scaleX", "index": 0 }, { "value": 0.96, "tweenMethod": "linearNone", "tween": true, "target": 11, "key": "scaleX", "index": 15 }, { "value": 1, "tweenMethod": "linearNone", "tween": true, "target": 11, "key": "scaleX", "index": 30 }] } }], "name": "ani1", "id": 1, "frameRate": 24, "action": 0 }, { "nodes": [{ "target": 127, "keyframes": { "y": [{ "value": 1500, "tweenMethod": "backOut", "tween": true, "target": 127, "key": "y", "index": 0 }, { "value": 600, "tweenMethod": "linearNone", "tween": true, "target": 127, "key": "y", "index": 10 }, { "value": 610, "tweenMethod": "backIn", "tween": true, "target": 127, "key": "y", "index": 20 }, { "value": -150, "tweenMethod": "linearNone", "tween": true, "target": 127, "key": "y", "index": 35 }] } }], "name": "ani2", "id": 2, "frameRate": 24, "action": 0 }, { "nodes": [], "name": "ani3", "id": 3, "frameRate": 24, "action": 2 }, { "nodes": [{ "target": 355, "keyframes": { "skin": [{ "value": "images/effect/uiBird/niao_1.png", "tweenMethod": "linearNone", "tween": false, "target": 355, "key": "skin", "index": 0 }, { "value": "images/effect/uiBird/niao_2.png", "tweenMethod": "linearNone", "tween": false, "target": 355, "key": "skin", "index": 3 }, { "value": "images/effect/uiBird/niao_3.png", "tweenMethod": "linearNone", "tween": false, "target": 355, "key": "skin", "index": 6 }, { "value": "images/effect/uiBird/niao_4.png", "tweenMethod": "linearNone", "tween": false, "target": 355, "key": "skin", "index": 9 }, { "value": "images/effect/uiBird/niao_5.png", "tweenMethod": "linearNone", "tween": false, "target": 355, "key": "skin", "index": 12 }, { "value": "images/effect/uiBird/niao_6.png", "tweenMethod": "linearNone", "tween": false, "target": 355, "key": "skin", "index": 15 }, { "value": "images/effect/uiBird/niao_7.png", "tweenMethod": "linearNone", "tween": false, "target": 355, "key": "skin", "index": 18 }, { "value": "images/effect/uiBird/niao_1.png", "tweenMethod": "linearNone", "tween": false, "target": 355, "key": "skin", "index": 35 }] } }, { "target": 356, "keyframes": { "skin": [{ "value": "images/effect/uiElectric/electric_1.png", "tweenMethod": "linearNone", "tween": false, "target": 356, "key": "skin", "index": 0 }, { "value": "images/effect/uiElectric/electric_2.png", "tweenMethod": "linearNone", "tween": false, "target": 356, "key": "skin", "index": 5 }, { "value": "images/effect/uiElectric/electric_3.png", "tweenMethod": "linearNone", "tween": false, "target": 356, "key": "skin", "index": 10 }, { "value": "images/effect/uiElectric/electric_4.png", "tweenMethod": "linearNone", "tween": false, "target": 356, "key": "skin", "index": 15 }, { "value": "images/effect/uiElectric/electric_1.png", "tweenMethod": "linearNone", "tween": false, "target": 356, "key": "skin", "index": 20 }, { "value": "images/effect/uiElectric/electric_2.png", "tweenMethod": "linearNone", "tween": false, "target": 356, "key": "skin", "index": 25 }, { "value": "images/effect/uiElectric/electric_3.png", "tweenMethod": "linearNone", "tween": false, "target": 356, "key": "skin", "index": 30 }, { "value": "images/effect/uiElectric/electric_4.png", "tweenMethod": "linearNone", "tween": false, "target": 356, "key": "skin", "index": 35 }] } }, { "target": 357, "keyframes": { "skin": [{ "value": "images/effect/uiLight/dx_zpd_1.png", "tweenMethod": "linearNone", "tween": false, "target": 357, "key": "skin", "index": 0 }, { "value": "images/effect/uiLight/dx_zpd_2.png", "tweenMethod": "linearNone", "tween": false, "target": 357, "key": "skin", "index": 12 }, { "value": "images/effect/uiLight/dx_zpd_3.png", "tweenMethod": "linearNone", "tween": false, "target": 357, "key": "skin", "index": 25 }] } }], "name": "ani4", "id": 4, "frameRate": 24, "action": 2 }, { "nodes": [{ "target": 394, "keyframes": { "rotation": [{ "value": 0, "tweenMethod": "linearNone", "tween": true, "target": 394, "key": "rotation", "index": 0 }, { "value": 12, "tweenMethod": "linearNone", "tween": true, "target": 394, "key": "rotation", "index": 3 }, { "value": -12, "tweenMethod": "linearNone", "tween": true, "target": 394, "key": "rotation", "index": 9 }, { "value": 8, "tweenMethod": "linearNone", "tween": true, "target": 394, "key": "rotation", "index": 15 }, { "value": -8, "tweenMethod": "linearNone", "tween": true, "target": 394, "key": "rotation", "index": 21 }, { "value": 0, "tweenMethod": "linearNone", "tween": true, "target": 394, "key": "rotation", "index": 24 }, { "value": 0, "tweenMethod": "linearNone", "tween": true, "target": 394, "key": "rotation", "index": 70 }] } }, { "target": 392, "keyframes": { "rotation": [{ "value": 0, "tweenMethod": "linearNone", "tween": true, "target": 392, "key": "rotation", "index": 0 }, { "value": 0, "tweenMethod": "linearNone", "tween": true, "target": 392, "key": "rotation", "index": 20 }, { "value": 12, "tweenMethod": "linearNone", "tween": true, "target": 392, "key": "rotation", "index": 23 }, { "value": -12, "tweenMethod": "linearNone", "tween": true, "target": 392, "key": "rotation", "index": 29 }, { "value": 8, "tweenMethod": "linearNone", "tween": true, "target": 392, "key": "rotation", "index": 35 }, { "value": -8, "tweenMethod": "linearNone", "tween": true, "target": 392, "key": "rotation", "index": 41 }, { "value": 0, "tweenMethod": "linearNone", "tween": true, "target": 392, "key": "rotation", "index": 44 }, { "value": 0, "tweenMethod": "linearNone", "tween": true, "target": 392, "key": "rotation", "index": 70 }] } }, { "target": 393, "keyframes": { "rotation": [{ "value": 0, "tweenMethod": "linearNone", "tween": true, "target": 393, "key": "rotation", "index": 0 }, { "value": 0, "tweenMethod": "linearNone", "tween": true, "target": 393, "key": "rotation", "index": 70 }, { "value": 12, "tweenMethod": "linearNone", "tween": true, "target": 393, "key": "rotation", "index": 73 }, { "value": -12, "tweenMethod": "linearNone", "tween": true, "target": 393, "key": "rotation", "index": 79 }, { "value": 8, "tweenMethod": "linearNone", "tween": true, "target": 393, "key": "rotation", "index": 85 }, { "value": -8, "tweenMethod": "linearNone", "tween": true, "target": 393, "key": "rotation", "index": 91 }, { "value": 0, "tweenMethod": "linearNone", "tween": true, "target": 393, "key": "rotation", "index": 94 }, { "value": 0, "tweenMethod": "linearNone", "tween": true, "target": 393, "key": "rotation", "index": 210 }] } }], "name": "navToMiniAni", "id": 5, "frameRate": 24, "action": 0 }] };
+        HallSceneUI.uiView = { "type": "View", "props": { "y": 0, "x": 0, "width": 750, "height": 1334 }, "child": [{ "type": "View", "props": { "width": 750, "var": "mainView", "name": "mainView", "height": 1334, "centerY": 0, "centerX": 0 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "skin": "images/hall/bg.jpg", "cacheAs": "bitmap" }, "child": [{ "type": "Image", "props": { "y": 68, "x": 140, "skin": "images/effect/uiElectric/electric_4.png" }, "compId": 356 }] }, { "type": "Image", "props": { "y": 0, "x": 375, "width": 1, "var": "imgUserInfo", "name": "imgUserInfo", "height": 1 }, "child": [{ "type": "ProgressBar", "props": { "y": 31, "x": -120, "var": "progressBarExp", "value": 0, "skin": "images/hall/game_exp_pro.png", "name": "progressBarExp" } }, { "type": "Image", "props": { "y": 13, "x": -161, "skin": "images/core/game_exp_pro_head.png" }, "child": [{ "type": "Image", "props": { "y": -4, "x": 275, "skin": "images/hall/gicon_boss.png" } }] }, { "type": "Label", "props": { "y": 38, "x": -52, "width": 100, "var": "txtSection", "text": "1/10", "strokeColor": "#946430", "stroke": 3, "name": "txtSection", "fontSize": 24, "color": "#ffffff", "align": "center" } }, { "type": "Label", "props": { "y": 32, "x": -198, "width": 150, "var": "txtLevel", "text": 1, "strokeColor": "#946430", "stroke": 3, "name": "txtLevel", "fontSize": 30, "color": "#ffffff", "bold": true, "align": "center" } }, { "type": "Image", "props": { "y": 17, "x": -347, "skin": "images/component/coin_frame.png", "name": "imgMoney" }, "child": [{ "type": "Image", "props": { "y": 25, "x": 10, "var": "imgMoney", "skin": "images/core/coin_big.png", "name": "imgMoney", "anchorY": 0.5, "anchorX": 0.5 }, "child": [{ "type": "Label", "props": { "y": 15, "x": 63, "width": 200, "var": "txtMoney", "text": 1000, "name": "txtMoney", "fontSize": 30, "color": "#ffffff", "bold": true, "align": "left" } }] }] }, { "type": "Image", "props": { "y": 76, "x": -341, "var": "imgDiamond", "skin": "images/component/coin_frame.png", "name": "imgDiamond" }, "child": [{ "type": "Image", "props": { "y": -5, "x": -22, "skin": "images/core/diamond_icon.png" } }, { "type": "Label", "props": { "y": 10, "x": 43, "width": 107, "var": "txtDiamond", "text": 0, "name": "txtDiamond", "height": 30, "fontSize": 30, "color": "#ffffff", "align": "left" } }] }, { "type": "Label", "props": { "y": 208, "x": 160, "width": 80, "var": "txtKingLevel", "text": 1, "strokeColor": "#946430", "stroke": 3, "skewY": -10, "name": "txtKingLevel", "fontSize": 26, "color": "#ffffff", "bold": true, "align": "center" } }, { "type": "Image", "props": { "y": 1083, "x": -90, "var": "imgTrain", "skin": "images/component/frame_9calce_08.png", "name": "imgTrain" }, "child": [{ "type": "Label", "props": { "y": 21, "x": 31, "text": "训练中...", "strokeColor": "#946430", "stroke": 3, "name": "txtTrain", "fontSize": 30, "color": "#ffffff", "bold": true, "alpha": 0.8, "align": "center" } }] }, { "type": "Image", "props": { "y": 126, "x": -145, "var": "gameTimebg", "skin": "images/hall/hall_time_bg.png" } }, { "type": "Label", "props": { "y": 145, "x": -135, "width": 80, "var": "txtGameTime", "text": "00:00", "strokeColor": "#ffffff", "stroke": 2, "name": "txtGameTime", "fontSize": 26, "color": "#3568fd", "bold": true, "alpha": 1, "align": "center" } }, { "type": "Image", "props": { "y": 102, "x": -162, "var": "gameTimeImg", "skin": "images/hall/game_gameLasttime.png", "sizeGrid": "29,48,27,42" } }] }, { "type": "Image", "props": { "y": 550, "x": 1, "width": 110, "visible": false, "var": "imgBorn", "name": "imgBorn", "mouseEnabled": false, "height": 90, "cacheAs": "bitmap", "anchorY": 0.5, "anchorX": 0.5, "alpha": 0.5 } }, { "type": "Image", "props": { "y": 112, "x": 220, "width": 110, "visible": false, "var": "imgDestination", "name": "imgDestination", "mouseEnabled": false, "height": 90, "alpha": 0.5 } }, { "type": "Image", "props": { "y": 211, "x": 240, "var": "btnDelete", "skin": "images/hall/huishou_icon_0.png", "name": "btnDelete" } }, { "type": "List", "props": { "y": 320, "width": 572, "var": "carparkList", "spaceY": 16, "spaceX": 10, "repeatY": 5, "repeatX": 4, "name": "carparkList", "mouseEnabled": false, "height": 700, "centerX": 45 }, "child": [{ "type": "Box", "props": { "y": 80, "x": 67, "width": 100, "visible": false, "renderType": "render", "height": 100 }, "child": [{ "type": "Sprite", "props": { "y": -14, "x": -14, "width": 128, "runtime": "MonsterSprite", "name": "car", "height": 128 }, "child": [{ "type": "Image", "props": { "y": 75, "x": 64, "width": 100, "visible": false, "skin": "images/hall/game_select_light.png", "name": "imgLight", "height": 50, "anchorY": 0.5, "anchorX": 0.5 } }, { "type": "Image", "props": { "y": 64, "x": 64, "visible": false, "skin": "images/hall/game_lockIcon.png", "name": "imgLock", "anchorY": 0.5, "anchorX": 0.5 } }, { "type": "Image", "props": { "y": 87, "x": 79, "width": 31, "visible": false, "skin": "images/hall/lv_001.png", "sizeGrid": "10,9,11,8", "name": "imgLevel", "height": 25 }, "child": [{ "type": "Label", "props": { "y": 3, "x": 4, "width": 23, "text": "0", "name": "txtLevel", "height": 18, "fontSize": 18, "color": "#ffffff", "align": "center" } }] }, { "type": "Label", "props": { "y": 24, "x": 34, "width": 53, "text": "18关", "strokeColor": "#83551a", "stroke": 2, "name": "txt_openLevel", "height": 18, "fontSize": 18, "color": "#ffffff", "align": "center" } }, { "type": "Sprite", "props": { "y": 74, "x": 62, "width": 1, "name": "heroPos", "height": 1 } }] }] }] }, { "type": "Sprite", "props": { "y": 170, "x": 535, "width": 32, "var": "spMountGuard", "runtime": "MonsterSprite", "name": "spMountGuard", "height": 32 } }, { "type": "View", "props": { "y": 0, "x": 0, "var": "roadView", "name": "roadView" } }, { "type": "View", "props": { "y": 10, "x": 10, "name": "effectView" } }, { "type": "View", "props": { "y": 1, "x": 0, "var": "menuView", "name": "menuView", "cacheAs": "bitmap" }, "child": [{ "type": "Button", "props": { "y": 1093, "x": 30, "var": "btnAcce", "stateNum": 1, "skin": "images/hall/gbtn_acce.png", "scaleY": 1, "scaleX": 1, "name": "btnAcce" }, "compId": 11, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }, { "type": "Image", "props": { "y": 60, "x": 75, "visible": false, "skin": "images/core/video_icon.png", "name": "imgAd" } }, { "type": "Image", "props": { "y": -16, "x": 0, "visible": false, "skin": "images/hall/daojishi_di.png", "name": "imgAcce" }, "child": [{ "type": "Label", "props": { "y": 8, "x": 8, "width": 80, "text": "00:00", "name": "txtAcceTime", "fontSize": 28, "color": "#ffffff", "align": "center" } }] }] }, { "type": "Button", "props": { "y": 1163, "x": 183, "var": "btnShopShortcut", "stateNum": 1, "skin": "images/hall/gbtn_shop.png", "name": "btnShopShortcut" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }, { "type": "Image", "props": { "y": 109, "x": 30, "skin": "images/core/coin_40x40.png", "name": "imgPrice", "anchorY": 0.5, "anchorX": 0.5 }, "child": [{ "type": "Label", "props": { "y": 4, "x": 45, "width": 150, "text": 1000, "strokeColor": "#946430", "stroke": 3, "name": "txtPrice", "height": 32, "fontSize": 30, "color": "#ffffff", "bold": true, "align": "left" } }] }, { "type": "Label", "props": { "y": 33, "x": 13, "width": 150, "text": "英雄 Lv1", "strokeColor": "#ffe7b0", "stroke": 3, "name": "txtLevel", "fontSize": 28, "color": "#98592e", "bold": true, "align": "center" } }] }, { "type": "Button", "props": { "y": 1163, "x": 400, "var": "btnShop", "stateNum": 1, "skin": "images/hall/gbtn_shop.png", "name": "btnShop" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }, { "type": "Image", "props": { "y": -12, "x": 41, "skin": "images/hall/shop_btn_icon.png" } }, { "type": "Label", "props": { "y": 91, "x": 13, "width": 150, "text": "酒馆", "strokeColor": "#946430", "stroke": 3, "name": "txtPrice", "fontSize": 34, "color": "#ffffff", "bold": true, "align": "center" } }, { "type": "Image", "props": { "y": -3, "x": 136, "visible": false, "skin": "images/core/red_dot_hint.png", "name": "imgRedPoint" } }] }, { "type": "Button", "props": { "y": 809, "x": -3, "var": "btn_online", "stateNum": 1, "skin": "images/hall/hall_online_reward.png" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }, { "type": "Label", "props": { "y": 60, "x": 2, "width": 86, "var": "txt_diamondTime", "text": "05:00", "strokeColor": "#8d5d2e", "stroke": 2, "height": 26, "fontSize": 22, "color": "#ffffff", "bold": true, "align": "center" } }] }, { "type": "Button", "props": { "y": 273, "x": 2, "var": "btnTask", "stateNum": 1, "skin": "images/hall/gbtn_task.png", "name": "btnTask" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }, { "type": "Image", "props": { "y": 4, "x": 86, "visible": false, "skin": "images/core/red_dot_hint.png", "name": "imgRedPoint" } }, { "type": "Image", "props": { "y": -56, "x": 35, "skin": "images/effect/uiBird/niao_1.png" }, "compId": 355 }] }, { "type": "Button", "props": { "y": 546, "x": -18, "var": "btnLuckPrize", "stateNum": 1, "skin": "images/hall/gbtn_luck.png", "name": "btnLuckPrize" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }, { "type": "Image", "props": { "y": 10, "x": 82, "visible": false, "skin": "images/core/red_dot_hint.png", "name": "imgRedPoint" } }, { "type": "Image", "props": { "y": -4, "x": -2, "skin": "images/effect/uiLight/dx_zpd_3.png" }, "compId": 357 }] }, { "type": "Button", "props": { "y": 898, "x": -3, "var": "btnFeedback", "stateNum": 1, "skin": "images/hall/gbtn_feedback.png", "name": "btnFeedback" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }, { "type": "Button", "props": { "y": 988, "x": -3, "var": "btnMore", "stateNum": 1, "skin": "images/hall/more_icon.png", "name": "btnMore" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }, { "type": "Image", "props": { "y": 3, "x": 59, "visible": false, "var": "followRedPoint", "skin": "images/core/red_dot_hint.png", "name": "followRedPoint" } }] }, { "type": "Button", "props": { "y": 1095, "x": 606, "var": "btnStrengthen", "stateNum": 1, "skin": "images/hall/gbtn_strengthen.png", "name": "btnStrengthen" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }, { "type": "Image", "props": { "y": 0, "x": 71, "visible": false, "var": "strengthenRedPoint", "skin": "images/core/red_dot_hint.png", "name": "strengthenRedPoint" } }] }, { "type": "Button", "props": { "y": 1064, "x": 599, "visible": false, "var": "btnPower", "stateNum": 1, "skin": "images/hall/gbtn_fire.png", "name": "btnPower" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }, { "type": "Button", "props": { "y": 132, "x": 497, "width": 100, "var": "btnEvolution", "name": "btnEvolution", "height": 100 }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }, { "type": "Image", "props": { "y": 1, "x": 86, "skin": "images/hall/evolution_hint_frame.png" }, "child": [{ "type": "Image", "props": { "y": 10, "x": 57, "visible": false, "skin": "" } }, { "type": "Label", "props": { "y": 28, "x": -3, "width": 80, "text": "守卫", "skewY": -20, "name": "txtKingLevel", "height": 30, "fontSize": 26, "color": "#4f8d2d", "bold": true, "align": "center" } }] }, { "type": "Image", "props": { "y": 12, "x": 140, "var": "kingUpdateImg", "skin": "images/core/red_dot_hint.png" } }] }, { "type": "Button", "props": { "y": 705, "x": 0, "width": 88, "visible": false, "var": "btnStagePrize", "name": "btnStagePrize", "labelSize": 30, "height": 106 }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }, { "type": "Button", "props": { "y": 1200, "x": 30, "var": "btn_fly", "stateNum": 1, "skin": "images/core/core_fly_icon.png", "rotation": 0 }, "compId": 392 }, { "type": "Button", "props": { "y": 1200, "x": 604, "var": "btn_eliminate", "stateNum": 1, "skin": "images/core/core_eliminate_icon.png", "rotation": 0 }, "compId": 393 }, { "type": "Button", "props": { "y": 266, "x": 638, "var": "btn_block", "stateNum": 1, "skin": "images/core/core_block_icon.png", "rotation": 0 }, "compId": 394 }, { "type": "Box", "props": { "y": 127, "width": 457, "var": "menuBox", "left": 0, "height": 109 }, "child": [{ "type": "Image", "props": { "width": 457, "skin": "images/hall/hall_suofang_bg.png", "sizeGrid": "45,44,50,0", "mouseThrough": false, "mouseEnabled": false, "height": 109 } }, { "type": "Button", "props": { "y": 54, "x": 420, "var": "btn_arrow", "stateNum": 1, "skin": "images/hall/hall_arrow.png", "scaleX": 1, "anchorY": 0.5, "anchorX": 0.5 } }, { "type": "Button", "props": { "y": 11, "x": 6, "var": "btn_ranking", "stateNum": 1, "skin": "images/hall/hall_rankBtn.png" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }, { "type": "Button", "props": { "y": 10, "x": 101, "var": "btn_follow", "stateNum": 1, "skin": "images/hall/hall_followBtn.png" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }, { "type": "Image", "props": { "y": 3, "x": 57, "visible": false, "skin": "images/core/red_dot_hint.png", "name": "imgRedPoint" } }] }, { "type": "Button", "props": { "y": 11, "x": 196, "var": "btn_concur", "stateNum": 1, "skin": "images/hall/hall_concurBtn.png" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }, { "type": "Image", "props": { "y": 3, "x": 57, "visible": false, "skin": "images/core/red_dot_hint.png", "name": "imgRedPoint" } }] }, { "type": "Button", "props": { "y": 9, "x": 291, "var": "btn_sign", "stateNum": 1, "skin": "images/hall/hall_dailySingBtn.png" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }, { "type": "Image", "props": { "y": 2, "x": 59, "visible": false, "skin": "images/core/red_dot_hint.png", "name": "imgRedPoint" } }] }, { "type": "Image", "props": { "y": -7, "x": 425, "visible": false, "var": "menuRedPoint", "skin": "images/core/red_dot_hint.png" } }, { "type": "Button", "props": { "y": 10, "x": 5, "var": "btn_welfare", "stateNum": 1, "skin": "images/hall/btn_welfare_icon.png" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }, { "type": "Image", "props": { "y": 4, "x": 60, "visible": false, "skin": "images/core/red_dot_hint.png", "name": "imgRedPoint" } }] }] }] }, { "type": "Button", "props": { "y": 1269, "x": 654, "width": 84, "visible": false, "var": "btnMiniProgram", "stateNum": 1, "skin": "images/hall/miniProgram_icon.png", "name": "btnMiniProgram", "labelSize": 30, "height": 61, "anchorY": 0.5, "anchorX": 0.5 }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }, { "type": "Button", "props": { "y": 410, "x": 4, "visible": false, "var": "btnCarStore", "stateNum": 1, "skin": "images/hall/box_001.png", "name": "btnCarStore", "labelSize": 30 }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }, { "type": "Image", "props": { "y": 1201, "x": 725, "visible": false, "var": "imgPowerBg", "skin": "images/hall/gpro_powerBg.png", "name": "imgPowerBg", "anchorY": 1, "anchorX": 0.5 }, "child": [{ "type": "ProgressBar", "props": { "y": 90, "x": 11, "var": "progressBarPower", "value": 0, "skin": "images/hall/gpro_power.png", "rotation": -90, "name": "progressBarPower", "anchorY": 0.5 } }, { "type": "Image", "props": { "y": 80, "x": 11, "visible": false, "var": "imgPowerCar", "skin": "images/core/coin_40x40.png", "name": "imgPowerCar", "anchorY": 0.5, "anchorX": 0.5, "alpha": 0.9 } }] }, { "type": "View", "props": { "y": 110, "x": 654, "width": 96, "visible": false, "var": "surpassView", "name": "surpassView", "height": 160 } }] }, { "type": "View", "props": { "y": 10, "x": 10, "var": "viewBuffContainer" } }, { "type": "View", "props": { "y": 0, "x": 0, "var": "viewSkyDropContainer" } }, { "type": "View", "props": { "width": 750, "visible": false, "var": "acceEffectView", "name": "acceEffectView", "height": 1334, "centerY": 0, "centerX": 0 }, "child": [{ "type": "Image", "props": { "y": 565, "x": 375, "skin": "images/hall/acce_effect.png", "anchorY": 0.5, "anchorX": 0.5 }, "compId": 127 }] }, { "type": "View", "props": { "y": 10, "x": 10, "var": "viewNoviceContainer" } }], "animations": [{ "nodes": [{ "target": 11, "keyframes": { "scaleY": [{ "value": 1, "tweenMethod": "linearNone", "tween": true, "target": 11, "key": "scaleY", "index": 0 }, { "value": 0.96, "tweenMethod": "linearNone", "tween": true, "target": 11, "key": "scaleY", "index": 15 }, { "value": 1, "tweenMethod": "linearNone", "tween": true, "target": 11, "key": "scaleY", "index": 30 }], "scaleX": [{ "value": 1, "tweenMethod": "linearNone", "tween": true, "target": 11, "key": "scaleX", "index": 0 }, { "value": 0.96, "tweenMethod": "linearNone", "tween": true, "target": 11, "key": "scaleX", "index": 15 }, { "value": 1, "tweenMethod": "linearNone", "tween": true, "target": 11, "key": "scaleX", "index": 30 }] } }], "name": "ani1", "id": 1, "frameRate": 24, "action": 0 }, { "nodes": [{ "target": 127, "keyframes": { "y": [{ "value": 1500, "tweenMethod": "backOut", "tween": true, "target": 127, "key": "y", "index": 0 }, { "value": 600, "tweenMethod": "linearNone", "tween": true, "target": 127, "key": "y", "index": 10 }, { "value": 610, "tweenMethod": "backIn", "tween": true, "target": 127, "key": "y", "index": 20 }, { "value": -150, "tweenMethod": "linearNone", "tween": true, "target": 127, "key": "y", "index": 35 }] } }], "name": "ani2", "id": 2, "frameRate": 24, "action": 0 }, { "nodes": [], "name": "ani3", "id": 3, "frameRate": 24, "action": 2 }, { "nodes": [{ "target": 355, "keyframes": { "skin": [{ "value": "images/effect/uiBird/niao_1.png", "tweenMethod": "linearNone", "tween": false, "target": 355, "key": "skin", "index": 0 }, { "value": "images/effect/uiBird/niao_2.png", "tweenMethod": "linearNone", "tween": false, "target": 355, "key": "skin", "index": 3 }, { "value": "images/effect/uiBird/niao_3.png", "tweenMethod": "linearNone", "tween": false, "target": 355, "key": "skin", "index": 6 }, { "value": "images/effect/uiBird/niao_4.png", "tweenMethod": "linearNone", "tween": false, "target": 355, "key": "skin", "index": 9 }, { "value": "images/effect/uiBird/niao_5.png", "tweenMethod": "linearNone", "tween": false, "target": 355, "key": "skin", "index": 12 }, { "value": "images/effect/uiBird/niao_6.png", "tweenMethod": "linearNone", "tween": false, "target": 355, "key": "skin", "index": 15 }, { "value": "images/effect/uiBird/niao_7.png", "tweenMethod": "linearNone", "tween": false, "target": 355, "key": "skin", "index": 18 }, { "value": "images/effect/uiBird/niao_1.png", "tweenMethod": "linearNone", "tween": false, "target": 355, "key": "skin", "index": 35 }] } }, { "target": 356, "keyframes": { "skin": [{ "value": "images/effect/uiElectric/electric_1.png", "tweenMethod": "linearNone", "tween": false, "target": 356, "key": "skin", "index": 0 }, { "value": "images/effect/uiElectric/electric_2.png", "tweenMethod": "linearNone", "tween": false, "target": 356, "key": "skin", "index": 5 }, { "value": "images/effect/uiElectric/electric_3.png", "tweenMethod": "linearNone", "tween": false, "target": 356, "key": "skin", "index": 10 }, { "value": "images/effect/uiElectric/electric_4.png", "tweenMethod": "linearNone", "tween": false, "target": 356, "key": "skin", "index": 15 }, { "value": "images/effect/uiElectric/electric_1.png", "tweenMethod": "linearNone", "tween": false, "target": 356, "key": "skin", "index": 20 }, { "value": "images/effect/uiElectric/electric_2.png", "tweenMethod": "linearNone", "tween": false, "target": 356, "key": "skin", "index": 25 }, { "value": "images/effect/uiElectric/electric_3.png", "tweenMethod": "linearNone", "tween": false, "target": 356, "key": "skin", "index": 30 }, { "value": "images/effect/uiElectric/electric_4.png", "tweenMethod": "linearNone", "tween": false, "target": 356, "key": "skin", "index": 35 }] } }, { "target": 357, "keyframes": { "skin": [{ "value": "images/effect/uiLight/dx_zpd_1.png", "tweenMethod": "linearNone", "tween": false, "target": 357, "key": "skin", "index": 0 }, { "value": "images/effect/uiLight/dx_zpd_2.png", "tweenMethod": "linearNone", "tween": false, "target": 357, "key": "skin", "index": 12 }, { "value": "images/effect/uiLight/dx_zpd_3.png", "tweenMethod": "linearNone", "tween": false, "target": 357, "key": "skin", "index": 25 }] } }], "name": "ani4", "id": 4, "frameRate": 24, "action": 2 }, { "nodes": [{ "target": 394, "keyframes": { "rotation": [{ "value": 0, "tweenMethod": "linearNone", "tween": true, "target": 394, "key": "rotation", "index": 0 }, { "value": 12, "tweenMethod": "linearNone", "tween": true, "target": 394, "key": "rotation", "index": 3 }, { "value": -12, "tweenMethod": "linearNone", "tween": true, "target": 394, "key": "rotation", "index": 9 }, { "value": 8, "tweenMethod": "linearNone", "tween": true, "target": 394, "key": "rotation", "index": 15 }, { "value": -8, "tweenMethod": "linearNone", "tween": true, "target": 394, "key": "rotation", "index": 21 }, { "value": 0, "tweenMethod": "linearNone", "tween": true, "target": 394, "key": "rotation", "index": 24 }, { "value": 0, "tweenMethod": "linearNone", "tween": true, "target": 394, "key": "rotation", "index": 70 }] } }, { "target": 392, "keyframes": { "rotation": [{ "value": 0, "tweenMethod": "linearNone", "tween": true, "target": 392, "key": "rotation", "index": 0 }, { "value": 0, "tweenMethod": "linearNone", "tween": true, "target": 392, "key": "rotation", "index": 20 }, { "value": 12, "tweenMethod": "linearNone", "tween": true, "target": 392, "key": "rotation", "index": 23 }, { "value": -12, "tweenMethod": "linearNone", "tween": true, "target": 392, "key": "rotation", "index": 29 }, { "value": 8, "tweenMethod": "linearNone", "tween": true, "target": 392, "key": "rotation", "index": 35 }, { "value": -8, "tweenMethod": "linearNone", "tween": true, "target": 392, "key": "rotation", "index": 41 }, { "value": 0, "tweenMethod": "linearNone", "tween": true, "target": 392, "key": "rotation", "index": 44 }, { "value": 0, "tweenMethod": "linearNone", "tween": true, "target": 392, "key": "rotation", "index": 70 }] } }, { "target": 393, "keyframes": { "rotation": [{ "value": 0, "tweenMethod": "linearNone", "tween": true, "target": 393, "key": "rotation", "index": 0 }, { "value": 0, "tweenMethod": "linearNone", "tween": true, "target": 393, "key": "rotation", "index": 70 }, { "value": 12, "tweenMethod": "linearNone", "tween": true, "target": 393, "key": "rotation", "index": 73 }, { "value": -12, "tweenMethod": "linearNone", "tween": true, "target": 393, "key": "rotation", "index": 79 }, { "value": 8, "tweenMethod": "linearNone", "tween": true, "target": 393, "key": "rotation", "index": 85 }, { "value": -8, "tweenMethod": "linearNone", "tween": true, "target": 393, "key": "rotation", "index": 91 }, { "value": 0, "tweenMethod": "linearNone", "tween": true, "target": 393, "key": "rotation", "index": 94 }, { "value": 0, "tweenMethod": "linearNone", "tween": true, "target": 393, "key": "rotation", "index": 210 }] } }], "name": "navToMiniAni", "id": 5, "frameRate": 24, "action": 0 }] };
         hall.HallSceneUI = HallSceneUI;
     })(hall = ui.hall || (ui.hall = {}));
 })(ui || (ui = {}));
@@ -8708,7 +8545,7 @@ var ui;
                 this.createView(ui.luckPrize.LuckPrizeViewUI.uiView);
             }
         }
-        LuckPrizeViewUI.uiView = { "type": "View", "props": { "y": 0, "x": 0, "width": 750, "name": "rolledTIme", "height": 1092 }, "child": [{ "type": "View", "props": { "y": 0, "x": 0, "width": 750, "var": "mainView", "name": "mainView", "height": 1092 }, "child": [{ "type": "Image", "props": { "y": 532, "x": 371, "var": "imgBg", "skin": "images/luckLottery/luck_huanpan.png", "rotation": 0, "name": "imgBg", "anchorY": 0.5, "anchorX": 0.5 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "skin": "images/luckLottery/luck_huanpan_light.png", "name": "imgEffect1" }, "compId": 68 }, { "type": "Image", "props": { "y": 0, "x": 0, "visible": false, "skin": "images/luck_huanpan_light.png", "name": "imgEffect2" }, "compId": 69 }] }, { "type": "Image", "props": { "y": -71, "x": 37, "skin": "images/luckLottery/luck_title.png" } }, { "type": "Label", "props": { "y": 875, "x": 167, "width": 425, "visible": false, "var": "txtTip1", "text": "单词抽奖将消耗钻石x120", "name": "txtTip1", "height": 30, "fontSize": 30, "color": "#ffffff", "bold": true, "align": "center" } }, { "type": "Label", "props": { "y": 919, "x": 64, "width": 621, "visible": false, "var": "txtTip2", "text": "00:00之后免费抽奖一次", "name": "txtTip2", "height": 30, "fontSize": 30, "color": "#fff272", "bold": true, "align": "center" } }, { "type": "Button", "props": { "y": -2, "x": 634, "var": "btnExit", "stateNum": 1, "skin": "images/component/frame_close_btn.png", "name": "btnExit" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }, { "type": "Button", "props": { "y": 394, "x": 263, "var": "btnStart", "stateNum": 1, "skin": "images/luckLottery/luck_go.png", "name": "btnStart" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }, { "type": "Image", "props": { "y": 161, "x": 83, "skin": "images/core/diamond.png", "name": "imgDiamond", "anchorY": 0.5, "anchorX": 0.5 }, "child": [{ "type": "Label", "props": { "y": 6, "x": 41, "var": "txtDiamond", "text": "120", "strokeColor": "#000000", "stroke": 2, "name": "txtDiamond", "fontSize": 28, "color": "#f4d80d", "bold": true, "align": "left" } }] }] }, { "type": "Box", "props": { "y": 130, "x": 267 }, "child": [{ "type": "Image", "props": { "skin": "images/luckLottery/luck_price_bg.png" } }, { "type": "Image", "props": { "y": 15, "x": 21, "skin": "images/core/diamond.png" } }, { "type": "Label", "props": { "y": 19, "x": 70, "var": "txt_diamond", "text": "0", "fontSize": 30, "color": "#ffffff", "bold": true } }] }] }], "animations": [{ "nodes": [{ "target": 68, "keyframes": { "alpha": [{ "value": 1, "tweenMethod": "linearNone", "tween": true, "target": 68, "key": "alpha", "index": 0 }, { "value": 0, "tweenMethod": "linearNone", "tween": true, "target": 68, "key": "alpha", "index": 10 }, { "value": 1, "tweenMethod": "linearNone", "tween": true, "target": 68, "key": "alpha", "index": 20 }] } }, { "target": 69, "keyframes": { "alpha": [{ "value": 0, "tweenMethod": "linearNone", "tween": true, "target": 69, "key": "alpha", "index": 0 }, { "value": 1, "tweenMethod": "linearNone", "tween": true, "target": 69, "key": "alpha", "index": 10 }, { "value": 0, "tweenMethod": "linearNone", "tween": true, "target": 69, "key": "alpha", "index": 20 }] } }], "name": "ani1", "id": 1, "frameRate": 24, "action": 2 }] };
+        LuckPrizeViewUI.uiView = { "type": "View", "props": { "y": 0, "x": 0, "width": 750, "name": "rolledTIme", "height": 1092 }, "child": [{ "type": "View", "props": { "y": 0, "x": 0, "width": 750, "var": "mainView", "name": "mainView", "height": 1092 }, "child": [{ "type": "Image", "props": { "y": 532, "x": 371, "var": "imgBg", "skin": "images/luckLottery/luck_huanpan.png", "rotation": 0, "name": "imgBg", "anchorY": 0.5, "anchorX": 0.5 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "skin": "images/luckLottery/luck_huanpan_light.png", "name": "imgEffect1" }, "compId": 68 }] }, { "type": "Image", "props": { "y": -71, "x": 37, "skin": "images/luckLottery/luck_title.png" } }, { "type": "Label", "props": { "y": 875, "x": 167, "width": 425, "visible": false, "var": "txtTip1", "text": "单词抽奖将消耗钻石x120", "name": "txtTip1", "height": 30, "fontSize": 30, "color": "#ffffff", "bold": true, "align": "center" } }, { "type": "Label", "props": { "y": 919, "x": 64, "width": 621, "visible": false, "var": "txtTip2", "text": "00:00之后免费抽奖一次", "name": "txtTip2", "height": 30, "fontSize": 30, "color": "#fff272", "bold": true, "align": "center" } }, { "type": "Button", "props": { "y": -2, "x": 634, "var": "btnExit", "stateNum": 1, "skin": "images/component/frame_close_btn.png", "name": "btnExit" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }, { "type": "Button", "props": { "y": 394, "x": 263, "var": "btnStart", "stateNum": 1, "skin": "images/luckLottery/luck_go.png", "name": "btnStart" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }, { "type": "Image", "props": { "y": 161, "x": 83, "skin": "images/core/diamond.png", "name": "imgDiamond", "anchorY": 0.5, "anchorX": 0.5 }, "child": [{ "type": "Label", "props": { "y": 6, "x": 41, "var": "txtDiamond", "text": "120", "strokeColor": "#000000", "stroke": 2, "name": "txtDiamond", "fontSize": 28, "color": "#f4d80d", "bold": true, "align": "left" } }] }] }, { "type": "Box", "props": { "y": 130, "x": 267 }, "child": [{ "type": "Image", "props": { "skin": "images/luckLottery/luck_price_bg.png" } }, { "type": "Image", "props": { "y": 15, "x": 21, "skin": "images/core/diamond.png" } }, { "type": "Label", "props": { "y": 19, "x": 70, "var": "txt_diamond", "text": "0", "fontSize": 30, "color": "#ffffff", "bold": true } }] }] }], "animations": [{ "nodes": [{ "target": 68, "keyframes": { "alpha": [{ "value": 1, "tweenMethod": "linearNone", "tween": true, "target": 68, "key": "alpha", "index": 0 }, { "value": 0, "tweenMethod": "linearNone", "tween": true, "target": 68, "key": "alpha", "index": 10 }, { "value": 1, "tweenMethod": "linearNone", "tween": true, "target": 68, "key": "alpha", "index": 20 }] } }], "name": "ani1", "id": 1, "frameRate": 24, "action": 2 }] };
         luckPrize.LuckPrizeViewUI = LuckPrizeViewUI;
     })(luckPrize = ui.luckPrize || (ui.luckPrize = {}));
 })(ui || (ui = {}));
@@ -9316,59 +9153,56 @@ class NoticeView extends BaseView {
 * 离线奖励;
 */
 class OfflineRewardsView extends ui.common.view.OfflineRewardsViewUI {
-    constructor(data = null, callback = null) {
+    constructor(data = null) {
         super();
+        this._price = 0;
         this._data = data;
-        this._callback = callback;
         this.init();
     }
     //新建并添加到节点
-    static Create(_parentNode, callback = null, _removeCallback = null, ...arge) {
+    static Create(_parentNode, _removeCallback = null, ...arge) {
         if (_parentNode) {
-            let nodeView = new OfflineRewardsView(arge, callback);
+            let nodeView = new OfflineRewardsView(arge);
             AlignUtils.setToScreenGoldenPos(nodeView);
             M.layer.subFrameLayer.addChildWithMaskCall(nodeView, nodeView.removeView);
-            nodeView.once(Laya.Event.REMOVED, nodeView, _removeCallback);
+            nodeView.once(Laya.Event.REMOVED, nodeView, nodeView.removeView);
         }
     }
     //初始化
     init() {
         let self = this;
         self.btnShare.visible = false;
-        self.txtMoney.text = "金币+" + MathUtils.bytesToSize(self._data[0]);
+        self._price = self._data[0];
+        self.txtMoney.text = "金币+" + MathUtils.bytesToSize(self._price);
         self._tween = EffectUtils.objectRotate(self.lightImg);
         self.addEvents();
     }
     addEvents() {
         let self = this;
-        // self.btnShare.on(Laya.Event.CLICK, self, self.onShareHandler);
         self.btnVideo.on(Laya.Event.CLICK, self, self.onVideoHandler);
         self.btnExit.on(Laya.Event.CLICK, self, self.onCloseHandler);
     }
     removeEvents() {
         let self = this;
-        // self.btnShare.off(Laya.Event.CLICK, self, self.onShareHandler);
         self.btnVideo.off(Laya.Event.CLICK, self, self.onVideoHandler);
         self.btnExit.off(Laya.Event.CLICK, self, self.onCloseHandler);
-    }
-    onShareHandler() {
-        let self = this;
     }
     onVideoHandler() {
         let self = this;
         //显示广告
         userData.toShareAd(() => {
-            self.txtMoney.text = "金币+" + MathUtils.bytesToSize(self._data[0] * 2);
+            self._price = self._price * 2;
+            self.txtMoney.text = "金币+" + MathUtils.bytesToSize(self._price);
             self.btnVideo.visible = false;
             M.layer.screenEffectLayer.addChild(new FlyEffect().play("rollingCoin", LayerManager.mouseX, LayerManager.mouseY));
-            MessageUtils.showMsgTips("获得金币:" + MathUtils.bytesToSize(self._data[0] * 2));
+            MessageUtils.showMsgTips("获得金币:" + MathUtils.bytesToSize(self._price));
         }, 1);
     }
     onCloseHandler() {
         let self = this;
         if (self.btnVideo.visible) {
             M.layer.screenEffectLayer.addChild(new FlyEffect().play("rollingCoin", LayerManager.mouseX, LayerManager.mouseY));
-            MessageUtils.showMsgTips("获得金币:" + MathUtils.bytesToSize(self._data[0]));
+            MessageUtils.showMsgTips("获得金币:" + MathUtils.bytesToSize(self._price));
         }
         self.removeView();
     }
@@ -9378,6 +9212,7 @@ class OfflineRewardsView extends ui.common.view.OfflineRewardsViewUI {
         self._tween = null;
         self.removeSelf();
         self.removeEvents();
+        EventsManager.Instance.event(EventsType.GLOD_CHANGE, { money: M.player.Info.userMoney + self._price });
     }
 }
 //# sourceMappingURL=OfflineRewardsView.js.map
@@ -9480,7 +9315,7 @@ class RewardGoldView extends BaseView {
     }
     onComplete() {
         PlayerManager.Instance.Info.dayGetGoldCount--;
-        EventsManager.Instance.event(EventsType.GLOD_CHANGE, { money: userData.gold += this._money });
+        EventsManager.Instance.event(EventsType.GLOD_CHANGE, { money: M.player.Info.userMoney += this._money });
     }
     onCloseHandler() {
         ViewMgr.Ins.close(ViewConst.RewardGoldView);
@@ -9773,13 +9608,13 @@ class DebugView extends Laya.View {
             DebugView.GameView.setKingLevel(1);
         });
         this.ui.btnResetGold.on(Laya.Event.CLICK, this, () => {
-            EventsManager.Instance.event(EventsType.GLOD_CHANGE, { money: userData.gold = 0 });
+            EventsManager.Instance.event(EventsType.GLOD_CHANGE, { money: M.player.Info.userMoney = 0 });
         });
         this.ui.btnAddGold.on(Laya.Event.CLICK, this, () => {
-            EventsManager.Instance.event(EventsType.GLOD_CHANGE, { money: userData.gold += (userData.gold * 2) + 1e100 });
+            EventsManager.Instance.event(EventsType.GLOD_CHANGE, { money: M.player.Info.userMoney += (M.player.Info.userMoney * 2) + 1e100 });
         });
         this.ui.btnAddDiamond.on(Laya.Event.CLICK, this, () => {
-            EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: userData.diamond += 1000 });
+            EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: M.player.Info.userDiamond += 1000 });
         });
         this.ui.btnCrearStorage.on(Laya.Event.CLICK, this, () => {
             userData.clearLocalData();
@@ -9975,7 +9810,7 @@ class EvolutionView extends BaseView {
             let currHeroCount = userData.caculateMonsterCount(EvolutionManager.Instance.getHeroId());
             let needHeroCount = 3;
             //需要钻石
-            let diamond = userData.diamond;
+            let diamond = M.player.Info.userDiamond;
             let needDiamond = MathUtils.parseInt(kingVO.gemxh.toString());
             if (kingLevel > 10) {
                 self.ui.btnUpdate.disabled = (diamond < needDiamond) || (currHeroCount < needHeroCount);
@@ -10003,7 +9838,7 @@ class EvolutionView extends BaseView {
             self.ui.btnUpdate.on(Laya.Event.CLICK, self, () => {
                 if (diamond >= needDiamond) {
                     if (GlobalConfig.DEBUG) {
-                        this.evolutionLevelComplete(kingLevel + 1, userData.diamond - needDiamond);
+                        this.evolutionLevelComplete(kingLevel + 1, M.player.Info.userDiamond - needDiamond);
                     }
                     else {
                         HttpManager.Instance.requestUpdateKingLevel(EvolutionView.kingEvolutionType, kingLevel, needDiamond, (_res) => {
@@ -10024,7 +9859,7 @@ class EvolutionView extends BaseView {
         MessageUtils.showMsgTips("升级成功");
         HallManager.Instance.hallData.isUpdate = false;
         if (diamond > 0)
-            EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: userData.diamond = diamond });
+            EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: M.player.Info.userDiamond = diamond });
         EventsManager.Instance.event(EventsType.EVOLUTION_LEVEL_COMPLETE, kingLevel);
         self.refreshBoxUI();
     }
@@ -10063,7 +9898,7 @@ class LevelHeroView extends ui.evolution.LevelHeroViewUI {
         let levelData = EvolutionManager.Instance.getEvolutionLevelData();
         this.txt_name.text = levelData.name + "Lv" + EvolutionManager.Instance.getHeroLevel();
         this.txt_count.text = "x" + EvolutionManager.Instance.needHeroCount;
-        this.txt_diamond.text = userData.diamond + "/" + EvolutionManager.Instance.getEvolutionLevelDiamond();
+        this.txt_diamond.text = M.player.Info.userDiamond + "/" + EvolutionManager.Instance.getEvolutionLevelDiamond();
         this.txt_level.text = "Lv" + userData.getKingLevel();
         this.txt_uplevel.text = "Lv" + (userData.getKingLevel() + 1);
         this.btn_sure.disabled = !EvolutionManager.Instance.getIsEvolutionLevel();
@@ -10083,7 +9918,7 @@ class LevelHeroView extends ui.evolution.LevelHeroViewUI {
             if (GlobalConfig.DEBUG) {
                 MessageUtils.showMsgTips("升级成功");
                 HallManager.Instance.hallData.isUpdate = false;
-                this._callback && this._callback(userData.getKingLevel() + 1, userData.diamond - EvolutionManager.Instance.getEvolutionLevelDiamond());
+                this._callback && this._callback(userData.getKingLevel() + 1, M.player.Info.userDiamond - EvolutionManager.Instance.getEvolutionLevelDiamond());
             }
             else {
                 HttpManager.Instance.requestUpdateKingLevel(EvolutionView.kingEvolutionType, userData.getKingLevel(), EvolutionManager.Instance.getEvolutionLevelDiamond(), (_res) => {
@@ -10228,7 +10063,7 @@ class FriendConcurItem extends ui.friendConcur.FriendConcurItemUI {
                 let curPrice = BattleManager.Instance.getMonsterPrice(monsterInfo.buyPrice, userData.queryBuyRecord(monsterInfo.id));
                 self._gold = curPrice * 0.4;
                 HallManager.Instance.hallData.concurGoldDic.Add(self._data.id, self._gold);
-                userData.setCache(CacheKey.CONCUR, HallManager.Instance.hallData.concurGoldDic.toJsonObject());
+                userData.cache.setCache(CacheKey.CONCUR, HallManager.Instance.hallData.concurGoldDic.toJsonObject());
             }
             self.txt_gold.text = MathUtils.bytesToSize(self._gold) + "";
             self._rewards.push(self._gold);
@@ -10255,9 +10090,9 @@ class FriendConcurItem extends ui.friendConcur.FriendConcurItemUI {
                         userData.removeFriendConcurRedPoint();
                         FriendConcurView.redPointNum = 0;
                     }
-                    EventsManager.Instance.event(EventsType.GLOD_CHANGE, { money: userData.gold += self._gold });
+                    EventsManager.Instance.event(EventsType.GLOD_CHANGE, { money: M.player.Info.userMoney += self._gold });
                     if (self.diamondBox.visible && self._rewards.length > 1) {
-                        EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: userData.diamond += self._rewards[1] });
+                        EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: M.player.Info.userDiamond += self._rewards[1] });
                     }
                     EventsManager.Instance.event(EventsType.FRIEND_CONCUR_GET_REWARD);
                 }, self._rewards, [1, 2]);
@@ -10278,6 +10113,7 @@ class FriendConcurView extends BaseView {
     initUI() {
         super.initUI();
         let self = this;
+        SDKManager.Instance.showBannerAd(true);
         self.ui.rewardList.visible = false;
         self.ui.rewardList.itemRender = FriendConcurItem;
         self.ui.rewardList.vScrollBarSkin = "";
@@ -10348,7 +10184,6 @@ class NoviceManager extends EventDispatcher {
         }
         return this._instance;
     }
-    // private _targetCircleAnim: Animation;
     init(groupId = 1) {
         this._currGroupId = groupId;
         this._finalGroupId =
@@ -10684,7 +10519,7 @@ class HallManager extends Laya.EventDispatcher {
             let kingLevel = userData.getKingLevel();
             let kingVO = GlobleData.getData(GlobleData.KindLevelConfigVO, kingLevel);
             //需要钻石
-            let diamond = userData.diamond;
+            let diamond = M.player.Info.userDiamond;
             let needDiamond = kingVO.gemxh;
             //升级条件
             let monsterLevel = 0;
@@ -10765,31 +10600,11 @@ class HallManager extends Laya.EventDispatcher {
             }
         }
     }
-    /** 30分钟后检测是否还有红点 */
-    startShopRedpointTime(time = 1800) {
-        let that = this;
-        Laya.timer.once(1000 * time, this, () => {
-            userData.shiftShopRedpointTime();
-            if (userData.isShowCarShopRedPoint()) {
-                that.showCarportRedPoint();
-            }
-        });
-        userData.saveShopRedpointTime(time);
-    }
-    /** 显示怪物商店红点 */
-    showCarportRedPoint(isShow = true) {
-        let that = this;
-        if (that.hall && that.hall.btnShop) {
-            let imgRedPoint = that.hall.btnShop.getChildByName("imgRedPoint");
-            if (imgRedPoint) {
-                imgRedPoint.visible = isShow;
-                let checkTime = userData.shiftShopRedpointTime(false);
-                if (checkTime > 0) {
-                    that.startShopRedpointTime(checkTime);
-                    imgRedPoint.visible = false;
-                }
-            }
-        }
+    resolveShopRedPoint() {
+        const showRedPoint = userData.isShowCarShopRedPoint();
+        let imgRedPoint = this._hall.btnShop.getChildByName("imgRedPoint");
+        imgRedPoint && (imgRedPoint.visible = showRedPoint);
+        !showRedPoint && this._hall.timerOnce(5 * Time.MIN_IN_MILI, this, this.resolveShopRedPoint);
     }
     /** 钻石购买 */
     onDiamondBuy(heroInfo = null) {
@@ -10827,6 +10642,20 @@ class HallManager extends Laya.EventDispatcher {
                 ViewMgr.Ins.open(ViewConst.FriendConcurView);
             }
         }
+    }
+    showLuckPrizeTime() {
+        HttpManager.Instance.requestPrizeInfo((res) => {
+            if (!res)
+                return;
+            let freeTimes = MathUtils.parseInt(res.free_num); //免费次数
+            let freeTime = MathUtils.parseInt(res.remain_time); //免费时间
+            let nextFreeTime = MathUtils.parseInt(res.next_free); //离下次免费时间
+            if (freeTimes > 0) {
+                // this.hall.txt_luckPrize.text = "免费抽奖";
+            }
+            else {
+            }
+        });
     }
     set hallData(value) { this._model = value; }
     /** 大厅中的数据 */
@@ -10873,13 +10702,9 @@ class HallScene extends ui.hall.HallSceneUI {
     //新建并添加到节点
     static Create(_parentNode) {
         let resList = [
-            { url: "res/atlas/images/component.atlas", type: Laya.Loader.ATLAS },
             { url: "res/atlas/images/hall.atlas", type: Laya.Loader.ATLAS },
-            { url: "res/atlas/images/core.atlas", type: Laya.Loader.ATLAS },
             { url: "res/atlas/images/skill.atlas", type: Laya.Loader.ATLAS },
-            { url: "res/atlas/images/fontImg.atlas", type: Laya.Loader.ATLAS },
-            { url: "res/atlas/images/novice.atlas", type: Laya.Loader.ATLAS },
-            { url: "sheets/sheet.json", type: Laya.Loader.JSON }
+            { url: "res/atlas/images/fontImg.atlas", type: Laya.Loader.ATLAS }
         ];
         Laya.loader.load(resList, Handler.create(null, () => {
             EffectUtils.stopWaitEffect();
@@ -10935,6 +10760,7 @@ class HallScene extends ui.hall.HallSceneUI {
             userData.saveNovice(groupId);
         };
         M.novice.start();
+        M.more.applyMute();
         BuffController.getInstance().init(self.viewBuffContainer);
         SkyDropController.getInstance().init(self.viewSkyDropContainer);
         Laya.timer.once(1e3, this, () => {
@@ -10993,10 +10819,14 @@ class HallScene extends ui.hall.HallSceneUI {
             });
         }
         //启动游戏出怪
-        self.timerOnce(2000, self, () => {
-            HallManager.Instance.hallData.gameStatus = 1;
-            self.createMonster(HallManager.Instance.hallData.passStage, HallManager.Instance.hallData.passSection);
-        });
+        const startCreateMonster = function () {
+            if (!M.novice.isRunning) {
+                M.hall.hallData.gameStatus = 1;
+                self.createMonster(M.hall.hallData.passStage, M.hall.hallData.passSection);
+                Laya.timer.clear(this, startCreateMonster);
+            }
+        };
+        Laya.timer.loop(1000, this, startCreateMonster);
         //守卫
         if (self.spMountGuard) {
             let bossId = userData.isEvolution() ? 100003 : 100002;
@@ -11020,9 +10850,9 @@ class HallScene extends ui.hall.HallSceneUI {
         //初始化用户数据
         if (userData) {
             HallManager.Instance.updateIncomePerSec(HallManager.Instance.hallData.userIncomePerSec);
-            self.updateGold(userData.gold);
-            self.updateDiamond(userData.diamond);
-            HallManager.Instance.updateEssence(userData.essence);
+            self.updateGold(M.player.Info.userMoney);
+            self.updateDiamond(M.player.Info.userDiamond);
+            HallManager.Instance.updateEssence(M.player.Info.userEssence);
             self.setPassStage(userData.getPassStage());
             self.setPassSection(userData.getPassSection());
             self.setKingLevel(userData.getKingLevel());
@@ -11030,22 +10860,32 @@ class HallScene extends ui.hall.HallSceneUI {
             //延迟处理
             self.frameOnce(50, self, () => {
                 //离线收益
-                if (userData && userData.hasOfflinePrize == false) {
-                    userData.hasOfflinePrize = true;
-                    userData.requestOfflinePrizeData();
+                // if (userData && userData.hasOfflinePrize == false) {
+                //   userData.hasOfflinePrize = true;
+                //   userData.requestOfflinePrizeData();
+                // } else {
+                //   self.onOffLineRevenue();
+                // }
+                //离线收益， 离线超过10分钟才向服务器请求离线时间，否则没有离线奖励
+                const now = new Date().getTime();
+                if (now - userData.lastHeartBeatTime > 10 * Time.MIN_IN_MILI) {
+                    M.http.requestOfflinePrizeData();
                 }
-                else {
-                    self.onOffLineRevenue();
-                }
+                //超越好友
                 self.showSurpassView();
+                // if (userData) {
+                //   let acceLeftTime: number = userData.getAcceLeftTime();
+                //   if (acceLeftTime > 0) {
+                //     let imgAcce = self.btnAcce.getChildByName("imgAcce") as Laya.Image;
+                //     if (imgAcce.visible == false) {
+                //       self.playAcceEffectView(acceLeftTime, false);
+                //     }
+                //
+                //   }
+                // }
                 if (userData) {
-                    let acceLeftTime = userData.getAcceLeftTime();
-                    if (acceLeftTime > 0) {
-                        let imgAcce = self.btnAcce.getChildByName("imgAcce");
-                        if (imgAcce.visible == false) {
-                            self.playAcceEffectView(acceLeftTime, false);
-                        }
-                    }
+                    const remainingTime = userData.cache.getCache(CacheKey.ACCELERATE_SEC_REMAINING);
+                    remainingTime && self.playAcceEffectView(remainingTime, false);
                 }
                 //先到后台拉取未领取的奖励
                 HttpManager.Instance.requestStagePrizeData((_prizeList) => {
@@ -11080,9 +10920,7 @@ class HallScene extends ui.hall.HallSceneUI {
                 self.showDailySignRedPoint();
             }
             //怪物商店红点
-            if (userData.isShowCarShopRedPoint()) {
-                HallManager.Instance.showCarportRedPoint();
-            }
+            M.hall.resolveShopRedPoint();
             //任务红点
             if (userData.isShowTaskRedPoint()) {
                 self.showTaskRedPoint();
@@ -11105,7 +10943,7 @@ class HallScene extends ui.hall.HallSceneUI {
             }
             self.isShowWelfareBtn();
             self.menuRedPointIsShow();
-            self.updateDiamondTime(HallManager.Instance.hallData.offlineTotalTime);
+            self.updateDiamondTime(M.hall.hallData.offlineTotalTime);
         }
     }
     addEvents() {
@@ -11144,7 +10982,7 @@ class HallScene extends ui.hall.HallSceneUI {
         EventsManager.Instance.on(EventsType.DAY_SIGN_RED_POINT, self, self.onUpdateSignRenPoint); //每日签到红点移除事件
         EventsManager.Instance.on(EventsType.TASK_RED_POINT, self, self.onUpdateTaskRedPoint); //任务红点移除事件
         EventsManager.Instance.on(EventsType.LUCK_PRIZED_RED_POINT, self, self.onUpdatePrizeRedPoint); //转盘红点移除事件
-        EventsManager.Instance.on(EventsType.HERO_SHOP_RED_POINT, self, self.onUpdatePetShopRedPoint); //英雄商店红点事件
+        EventsManager.Instance.on(EventsType.HERO_SHOP_RED_POINT, M.hall, M.hall.resolveShopRedPoint); //英雄商店红点事件
         EventsManager.Instance.on(EventsType.ACCE_CHANGE, self, self.onUpdateAccelerateBtnState); //加速按钮状态
         EventsManager.Instance.on(EventsType.LUCK_PRIZE, self, self.onUpdatePrizeState); //更新幸运抽奖状态
         EventsManager.Instance.on(EventsType.STRENGTHEN_RED_POINT, self, self.onUpdateStrengthenRedPoint); //强化红点移除事件
@@ -11172,8 +11010,8 @@ class HallScene extends ui.hall.HallSceneUI {
     }
     onUpdateHallData() {
         let self = this;
-        self.updateGold(userData.gold);
-        self.updateDiamond(userData.diamond);
+        self.updateGold(M.player.Info.userMoney);
+        self.updateDiamond(M.player.Info.userDiamond);
     }
     /** 等级礼包 */
     showStagePrize(value) {
@@ -11266,32 +11104,16 @@ class HallScene extends ui.hall.HallSceneUI {
         }
     }
     //离线收益
-    onOffLineRevenue() {
-        let self = this;
+    onOffLineRevenue(offlineTimeSpan) {
+        let that = this;
         if (userData) {
-            let offlinePrize = userData.offlinePrize();
             //离线超过10分钟才算奖励
-            if (offlinePrize > 10 * 60 && HallManager.Instance.hallData.passStage > 0 && HallManager.Instance.isGuide() == false) {
+            if (offlineTimeSpan > 10 * Time.MIN && HallManager.Instance.hallData.passStage > 1 && !M.novice.isRunning) {
                 // 当前关卡收益*(挂机时间/180)*0.1 (挂机时间最大2小时)
-                let prizeValue = 0;
-                let secondForHour = 60 * 60;
-                let secHourMax = 2 * secondForHour;
-                let stageIncome = BattleManager.Instance.getBarrierIncome(HallManager.Instance.hallData.passStage);
-                if (offlinePrize > secHourMax) {
-                    prizeValue = (secHourMax / 180 * stageIncome) * 0.01;
-                }
-                else {
-                    prizeValue = (offlinePrize / 180 * stageIncome) * 0.01;
-                }
+                let stageIncome = BattleManager.Instance.getBarrierIncome(M.hall.hallData.passStage);
+                let prizeValue = stageIncome * Math.min(Time.HOUR * 2, offlineTimeSpan) / 180 * 0.01;
                 if (prizeValue > 0) {
-                    if (HallManager.Instance.hallData.passStage > 1) { //离线奖励
-                        OfflineRewardsView.Create(self, null, () => {
-                            self.updateGold(PlayerManager.Instance.Info.userMoney + prizeValue);
-                        }, prizeValue);
-                    }
-                    else {
-                        MessageUtils.showMsgTips("获得离线奖励:" + MathUtils.bytesToSize(prizeValue));
-                    }
+                    OfflineRewardsView.Create(that, null, null, prizeValue);
                 }
             }
         }
@@ -11327,7 +11149,7 @@ class HallScene extends ui.hall.HallSceneUI {
                     that.spMountGuard.setKind(100003);
                     that.playKingUpdateEffect();
                     Laya.SoundManager.playSound("musics/evolutions.mp3");
-                    userData.saveLocal(true);
+                    Laya.timer.callLater(userData, userData.saveLocal, [true]);
                 });
             });
         }
@@ -11732,9 +11554,9 @@ class HallScene extends ui.hall.HallSceneUI {
         heroItem.playMergeEffetc(self.mainView, heroId);
         //检测等级刷新
         if (userData.updateCarLevel(BattleManager.Instance.getLevel(nextCardId))) {
-            //显示红点
-            if (userData.isShowCarShopRedPoint() && userData.getCarLevel() == 6) {
-                HallManager.Instance.showCarportRedPoint();
+            //检查商店红点
+            if (userData.getCarLevel() == 6) {
+                M.hall.resolveShopRedPoint();
             }
             Laya.SoundManager.playSound("musics/unlock.mp3");
         }
@@ -11800,7 +11622,7 @@ class HallScene extends ui.hall.HallSceneUI {
         //刷新快捷买怪物按钮
         that.refreshShortcutCreateBtn(HallManager.Instance.hallData.buyMonsterType);
         //本地保存
-        userData.setGoldSave(PlayerManager.Instance.Info.userMoney);
+        userData.setMoney(PlayerManager.Instance.Info.userMoney);
     }
     /** 更新钻石数 */
     updateDiamond(_value) {
@@ -12160,11 +11982,10 @@ class HallScene extends ui.hall.HallSceneUI {
             }
             that.btnAcce.mouseEnabled = false;
         }
-        if (HallManager.Instance.hallData.userAcceTime > 0) {
-            HallManager.Instance.hallData.userAcceTime--;
-            if (userData) {
-                userData.saveAcceLeftTime(HallManager.Instance.hallData.userAcceTime);
-            }
+        let time = M.hall.hallData.userAcceTime;
+        if (time > 0) {
+            M.hall.hallData.userAcceTime = --time;
+            userData.cache.setCache(CacheKey.ACCELERATE_SEC_REMAINING, time);
         }
         else {
             that.setCarAcce(1);
@@ -12176,6 +11997,7 @@ class HallScene extends ui.hall.HallSceneUI {
                 }
                 that.btnAcce.mouseEnabled = true;
             }
+            userData.cache.removeCache(CacheKey.ACCELERATE_SEC_REMAINING);
             return;
         }
         //金币雨
@@ -12289,16 +12111,6 @@ class HallScene extends ui.hall.HallSceneUI {
                     self.btnMiniProgram.skin = _imgTexture.url;
                 }
             }));
-        }
-    }
-    /** 更新英雄商店红点 */
-    onUpdatePetShopRedPoint($data) {
-        let self = this;
-        if ($data == "show") {
-            HallManager.Instance.showCarportRedPoint();
-        }
-        else {
-            HallManager.Instance.showCarportRedPoint(false);
         }
     }
     /** 更新转盘红点 */
@@ -12416,7 +12228,7 @@ class HallScene extends ui.hall.HallSceneUI {
     /** 刷新金币 */
     onRefreshGold() {
         let self = this;
-        self.updateGold(userData.gold);
+        self.updateGold(M.player.Info.userMoney);
     }
     /** 刷新钻石 */
     onRefreshDiamond($data) {
@@ -12425,7 +12237,7 @@ class HallScene extends ui.hall.HallSceneUI {
             self.updateDiamond($data.diamond);
         }
         else {
-            self.updateDiamond(userData.diamond);
+            self.updateDiamond(M.player.Info.userDiamond);
         }
     }
     /** 游戏加速 */
@@ -12586,7 +12398,7 @@ class HallScene extends ui.hall.HallSceneUI {
                 ViewMgr.Ins.open(ViewConst.RewardGetView, () => {
                     M.layer.screenEffectLayer.addChild(new FlyEffect().play("diamond", LayerManager.mouseX, LayerManager.mouseY, 38, 83));
                     MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.20", "钻石", res.diamond));
-                    EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: userData.diamond = res.total_diamond });
+                    EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: M.player.Info.userDiamond = res.total_diamond });
                     userData.offlineRewardCount = res.remain_online_num;
                     self.updateDiamondTime(HallManager.Instance.hallData.offlineTotalTime);
                 }, [res.diamond], [2]);
@@ -12718,7 +12530,7 @@ class LuckPrizeView extends ui.luckPrize.LuckPrizeViewUI {
                 self.showMyDiamond(_data.diamond);
             }
             else {
-                self.showMyDiamond(userData.diamond);
+                self.showMyDiamond(M.player.Info.userDiamond);
             }
         });
     }
@@ -12781,7 +12593,7 @@ class LuckPrizeView extends ui.luckPrize.LuckPrizeViewUI {
                 }
             });
         }
-        else if (userData.diamond >= that.costDiamond) {
+        else if (M.player.Info.userDiamond >= that.costDiamond) {
             //钻石抽奖
             that.requestDrawPrize(1, (_res) => {
                 if (!_res || _res.id == null) {
@@ -13000,7 +12812,6 @@ class LuckPrizeView extends ui.luckPrize.LuckPrizeViewUI {
     }
     //转盘抽奖
     requestDrawPrize(_itemId, _callback) {
-        let that = this;
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/activity/roulette/' + _itemId,
@@ -13078,9 +12889,6 @@ class MoreController extends Laya.EventDispatcher {
     }
     applyMute(mute) {
         if (!mute) {
-            if (this._model.mute === undefined) {
-                return;
-            }
             mute = this._model.mute;
         }
         Laya.SoundManager.musicMuted = mute;
@@ -13089,6 +12897,7 @@ class MoreController extends Laya.EventDispatcher {
             if (!this._bgChannel) {
                 Laya.loader.load("musics/bgmusic.mp3", Laya.Handler.create(this, () => {
                     this._bgChannel = Laya.SoundManager.playMusic("musics/bgmusic.mp3", 0);
+                    M.event.on(EventsType.BACK_GAME, this, this.applyMute);
                 }));
             }
             else {
@@ -13104,14 +12913,13 @@ class MoreModel extends Laya.EventDispatcher {
     }
     set mute(value) {
         this._mute = value;
-        userData.setCache(CacheKey.SOUND_MUTE, this._mute);
+        userData.cache.setCache(CacheKey.SOUND_MUTE, this._mute);
     }
     get subscribable() {
         return this._subscribable;
     }
     set subscribable(value) {
         this._subscribable = value;
-        this.event(MoreEvent.SUBSCRIBE_STATUS, value);
     }
     get itemList() {
         return this._itemList;
@@ -13259,7 +13067,8 @@ class AdditionalRewardView extends BaseView {
                 self.removeView();
                 let point = PointUtils.localToGlobal(self.ui.btn_get);
                 M.layer.screenEffectLayer.addChild(new FlyEffect().play("diamond", point.x, point.y, 38, 73));
-                EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: userData.diamond = res.total_diamond });
+                EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: M.player.Info.userDiamond = res.total_diamond });
+                console.log("@David 随机奖励获得钻石:", res.total_diamond);
                 MessageUtils.showMsgTips("获得钻石:" + self.datas[0].diamond);
             });
         });
@@ -14113,7 +13922,7 @@ class ShopView extends BaseView {
                 }
                 userData.removeCarShopRedPoin();
                 // 30分钟后检测是否还有红点
-                HallManager.Instance.startShopRedpointTime();
+                M.hall.resolveShopRedPoint();
             }
         }, 11, false, true);
     }
@@ -14157,9 +13966,9 @@ class StrengthenView extends BaseView {
             self.refreshBoxUI(skillId);
         }
         //精华碎片刷新
-        self.setEssence(userData.essence);
+        self.setEssence(M.player.Info.userEssence);
         EventsManager.Instance.on(EventsType.ESSENCE_CHANGE, self, (_data) => {
-            self.setEssence(userData.essence);
+            self.setEssence(M.player.Info.userEssence);
         });
         HttpManager.Instance.requestEssenceData();
     }
@@ -14185,13 +13994,13 @@ class StrengthenView extends BaseView {
                     let strBoxKey = "boxItem" + (index + 1);
                     let boxItem = imgBg.getChildByName(strBoxKey);
                     if (boxItem) {
-                        //加成
-                        let txtAdd = boxItem.getChildByName("txtAdd");
-                        if (txtAdd) {
-                            txtAdd.text = (MathUtils.numToPercent(curProbability));
-                        }
                         let hbox = boxItem.getChildByName("hbox");
                         if (hbox) {
+                            //加成
+                            let txtAdd = hbox.getChildByName("txtAdd");
+                            if (txtAdd) {
+                                txtAdd.text = (MathUtils.numToPercent(curProbability));
+                            }
                             hbox.refresh();
                         }
                         let txtLevel = boxItem.getChildByName("txtLevel");
@@ -14203,7 +14012,7 @@ class StrengthenView extends BaseView {
                         if (btnStrengthen) {
                             btnStrengthen.offAll(Laya.Event.CLICK);
                             btnStrengthen.on(Laya.Event.CLICK, that, (_btnObj, _btnInfo) => {
-                                if (userData.essence < _btnInfo.price) {
+                                if (M.player.Info.userEssence < _btnInfo.price) {
                                     MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.17"));
                                     return;
                                 }
@@ -14218,7 +14027,7 @@ class StrengthenView extends BaseView {
                                         StrengthenManager.Instance.checkRedPoint();
                                         if (_res.hasOwnProperty("essence")) {
                                             userData.setEssence(MathUtils.parseInt(_res.essence));
-                                            that.setEssence(userData.essence);
+                                            that.setEssence(M.player.Info.userEssence);
                                         }
                                     }
                                 });
@@ -14667,9 +14476,9 @@ class WelfareView extends BaseView {
                     userData.removeEveryDayRewardRedPoint();
                     ViewMgr.Ins.open(ViewConst.RewardGetView, () => {
                         M.layer.screenEffectLayer.addChild(new FlyEffect().play("diamond", LayerManager.mouseX, LayerManager.mouseY));
-                        EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: userData.diamond += res.diamond });
-                        userData.essence += res.essence;
-                        HallManager.Instance.updateEssence(userData.essence);
+                        EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: M.player.Info.userDiamond += res.diamond });
+                        M.player.Info.userEssence += res.essence;
+                        HallManager.Instance.updateEssence(M.player.Info.userEssence);
                     }, [res.diamond, res.essence], [2, 3]);
                 }
                 else {
@@ -14733,6 +14542,7 @@ class MainLoadingView extends Laya.Sprite {
         }
     }
     loadCache(complete) {
+        GameEnterManager.Instance.init();
         userData.loadCache();
         GlobleData.Instance.setup(() => {
             userData.loadStorage(() => {
@@ -14777,6 +14587,13 @@ class MainLoadingView extends Laya.Sprite {
         //     return;
         // }
         let resList = BattleManager.Instance.getStartLoadPetData();
+        resList = resList.concat([
+            { url: "res/atlas/images/component.atlas", type: Laya.Loader.ATLAS },
+            { url: "res/atlas/images/core.atlas", type: Laya.Loader.ATLAS },
+            { url: "res/atlas/images/novice.atlas", type: Laya.Loader.ATLAS },
+            { url: "res/atlas/images/hall.atlas", type: Laya.Loader.ATLAS },
+            { url: "images/bg.jpg", type: Laya.Loader.IMAGE }
+        ]);
         if (resList.length) {
             console.log("@David 预加载英雄资源，数量：" + resList.length);
             Laya.loader.load(resList, Handler.create(this, () => {
@@ -14926,17 +14743,250 @@ if (!window.platform) {
 //# sourceMappingURL=platform.js.map
 class ManagerShortcuts {
     constructor() {
+        this.pool = PoolManager.getInstance();
         this.novice = NoviceManager.getInstance();
         this.layer = LayerManager.getInstance();
         this.more = MoreController.getInstance();
         this.player = PlayerManager.Instance;
         this.hall = HallManager.Instance;
+        this.http = HttpManager.Instance;
+        this.event = EventsManager.Instance;
     }
 }
 //# sourceMappingURL=ManagerShortcuts.js.map
+/*
+* 天降惊喜界面;
+*/
+class SkyDropView extends BaseView {
+    constructor() {
+        super(LAYER_TYPE.SUB_FRAME_LAYER, ui.common.view.SkyDropViewUI);
+    }
+    initData() {
+        super.initData();
+        this.sheet = this.datas[0];
+        switch (this.sheet.id) {
+            case SkyDropSheet.ATTACK_SPEED_INCREASE: {
+                this.ui.lblDesc.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.11");
+                break;
+            }
+            case SkyDropSheet.ATTACK_VALUE_INCREASE: {
+                this.ui.lblDesc.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.12");
+                break;
+            }
+            case SkyDropSheet.CRIT_RATE_INCREASE: {
+                this.ui.lblDesc.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.13");
+                break;
+            }
+            case SkyDropSheet.COIN_OBTAIN_INCREASE: {
+                this.ui.lblDesc.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.14");
+                break;
+            }
+        }
+        const numStr = (this.sheet.num * 100).toString() + "%";
+        this.ui.lblNum.text = numStr;
+        this.ui.lblDuration.text = (this.sheet.duration * 0.001).toString();
+        this.ui.hbox1.refresh();
+        this.ui.hbox2.refresh();
+    }
+    addEvents() {
+        super.addEvents();
+        this.ui.imgCloseBtn.on(Laya.Event.CLICK, this, this.onCloseHandler);
+        this.ui.btnHelp.on(Laya.Event.CLICK, this, this.onHelpBtnClick);
+        this.ui.btnVideo.on(Laya.Event.CLICK, this, this.onVideoBtnClick);
+    }
+    removeEvents() {
+        super.removeEvents();
+        this.ui.imgCloseBtn.off(Laya.Event.CLICK, this, this.onCloseHandler);
+        this.ui.btnHelp.off(Laya.Event.CLICK, this, this.onHelpBtnClick);
+        this.ui.btnVideo.off(Laya.Event.CLICK, this, this.onVideoBtnClick);
+    }
+    onHelpBtnClick() {
+        if (GlobalConfig.DEBUG) {
+            this.success();
+        }
+        else {
+            userData.toShareAd(() => {
+                this.success();
+            });
+        }
+    }
+    onVideoBtnClick() {
+        SDKManager.Instance.showVideoAd(() => {
+            this.success();
+        }, () => {
+            MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.15"));
+        }, false);
+    }
+    success() {
+        this.removeSelf();
+        SkyDropController.getInstance().postSkyDropPackage();
+    }
+    onCloseHandler() {
+        ViewMgr.Ins.close(ViewConst.SkyDropView);
+    }
+}
+//# sourceMappingURL=SkyDropView.js.map
+class SkyDropController extends Laya.EventDispatcher {
+    static getInstance() {
+        if (!this._instance) {
+            this._instance = new SkyDropController();
+        }
+        return this._instance;
+    }
+    init(parent) {
+        this._container = parent;
+        this._container.mouseThrough = true;
+        this._package = new Laya.Image("images/hall/miniProgram_icon.png");
+        this._package.pivot(34, 42);
+        this._awardType = -1;
+        // this.dropPackage(1);
+        Laya.timer.once(5 * 1000, this, this.requestSkyDropPackage);
+    }
+    dropPackage(awardType) {
+        this._awardType = awardType;
+        this._package.pos(153, -80);
+        if (this._container) {
+            this._container.addChild(this._package);
+            this.dropTween();
+        }
+    }
+    retrievePackage() {
+        this._awardType = -1;
+        this._package.removeSelf();
+        Laya.Tween.clearTween(this._package);
+    }
+    get packageOnScreen() {
+        return Boolean(this._package.parent);
+    }
+    dropTween() {
+        if (this._package) {
+            Laya.Tween.to(this._package, { y: 430 }, 800, Laya.Ease.quadIn, Handler.create(this, this.onDropTweenComplete));
+        }
+    }
+    onDropTweenComplete() {
+        this._package.on(Laya.Event.CLICK, this, this.onPackageClick);
+        Laya.Tween.clearTween(this._package);
+        this.bouncingUp();
+    }
+    bouncingDown() {
+        Laya.Tween.to(this._package, { scaleX: 1.1, scaleY: 0.85, y: 430 }, 400, Laya.Ease.quadIn, Handler.create(this, this.bouncingUp));
+    }
+    bouncingUp() {
+        Laya.Tween.to(this._package, { scaleX: 0.9, scaleY: 1.1, y: 400 }, 400, Laya.Ease.quadOut, Handler.create(this, this.bouncingDown));
+    }
+    onPackageClick() {
+        if (this._awardType < 100) {
+            const sheet = SkyDropSheet.getSheetById(this._awardType);
+            ViewMgr.Ins.open(ViewConst.SkyDropView, null, sheet);
+        }
+        else {
+            if (!this._skyDropObtainFrame) {
+                this._skyDropObtainFrame = new SkyDropObtainView();
+                this._skyDropObtainFrame.renew("images/core/diamond_icon.png", LanguageManager.Instance.getLanguageText("hallScene.label.txt.10", Math.round(Math.random() * 30)));
+            }
+            this._container.addChild(this._skyDropObtainFrame);
+        }
+    }
+    activatePackageAward() {
+        const sheet = SkyDropSheet.getSheetById(this._awardType);
+        BuffController.getInstance().addBuffFromSkyDrop(sheet);
+        this.retrievePackage();
+        BuffTipsView.Create(sheet);
+    }
+    requestSkyDropPackage() {
+        let that = this;
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+        HttpReqHelper.request({
+            url: 'v1/skyDropPackage/status',
+            success: function (res) {
+                const bool = res.isShowPackage;
+                if (bool) {
+                    that.dropPackage(res.type);
+                }
+                else {
+                    const timeSpan = res.nextPackageTimeSpan;
+                    if (timeSpan > 0) {
+                        Laya.timer.once(timeSpan * 1000, that, that.requestSkyDropPackage);
+                    }
+                    else {
+                        Laya.timer.clear(that, that.requestSkyDropPackage);
+                    }
+                }
+                console.log("@FREEMAN: 请求天降礼包数据:", res);
+            },
+            fail: (res) => {
+                console.log("@FREEMAN: getSkyDropPackage: fail =>", res);
+            }
+        });
+    }
+    postSkyDropPackage() {
+        let that = this;
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+        HttpReqHelper.request({
+            url: 'v1/skyDropPackage/open/' + this._awardType,
+            success: ({ legal }) => {
+                if (legal) {
+                    that.activatePackageAward();
+                    Laya.timer.once(10 * 1000, that, that.requestSkyDropPackage);
+                }
+                else {
+                    console.log("@FREEMAN: postSkyDropPackage:", "领取时间无效，您暂时无法领取天降惊喜礼包！");
+                }
+                console.log("@FREEMAN: postSkyDropPackage: legal =>", legal);
+            },
+            fail: (res) => {
+                console.log("@FREEMAN: postSkyDropPackage: fail =>", res);
+            }
+        });
+    }
+}
+class SkyDropSheet {
+    constructor(id, num, duration) {
+        this.id = id;
+        this.num = num;
+        this.duration = duration;
+    }
+    static getSheetById(id) {
+        for (const sheet of this.sheets) {
+            if (sheet.id === id) {
+                return sheet;
+            }
+        }
+        return null;
+    }
+}
+/** 攻击速度按百分比增加 */
+SkyDropSheet.ATTACK_SPEED_INCREASE = 0;
+/** 攻击力按百分比增加 */
+SkyDropSheet.ATTACK_VALUE_INCREASE = 1;
+/** 暴击率按百分比增加 */
+SkyDropSheet.CRIT_RATE_INCREASE = 2;
+/** 金币获得按百分比增加 */
+SkyDropSheet.COIN_OBTAIN_INCREASE = 3;
+SkyDropSheet.sheets = [
+    new SkyDropSheet(0, 0.5, 60 * 1000),
+    new SkyDropSheet(1, 1, 30 * 1000),
+    new SkyDropSheet(2, 0.5, 30 * 1000),
+    new SkyDropSheet(3, 1, 120 * 1000),
+];
+class SkyDropObtainView extends SkyDropView {
+    init() {
+        this.ui = new ui.common.view.SkyDropObtainViewUI();
+        this.addChild(this.ui);
+        this.ui.imgCloseBtn.on(Laya.Event.CLICK, this, this.removeSelf);
+        this.ui.btnHelp.on(Laya.Event.CLICK, this, this.onHelpBtnClick);
+        this.ui.btnVideo.on(Laya.Event.CLICK, this, this.onVideoBtnClick);
+    }
+    // @ts-ignore
+    renew(iconStr, desc) {
+        this.ui.imgIcon.skin = iconStr;
+        this.ui.lblDesc.text = desc;
+    }
+}
+//# sourceMappingURL=SkyDropController.js.map
 xiaoduo = window.xiaoduo;
 const M = new ManagerShortcuts();
-const userData = new UserData();
+let userData;
 let systemInfo;
 class Main {
     constructor() {
@@ -14954,10 +15004,13 @@ class Main {
         Laya.stage.scaleMode = Laya.Stage.SCALE_NOSCALE;
         Laya.URL.basePath = PathConfig.AppResUrl + "index/";
         M.layer.initLayer(Laya.stage, 750, 1334);
+        userData = new UserData();
         LayerMgr.Instance.initLayer(Laya.stage, 750, 1334);
         SDKManager.Instance.initWX();
+        systemInfo = new WXSystemInfo();
         try {
-            systemInfo = Laya.Browser.window.wx.getSystemInfoSync();
+            const infoSync = Laya.Browser.window.wx.getSystemInfoSync();
+            ObjectUtils.assign(systemInfo, infoSync);
         }
         catch (e) {
             console.log("@FREEMAN: 获取系统信息失败");
@@ -14998,13 +15051,22 @@ class Main {
         });
     }
     beginLoad() {
-        Laya.loader.load(["loading/start_bg.jpg", "loading/start_btn.png", "loading/tip_bg.png", "loading/loading01.png", "loading/loading02.png", "loading/tip_symbol_01.png"], Handler.create(this, () => {
+        const domain = PathConfig.AppResUrl + "index/";
+        Laya.loader.load([
+            "loading/start_bg.jpg",
+            "loading/loading_bg.jpg",
+            "loading/bar.png",
+            "loading/bar_bg.png",
+            "loading/loading01.png",
+            domain + "loading/start_btn.png",
+            domain + "config/language.txt",
+            domain + "sheets/sheet.json",
+        ], Handler.create(this, () => {
             EffectUtils.stopWaitEffect();
             M.layer.renderLayer.addChild(new MainLoadingView());
+            Laya.URL.basePath = domain;
         }));
     }
 }
-setTimeout(() => {
-    new Main();
-}, 1e3);
+new Main();
 //# sourceMappingURL=Main.js.map

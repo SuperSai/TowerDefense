@@ -61,7 +61,7 @@ class HallManager extends Laya.EventDispatcher {
             let kingLevel = userData.getKingLevel();
             let kingVO = GlobleData.getData(GlobleData.KindLevelConfigVO, kingLevel);
             //需要钻石
-            let diamond = userData.diamond;
+            let diamond = M.player.Info.userDiamond;
             let needDiamond = kingVO.gemxh;
             //升级条件
             let monsterLevel = 0;
@@ -142,31 +142,11 @@ class HallManager extends Laya.EventDispatcher {
             }
         }
     }
-    /** 30分钟后检测是否还有红点 */
-    startShopRedpointTime(time = 1800) {
-        let that = this;
-        Laya.timer.once(1000 * time, this, () => {
-            userData.shiftShopRedpointTime();
-            if (userData.isShowCarShopRedPoint()) {
-                that.showCarportRedPoint();
-            }
-        });
-        userData.saveShopRedpointTime(time);
-    }
-    /** 显示怪物商店红点 */
-    showCarportRedPoint(isShow = true) {
-        let that = this;
-        if (that.hall && that.hall.btnShop) {
-            let imgRedPoint = that.hall.btnShop.getChildByName("imgRedPoint");
-            if (imgRedPoint) {
-                imgRedPoint.visible = isShow;
-                let checkTime = userData.shiftShopRedpointTime(false);
-                if (checkTime > 0) {
-                    that.startShopRedpointTime(checkTime);
-                    imgRedPoint.visible = false;
-                }
-            }
-        }
+    resolveShopRedPoint() {
+        const showRedPoint = userData.isShowCarShopRedPoint();
+        let imgRedPoint = this._hall.btnShop.getChildByName("imgRedPoint");
+        imgRedPoint && (imgRedPoint.visible = showRedPoint);
+        !showRedPoint && this._hall.timerOnce(5 * Time.MIN_IN_MILI, this, this.resolveShopRedPoint);
     }
     /** 钻石购买 */
     onDiamondBuy(heroInfo = null) {
@@ -204,6 +184,20 @@ class HallManager extends Laya.EventDispatcher {
                 ViewMgr.Ins.open(ViewConst.FriendConcurView);
             }
         }
+    }
+    showLuckPrizeTime() {
+        HttpManager.Instance.requestPrizeInfo((res) => {
+            if (!res)
+                return;
+            let freeTimes = MathUtils.parseInt(res.free_num); //免费次数
+            let freeTime = MathUtils.parseInt(res.remain_time); //免费时间
+            let nextFreeTime = MathUtils.parseInt(res.next_free); //离下次免费时间
+            if (freeTimes > 0) {
+                // this.hall.txt_luckPrize.text = "免费抽奖";
+            }
+            else {
+            }
+        });
     }
     set hallData(value) { this._model = value; }
     /** 大厅中的数据 */

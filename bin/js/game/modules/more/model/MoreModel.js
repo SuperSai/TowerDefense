@@ -4,14 +4,13 @@ class MoreModel extends Laya.EventDispatcher {
     }
     set mute(value) {
         this._mute = value;
-        userData.setCache(CacheKey.SOUND_MUTE, this._mute);
+        userData.cache.setCache(CacheKey.SOUND_MUTE, this._mute);
     }
     get subscribable() {
         return this._subscribable;
     }
     set subscribable(value) {
         this._subscribable = value;
-        this.event(MoreEvent.SUBSCRIBE_STATUS, value);
     }
     get itemList() {
         return this._itemList;

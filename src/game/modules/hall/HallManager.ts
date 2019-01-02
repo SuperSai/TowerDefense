@@ -68,7 +68,7 @@ class HallManager extends Laya.EventDispatcher {
             let kingLevel: number = userData.getKingLevel();
             let kingVO: KindLevelConfigVO = GlobleData.getData(GlobleData.KindLevelConfigVO, kingLevel);
             //需要钻石
-            let diamond: number = userData.diamond;
+            let diamond: number = M.player.Info.userDiamond;
             let needDiamond: number = kingVO.gemxh;
             //升级条件
             let monsterLevel: number = 0;
@@ -152,32 +152,11 @@ class HallManager extends Laya.EventDispatcher {
         }
     }
 
-    /** 30分钟后检测是否还有红点 */
-    public startShopRedpointTime(time: number = 1800): void {
-        let that = this;
-        Laya.timer.once(1000 * time, this, () => {
-            userData.shiftShopRedpointTime();
-            if (userData.isShowCarShopRedPoint()) {
-                that.showCarportRedPoint();
-            }
-        })
-        userData.saveShopRedpointTime(time);
-    }
-
-    /** 显示怪物商店红点 */
-    public showCarportRedPoint(isShow: boolean = true): void {
-        let that = this;
-        if (that.hall && that.hall.btnShop) {
-            let imgRedPoint = that.hall.btnShop.getChildByName("imgRedPoint") as Laya.Image;
-            if (imgRedPoint) {
-                imgRedPoint.visible = isShow;
-                let checkTime: number = userData.shiftShopRedpointTime(false);
-                if (checkTime > 0) {
-                    that.startShopRedpointTime(checkTime);
-                    imgRedPoint.visible = false;
-                }
-            }
-        }
+    public resolveShopRedPoint(){
+        const showRedPoint:boolean = userData.isShowCarShopRedPoint();
+        let imgRedPoint = this._hall.btnShop.getChildByName("imgRedPoint") as Laya.Image;
+        imgRedPoint && (imgRedPoint.visible = showRedPoint);
+        !showRedPoint && this._hall.timerOnce(5 * Time.MIN_IN_MILI, this, this.resolveShopRedPoint);
     }
 
     /** 钻石购买 */
@@ -214,6 +193,20 @@ class HallManager extends Laya.EventDispatcher {
                 ViewMgr.Ins.open(ViewConst.FriendConcurView);
             }
         }
+    }
+
+    public showLuckPrizeTime(): void {
+        HttpManager.Instance.requestPrizeInfo((res: any) => {
+            if (!res) return;
+            let freeTimes = MathUtils.parseInt(res.free_num);//免费次数
+            let freeTime = MathUtils.parseInt(res.remain_time);//免费时间
+            let nextFreeTime = MathUtils.parseInt(res.next_free);//离下次免费时间
+            if (freeTimes > 0) {
+                // this.hall.txt_luckPrize.text = "免费抽奖";
+            } else {
+
+            }
+        })
     }
 
 

@@ -109,7 +109,7 @@ class LuckPrizeView extends ui.luckPrize.LuckPrizeViewUI {
             if (_data && _data.diamond) {
                 self.showMyDiamond(_data.diamond);
             } else {
-                self.showMyDiamond(userData.diamond);
+                self.showMyDiamond(M.player.Info.userDiamond);
             }
         });
     }
@@ -172,7 +172,7 @@ class LuckPrizeView extends ui.luckPrize.LuckPrizeViewUI {
                     userData.removeLuckPrizeRedPoint();
                 }
             });
-        } else if (userData.diamond >= that.costDiamond) {
+        } else if (M.player.Info.userDiamond >= that.costDiamond) {
             //钻石抽奖
             that.requestDrawPrize(1, (_res: any) => {
                 if (!_res || _res.id == null) {
@@ -382,7 +382,6 @@ class LuckPrizeView extends ui.luckPrize.LuckPrizeViewUI {
     }
     //转盘抽奖
     public requestDrawPrize(_itemId: number, _callback: any): void {
-        let that = this;
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/activity/roulette/' + _itemId,

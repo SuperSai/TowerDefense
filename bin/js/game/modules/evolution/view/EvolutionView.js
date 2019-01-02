@@ -53,7 +53,7 @@ class EvolutionView extends BaseView {
             let currHeroCount = userData.caculateMonsterCount(EvolutionManager.Instance.getHeroId());
             let needHeroCount = 3;
             //需要钻石
-            let diamond = userData.diamond;
+            let diamond = M.player.Info.userDiamond;
             let needDiamond = MathUtils.parseInt(kingVO.gemxh.toString());
             if (kingLevel > 10) {
                 self.ui.btnUpdate.disabled = (diamond < needDiamond) || (currHeroCount < needHeroCount);
@@ -81,7 +81,7 @@ class EvolutionView extends BaseView {
             self.ui.btnUpdate.on(Laya.Event.CLICK, self, () => {
                 if (diamond >= needDiamond) {
                     if (GlobalConfig.DEBUG) {
-                        this.evolutionLevelComplete(kingLevel + 1, userData.diamond - needDiamond);
+                        this.evolutionLevelComplete(kingLevel + 1, M.player.Info.userDiamond - needDiamond);
                     }
                     else {
                         HttpManager.Instance.requestUpdateKingLevel(EvolutionView.kingEvolutionType, kingLevel, needDiamond, (_res) => {
@@ -102,7 +102,7 @@ class EvolutionView extends BaseView {
         MessageUtils.showMsgTips("升级成功");
         HallManager.Instance.hallData.isUpdate = false;
         if (diamond > 0)
-            EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: userData.diamond = diamond });
+            EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: M.player.Info.userDiamond = diamond });
         EventsManager.Instance.event(EventsType.EVOLUTION_LEVEL_COMPLETE, kingLevel);
         self.refreshBoxUI();
     }

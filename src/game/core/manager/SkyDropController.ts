@@ -13,13 +13,12 @@ class SkyDropController extends Laya.EventDispatcher {
     private _package: Laya.Image;
     private _awardType: number;
 
-    private _skyDropFrame: SkyDropView;
     private _skyDropObtainFrame: SkyDropObtainView;
 
     public init(parent: Laya.View): void {
         this._container = parent;
         this._container.mouseThrough = true;
-        this._package = new Laya.Image("images/sk_package.png");
+        this._package = new Laya.Image("images/hall/miniProgram_icon.png");
         this._package.pivot(34, 42);
         this._awardType = -1;
         // this.dropPackage(1);
@@ -68,11 +67,7 @@ class SkyDropController extends Laya.EventDispatcher {
     private onPackageClick(): void {
         if (this._awardType < 100) {
             const sheet = SkyDropSheet.getSheetById(this._awardType);
-            if (!this._skyDropFrame) {
-                this._skyDropFrame = new SkyDropView();
-                this._skyDropFrame.renew(sheet);
-            }
-            M.layer.subFrameLayer.addChildWithMaskCall(this._skyDropFrame, this._skyDropFrame.removeSelf);
+            ViewMgr.Ins.open(ViewConst.SkyDropView, null, sheet);
         } else {
             if (!this._skyDropObtainFrame) {
                 this._skyDropObtainFrame = new SkyDropObtainView();
@@ -171,76 +166,6 @@ class SkyDropSheet {
             }
         }
         return null;
-    }
-}
-
-
-class SkyDropView extends Laya.View {
-    public ui: any;
-    public sheet: SkyDropSheet;
-
-    constructor() {
-        super();
-        this.init();
-    }
-
-    protected init(): void {
-        this.ui = new ui.common.view.SkyDropViewUI();
-        this.addChild(this.ui);
-
-        this.ui.imgCloseBtn.on(Laya.Event.CLICK, this, this.removeSelf);
-        this.ui.btnHelp.on(Laya.Event.CLICK, this, this.onHelpBtnClick);
-        this.ui.btnVideo.on(Laya.Event.CLICK, this, this.onVideoBtnClick);
-    }
-
-    public renew(sheet: SkyDropSheet): void {
-        this.sheet = sheet;
-        switch (sheet.id) {
-            case SkyDropSheet.ATTACK_SPEED_INCREASE: {
-                this.ui.lblDesc.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.11");
-                break;
-            }
-            case SkyDropSheet.ATTACK_VALUE_INCREASE: {
-                this.ui.lblDesc.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.12");
-                break;
-            }
-            case SkyDropSheet.CRIT_RATE_INCREASE: {
-                this.ui.lblDesc.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.13");
-                break;
-            }
-            case SkyDropSheet.COIN_OBTAIN_INCREASE: {
-                this.ui.lblDesc.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.14");
-                break;
-            }
-        }
-        const numStr: string = (sheet.num * 100).toString() + "%";
-        this.ui.lblNum.text = numStr;
-        this.ui.lblDuration.text = (sheet.duration * 0.001).toString();
-        this.ui.hbox1.refresh();
-        this.ui.hbox2.refresh();
-    }
-
-    protected onHelpBtnClick() {
-        if (GlobalConfig.DEBUG) {
-            this.success();
-        } else {
-            userData.toShareAd(() => {
-                this.success();
-            })
-        }
-    }
-
-    protected onVideoBtnClick() {
-        SDKManager.Instance.showVideoAd(() => {
-            this.success();
-        }, () => {
-            MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.15"));
-        }, false)
-    }
-
-    protected success(): void {
-        this.removeSelf();
-        SkyDropController.getInstance().postSkyDropPackage();
     }
 }
 

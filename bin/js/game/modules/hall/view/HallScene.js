@@ -21,13 +21,9 @@ class HallScene extends ui.hall.HallSceneUI {
     //新建并添加到节点
     static Create(_parentNode) {
         let resList = [
-            { url: "res/atlas/images/component.atlas", type: Laya.Loader.ATLAS },
             { url: "res/atlas/images/hall.atlas", type: Laya.Loader.ATLAS },
-            { url: "res/atlas/images/core.atlas", type: Laya.Loader.ATLAS },
             { url: "res/atlas/images/skill.atlas", type: Laya.Loader.ATLAS },
-            { url: "res/atlas/images/fontImg.atlas", type: Laya.Loader.ATLAS },
-            { url: "res/atlas/images/novice.atlas", type: Laya.Loader.ATLAS },
-            { url: "sheets/sheet.json", type: Laya.Loader.JSON }
+            { url: "res/atlas/images/fontImg.atlas", type: Laya.Loader.ATLAS }
         ];
         Laya.loader.load(resList, Handler.create(null, () => {
             EffectUtils.stopWaitEffect();
@@ -83,6 +79,7 @@ class HallScene extends ui.hall.HallSceneUI {
             userData.saveNovice(groupId);
         };
         M.novice.start();
+        M.more.applyMute();
         BuffController.getInstance().init(self.viewBuffContainer);
         SkyDropController.getInstance().init(self.viewSkyDropContainer);
         Laya.timer.once(1e3, this, () => {
@@ -141,10 +138,14 @@ class HallScene extends ui.hall.HallSceneUI {
             });
         }
         //启动游戏出怪
-        self.timerOnce(2000, self, () => {
-            HallManager.Instance.hallData.gameStatus = 1;
-            self.createMonster(HallManager.Instance.hallData.passStage, HallManager.Instance.hallData.passSection);
-        });
+        const startCreateMonster = function () {
+            if (!M.novice.isRunning) {
+                M.hall.hallData.gameStatus = 1;
+                self.createMonster(M.hall.hallData.passStage, M.hall.hallData.passSection);
+                Laya.timer.clear(this, startCreateMonster);
+            }
+        };
+        Laya.timer.loop(1000, this, startCreateMonster);
         //守卫
         if (self.spMountGuard) {
             let bossId = userData.isEvolution() ? 100003 : 100002;
@@ -168,9 +169,9 @@ class HallScene extends ui.hall.HallSceneUI {
         //初始化用户数据
         if (userData) {
             HallManager.Instance.updateIncomePerSec(HallManager.Instance.hallData.userIncomePerSec);
-            self.updateGold(userData.gold);
-            self.updateDiamond(userData.diamond);
-            HallManager.Instance.updateEssence(userData.essence);
+            self.updateGold(M.player.Info.userMoney);
+            self.updateDiamond(M.player.Info.userDiamond);
+            HallManager.Instance.updateEssence(M.player.Info.userEssence);
             self.setPassStage(userData.getPassStage());
             self.setPassSection(userData.getPassSection());
             self.setKingLevel(userData.getKingLevel());
@@ -178,22 +179,32 @@ class HallScene extends ui.hall.HallSceneUI {
             //延迟处理
             self.frameOnce(50, self, () => {
                 //离线收益
-                if (userData && userData.hasOfflinePrize == false) {
-                    userData.hasOfflinePrize = true;
-                    userData.requestOfflinePrizeData();
+                // if (userData && userData.hasOfflinePrize == false) {
+                //   userData.hasOfflinePrize = true;
+                //   userData.requestOfflinePrizeData();
+                // } else {
+                //   self.onOffLineRevenue();
+                // }
+                //离线收益， 离线超过10分钟才向服务器请求离线时间，否则没有离线奖励
+                const now = new Date().getTime();
+                if (now - userData.lastHeartBeatTime > 10 * Time.MIN_IN_MILI) {
+                    M.http.requestOfflinePrizeData();
                 }
-                else {
-                    self.onOffLineRevenue();
-                }
+                //超越好友
                 self.showSurpassView();
+                // if (userData) {
+                //   let acceLeftTime: number = userData.getAcceLeftTime();
+                //   if (acceLeftTime > 0) {
+                //     let imgAcce = self.btnAcce.getChildByName("imgAcce") as Laya.Image;
+                //     if (imgAcce.visible == false) {
+                //       self.playAcceEffectView(acceLeftTime, false);
+                //     }
+                //
+                //   }
+                // }
                 if (userData) {
-                    let acceLeftTime = userData.getAcceLeftTime();
-                    if (acceLeftTime > 0) {
-                        let imgAcce = self.btnAcce.getChildByName("imgAcce");
-                        if (imgAcce.visible == false) {
-                            self.playAcceEffectView(acceLeftTime, false);
-                        }
-                    }
+                    const remainingTime = userData.cache.getCache(CacheKey.ACCELERATE_SEC_REMAINING);
+                    remainingTime && self.playAcceEffectView(remainingTime, false);
                 }
                 //先到后台拉取未领取的奖励
                 HttpManager.Instance.requestStagePrizeData((_prizeList) => {
@@ -228,9 +239,7 @@ class HallScene extends ui.hall.HallSceneUI {
                 self.showDailySignRedPoint();
             }
             //怪物商店红点
-            if (userData.isShowCarShopRedPoint()) {
-                HallManager.Instance.showCarportRedPoint();
-            }
+            M.hall.resolveShopRedPoint();
             //任务红点
             if (userData.isShowTaskRedPoint()) {
                 self.showTaskRedPoint();
@@ -253,7 +262,7 @@ class HallScene extends ui.hall.HallSceneUI {
             }
             self.isShowWelfareBtn();
             self.menuRedPointIsShow();
-            self.updateDiamondTime(HallManager.Instance.hallData.offlineTotalTime);
+            self.updateDiamondTime(M.hall.hallData.offlineTotalTime);
         }
     }
     addEvents() {
@@ -292,7 +301,7 @@ class HallScene extends ui.hall.HallSceneUI {
         EventsManager.Instance.on(EventsType.DAY_SIGN_RED_POINT, self, self.onUpdateSignRenPoint); //每日签到红点移除事件
         EventsManager.Instance.on(EventsType.TASK_RED_POINT, self, self.onUpdateTaskRedPoint); //任务红点移除事件
         EventsManager.Instance.on(EventsType.LUCK_PRIZED_RED_POINT, self, self.onUpdatePrizeRedPoint); //转盘红点移除事件
-        EventsManager.Instance.on(EventsType.HERO_SHOP_RED_POINT, self, self.onUpdatePetShopRedPoint); //英雄商店红点事件
+        EventsManager.Instance.on(EventsType.HERO_SHOP_RED_POINT, M.hall, M.hall.resolveShopRedPoint); //英雄商店红点事件
         EventsManager.Instance.on(EventsType.ACCE_CHANGE, self, self.onUpdateAccelerateBtnState); //加速按钮状态
         EventsManager.Instance.on(EventsType.LUCK_PRIZE, self, self.onUpdatePrizeState); //更新幸运抽奖状态
         EventsManager.Instance.on(EventsType.STRENGTHEN_RED_POINT, self, self.onUpdateStrengthenRedPoint); //强化红点移除事件
@@ -320,8 +329,8 @@ class HallScene extends ui.hall.HallSceneUI {
     }
     onUpdateHallData() {
         let self = this;
-        self.updateGold(userData.gold);
-        self.updateDiamond(userData.diamond);
+        self.updateGold(M.player.Info.userMoney);
+        self.updateDiamond(M.player.Info.userDiamond);
     }
     /** 等级礼包 */
     showStagePrize(value) {
@@ -414,32 +423,16 @@ class HallScene extends ui.hall.HallSceneUI {
         }
     }
     //离线收益
-    onOffLineRevenue() {
-        let self = this;
+    onOffLineRevenue(offlineTimeSpan) {
+        let that = this;
         if (userData) {
-            let offlinePrize = userData.offlinePrize();
             //离线超过10分钟才算奖励
-            if (offlinePrize > 10 * 60 && HallManager.Instance.hallData.passStage > 0 && HallManager.Instance.isGuide() == false) {
+            if (offlineTimeSpan > 10 * Time.MIN && HallManager.Instance.hallData.passStage > 1 && !M.novice.isRunning) {
                 // 当前关卡收益*(挂机时间/180)*0.1 (挂机时间最大2小时)
-                let prizeValue = 0;
-                let secondForHour = 60 * 60;
-                let secHourMax = 2 * secondForHour;
-                let stageIncome = BattleManager.Instance.getBarrierIncome(HallManager.Instance.hallData.passStage);
-                if (offlinePrize > secHourMax) {
-                    prizeValue = (secHourMax / 180 * stageIncome) * 0.01;
-                }
-                else {
-                    prizeValue = (offlinePrize / 180 * stageIncome) * 0.01;
-                }
+                let stageIncome = BattleManager.Instance.getBarrierIncome(M.hall.hallData.passStage);
+                let prizeValue = stageIncome * Math.min(Time.HOUR * 2, offlineTimeSpan) / 180 * 0.01;
                 if (prizeValue > 0) {
-                    if (HallManager.Instance.hallData.passStage > 1) { //离线奖励
-                        OfflineRewardsView.Create(self, null, () => {
-                            self.updateGold(PlayerManager.Instance.Info.userMoney + prizeValue);
-                        }, prizeValue);
-                    }
-                    else {
-                        MessageUtils.showMsgTips("获得离线奖励:" + MathUtils.bytesToSize(prizeValue));
-                    }
+                    OfflineRewardsView.Create(that, null, null, prizeValue);
                 }
             }
         }
@@ -475,7 +468,7 @@ class HallScene extends ui.hall.HallSceneUI {
                     that.spMountGuard.setKind(100003);
                     that.playKingUpdateEffect();
                     Laya.SoundManager.playSound("musics/evolutions.mp3");
-                    userData.saveLocal(true);
+                    Laya.timer.callLater(userData, userData.saveLocal, [true]);
                 });
             });
         }
@@ -880,9 +873,9 @@ class HallScene extends ui.hall.HallSceneUI {
         heroItem.playMergeEffetc(self.mainView, heroId);
         //检测等级刷新
         if (userData.updateCarLevel(BattleManager.Instance.getLevel(nextCardId))) {
-            //显示红点
-            if (userData.isShowCarShopRedPoint() && userData.getCarLevel() == 6) {
-                HallManager.Instance.showCarportRedPoint();
+            //检查商店红点
+            if (userData.getCarLevel() == 6) {
+                M.hall.resolveShopRedPoint();
             }
             Laya.SoundManager.playSound("musics/unlock.mp3");
         }
@@ -948,7 +941,7 @@ class HallScene extends ui.hall.HallSceneUI {
         //刷新快捷买怪物按钮
         that.refreshShortcutCreateBtn(HallManager.Instance.hallData.buyMonsterType);
         //本地保存
-        userData.setGoldSave(PlayerManager.Instance.Info.userMoney);
+        userData.setMoney(PlayerManager.Instance.Info.userMoney);
     }
     /** 更新钻石数 */
     updateDiamond(_value) {
@@ -1308,11 +1301,10 @@ class HallScene extends ui.hall.HallSceneUI {
             }
             that.btnAcce.mouseEnabled = false;
         }
-        if (HallManager.Instance.hallData.userAcceTime > 0) {
-            HallManager.Instance.hallData.userAcceTime--;
-            if (userData) {
-                userData.saveAcceLeftTime(HallManager.Instance.hallData.userAcceTime);
-            }
+        let time = M.hall.hallData.userAcceTime;
+        if (time > 0) {
+            M.hall.hallData.userAcceTime = --time;
+            userData.cache.setCache(CacheKey.ACCELERATE_SEC_REMAINING, time);
         }
         else {
             that.setCarAcce(1);
@@ -1324,6 +1316,7 @@ class HallScene extends ui.hall.HallSceneUI {
                 }
                 that.btnAcce.mouseEnabled = true;
             }
+            userData.cache.removeCache(CacheKey.ACCELERATE_SEC_REMAINING);
             return;
         }
         //金币雨
@@ -1437,16 +1430,6 @@ class HallScene extends ui.hall.HallSceneUI {
                     self.btnMiniProgram.skin = _imgTexture.url;
                 }
             }));
-        }
-    }
-    /** 更新英雄商店红点 */
-    onUpdatePetShopRedPoint($data) {
-        let self = this;
-        if ($data == "show") {
-            HallManager.Instance.showCarportRedPoint();
-        }
-        else {
-            HallManager.Instance.showCarportRedPoint(false);
         }
     }
     /** 更新转盘红点 */
@@ -1564,7 +1547,7 @@ class HallScene extends ui.hall.HallSceneUI {
     /** 刷新金币 */
     onRefreshGold() {
         let self = this;
-        self.updateGold(userData.gold);
+        self.updateGold(M.player.Info.userMoney);
     }
     /** 刷新钻石 */
     onRefreshDiamond($data) {
@@ -1573,7 +1556,7 @@ class HallScene extends ui.hall.HallSceneUI {
             self.updateDiamond($data.diamond);
         }
         else {
-            self.updateDiamond(userData.diamond);
+            self.updateDiamond(M.player.Info.userDiamond);
         }
     }
     /** 游戏加速 */
@@ -1734,7 +1717,7 @@ class HallScene extends ui.hall.HallSceneUI {
                 ViewMgr.Ins.open(ViewConst.RewardGetView, () => {
                     M.layer.screenEffectLayer.addChild(new FlyEffect().play("diamond", LayerManager.mouseX, LayerManager.mouseY, 38, 83));
                     MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.20", "钻石", res.diamond));
-                    EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: userData.diamond = res.total_diamond });
+                    EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: M.player.Info.userDiamond = res.total_diamond });
                     userData.offlineRewardCount = res.remain_online_num;
                     self.updateDiamondTime(HallManager.Instance.hallData.offlineTotalTime);
                 }, [res.diamond], [2]);
