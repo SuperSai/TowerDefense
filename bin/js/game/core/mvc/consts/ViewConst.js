@@ -30,5 +30,7 @@ var ViewConst;
     ViewConst[ViewConst["ClearanceRewardView"] = 10014] = "ClearanceRewardView";
     /** 天降惊喜 */
     ViewConst[ViewConst["SkyDropView"] = 10015] = "SkyDropView";
+    /** 轮盘 */
+    ViewConst[ViewConst["LuckPrizeView"] = 10016] = "LuckPrizeView";
 })(ViewConst || (ViewConst = {}));
 //# sourceMappingURL=ViewConst.js.map

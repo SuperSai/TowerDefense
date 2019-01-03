@@ -1,8 +1,8 @@
 {
     "x":0,
     "type":"View",
-    "selectedBox":1,
-    "selecteID":2,
+    "selectedBox":2,
+    "selecteID":37,
     "referenceLines":null,
     "props":{"y":0,"x":0,"width":750,"sceneColor":"#000000","sceneBg":"laya/views/Game.JPG","height":1334},
     "nodeParent":-1,
@@ -680,7 +680,7 @@
                         {
                             "x":45,
                             "type":"Button",
-                            "props":{"y":809,"x":-3,"var":"btn_online","stateNum":1,"skin":"images/hall/hall_online_reward.png"},
+                            "props":{"y":809,"x":0,"var":"btn_online","stateNum":1,"skin":"images/hall/hall_online_reward.png"},
                             "nodeParent":37,
                             "label":"Button(btn_online)",
                             "isOpen":true,
@@ -770,7 +770,7 @@
                         {
                             "x":45,
                             "type":"Button",
-                            "props":{"y":546,"x":-18,"var":"btnLuckPrize","stateNum":1,"skin":"images/hall/gbtn_luck.png","name":"btnLuckPrize"},
+                            "props":{"y":722,"x":0,"var":"btnLuckPrize","stateNum":1,"skin":"images/hall/gbtn_luck.png","name":"btnLuckPrize"},
                             "nodeParent":37,
                             "label":"Button(btnLuckPrize)",
                             "isOpen":true,
@@ -796,7 +796,7 @@
                                 {
                                     "x":60,
                                     "type":"Image",
-                                    "props":{"y":10,"x":82,"visible":false,"skin":"images/core/red_dot_hint.png","name":"imgRedPoint"},
+                                    "props":{"y":3,"x":59,"visible":false,"skin":"images/core/red_dot_hint.png","name":"imgRedPoint"},
                                     "nodeParent":245,
                                     "label":"Image(imgRedPoint)",
                                     "isDirectory":false,
@@ -808,23 +808,22 @@
                                 },
                                 {
                                     "x":60,
-                                    "type":"Image",
-                                    "props":{"y":-4,"x":-2,"skin":"images/effect/uiLight/dx_zpd_3.png"},
+                                    "type":"Label",
+                                    "props":{"y":57,"x":1,"width":86,"var":"txt_prizeTime","text":"05:00","strokeColor":"#8d5d2e","stroke":2,"height":26,"fontSize":22,"color":"#ffffff","bold":true,"align":"center"},
                                     "nodeParent":245,
-                                    "label":"Image",
+                                    "label":"Label(txt_prizeTime)",
                                     "isDirectory":false,
                                     "isAniNode":true,
                                     "hasChild":false,
-                                    "compId":357,
+                                    "compId":421,
                                     "child":[
-                                        ],
-                                    "$HIDDEN":false
+                                        ]
                                 }]
                         },
                         {
                             "x":45,
                             "type":"Button",
-                            "props":{"y":898,"x":-3,"var":"btnFeedback","stateNum":1,"skin":"images/hall/gbtn_feedback.png","name":"btnFeedback"},
+                            "props":{"y":898,"x":0,"var":"btnFeedback","stateNum":1,"skin":"images/hall/gbtn_feedback.png","name":"btnFeedback"},
                             "nodeParent":37,
                             "label":"Button(btnFeedback)",
                             "isOpen":false,
@@ -850,7 +849,7 @@
                         {
                             "x":45,
                             "type":"Button",
-                            "props":{"y":988,"x":-3,"var":"btnMore","stateNum":1,"skin":"images/hall/more_icon.png","name":"btnMore"},
+                            "props":{"y":988,"x":0,"var":"btnMore","stateNum":1,"skin":"images/hall/more_icon.png","name":"btnMore"},
                             "nodeParent":37,
                             "label":"Button(btnMore)",
                             "isOpen":false,
@@ -1030,7 +1029,7 @@
                         {
                             "x":45,
                             "type":"Button",
-                            "props":{"y":705,"x":0,"width":88,"visible":false,"var":"btnStagePrize","name":"btnStagePrize","labelSize":30,"height":106},
+                            "props":{"y":602,"x":0,"width":88,"visible":false,"var":"btnStagePrize","name":"btnStagePrize","labelSize":30,"height":106},
                             "nodeParent":37,
                             "label":"Button(btnStagePrize)",
                             "isOpen":false,
@@ -1364,7 +1363,7 @@
                 {
                     "x":30,
                     "type":"Button",
-                    "props":{"y":410,"x":4,"visible":false,"var":"btnCarStore","stateNum":1,"skin":"images/hall/box_001.png","name":"btnCarStore","labelSize":30},
+                    "props":{"y":420,"x":12,"visible":false,"var":"btnCarStore","stateNum":1,"skin":"images/hall/drop_box.png","name":"btnCarStore","labelSize":30},
                     "nodeParent":2,
                     "label":"Button(btnCarStore)",
                     "isOpen":true,
@@ -1762,36 +1761,6 @@
                                 "target":356,
                                 "key":"skin",
                                 "index":35
-                            }]
-                    }
-                },
-                {
-                    "target":357,
-                    "keyframes":{
-                        "skin":[
-                            {
-                                "value":"images/effect/uiLight/dx_zpd_1.png",
-                                "tweenMethod":"linearNone",
-                                "tween":false,
-                                "target":357,
-                                "key":"skin",
-                                "index":0
-                            },
-                            {
-                                "value":"images/effect/uiLight/dx_zpd_2.png",
-                                "tweenMethod":"linearNone",
-                                "tween":false,
-                                "target":357,
-                                "key":"skin",
-                                "index":12
-                            },
-                            {
-                                "value":"images/effect/uiLight/dx_zpd_3.png",
-                                "tweenMethod":"linearNone",
-                                "tween":false,
-                                "target":357,
-                                "key":"skin",
-                                "index":25
                             }]
                     }
                 }],

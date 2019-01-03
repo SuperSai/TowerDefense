@@ -29,6 +29,7 @@ class MainLoadingView extends Laya.Sprite {
 
     private loadCache(complete?: Handler): void {
         GameEnterManager.Instance.init();
+        SDKManager.Instance.initWX();
         userData.loadCache();
         GlobleData.Instance.setup(() => {
             userData.loadStorage(() => {
@@ -42,12 +43,13 @@ class MainLoadingView extends Laya.Sprite {
         this.ui.btnStart.visible = false;
         let launch: any = platform.getLaunchOptionsSync();
         console.log("@David getLaunchOptionsSync:", launch);
-        if (launch.scene == 1104 || launch.scene == 1103 || launch.scene == 1023) {  //ios从我的小程序入口进
-            PlayerManager.Instance.Info.isMySceneEnter = true;
-        } if (launch.scene == 1008) {
-            SDKManager.Instance.handlerSceneValue(launch);
-        } else {
-            PlayerManager.Instance.Info.isMySceneEnter = false;
+        PlayerManager.Instance.Info.isMySceneEnter = false;
+        if (launch) {
+            if (launch.scene == 1104 || launch.scene == 1103 || launch.scene == 1023) {  //ios从我的小程序入口进
+                PlayerManager.Instance.Info.isMySceneEnter = true;
+            } if (launch.scene == 1008) {
+                SDKManager.Instance.handlerSceneValue(launch);
+            }
         }
         this.startCountDown();
         // if (Laya.Browser.onMiniGame) {

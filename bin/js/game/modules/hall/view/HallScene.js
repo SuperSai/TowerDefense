@@ -162,6 +162,7 @@ class HallScene extends ui.hall.HallSceneUI {
         //游戏公告
         HttpManager.Instance.requestAnnouncement();
         MessageUtils.showMsgTips("");
+        HallManager.Instance.showLuckPrizeTime();
     }
     /** 初始化用户数据 */
     initUserData() {
@@ -1167,16 +1168,13 @@ class HallScene extends ui.hall.HallSceneUI {
     }
     //任务界面
     showTaskView() {
-        let that = this;
         TaskView.Create(null, () => {
             SDKManager.Instance.closeBannerAd(true);
         }, true);
     }
     //幸运抽奖界面
     showLuckPrizeView() {
-        LuckPrizeView.Create(null, () => {
-            SDKManager.Instance.closeBannerAd(true);
-        });
+        ViewMgr.Ins.open(ViewConst.LuckPrizeView);
     }
     //跳转小程序
     onMiniProgram() {

@@ -29,4 +29,6 @@ enum ViewConst {
     ClearanceRewardView,
     /** 天降惊喜 */
     SkyDropView,
+    /** 轮盘 */
+    LuckPrizeView,
 }

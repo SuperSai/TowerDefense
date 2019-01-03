@@ -45,7 +45,12 @@ class HallModel {
         this.stagePrizeList = [];
         /** 守卫是否可以升级 */
         this.isUpdate = false;
+        /** 在线钻石领取时间 */
         this.offlineTotalTime = 5 * 60 * 1000;
+        /** 轮盘可以免费的剩余时间 */
+        this.freeTime = 0;
+        /** 离下次免费时间 */
+        this.nextFreeTime = 0;
         this.concurGoldDic = new TSDictionary();
     }
 }

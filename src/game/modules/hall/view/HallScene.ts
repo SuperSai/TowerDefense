@@ -141,15 +141,15 @@ class HallScene extends ui.hall.HallSceneUI {
         width: rect.width, height: rect.height
       });
     }
-      //启动游戏出怪
-      const startCreateMonster = function(){
-          if(!M.novice.isRunning){
-              M.hall.hallData.gameStatus = 1;
-              self.createMonster(M.hall.hallData.passStage, M.hall.hallData.passSection);
-              Laya.timer.clear(this, startCreateMonster);
-          }
-      };
-      Laya.timer.loop(1000, this, startCreateMonster);
+    //启动游戏出怪
+    const startCreateMonster = function () {
+      if (!M.novice.isRunning) {
+        M.hall.hallData.gameStatus = 1;
+        self.createMonster(M.hall.hallData.passStage, M.hall.hallData.passSection);
+        Laya.timer.clear(this, startCreateMonster);
+      }
+    };
+    Laya.timer.loop(1000, this, startCreateMonster);
 
     //守卫
     if (self.spMountGuard) {
@@ -167,6 +167,7 @@ class HallScene extends ui.hall.HallSceneUI {
     //游戏公告
     HttpManager.Instance.requestAnnouncement();
     MessageUtils.showMsgTips("");
+    HallManager.Instance.showLuckPrizeTime();
   }
 
   /** 初始化用户数据 */
@@ -192,13 +193,13 @@ class HallScene extends ui.hall.HallSceneUI {
         //   self.onOffLineRevenue();
         // }
 
-          //离线收益， 离线超过10分钟才向服务器请求离线时间，否则没有离线奖励
-          const now:number = new Date().getTime();
-          if(now - userData.lastHeartBeatTime > 10 * Time.MIN_IN_MILI){
-              M.http.requestOfflinePrizeData();
-          }
+        //离线收益， 离线超过10分钟才向服务器请求离线时间，否则没有离线奖励
+        const now: number = new Date().getTime();
+        if (now - userData.lastHeartBeatTime > 10 * Time.MIN_IN_MILI) {
+          M.http.requestOfflinePrizeData();
+        }
 
-          //超越好友
+        //超越好友
         self.showSurpassView();
 
         // if (userData) {
@@ -212,10 +213,10 @@ class HallScene extends ui.hall.HallSceneUI {
         //   }
         // }
 
-          if (userData) {
-              const remainingTime: number = userData.cache.getCache(CacheKey.ACCELERATE_SEC_REMAINING);
-              remainingTime && self.playAcceEffectView(remainingTime, false);
-          }
+        if (userData) {
+          const remainingTime: number = userData.cache.getCache(CacheKey.ACCELERATE_SEC_REMAINING);
+          remainingTime && self.playAcceEffectView(remainingTime, false);
+        }
 
         //先到后台拉取未领取的奖励
         HttpManager.Instance.requestStagePrizeData((_prizeList: Array<any>) => {
@@ -249,7 +250,7 @@ class HallScene extends ui.hall.HallSceneUI {
         self.showDailySignRedPoint();
       }
       //怪物商店红点
-        M.hall.resolveShopRedPoint();
+      M.hall.resolveShopRedPoint();
       //任务红点
       if (userData.isShowTaskRedPoint()) {
         self.showTaskRedPoint();
@@ -438,19 +439,19 @@ class HallScene extends ui.hall.HallSceneUI {
 
   //离线收益
 
-  private onOffLineRevenue(offlineTimeSpan:number): void {
-      let that = this;
-      if (userData) {
-          //离线超过10分钟才算奖励
-          if (offlineTimeSpan > 10 * Time.MIN && HallManager.Instance.hallData.passStage > 1 && !M.novice.isRunning) {
-              // 当前关卡收益*(挂机时间/180)*0.1 (挂机时间最大2小时)
-              let stageIncome: number = BattleManager.Instance.getBarrierIncome(M.hall.hallData.passStage);
-              let prizeValue: number = stageIncome * Math.min(Time.HOUR * 2, offlineTimeSpan) / 180 * 0.01;
-              if (prizeValue > 0) {
-                  OfflineRewardsView.Create(that, null, null, prizeValue);
-              }
-          }
+  private onOffLineRevenue(offlineTimeSpan: number): void {
+    let that = this;
+    if (userData) {
+      //离线超过10分钟才算奖励
+      if (offlineTimeSpan > 10 * Time.MIN && HallManager.Instance.hallData.passStage > 1 && !M.novice.isRunning) {
+        // 当前关卡收益*(挂机时间/180)*0.1 (挂机时间最大2小时)
+        let stageIncome: number = BattleManager.Instance.getBarrierIncome(M.hall.hallData.passStage);
+        let prizeValue: number = stageIncome * Math.min(Time.HOUR * 2, offlineTimeSpan) / 180 * 0.01;
+        if (prizeValue > 0) {
+          OfflineRewardsView.Create(that, null, null, prizeValue);
+        }
       }
+    }
   }
 
   private onFriendRanking(): void {
@@ -486,7 +487,7 @@ class HallScene extends ui.hall.HallSceneUI {
           that.spMountGuard.setKind(100003);
           that.playKingUpdateEffect();
           Laya.SoundManager.playSound("musics/evolutions.mp3");
-            Laya.timer.callLater(userData, userData.saveLocal, [true]);
+          Laya.timer.callLater(userData, userData.saveLocal, [true]);
         });
       });
     } else {
@@ -890,10 +891,10 @@ class HallScene extends ui.hall.HallSceneUI {
     heroItem.playMergeEffetc(self.mainView, heroId);
     //检测等级刷新
     if (userData.updateCarLevel(BattleManager.Instance.getLevel(nextCardId))) {
-        //检查商店红点
-        if (userData.getCarLevel() == 6) {
-            M.hall.resolveShopRedPoint();
-        }
+      //检查商店红点
+      if (userData.getCarLevel() == 6) {
+        M.hall.resolveShopRedPoint();
+      }
       Laya.SoundManager.playSound("musics/unlock.mp3");
     } else {
       Laya.SoundManager.playSound("musics/makecar.mp3");
@@ -1184,7 +1185,6 @@ class HallScene extends ui.hall.HallSceneUI {
 
   //任务界面
   public showTaskView(): void {
-    let that = this;
     TaskView.Create(null, () => {
       SDKManager.Instance.closeBannerAd(true);
     }, true);
@@ -1192,9 +1192,7 @@ class HallScene extends ui.hall.HallSceneUI {
 
   //幸运抽奖界面
   public showLuckPrizeView(): void {
-    LuckPrizeView.Create(null, () => {
-      SDKManager.Instance.closeBannerAd(true);
-    });
+    ViewMgr.Ins.open(ViewConst.LuckPrizeView);
   }
 
   //跳转小程序
@@ -1325,11 +1323,11 @@ class HallScene extends ui.hall.HallSceneUI {
       }
       that.btnAcce.mouseEnabled = false;
     }
-      let time:number = M.hall.hallData.userAcceTime;
-      if (time > 0) {
-          M.hall.hallData.userAcceTime = --time;
-          userData.cache.setCache(CacheKey.ACCELERATE_SEC_REMAINING, time);
-      } else {
+    let time: number = M.hall.hallData.userAcceTime;
+    if (time > 0) {
+      M.hall.hallData.userAcceTime = --time;
+      userData.cache.setCache(CacheKey.ACCELERATE_SEC_REMAINING, time);
+    } else {
       that.setCarAcce(1);
       Laya.timer.clear(that, that.refreshAcceTime);
       if (that.btnAcce) {
@@ -1339,7 +1337,7 @@ class HallScene extends ui.hall.HallSceneUI {
         }
         that.btnAcce.mouseEnabled = true;
       }
-          userData.cache.removeCache(CacheKey.ACCELERATE_SEC_REMAINING);
+      userData.cache.removeCache(CacheKey.ACCELERATE_SEC_REMAINING);
       return;
     }
     //金币雨
@@ -1684,7 +1682,7 @@ class HallScene extends ui.hall.HallSceneUI {
 
   /** 好友互助 */
   public onClickConcur(): void {
-      ViewMgr.Ins.open(ViewConst.FriendConcurView);
+    ViewMgr.Ins.open(ViewConst.FriendConcurView);
   }
 
   /** 关注 */

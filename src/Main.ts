@@ -23,7 +23,6 @@ class Main {
 
         userData = new UserData();
         LayerMgr.Instance.initLayer(Laya.stage, 750, 1334);
-        SDKManager.Instance.initWX();
 
         systemInfo = new WXSystemInfo();
         try{

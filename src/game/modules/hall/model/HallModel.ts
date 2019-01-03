@@ -44,10 +44,14 @@ class HallModel {
     public stagePrizeList: Array<number> = [];
     /** 守卫是否可以升级 */
     public isUpdate: boolean = false;
-
+    /** 在线钻石领取时间 */
     public offlineTotalTime: number = 5 * 60 * 1000;
-
+    /** 好友互助的信息字典 */
     public concurGoldDic: TSDictionary<number, number>;
+    /** 轮盘可以免费的剩余时间 */
+    public freeTime: number = 0; 
+    /** 离下次免费时间 */
+    public nextFreeTime: number = 0; 
 
     constructor() {
         this.concurGoldDic = new TSDictionary<number, number>();

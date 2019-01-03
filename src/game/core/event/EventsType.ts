@@ -26,5 +26,6 @@ class EventsType {
     public static EVOLUTION_LEVEL_COMPLETE: string = "EVOLUTION_LEVEL_COMPLETE";
     /** 更新货币数据 */
     public static UPDATE_CURRENCY: string = "UPDATE_CURRENCY";
-
+    /** 更新轮盘 */
+    public static UPDATE_LUCK_PRIZE: string = "UPDATE_LUCK_PRIZE";
 }

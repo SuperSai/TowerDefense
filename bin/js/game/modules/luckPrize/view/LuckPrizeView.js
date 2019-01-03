@@ -1,9 +1,9 @@
 /*
 * TER0903-幸运抽奖;
 */
-class LuckPrizeView extends ui.luckPrize.LuckPrizeViewUI {
+class LuckPrizeView extends BaseView {
     constructor() {
-        super();
+        super(LAYER_TYPE.FRAME_LAYER, ui.luckPrize.LuckPrizeViewUI);
         this.costDiamond = 120;
         this.freeTimes = 0; //免费次数
         this.freeTime = 0; //免费时间
@@ -20,120 +20,53 @@ class LuckPrizeView extends ui.luckPrize.LuckPrizeViewUI {
             { id: 7, name: "大量金币", num: 1, imgUrl: "images/core/coin_stack_01.png" },
             { id: 8, name: "游戏T恤", num: 1, imgUrl: "images/luckLottery/luck_prize_7.png" }
         ]; //奖励物品列表
-        var that = this;
-        that.frameOnce(1, that, () => {
-            that.init();
-        });
-    }
-    //新建并添加到节点
-    static Create(_parentNode, _callback = null) {
-        let resList = [
-            { url: "res/atlas/images/luckLottery.atlas", type: Laya.Loader.ATLAS }
-        ];
-        Laya.loader.load(resList, Handler.create(null, () => {
-            let viewTag = "LuckPrizeView";
-            if (_parentNode) {
-                let nodeViewOld = _parentNode.getChildByName(viewTag);
-                if (nodeViewOld) {
-                    nodeViewOld.visible = true;
-                    nodeViewOld.initPrizeInfo();
-                    return;
-                }
-            }
-            else {
-                let nodeView = new LuckPrizeView();
-                nodeView.name = viewTag;
-                AlignUtils.setToScreenGoldenPos(nodeView);
-                LayerManager.getInstance().frameLayer.addChildWithMaskCall(nodeView, nodeView.removeSelf);
-                nodeView.once(Laya.Event.REMOVED, nodeView, _callback);
-            }
-        }));
+        this.setResources(["luckLottery"]);
     }
     //初始化
-    init() {
+    initUI() {
+        super.initUI();
         var self = this;
         SDKManager.Instance.showBannerAd(true);
-        //按钮事件
-        self.btnExit.on(Laya.Event.CLICK, self, self.onClickExit);
-        self.btnStart.on(Laya.Event.CLICK, self, self.onStart);
-        self.initPrizeInfo((_res) => {
-            if (self.txtTip1) {
-                self.txtTip1.visible = true;
-                self.txtTip1.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.23", self.costDiamond);
-            }
-            //消耗钻石
-            let refreshDiamondText = () => {
-                if (self.txtDiamond) {
-                    if (self.freeTime > 0 || self.isTryAgain) {
-                        self.txtDiamond.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.24");
-                    }
-                    else {
-                        self.txtDiamond.changeText('' + self.costDiamond);
-                    }
-                }
-            };
-            refreshDiamondText();
-            if (self.txtTip2) {
-                self.txtTip2.visible = true;
-                let loopFun = () => {
-                    if (self.freeTime > 0) {
-                        self.txtTip2.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.25", TimeUtil.timeFormatStr(self.freeTime, true));
-                        self.txtTip2.color = "#66CD00";
-                        self.freeTime--;
-                    }
-                    else if (self.nextFreeTime > 0) {
-                        self.txtTip2.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.26", TimeUtil.timeFormatStr(self.nextFreeTime, true));
-                        self.txtTip2.color = "#EE6363";
-                        self.nextFreeTime--;
-                        self.freeTimes = 0; //免费次数清零
-                    }
-                    else {
-                        if (self.txtTip2.visible) {
-                            self.initPrizeInfo();
-                        }
-                        self.txtTip2.visible = false;
-                    }
-                    //消耗钻石
-                    refreshDiamondText();
-                };
-                loopFun();
-                self.timerLoop(1000, self, loopFun);
-            }
-        });
+        self.initPrizeInfo();
         //移除红点
         if (userData) {
             userData.removeLuckPrizeRedPoint();
         }
         self.showMyDiamond(PlayerManager.Instance.Info.userDiamond);
-        EventsManager.Instance.on(EventsType.DIAMOND_CHANGE, self, (_data) => {
-            if (_data && _data.diamond) {
-                self.showMyDiamond(_data.diamond);
-            }
-            else {
-                self.showMyDiamond(M.player.Info.userDiamond);
-            }
-        });
     }
-    initPrizeInfo(_showCallback = null) {
-        let that = this;
-        that.requestPrizeInfo((_res) => {
+    addEvents() {
+        super.addEvents();
+        this.ui.btnExit.on(Laya.Event.CLICK, this, this.onClickExit);
+        this.ui.btnStart.on(Laya.Event.CLICK, this, this.onStart);
+        EventsManager.Instance.on(EventsType.DIAMOND_CHANGE, this, this.onUpdateDiamond);
+        EventsManager.Instance.on(EventsType.UPDATE_LUCK_PRIZE, this, this.initPrizeInfo);
+    }
+    removeEvents() {
+        super.removeEvents();
+        this.ui.btnExit.off(Laya.Event.CLICK, this, this.onClickExit);
+        this.ui.btnStart.off(Laya.Event.CLICK, this, this.onStart);
+        EventsManager.Instance.off(EventsType.DIAMOND_CHANGE, this, this.onUpdateDiamond);
+        EventsManager.Instance.off(EventsType.UPDATE_LUCK_PRIZE, this, this.initPrizeInfo);
+    }
+    initPrizeInfo() {
+        HttpManager.Instance.requestPrizeInfo((_res) => {
             if (!_res)
                 return;
-            if (that.isFreeDrawing == false) {
-                that.freeTimes = MathUtils.parseInt(_res.free_num);
-                that.freeTime = MathUtils.parseInt(_res.remain_time);
-                that.nextFreeTime = MathUtils.parseInt(_res.next_free);
+            if (this.isFreeDrawing == false) {
+                this.freeTimes = MathUtils.parseInt(_res.free_num);
+                this.freeTime = MathUtils.parseInt(_res.remain_time);
+                this.nextFreeTime = MathUtils.parseInt(_res.next_free);
             }
-            that.costDiamond = MathUtils.parseInt(_res.roulette_price);
+            this.costDiamond = MathUtils.parseInt(_res.roulette_price);
             //免费次数已用完
-            if (that.freeTimes < 1) {
-                that.freeTime = 0;
+            if (this.freeTimes < 1) {
+                this.freeTime = 0;
             }
-            _showCallback && _showCallback(_res);
+            this.refreshDiamondText();
         });
     }
     onClickExit() {
-        this.removeSelf();
+        ViewMgr.Ins.close(ViewConst.LuckPrizeView);
     }
     //开始抽奖
     onStart() {
@@ -197,24 +130,24 @@ class LuckPrizeView extends ui.luckPrize.LuckPrizeViewUI {
     }
     startBtnEnabled(_isEnabled = true) {
         let that = this;
-        if (that.btnStart) {
-            that.btnStart.disabled = _isEnabled;
+        if (that.ui.btnStart) {
+            that.ui.btnStart.disabled = _isEnabled;
         }
     }
     //转盘
     onRotation(_rotation, _itemId) {
         let that = this;
-        if (that.imgBg) {
+        if (that.ui.imgBg) {
             let fAdd = 0.2;
-            that.imgBg.rotation = that.imgBg.rotation % 360;
-            if (that.imgBg.rotation > _rotation) {
+            that.ui.imgBg.rotation = that.ui.imgBg.rotation % 360;
+            if (that.ui.imgBg.rotation > _rotation) {
                 fAdd = -fAdd;
             }
             let fAddLength = 0;
-            let fTotalLength = Math.abs(_rotation - that.imgBg.rotation);
+            let fTotalLength = Math.abs(_rotation - that.ui.imgBg.rotation);
             let animFun = () => {
                 if (fAdd > 0) {
-                    if (that.imgBg.rotation < _rotation) {
+                    if (that.ui.imgBg.rotation < _rotation) {
                         let progress = fAddLength / fTotalLength;
                         //加速
                         if (progress < 0.2) {
@@ -227,27 +160,27 @@ class LuckPrizeView extends ui.luckPrize.LuckPrizeViewUI {
                             fAdd = 0.2;
                         }
                         fAddLength += fAdd;
-                        that.imgBg.rotation += fAdd;
+                        that.ui.imgBg.rotation += fAdd;
                     }
                     else {
-                        that.imgBg.rotation = _rotation;
-                        that.imgBg.clearTimer(that, animFun);
+                        that.ui.imgBg.rotation = _rotation;
+                        that.ui.imgBg.clearTimer(that, animFun);
                         //显示奖励物品
                         that.showPrizeItem(_itemId);
                     }
                 }
                 else if (fAdd < 0) {
-                    if (that.imgBg.rotation > _rotation) {
-                        that.imgBg.rotation += fAdd;
+                    if (that.ui.imgBg.rotation > _rotation) {
+                        that.ui.imgBg.rotation += fAdd;
                     }
                     else {
-                        that.imgBg.rotation = _rotation;
-                        that.imgBg.clearTimer(that, animFun);
+                        that.ui.imgBg.rotation = _rotation;
+                        that.ui.imgBg.clearTimer(that, animFun);
                         that.startBtnEnabled(true);
                     }
                 }
             };
-            that.imgBg.timerLoop(10, that, animFun);
+            that.ui.imgBg.timerLoop(10, that, animFun);
         }
     }
     //抽奖物品
@@ -372,23 +305,26 @@ class LuckPrizeView extends ui.luckPrize.LuckPrizeViewUI {
             that.startBtnEnabled(false);
         }
     }
+    onUpdateDiamond(data) {
+        if (data && data.diamond) {
+            this.showMyDiamond(data.diamond);
+        }
+        else {
+            this.showMyDiamond(M.player.Info.userDiamond);
+        }
+    }
     showMyDiamond(value) {
         let self = this;
-        self.txt_diamond.text = value + "";
+        self.ui.txt_diamond.text = value + "";
     }
-    //获取抽奖信息
-    requestPrizeInfo(_callback) {
-        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
-        HttpReqHelper.request({
-            url: 'v1/activity/get/roulette',
-            success: function (res) {
-                console.log("requestPrizeInfo", res);
-                _callback && _callback(res);
-            },
-            fail: function (res) {
-                console.log(res);
-            }
-        });
+    refreshDiamondText() {
+        let self = this;
+        if (self.freeTime > 0 || self.isTryAgain) {
+            self.ui.txtDiamond.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.24");
+        }
+        else {
+            self.ui.txtDiamond.changeText('' + self.costDiamond);
+        }
     }
     //转盘抽奖
     requestDrawPrize(_itemId, _callback) {

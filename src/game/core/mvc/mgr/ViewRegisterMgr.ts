@@ -18,6 +18,8 @@ class ViewRegisterMgr {
         ViewMgr.Ins.register(ViewConst.RewardGetView, new RewardGetView());
         ViewMgr.Ins.register(ViewConst.ClearanceRewardView, new ClearanceRewardView());
         ViewMgr.Ins.register(ViewConst.SkyDropView, new SkyDropView());
+        ViewMgr.Ins.register(ViewConst.LuckPrizeView, new LuckPrizeView());
+        
     }
 
     private static _instance: ViewRegisterMgr;

@@ -174,16 +174,17 @@
                 {
                     "x":30,
                     "type":"Button",
-                    "props":{"y":719,"x":354,"var":"btn_level","stateNum":"1","skin":"images/component/frame_btn_small_yellow.png","labelStrokeColor":"#946430","labelStroke":2,"labelSize":30,"labelPadding":"0,0,0,-20","labelColors":"#FFFFFF,#FFFFFF,#FFFFFF,#FFFFFF","labelBold":true,"label":"升级"},
+                    "props":{"y":719,"x":354,"var":"btn_level","stateNum":"1","skin":"images/component/frame_btn_small_yellow.png","labelStrokeColor":"#946430","labelStroke":2,"labelSize":30,"labelColors":"#FFFFFF,#FFFFFF,#FFFFFF,#FFFFFF","labelBold":true,"label":"升级"},
                     "nodeParent":12,
                     "label":"Button(btn_level)",
-                    "isOpen":false,
+                    "isOpen":true,
                     "isDirectory":true,
                     "isAniNode":true,
                     "hasChild":true,
                     "compId":16,
                     "child":[
                         {
+                            "x":45,
                             "type":"Script",
                             "source":"laya/pages/ScaleAnimScript.script",
                             "props":{},
@@ -193,18 +194,6 @@
                             "isAniNode":true,
                             "hasChild":false,
                             "compId":17,
-                            "child":[
-                                ]
-                        },
-                        {
-                            "type":"Image",
-                            "props":{"y":12,"x":105,"skin":"images/randomReward/randomReward_share.png","scaleY":0.8,"scaleX":0.8},
-                            "nodeParent":16,
-                            "label":"Image",
-                            "isDirectory":false,
-                            "isAniNode":true,
-                            "hasChild":false,
-                            "compId":18,
                             "child":[
                                 ]
                         }],

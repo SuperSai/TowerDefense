@@ -44,4 +44,5 @@
    <item name="images/welfare/banner.png" type="Image" compress="0" pack="1" quality="80" props="" picType="0" scale="0"/>
    <item name="images/fontImg/game_Notice_title.png" type="Image" compress="0" pack="1" quality="80" props="" picType="0" scale="0"/>
    <item name="images/hall/common_bg_light.png" type="Image" compress="0" pack="1" quality="80" props="" picType="0" scale="0"/>
+   <item name="images/hall/box_001.png" type="Image" compress="0" pack="0" quality="80" props="" picType="0" scale="0"/>
 </res>

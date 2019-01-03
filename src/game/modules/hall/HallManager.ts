@@ -152,8 +152,8 @@ class HallManager extends Laya.EventDispatcher {
         }
     }
 
-    public resolveShopRedPoint(){
-        const showRedPoint:boolean = userData.isShowCarShopRedPoint();
+    public resolveShopRedPoint() {
+        const showRedPoint: boolean = userData.isShowCarShopRedPoint();
         let imgRedPoint = this._hall.btnShop.getChildByName("imgRedPoint") as Laya.Image;
         imgRedPoint && (imgRedPoint.visible = showRedPoint);
         !showRedPoint && this._hall.timerOnce(5 * Time.MIN_IN_MILI, this, this.resolveShopRedPoint);
@@ -195,16 +195,40 @@ class HallManager extends Laya.EventDispatcher {
         }
     }
 
+    /** 轮盘免费抽奖倒计时 */
     public showLuckPrizeTime(): void {
+        this.hall.txt_prizeTime.visible = false;
         HttpManager.Instance.requestPrizeInfo((res: any) => {
             if (!res) return;
             let freeTimes = MathUtils.parseInt(res.free_num);//免费次数
-            let freeTime = MathUtils.parseInt(res.remain_time);//免费时间
-            let nextFreeTime = MathUtils.parseInt(res.next_free);//离下次免费时间
+            this._model.freeTime = MathUtils.parseInt(res.remain_time);//免费时间
+            this._model.nextFreeTime = MathUtils.parseInt(res.next_free);//离下次免费时间
             if (freeTimes > 0) {
-                // this.hall.txt_luckPrize.text = "免费抽奖";
+                this.hall.txt_prizeTime.visible = true;
+                this.hall.txt_prizeTime.text = "免费抽奖";
             } else {
-
+                let loopFun = () => {
+                    if (this._model.freeTime > 0) {
+                        this._model.freeTime--;
+                        if (this._model.freeTime <= 0) {
+                            EventsManager.Instance.event(EventsType.UPDATE_LUCK_PRIZE);
+                        }
+                    } else if (this._model.nextFreeTime > 0) {
+                        this.hall.txt_prizeTime.visible = true;
+                        this.hall.txt_prizeTime.text = TimeUtil.timeFormatStr(this._model.nextFreeTime, true)
+                        this._model.nextFreeTime--;
+                        freeTimes = 0; //免费次数清零
+                        if (this._model.nextFreeTime <= 0) {
+                            this.hall.txt_prizeTime.text = "免费抽奖";
+                            EventsManager.Instance.event(EventsType.UPDATE_LUCK_PRIZE);
+                        }
+                    } else {
+                        this.hall.txt_prizeTime.visible = false;
+                        TimerManager.Instance.remove(loopFun, this);
+                    }
+                }
+                loopFun();
+                TimerManager.Instance.doTimer(1000, 0, loopFun, this);
             }
         })
     }

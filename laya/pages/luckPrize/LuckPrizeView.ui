@@ -1,9 +1,9 @@
 {
     "x":0,
     "type":"View",
-    "selectedBox":62,
-    "selecteID":76,
-    "props":{"y":0,"x":0,"width":750,"sceneColor":"#000000","name":"rolledTIme","height":1092},
+    "selectedBox":1,
+    "selecteID":1,
+    "props":{"y":0,"x":0,"width":750,"sceneColor":"#000000","name":"rolledTIme","height":869},
     "nodeParent":-1,
     "label":"View(rolledTIme)",
     "isOpen":true,
@@ -15,7 +15,7 @@
         {
             "x":15,
             "type":"View",
-            "props":{"y":0,"x":0,"width":750,"var":"mainView","name":"mainView","height":1092},
+            "props":{"y":0,"x":0,"width":750,"var":"mainView","name":"mainView","height":869},
             "nodeParent":1,
             "label":"View(mainView)",
             "isOpen":true,
@@ -66,32 +66,6 @@
                     "child":[
                         ],
                     "$HIDDEN":false
-                },
-                {
-                    "x":30,
-                    "type":"Label",
-                    "props":{"y":875,"x":167,"width":425,"visible":false,"var":"txtTip1","text":"单词抽奖将消耗钻石x120","name":"txtTip1","height":30,"fontSize":30,"color":"#ffffff","bold":true,"align":"center"},
-                    "nodeParent":62,
-                    "label":"Label(txtTip1)",
-                    "isDirectory":false,
-                    "isAniNode":true,
-                    "hasChild":false,
-                    "compId":71,
-                    "child":[
-                        ]
-                },
-                {
-                    "x":30,
-                    "type":"Label",
-                    "props":{"y":919,"x":64,"width":621,"visible":false,"var":"txtTip2","text":"00:00之后免费抽奖一次","name":"txtTip2","height":30,"fontSize":30,"color":"#fff272","bold":true,"align":"center"},
-                    "nodeParent":62,
-                    "label":"Label(txtTip2)",
-                    "isDirectory":false,
-                    "isAniNode":true,
-                    "hasChild":false,
-                    "compId":78,
-                    "child":[
-                        ]
                 },
                 {
                     "x":30,
