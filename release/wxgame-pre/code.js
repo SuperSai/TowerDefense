@@ -14975,7 +14975,7 @@ class Main {
         };
         Laya.init(750, 1334, Laya.WebGL);
         Laya.stage.scaleMode = Laya.Stage.SCALE_NOSCALE;
-        Laya.URL.basePath = PathConfig.AppResUrl + "index/";
+        // Laya.URL.basePath = PathConfig.AppResUrl + "index/";
         M.layer.initLayer(Laya.stage, 750, 1334);
         userData = new UserData();
         LayerMgr.Instance.initLayer(Laya.stage, 750, 1334);
@@ -15023,7 +15023,7 @@ class Main {
         });
     }
     beginLoad() {
-        const domain = PathConfig.AppResUrl + "index/";
+        const domain = ""; // PathConfig.AppResUrl + "index/";
         Laya.loader.load([
             "loading/start_bg.jpg",
             "loading/loading_bg.jpg",

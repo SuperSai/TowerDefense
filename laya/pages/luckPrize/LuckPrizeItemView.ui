@@ -2,7 +2,7 @@
     "x":0,
     "type":"View",
     "selectedBox":19,
-    "selecteID":13,
+    "selecteID":2,
     "props":{"width":600,"sceneColor":"#000000","height":400},
     "nodeParent":-1,
     "label":"View",
@@ -27,7 +27,7 @@
                 {
                     "x":30,
                     "type":"Image",
-                    "props":{"y":214,"x":376,"width":600,"var":"imgLight","skin":"images/hall/common_bg_light.png","name":"imgLight","height":600,"anchorY":0.5,"anchorX":0.5},
+                    "props":{"y":214,"x":376,"width":600,"var":"imgLight","skin":"images/hall/common_bg_light.png","height":600,"anchorY":0.5,"anchorX":0.5},
                     "nodeParent":19,
                     "label":"Image(imgLight)",
                     "isOpen":true,
@@ -41,7 +41,7 @@
                 {
                     "x":30,
                     "type":"Button",
-                    "props":{"y":-171,"x":596,"stateNum":"1","skin":"images/component/frame_close_btn.png","name":"btnExit"},
+                    "props":{"y":-171,"x":596,"var":"btnExit","stateNum":"1","skin":"images/component/frame_close_btn.png"},
                     "nodeParent":19,
                     "label":"Button(btnExit)",
                     "isOpen":false,
@@ -82,9 +82,9 @@
                 {
                     "x":30,
                     "type":"Image",
-                    "props":{"y":209,"x":374,"skin":"images/component/frame_9calce_03.png","name":"imgItemBg","anchorY":0.5,"anchorX":0.5},
+                    "props":{"y":209,"x":374,"skin":"images/component/frame_9calce_03.png","anchorY":0.5,"anchorX":0.5},
                     "nodeParent":19,
-                    "label":"Image(imgItemBg)",
+                    "label":"Image",
                     "isDirectory":false,
                     "isAniNode":true,
                     "hasChild":false,
@@ -96,7 +96,7 @@
                 {
                     "x":30,
                     "type":"Image",
-                    "props":{"y":210,"x":374,"visible":false,"skin":"images/luckLottery/luck_prize_3.png","name":"imgItem","anchorY":0.5,"anchorX":0.5},
+                    "props":{"y":210,"x":374,"visible":false,"var":"imgItem","skin":"images/luckLottery/luck_prize_3.png","anchorY":0.5,"anchorX":0.5},
                     "nodeParent":19,
                     "label":"Image(imgItem)",
                     "isDirectory":false,
@@ -109,7 +109,7 @@
                 {
                     "x":30,
                     "type":"Label",
-                    "props":{"y":445,"x":89,"width":578,"text":"先知球x1","strokeColor":"#946430","stroke":2,"name":"txtItemName","height":50,"fontSize":50,"color":"#ffebbc","bold":true,"align":"center"},
+                    "props":{"y":445,"x":89,"width":578,"var":"txtItemName","text":"先知球x1","strokeColor":"#946430","stroke":2,"height":50,"fontSize":50,"color":"#ffebbc","bold":true,"align":"center"},
                     "nodeParent":19,
                     "label":"Label(txtItemName)",
                     "isDirectory":false,

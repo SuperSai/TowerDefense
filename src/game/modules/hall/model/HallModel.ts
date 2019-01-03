@@ -49,9 +49,11 @@ class HallModel {
     /** 好友互助的信息字典 */
     public concurGoldDic: TSDictionary<number, number>;
     /** 轮盘可以免费的剩余时间 */
-    public freeTime: number = 0; 
+    public freeTime: number = 0;
     /** 离下次免费时间 */
-    public nextFreeTime: number = 0; 
+    public nextFreeTime: number = 0;
+    /** 转盘倍率 */
+    public magnification: number = 1;
 
     constructor() {
         this.concurGoldDic = new TSDictionary<number, number>();

@@ -1,8 +1,8 @@
 {
     "x":0,
     "type":"View",
-    "selectedBox":48,
-    "selecteID":87,
+    "selectedBox":2,
+    "selecteID":96,
     "props":{"y":0,"x":0,"sceneWidth":750,"sceneHeight":1334,"sceneColor":"#000000","sceneBg":"laya/views/ShareGift.jpg"},
     "nodeParent":-1,
     "label":"View",
@@ -94,18 +94,19 @@
                 {
                     "x":30,
                     "type":"View",
-                    "props":{"y":0,"x":0,"var":"tabGroup"},
+                    "props":{"y":239,"x":137,"var":"tabGroup"},
                     "nodeParent":2,
                     "label":"View(tabGroup)",
-                    "isOpen":false,
+                    "isOpen":true,
                     "isDirectory":true,
                     "isAniNode":true,
                     "hasChild":true,
                     "compId":96,
                     "child":[
                         {
+                            "x":45,
                             "type":"Button",
-                            "props":{"y":249,"x":144,"strokeColors":"#998a4e,#a86c24","stateNum":"2","skin":"images/component/tab_01.png","selected":true,"labelStroke":5,"labelSize":36,"labelPadding":"0,0,13,0","labelColors":"#fff4e1,#fff4e1","labelBold":true,"labelAlign":"center","label":"每日任务"},
+                            "props":{"y":10,"x":0,"strokeColors":"#998a4e,#a86c24","stateNum":"2","skin":"images/component/tab_01.png","selected":true,"labelStroke":5,"labelSize":36,"labelPadding":"0,0,13,0","labelColors":"#fff4e1,#fff4e1","labelBold":true,"labelAlign":"center","label":"每日任务"},
                             "nodeParent":96,
                             "label":"Button",
                             "isOpen":false,
@@ -129,8 +130,9 @@
                                 }]
                         },
                         {
+                            "x":45,
                             "type":"Button",
-                            "props":{"y":249,"x":418,"strokeColors":"#998a4e,#a86c24","stateNum":"2","skin":"images/component/tab_01.png","selected":false,"labelStroke":5,"labelSize":36,"labelPadding":"0,0,13,0","labelColors":"#fff4e1,#fff4e1","labelBold":true,"labelAlign":"center","label":"邀请好友"},
+                            "props":{"y":10,"x":274,"strokeColors":"#998a4e,#a86c24","stateNum":"2","skin":"images/component/tab_01.png","selected":false,"labelStroke":5,"labelSize":36,"labelPadding":"0,0,13,0","labelColors":"#fff4e1,#fff4e1","labelBold":true,"labelAlign":"center","label":"成就任务"},
                             "nodeParent":96,
                             "label":"Button",
                             "isOpen":false,
@@ -152,7 +154,8 @@
                                     "child":[
                                         ]
                                 }]
-                        }]
+                        }],
+                    "$HIDDEN":false
                 },
                 {
                     "x":30,
@@ -172,14 +175,13 @@
                             "props":{"y":1,"x":56,"width":637,"name":"item0","height":736},
                             "nodeParent":22,
                             "label":"Image(item0)",
-                            "isOpen":true,
+                            "isOpen":false,
                             "isDirectory":true,
                             "isAniNode":true,
                             "hasChild":true,
                             "compId":23,
                             "child":[
                                 {
-                                    "x":60,
                                     "type":"List",
                                     "props":{"y":0,"x":0,"width":638,"var":"taskItemList","spaceY":15,"repeatY":1,"repeatX":1,"name":"taskItemList","height":690},
                                     "nodeParent":23,
@@ -191,7 +193,6 @@
                                     "compId":47,
                                     "child":[
                                         {
-                                            "x":75,
                                             "type":"Box",
                                             "props":{"y":0,"x":2,"visible":false,"right":2,"renderType":"render","left":2,"height":130,"cacheAs":"bitmap"},
                                             "nodeParent":47,
@@ -203,7 +204,6 @@
                                             "compId":48,
                                             "child":[
                                                 {
-                                                    "x":90,
                                                     "type":"Image",
                                                     "props":{"y":10,"x":6,"skin":"images/quest/item_bg.png"},
                                                     "nodeParent":48,
@@ -216,7 +216,6 @@
                                                         ]
                                                 },
                                                 {
-                                                    "x":90,
                                                     "type":"Image",
                                                     "props":{"y":82,"x":45,"skin":"images/quest/reward_bg.png"},
                                                     "nodeParent":48,
@@ -230,7 +229,6 @@
                                                     "$HIDDEN":false
                                                 },
                                                 {
-                                                    "x":90,
                                                     "type":"Image",
                                                     "props":{"y":81,"x":33,"skin":"images/core/diamond.png","name":"imgAwardIcon"},
                                                     "nodeParent":48,
@@ -243,7 +241,6 @@
                                                         ]
                                                 },
                                                 {
-                                                    "x":90,
                                                     "type":"Label",
                                                     "props":{"y":28,"x":35,"width":350,"text":"完成车辆合成30次 (0/30)","name":"txtTitle","fontSize":32,"color":"#a17338","bold":true,"align":"left"},
                                                     "nodeParent":48,
@@ -256,7 +253,6 @@
                                                         ]
                                                 },
                                                 {
-                                                    "x":90,
                                                     "type":"Label",
                                                     "props":{"y":85,"x":79,"width":100,"text":"100","name":"txtDiamond","fontSize":30,"color":"#fcf4cd","align":"left"},
                                                     "nodeParent":48,
@@ -269,7 +265,6 @@
                                                         ]
                                                 },
                                                 {
-                                                    "x":90,
                                                     "type":"Image",
                                                     "props":{"y":52,"x":433,"skin":"images/component/frame_9scale_11.png","name":"txtGet"},
                                                     "nodeParent":48,
@@ -281,7 +276,6 @@
                                                     "compId":87,
                                                     "child":[
                                                         {
-                                                            "x":105,
                                                             "type":"Label",
                                                             "props":{"y":9,"x":22,"width":120,"text":"已领取","fontSize":30,"color":"#fff4e1","bold":true,"align":"center"},
                                                             "nodeParent":87,
@@ -297,7 +291,6 @@
                                                     "$HIDDEN":false
                                                 },
                                                 {
-                                                    "x":90,
                                                     "type":"Button",
                                                     "props":{"y":44,"x":424,"stateNum":"1","skin":"images/quest/btn_obtain.png","name":"btnGet","labelStrokeColor":"#946430","labelStroke":3,"labelSize":30,"labelColors":"#fff4e1","labelBold":true,"label":"领取"},
                                                     "nodeParent":48,
@@ -311,10 +304,10 @@
                                                         ],
                                                     "$HIDDEN":true
                                                 }]
-                                        }]
+                                        }],
+                                    "$HIDDEN":false
                                 },
                                 {
-                                    "x":60,
                                     "type":"Label",
                                     "props":{"y":699,"x":-1,"width":638,"text":"每天00:00时系统自动重置任务","strokeColor":"#7a572b","stroke":2,"height":24,"fontSize":24,"color":"#ffffff","bold":true,"align":"center"},
                                     "nodeParent":23,
@@ -326,7 +319,7 @@
                                     "child":[
                                         ]
                                 }],
-                            "$HIDDEN":false
+                            "$HIDDEN":true
                         },
                         {
                             "x":45,

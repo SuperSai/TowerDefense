@@ -10,7 +10,6 @@ class BaseView extends Laya.View {
         this._isInit = false;
         this._isShowMask = isShowMask;
         this._ui = $class;
-        this._class = $class;
     }
     /** 获取我的父级 */
     get myParent() {

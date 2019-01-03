@@ -12,7 +12,6 @@ class EventsType {
     public static STRENGTHEN_RED_POINT: string = "STRENGTHEN_RED_POINT";
     public static HERO_SHOP_RED_POINT: string = "HERO_SHOP_RED_POINT";
     public static ACCE_CHANGE: string = "ACCE_CHANGE";
-    public static LUCK_PRIZE: string = "LUCK_PRIZE";
     public static BACK_GAME: string = "BACK_GAME"; //重返游戏
     public static TASK_RED_POINT: string = "TASK_RED_POINT";
     public static LUCK_PRIZED_RED_POINT: string = "LUCK_PRIZED_RED_POINT";

@@ -32,5 +32,9 @@ var ViewConst;
     ViewConst[ViewConst["SkyDropView"] = 10015] = "SkyDropView";
     /** 轮盘 */
     ViewConst[ViewConst["LuckPrizeView"] = 10016] = "LuckPrizeView";
+    /** 幸运转盘奖励界面 */
+    ViewConst[ViewConst["LuckPrizeItemView"] = 10017] = "LuckPrizeItemView";
+    /** 转盘宝箱中奖界面 */
+    ViewConst[ViewConst["LuckPrizeBoxView"] = 10018] = "LuckPrizeBoxView";
 })(ViewConst || (ViewConst = {}));
 //# sourceMappingURL=ViewConst.js.map

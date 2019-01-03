@@ -31,4 +31,8 @@ enum ViewConst {
     SkyDropView,
     /** 轮盘 */
     LuckPrizeView,
+    /** 幸运转盘奖励界面 */
+    LuckPrizeItemView,
+    /** 转盘宝箱中奖界面 */
+    LuckPrizeBoxView,
 }

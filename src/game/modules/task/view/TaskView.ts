@@ -76,30 +76,24 @@ class TaskView extends ui.task.TaskViewUI {
     //初始化list
     //任务
     private refreshTaskList(_data: any) {
-        if (_data == null) {
-            return
-        }
+        if (_data == null) return;
         let that = this;
         let listData: any[] = _data; // [1,3,5,7,8,10];
         let redPointNum = 0;
-
         listData.sort((pre, next): number => {
             if (pre.task_status !== next.task_status) {
                 return next.task_status - pre.task_status;
             }
             return pre.id - next.id;
         });
-
         listData.forEach((data, index, list) => {
             redPointNum += (data.task_status === 1 ? 1 : 0);
         });
-
         this.updateTabRetDot(QuestSubView.DAILY_QUEST, redPointNum > 0);
         if (listData.length <= 0) {
             this.viewStackTask.selectedIndex = QuestSubView.EMPTY_QUEST;
             return;
         }
-
         that.taskItemList.vScrollBarSkin = '';
         that.taskItemList.repeatY = 5;
         that.taskItemList.array = listData;
@@ -107,7 +101,6 @@ class TaskView extends ui.task.TaskViewUI {
             if (index > listData.length) {
                 return;
             }
-            // console.log(cell, index);
             let item = listData[index];
             if (!item) {
                 return;
@@ -124,7 +117,6 @@ class TaskView extends ui.task.TaskViewUI {
                 }
                 txtTitle.changeText(itemTitle + ' (' + finishNum + '/' + totalNum + ')');
             }
-
             const imgAwardIcon: Laya.Image = cell.getChildByName('imgAwardIcon') as Laya.Image;
             if (imgAwardIcon) {
                 switch (item.reward_type) {
@@ -141,9 +133,6 @@ class TaskView extends ui.task.TaskViewUI {
                     txtDiamond.changeText('' + awardNum);
                 }
             }
-
-
-
             //领取
             let btnGet = cell.getChildByName('btnGet') as Laya.Button;
             if (btnGet) {
@@ -151,13 +140,9 @@ class TaskView extends ui.task.TaskViewUI {
                 if (boxStage > 0) {
                     if (boxStage > 1) {
                         //已领取
-                        // btnGet.disabled = true;
-                        // btnGet.text.changeText("已领取");
                         btnGet.visible = false;
                     } else {
                         btnGet.disabled = false;
-                        // btnGet.text.changeText("领取");
-                        // btnGet.mouseEnabled = true;
                         btnGet.offAll(Laya.Event.CLICK);
                         btnGet.on(Laya.Event.CLICK, btnGet, (_item: any, _btnObj: Laya.Button) => {
                             // console.log("领取奖励")
@@ -166,7 +151,6 @@ class TaskView extends ui.task.TaskViewUI {
                                     if (_res.code === 1) {
                                         MessageUtils.showMsgTips("奖励领取成功");
                                         MessageUtils.shopMsgByObj(btnGet, "+" + awardNum, EFFECT_TYPE.DIAMOND);
-                                        // userData.requestDiamondData();
                                         if (EventsManager.Instance) {
                                             EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, _res);
                                         }
@@ -194,7 +178,6 @@ class TaskView extends ui.task.TaskViewUI {
                     }
                 } else {
                     btnGet.disabled = true;
-                    // btnGet.text.changeText("领取");
                 }
             }
         });
@@ -208,9 +191,6 @@ class TaskView extends ui.task.TaskViewUI {
         let finishNum = _data.share_num;
         let listDatas = _data.share_status; // [1,3,5,7,8,10];
         let redPointNum = 0;
-
-
-
         //排序红点提示
         // for (var key in listDatas) {
         //     var element = listDatas[key];
@@ -225,11 +205,7 @@ class TaskView extends ui.task.TaskViewUI {
                 redPointNum++;
             }
         });
-
         this.updateTabRetDot(QuestSubView.INVITE_AWARD, redPointNum > 0);
-
-        // listDatas = tempListDatas;
-
         that.shareItemList.vScrollBarSkin = '';
         that.shareItemList.repeatY = 3;
         that.shareItemList.array = listDatas;
@@ -237,7 +213,6 @@ class TaskView extends ui.task.TaskViewUI {
             if (index > listDatas.length) {
                 return;
             }
-            // console.log(cell, index);
             let item = listDatas[index];
             if (item == null) {
                 return;
@@ -252,7 +227,6 @@ class TaskView extends ui.task.TaskViewUI {
             }
             let txtTitle = cell.getChildByName('txtTitle') as Laya.Label;
             if (txtTitle) {
-                // txtTitle.changeText('邀请' +collectNum +'位好友 (' +(invitePeople +'/' +collectNum) +')');
                 txtTitle.changeText('第' + collectNum + '个好友');
             }
 
@@ -284,7 +258,6 @@ class TaskView extends ui.task.TaskViewUI {
                     userData.toShareAd(null, 0, true);
                 })
             }
-
             //领取
             let btnGet = cell.getChildByName('btnGet') as Laya.Button;
             const btnInvite = cell.getChildByName("btnInvite") as Laya.Button;

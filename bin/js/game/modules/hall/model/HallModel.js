@@ -51,6 +51,8 @@ class HallModel {
         this.freeTime = 0;
         /** 离下次免费时间 */
         this.nextFreeTime = 0;
+        /** 转盘倍率 */
+        this.magnification = 1;
         this.concurGoldDic = new TSDictionary();
     }
 }

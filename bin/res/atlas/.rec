@@ -1,6 +1,6 @@
 D .
 D config
-R 57247755 language.txt
+R E18B9267 language.txt
 D images
 D loading
 D musics
@@ -120,7 +120,7 @@ R 6CDDB56A blood_num.png
 P 1D2679A1 buy_title.png
 R C0FCDF8C crit_num.png
 P 33797E78 evolution_shop_title.png
-P 0C4E844E game_Notice_title.png
+P 3979A099 game_Notice_title.png
 P 29A21142 getFreePet_title.png
 P D138D4F1 king_title_icon.png
 P 87443716 reward_get_title.png
@@ -181,9 +181,11 @@ P CE6B89CF levelHero_name_bg.png
 P 411A7C2E levelHero_titel.png
 D images/luckLottery
 P 043405C4 luck_go.png
-R 71914F23 luck_huanpan.png
+R 9B572172 luck_huanpan.png
 R E0670AD6 luck_huanpan_light.png
+P 27A69212 luck_item_box.png
 R 3ACAA4E1 luck_item_title.png
+R 28742DAD luck_item_title_2.png
 P F8378FE5 luck_price_bg.png
 P 62EB7C06 luck_prize_0.png
 P 2D627445 luck_prize_2.png

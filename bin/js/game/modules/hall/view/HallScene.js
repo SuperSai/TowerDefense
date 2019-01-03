@@ -304,7 +304,6 @@ class HallScene extends ui.hall.HallSceneUI {
         EventsManager.Instance.on(EventsType.LUCK_PRIZED_RED_POINT, self, self.onUpdatePrizeRedPoint); //转盘红点移除事件
         EventsManager.Instance.on(EventsType.HERO_SHOP_RED_POINT, M.hall, M.hall.resolveShopRedPoint); //英雄商店红点事件
         EventsManager.Instance.on(EventsType.ACCE_CHANGE, self, self.onUpdateAccelerateBtnState); //加速按钮状态
-        EventsManager.Instance.on(EventsType.LUCK_PRIZE, self, self.onUpdatePrizeState); //更新幸运抽奖状态
         EventsManager.Instance.on(EventsType.STRENGTHEN_RED_POINT, self, self.onUpdateStrengthenRedPoint); //强化红点移除事件
         EventsManager.Instance.on(EventsType.FOLLOW_RED_POINT, self, self.onFollowRewardRedPoint); //关注红点事件
         EventsManager.Instance.on(EventsType.FRIEND_CONCUR_RED_POINT, self, self.onFriendConcurRedPoint); //好友互助红点事件
@@ -1394,30 +1393,6 @@ class HallScene extends ui.hall.HallSceneUI {
             monsterAni.removeSelf();
             Laya.Pool.recover(userData.ANIMATION_POOL_NAME, monsterAni);
         });
-    }
-    /** 更新幸运抽奖状态 */
-    onUpdatePrizeState($data) {
-        let self = this;
-        if ($data.id == 7) {
-            if ($data.num > 0) {
-                self.updateGold(PlayerManager.Instance.Info.userMoney + $data.num);
-            }
-        }
-        else if ($data.id == 3) {
-            if ($data.num > 0) {
-                self.playAcceEffectView($data.num);
-            }
-        }
-        else if ($data.id == 4) {
-            let carId = $data.carId;
-            if (carId) {
-                let carParkSp = BattleManager.Instance.createPet(carId, true);
-                if (carParkSp == null) {
-                    //保存失败则防止储存箱
-                    self.saveCarStore(carId);
-                }
-            }
-        }
     }
     /** 更新加速按钮状态 */
     onUpdateAccelerateBtnState() {

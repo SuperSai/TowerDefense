@@ -11,7 +11,6 @@ class BaseView extends Laya.View implements IBaseView {
     private _ui: any;
     private _isShowMask: boolean;
     private _datas: any[];
-    private _class: Laya.View;
 
     /** 构造函数 */
     public constructor($layer: number, $class: any, isShowMask: boolean = true) {
@@ -20,11 +19,10 @@ class BaseView extends Laya.View implements IBaseView {
         this._isInit = false;
         this._isShowMask = isShowMask;
         this._ui = $class;
-        this._class = $class;
     }
 
     /** 获取我的父级 */
-    public get myParent(): Laya.Node {
+    public get myParent(): MaskLayer {
         return this._myParent;
     }
 

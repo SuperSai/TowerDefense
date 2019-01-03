@@ -64,9 +64,8 @@ class TaskView extends ui.task.TaskViewUI {
     //初始化list
     //任务
     refreshTaskList(_data) {
-        if (_data == null) {
+        if (_data == null)
             return;
-        }
         let that = this;
         let listData = _data; // [1,3,5,7,8,10];
         let redPointNum = 0;
@@ -91,7 +90,6 @@ class TaskView extends ui.task.TaskViewUI {
             if (index > listData.length) {
                 return;
             }
-            // console.log(cell, index);
             let item = listData[index];
             if (!item) {
                 return;
@@ -130,14 +128,10 @@ class TaskView extends ui.task.TaskViewUI {
                 if (boxStage > 0) {
                     if (boxStage > 1) {
                         //已领取
-                        // btnGet.disabled = true;
-                        // btnGet.text.changeText("已领取");
                         btnGet.visible = false;
                     }
                     else {
                         btnGet.disabled = false;
-                        // btnGet.text.changeText("领取");
-                        // btnGet.mouseEnabled = true;
                         btnGet.offAll(Laya.Event.CLICK);
                         btnGet.on(Laya.Event.CLICK, btnGet, (_item, _btnObj) => {
                             // console.log("领取奖励")
@@ -146,7 +140,6 @@ class TaskView extends ui.task.TaskViewUI {
                                     if (_res.code === 1) {
                                         MessageUtils.showMsgTips("奖励领取成功");
                                         MessageUtils.shopMsgByObj(btnGet, "+" + awardNum, EFFECT_TYPE.DIAMOND);
-                                        // userData.requestDiamondData();
                                         if (EventsManager.Instance) {
                                             EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, _res);
                                         }
@@ -176,7 +169,6 @@ class TaskView extends ui.task.TaskViewUI {
                 }
                 else {
                     btnGet.disabled = true;
-                    // btnGet.text.changeText("领取");
                 }
             }
         });
@@ -205,7 +197,6 @@ class TaskView extends ui.task.TaskViewUI {
             }
         });
         this.updateTabRetDot(QuestSubView.INVITE_AWARD, redPointNum > 0);
-        // listDatas = tempListDatas;
         that.shareItemList.vScrollBarSkin = '';
         that.shareItemList.repeatY = 3;
         that.shareItemList.array = listDatas;
@@ -213,7 +204,6 @@ class TaskView extends ui.task.TaskViewUI {
             if (index > listDatas.length) {
                 return;
             }
-            // console.log(cell, index);
             let item = listDatas[index];
             if (item == null) {
                 return;
@@ -227,7 +217,6 @@ class TaskView extends ui.task.TaskViewUI {
             }
             let txtTitle = cell.getChildByName('txtTitle');
             if (txtTitle) {
-                // txtTitle.changeText('邀请' +collectNum +'位好友 (' +(invitePeople +'/' +collectNum) +')');
                 txtTitle.changeText('第' + collectNum + '个好友');
             }
             let awardNum;

@@ -47,7 +47,7 @@ hallScene.label.txt.36:该界面没有到 ViewRegisterMgr 类中注册!
 hallScene.label.txt.37:购买失败
 hallScene.label.txt.38:在群里点击分享的链接进入游戏，领取奖励。
 hallScene.label.txt.39:请从“我的小程序”中进入游戏
-
+hallScene.label.txt.40:下次转盘{0}倍奖励
 
 
 

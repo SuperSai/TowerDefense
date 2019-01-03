@@ -18,14 +18,14 @@ class Main {
         };
         Laya.init(750, 1334, Laya.WebGL);
         Laya.stage.scaleMode = Laya.Stage.SCALE_NOSCALE;
-        Laya.URL.basePath = PathConfig.AppResUrl + "index/";
+        // Laya.URL.basePath = PathConfig.AppResUrl + "index/";
         M.layer.initLayer(Laya.stage, 750, 1334);
 
         userData = new UserData();
         LayerMgr.Instance.initLayer(Laya.stage, 750, 1334);
 
         systemInfo = new WXSystemInfo();
-        try{
+        try {
             const infoSync = Laya.Browser.window.wx.getSystemInfoSync();
             ObjectUtils.assign(systemInfo, infoSync);
         } catch (e) {
@@ -70,17 +70,17 @@ class Main {
     }
 
     private beginLoad() {
-        const domain:string = PathConfig.AppResUrl + "index/";
+        const domain: string = "";// PathConfig.AppResUrl + "index/";
         Laya.loader.load([
-                "loading/start_bg.jpg",
-                "loading/loading_bg.jpg",
-                "loading/bar.png",
-                "loading/bar_bg.png",
-                "loading/loading01.png",
-                domain + "loading/start_btn.png",
-                domain + "config/language.txt",
-                domain + "sheets/sheet.json",
-            ],
+            "loading/start_bg.jpg",
+            "loading/loading_bg.jpg",
+            "loading/bar.png",
+            "loading/bar_bg.png",
+            "loading/loading01.png",
+            domain + "loading/start_btn.png",
+            domain + "config/language.txt",
+            domain + "sheets/sheet.json",
+        ],
             Handler.create(this, () => {
                 EffectUtils.stopWaitEffect();
                 M.layer.renderLayer.addChild(new MainLoadingView());

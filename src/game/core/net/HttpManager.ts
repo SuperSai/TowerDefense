@@ -231,7 +231,7 @@ class HttpManager {
                 let offlineTimeSpan = MathUtils.parseInt(res.time); //离线时长
                 // let login_time = MathUtils.parseInt(res.login_time); //登录当前服务器时间
 
-                if(offlineTimeSpan > 10 * Time.MIN){
+                if (offlineTimeSpan > 10 * Time.MIN) {
                     M.event.event(EventsType.OFFLINE, offlineTimeSpan);
                     this.requestNotifyServerPrize();
                 }
@@ -352,7 +352,6 @@ class HttpManager {
             url: 'v1/userinfo/get_diamond',
             success: function (res) {
                 console.log("requestDiamondData:", res);
-                // if (res && (typeof res != 'string')) {
                 if (res) {
                     M.player.Info.userDiamond = MathUtils.parseStringNum(res.diamond);
                     if (EventsManager.Instance) {
@@ -375,8 +374,8 @@ class HttpManager {
             success: res => {
                 console.log("requestCarparkData:", res);
                 if (res) {
-                    if(res.length){
-                        userData.parkcarInfoArray.map((item, index)=>{
+                    if (res.length) {
+                        userData.parkcarInfoArray.map((item, index) => {
                             for (const key in item) {
                                 item[key] = res[index][key];
                             }
@@ -420,7 +419,7 @@ class HttpManager {
                 console.log("requestUserinfoData:", res);
                 if (res) {
 
-                    const group:any = {};
+                    const group: any = {};
                     group[CacheKey.USER_ID] = userData.userId = res.id;
 
                     userData.setMoney(MathUtils.parseStringNum(res.money));
@@ -483,7 +482,7 @@ class HttpManager {
     }
 
     /** 强化数据 */
-    public requestSaveSkillAdditionData(forceRightNow:boolean = false): void {
+    public requestSaveSkillAdditionData(forceRightNow: boolean = false): void {
         let dataJson = JSON.stringify(userData.skillAdditionArray);
         //非法数据过滤
         if (dataJson == null || dataJson.length < 1 || userData.skillAdditionArray.length < 1) {
@@ -510,7 +509,7 @@ class HttpManager {
     }
 
     /** 用户基础数据 */
-    public requestSaveUserinfoData(forceRightNow:boolean = false): void {
+    public requestSaveUserinfoData(forceRightNow: boolean = false): void {
         const data = {
             money: M.player.Info.userMoney,
             car_level: userData.getCarLevel(),
@@ -518,11 +517,11 @@ class HttpManager {
             king_level: userData.getKingLevel()
         };
 
-        if(!forceRightNow){
-            const notUpload:boolean = ["car_level", "stage", "king_level"].every((key)=>{
+        if (!forceRightNow) {
+            const notUpload: boolean = ["car_level", "stage", "king_level"].every((key) => {
                 return data[key] === userData.lastHeartBeatQueryObj[key];
-            }) ;
-            if(notUpload)return;
+            });
+            if (notUpload) return;
         }
 
         userData.cache.setCache(CacheKey.LAST_HEART_BEAT_TIME, new Date().getTime());
@@ -549,7 +548,7 @@ class HttpManager {
     }
 
     /** 保存坑位数据 */
-    public requestSaveCarparkData(forceRightNow:boolean = false): void {
+    public requestSaveCarparkData(forceRightNow: boolean = false): void {
         let dataJson = JSON.stringify(userData.parkcarInfoArray);
         //非法数据过滤
         if (dataJson == null || dataJson.length < 1 || userData.parkcarInfoArray.length < 1) {
@@ -577,7 +576,7 @@ class HttpManager {
     }
 
     /** 保存英雄商店数据 */
-    public requestSaveCarshopData(forceRightNow:boolean = false): void {
+    public requestSaveCarshopData(forceRightNow: boolean = false): void {
         let dataJson = JSON.stringify(userData.carBuyRecordArray);
         //非法数据过滤
         if (dataJson == null || dataJson.length < 1 || userData.carBuyRecordArray.length < 1) {
@@ -606,7 +605,7 @@ class HttpManager {
     }
 
     /** 分享标志 */
-    public requestShareFlag(callback?:Function): void {
+    public requestShareFlag(callback?: Function): void {
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/share/flag',
@@ -826,6 +825,40 @@ class HttpManager {
             },
             fail: function (res) {
                 console.log(res);
+            }
+        });
+    }
+
+    /** 转盘信息统计 */
+    public requestPrizeCensus(itemId: number, num: number): void {
+        let dataString = 'prizeId=' + itemId + '&prizeNum=' + num;
+        console.log("requestPrizeCensus:", dataString);
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+        HttpReqHelper.request({
+            url: 'v1/activity/roulette/log',
+            method: 'Post',
+            data: dataString,
+            success: function (res) {
+                console.log("requestPrizeCensus:", res);
+            },
+            fail: function (res) {
+                console.log(res);
+            }
+        });
+    }
+
+    /** 转盘抽奖 */
+    public requestDrawPrize(_itemId: number, _callback: any): void {
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+        HttpReqHelper.request({
+            url: 'v1/activity/roulette/' + _itemId,
+            success: function (res) {
+                console.log("requestDrawPrize", res);
+                _callback && _callback(res);
+            },
+            fail: function (res) {
+                console.log(res);
+                _callback && _callback(false);
             }
         });
     }

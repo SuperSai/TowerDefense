@@ -330,7 +330,6 @@ class HttpManager {
             url: 'v1/userinfo/get_diamond',
             success: function (res) {
                 console.log("requestDiamondData:", res);
-                // if (res && (typeof res != 'string')) {
                 if (res) {
                     M.player.Info.userDiamond = MathUtils.parseStringNum(res.diamond);
                     if (EventsManager.Instance) {
@@ -772,6 +771,38 @@ class HttpManager {
             },
             fail: function (res) {
                 console.log(res);
+            }
+        });
+    }
+    /** 转盘信息统计 */
+    requestPrizeCensus(itemId, num) {
+        let dataString = 'prizeId=' + itemId + '&prizeNum=' + num;
+        console.log("requestPrizeCensus:", dataString);
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+        HttpReqHelper.request({
+            url: 'v1/activity/roulette/log',
+            method: 'Post',
+            data: dataString,
+            success: function (res) {
+                console.log("requestPrizeCensus:", res);
+            },
+            fail: function (res) {
+                console.log(res);
+            }
+        });
+    }
+    /** 转盘抽奖 */
+    requestDrawPrize(_itemId, _callback) {
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+        HttpReqHelper.request({
+            url: 'v1/activity/roulette/' + _itemId,
+            success: function (res) {
+                console.log("requestDrawPrize", res);
+                _callback && _callback(res);
+            },
+            fail: function (res) {
+                console.log(res);
+                _callback && _callback(false);
             }
         });
     }
