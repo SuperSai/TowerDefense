@@ -159,7 +159,6 @@ class HttpManager {
     }
     /** 分享广告完成 */
     requestShareAdFinish(_kind, shareId = 0) {
-        let that = this;
         let dataString = 'type=' + _kind + '&share_id=' + shareId;
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
@@ -803,6 +802,20 @@ class HttpManager {
             fail: function (res) {
                 console.log(res);
                 _callback && _callback(false);
+            }
+        });
+    }
+    /** 邀请好友数据信息 */
+    requestShareInfo(callback) {
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+        HttpReqHelper.request({
+            url: 'v1/share/friend_num',
+            success: function (res) {
+                console.log("@FREEMAN: requestShareInfo =>", res);
+                callback && callback(res);
+            },
+            fail: function (res) {
+                console.log(res);
             }
         });
     }

@@ -10,7 +10,7 @@ class RewardGoldView extends BaseView {
     initUI() {
         super.initUI();
         let self = this;
-        SDKManager.Instance.showBannerAd(true);
+        SDKManager.Instance.showBannerAd();
         self.ui.txt_share.visible = false;
         self.ui.advBox.visible = !self.ui.txt_share.visible;
         self.ui.txt_lastCount.text = "今天剩余" + PlayerManager.Instance.Info.dayGetGoldCount + "次";

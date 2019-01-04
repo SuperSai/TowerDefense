@@ -18,7 +18,7 @@ class Main {
         };
         Laya.init(750, 1334, Laya.WebGL);
         Laya.stage.scaleMode = Laya.Stage.SCALE_NOSCALE;
-        // Laya.URL.basePath = PathConfig.AppResUrl + "index/";
+        // Laya.URL.basePath = PathConfig.RES_URL;
         M.layer.initLayer(Laya.stage, 750, 1334);
 
         userData = new UserData();
@@ -70,7 +70,7 @@ class Main {
     }
 
     private beginLoad() {
-        const domain: string = "";// PathConfig.AppResUrl + "index/";
+        const domain: string = ""//PathConfig.RES_URL;
         Laya.loader.load([
             "loading/start_bg.jpg",
             "loading/loading_bg.jpg",

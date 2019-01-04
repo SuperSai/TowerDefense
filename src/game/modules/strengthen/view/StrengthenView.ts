@@ -13,7 +13,7 @@ class StrengthenView extends BaseView {
     public initUI(): void {
         super.initUI();
         let self = this;
-        SDKManager.Instance.showBannerAd(true);
+        SDKManager.Instance.showBannerAd();
         //界面初始化
         let imgBg = self.ui.mainView.getChildByName("imgBg") as Laya.Image;
         if (imgBg) {

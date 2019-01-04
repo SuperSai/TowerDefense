@@ -1,8 +1,8 @@
 {
     "x":0,
     "type":"View",
-    "selectedBox":2,
-    "selecteID":96,
+    "selectedBox":1,
+    "selecteID":2,
     "props":{"y":0,"x":0,"sceneWidth":750,"sceneHeight":1334,"sceneColor":"#000000","sceneBg":"laya/views/ShareGift.jpg"},
     "nodeParent":-1,
     "label":"View",
@@ -186,7 +186,7 @@
                                     "props":{"y":0,"x":0,"width":638,"var":"taskItemList","spaceY":15,"repeatY":1,"repeatX":1,"name":"taskItemList","height":690},
                                     "nodeParent":23,
                                     "label":"List(taskItemList)",
-                                    "isOpen":true,
+                                    "isOpen":false,
                                     "isDirectory":true,
                                     "isAniNode":true,
                                     "hasChild":true,
@@ -319,161 +319,91 @@
                                     "child":[
                                         ]
                                 }],
-                            "$HIDDEN":true
+                            "$HIDDEN":false
                         },
                         {
                             "x":45,
                             "type":"Image",
-                            "props":{"y":0,"x":55,"width":639,"name":"item1","height":737},
+                            "props":{"y":1,"x":56,"width":637,"name":"item1","height":736},
                             "nodeParent":22,
                             "label":"Image(item1)",
-                            "isOpen":false,
+                            "isOpen":true,
                             "isDirectory":true,
                             "isAniNode":true,
                             "hasChild":true,
-                            "compId":24,
+                            "compId":103,
                             "child":[
                                 {
-                                    "type":"Image",
-                                    "props":{"y":15,"x":13,"skin":"images/quest/banner.png"},
-                                    "nodeParent":24,
-                                    "label":"Image",
-                                    "isDirectory":false,
-                                    "isAniNode":true,
-                                    "hasChild":false,
-                                    "compId":38,
-                                    "child":[
-                                        ]
-                                },
-                                {
+                                    "x":60,
                                     "type":"List",
-                                    "props":{"y":252,"x":0,"width":640,"var":"shareItemList","spaceY":15,"repeatY":1,"repeatX":1,"name":"shareItemList","height":486},
-                                    "nodeParent":24,
-                                    "label":"List(shareItemList)",
+                                    "props":{"y":0,"x":0,"width":638,"spaceY":15,"repeatY":1,"repeatX":1,"name":"taskItemList","height":690},
+                                    "nodeParent":103,
+                                    "label":"List(taskItemList)",
                                     "isOpen":true,
                                     "isDirectory":true,
                                     "isAniNode":true,
                                     "hasChild":true,
-                                    "compId":29,
+                                    "compId":104,
                                     "child":[
                                         {
+                                            "x":75,
                                             "type":"Box",
-                                            "props":{"y":5,"x":15,"width":609,"visible":false,"renderType":"render","height":138,"cacheAs":"bitmap"},
-                                            "nodeParent":29,
+                                            "props":{"y":0,"x":2,"visible":false,"right":2,"renderType":"render","left":2,"cacheAs":"bitmap"},
+                                            "nodeParent":104,
                                             "label":"Box",
-                                            "isOpen":false,
+                                            "isOpen":true,
                                             "isDirectory":true,
                                             "isAniNode":false,
                                             "hasChild":true,
-                                            "compId":30,
+                                            "compId":105,
                                             "child":[
                                                 {
+                                                    "x":90,
                                                     "type":"Image",
-                                                    "props":{"y":0,"x":-3,"skin":"images/quest/item_bg.png"},
-                                                    "nodeParent":30,
+                                                    "props":{"y":10,"x":6,"skin":"images/quest/item_bg_1.png"},
+                                                    "nodeParent":105,
                                                     "label":"Image",
                                                     "isDirectory":false,
                                                     "isAniNode":false,
                                                     "hasChild":false,
-                                                    "compId":40,
+                                                    "compId":106,
                                                     "child":[
                                                         ]
                                                 },
                                                 {
-                                                    "type":"Image",
-                                                    "props":{"y":80,"x":142,"skin":"images/quest/reward_bg.png"},
-                                                    "nodeParent":30,
-                                                    "label":"Image",
-                                                    "isOpen":false,
-                                                    "isDirectory":false,
-                                                    "isAniNode":false,
-                                                    "hasChild":false,
-                                                    "compId":88,
-                                                    "child":[
-                                                        ],
-                                                    "$HIDDEN":false
-                                                },
-                                                {
-                                                    "type":"Image",
-                                                    "props":{"y":23,"x":19,"skin":"images/quest/empty_friend_icon.png","name":"imgHead"},
-                                                    "nodeParent":30,
-                                                    "label":"Image(imgHead)",
-                                                    "isDirectory":false,
-                                                    "isAniNode":false,
-                                                    "hasChild":false,
-                                                    "compId":41,
-                                                    "child":[
-                                                        ]
-                                                },
-                                                {
-                                                    "type":"Image",
-                                                    "props":{"y":78,"x":126,"skin":"images/quest/diamond.png","name":"imgAwardIcon"},
-                                                    "nodeParent":30,
-                                                    "label":"Image(imgAwardIcon)",
-                                                    "isOpen":true,
-                                                    "isDirectory":true,
-                                                    "isAniNode":false,
-                                                    "hasChild":true,
-                                                    "compId":42,
-                                                    "child":[
-                                                        {
-                                                            "type":"Label",
-                                                            "props":{"y":5,"x":45,"width":83,"text":"200","name":"txtAward","height":30,"fontSize":30,"color":"#fcf4cd","align":"left"},
-                                                            "nodeParent":42,
-                                                            "label":"Label(txtAward)",
-                                                            "isDirectory":false,
-                                                            "isAniNode":false,
-                                                            "hasChild":false,
-                                                            "compId":44,
-                                                            "child":[
-                                                                ]
-                                                        }]
-                                                },
-                                                {
+                                                    "x":90,
                                                     "type":"Label",
-                                                    "props":{"y":33,"x":127,"width":272,"text":"第1个好友","name":"txtTitle","height":30,"fontSize":26,"color":"#a17338","bold":true,"align":"left"},
-                                                    "nodeParent":30,
+                                                    "props":{"y":28,"x":35,"width":350,"text":"完成车辆合成30次","name":"txtTitle","fontSize":32,"color":"#a17338","bold":true,"align":"left"},
+                                                    "nodeParent":105,
                                                     "label":"Label(txtTitle)",
                                                     "isDirectory":false,
                                                     "isAniNode":false,
                                                     "hasChild":false,
-                                                    "compId":43,
+                                                    "compId":109,
                                                     "child":[
                                                         ]
                                                 },
                                                 {
-                                                    "type":"Label",
-                                                    "props":{"y":71,"x":-60,"width":220,"visible":false,"text":"额外奖励200","name":"txtExtra","fontSize":30,"color":"#cf0000","align":"left"},
-                                                    "nodeParent":30,
-                                                    "label":"Label(txtExtra)",
-                                                    "isDirectory":false,
-                                                    "isAniNode":false,
-                                                    "hasChild":false,
-                                                    "compId":45,
-                                                    "child":[
-                                                        ],
-                                                    "$HIDDEN":true
-                                                },
-                                                {
+                                                    "x":90,
                                                     "type":"Image",
-                                                    "props":{"y":45,"x":421,"skin":"images/component/frame_9scale_11.png","name":"txtGet"},
-                                                    "nodeParent":30,
+                                                    "props":{"y":79,"x":433,"skin":"images/component/frame_9scale_11.png","name":"txtGet"},
+                                                    "nodeParent":105,
                                                     "label":"Image(txtGet)",
                                                     "isOpen":false,
                                                     "isDirectory":true,
                                                     "isAniNode":false,
                                                     "hasChild":true,
-                                                    "compId":89,
+                                                    "compId":111,
                                                     "child":[
                                                         {
                                                             "type":"Label",
                                                             "props":{"y":9,"x":22,"width":120,"text":"已领取","fontSize":30,"color":"#fff4e1","bold":true,"align":"center"},
-                                                            "nodeParent":89,
+                                                            "nodeParent":111,
                                                             "label":"Label",
                                                             "isDirectory":false,
                                                             "isAniNode":false,
                                                             "hasChild":false,
-                                                            "compId":90,
+                                                            "compId":112,
                                                             "child":[
                                                                 ],
                                                             "$HIDDEN":false
@@ -481,48 +411,150 @@
                                                     "$HIDDEN":false
                                                 },
                                                 {
-                                                    "type":"Button",
-                                                    "props":{"y":42,"x":415,"stateNum":"1","skin":"images/quest/btn_obtain.png","name":"btnGet","labelStrokeColor":"#946430","labelStroke":3,"labelSize":30,"labelColors":"#fff4e1","labelBold":true,"label":"领取"},
-                                                    "nodeParent":30,
-                                                    "label":"Button(btnGet)",
+                                                    "x":90,
+                                                    "type":"Label",
+                                                    "props":{"y":28,"x":425,"width":185,"text":"(0/30)","name":"txtNum","height":32,"fontSize":32,"color":"#a17338","bold":true,"align":"center"},
+                                                    "nodeParent":105,
+                                                    "label":"Label(txtNum)",
+                                                    "isDirectory":false,
+                                                    "isAniNode":false,
+                                                    "hasChild":false,
+                                                    "compId":115,
+                                                    "child":[
+                                                        ]
+                                                },
+                                                {
+                                                    "x":90,
+                                                    "type":"Box",
+                                                    "props":{"y":81,"x":33,"name":"reward0"},
+                                                    "nodeParent":105,
+                                                    "label":"Box(reward0)",
                                                     "isOpen":false,
                                                     "isDirectory":true,
                                                     "isAniNode":false,
                                                     "hasChild":true,
-                                                    "compId":46,
+                                                    "compId":116,
                                                     "child":[
                                                         {
-                                                            "type":"Script",
-                                                            "source":"laya/pages/ScaleAnimScript.script",
-                                                            "props":{"y":0,"x":0},
-                                                            "nodeParent":46,
-                                                            "label":"ScaleAnimScript",
+                                                            "type":"Image",
+                                                            "props":{"y":1,"x":12,"skin":"images/quest/reward_bg.png"},
+                                                            "nodeParent":116,
+                                                            "label":"Image",
                                                             "isDirectory":false,
                                                             "isAniNode":false,
                                                             "hasChild":false,
-                                                            "compId":56,
+                                                            "compId":107,
+                                                            "child":[
+                                                                ],
+                                                            "$HIDDEN":false
+                                                        },
+                                                        {
+                                                            "type":"Image",
+                                                            "props":{"skin":"images/core/diamond.png","name":"imgAwardIcon"},
+                                                            "nodeParent":116,
+                                                            "label":"Image(imgAwardIcon)",
+                                                            "isDirectory":false,
+                                                            "isAniNode":false,
+                                                            "hasChild":false,
+                                                            "compId":108,
                                                             "child":[
                                                                 ]
-                                                        }],
-                                                    "$HIDDEN":false
+                                                        },
+                                                        {
+                                                            "type":"Label",
+                                                            "props":{"y":4,"x":46,"width":100,"text":"100","name":"txtDiamond","fontSize":30,"color":"#fcf4cd","align":"left"},
+                                                            "nodeParent":116,
+                                                            "label":"Label(txtDiamond)",
+                                                            "isDirectory":false,
+                                                            "isAniNode":false,
+                                                            "hasChild":false,
+                                                            "compId":110,
+                                                            "child":[
+                                                                ]
+                                                        }]
                                                 },
                                                 {
+                                                    "x":90,
+                                                    "type":"Box",
+                                                    "props":{"y":81,"x":177,"name":"reward1"},
+                                                    "nodeParent":105,
+                                                    "label":"Box(reward1)",
+                                                    "isOpen":false,
+                                                    "isDirectory":true,
+                                                    "isAniNode":false,
+                                                    "hasChild":true,
+                                                    "compId":117,
+                                                    "child":[
+                                                        {
+                                                            "type":"Image",
+                                                            "props":{"y":1,"x":12,"skin":"images/quest/reward_bg.png"},
+                                                            "nodeParent":117,
+                                                            "label":"Image",
+                                                            "isDirectory":false,
+                                                            "isAniNode":false,
+                                                            "hasChild":false,
+                                                            "compId":118,
+                                                            "child":[
+                                                                ],
+                                                            "$HIDDEN":false
+                                                        },
+                                                        {
+                                                            "type":"Image",
+                                                            "props":{"skin":"images/core/diamond.png","name":"imgAwardIcon"},
+                                                            "nodeParent":117,
+                                                            "label":"Image(imgAwardIcon)",
+                                                            "isDirectory":false,
+                                                            "isAniNode":false,
+                                                            "hasChild":false,
+                                                            "compId":119,
+                                                            "child":[
+                                                                ]
+                                                        },
+                                                        {
+                                                            "type":"Label",
+                                                            "props":{"y":4,"x":46,"width":100,"text":"100","name":"txtDiamond","fontSize":30,"color":"#fcf4cd","align":"left"},
+                                                            "nodeParent":117,
+                                                            "label":"Label(txtDiamond)",
+                                                            "isDirectory":false,
+                                                            "isAniNode":false,
+                                                            "hasChild":false,
+                                                            "compId":120,
+                                                            "child":[
+                                                                ]
+                                                        }]
+                                                },
+                                                {
+                                                    "x":90,
                                                     "type":"Button",
-                                                    "props":{"y":42,"x":415,"stateNum":"1","skin":"images/quest/invite_btn.png","name":"btnInvite","labelStrokeColor":"#306294","labelStroke":3,"labelSize":30,"labelColors":"#fff4e1","labelBold":true,"label":"邀请"},
-                                                    "nodeParent":30,
-                                                    "label":"Button(btnInvite)",
+                                                    "props":{"y":71,"x":424,"stateNum":"1","skin":"images/quest/btn_obtain.png","name":"btnGet","labelStrokeColor":"#946430","labelStroke":3,"labelSize":30,"labelColors":"#fff4e1","labelBold":true,"label":"领取"},
+                                                    "nodeParent":105,
+                                                    "label":"Button(btnGet)",
                                                     "isOpen":true,
                                                     "isDirectory":false,
                                                     "isAniNode":false,
                                                     "hasChild":false,
-                                                    "compId":91,
+                                                    "compId":113,
                                                     "child":[
                                                         ],
                                                     "$HIDDEN":false
                                                 }]
-                                        }]
+                                        }],
+                                    "$HIDDEN":false
+                                },
+                                {
+                                    "x":60,
+                                    "type":"Label",
+                                    "props":{"y":699,"x":-1,"width":638,"text":"每天00:00时系统自动重置任务","strokeColor":"#7a572b","stroke":2,"height":24,"fontSize":24,"color":"#ffffff","bold":true,"align":"center"},
+                                    "nodeParent":103,
+                                    "label":"Label",
+                                    "isDirectory":false,
+                                    "isAniNode":true,
+                                    "hasChild":false,
+                                    "compId":114,
+                                    "child":[
+                                        ]
                                 }],
-                            "$HIDDEN":false
+                            "$HIDDEN":true
                         },
                         {
                             "x":45,

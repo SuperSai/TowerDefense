@@ -298,6 +298,7 @@ class HallScene extends ui.hall.HallSceneUI {
     self.btn_follow.on(Laya.Event.CLICK, self, self.onClickFollow);//关注
     self.btn_online.on(Laya.Event.CLICK, self, self.onGetOffLineReward);//在线奖励
     self.btn_welfare.on(Laya.Event.CLICK, self, self.onShowWelfareView);//福利界面
+    self.btnInvitation.on(Laya.Event.CLICK, self, self.onShowInvitation);//邀请界面
     this.btnMore.on(Laya.Event.CLICK, this, () => {
       M.more.show();
     });
@@ -437,7 +438,6 @@ class HallScene extends ui.hall.HallSceneUI {
   }
 
   //离线收益
-
   private onOffLineRevenue(offlineTimeSpan: number): void {
     let that = this;
     if (userData) {
@@ -447,7 +447,7 @@ class HallScene extends ui.hall.HallSceneUI {
         let stageIncome: number = BattleManager.Instance.getBarrierIncome(M.hall.hallData.passStage);
         let prizeValue: number = stageIncome * Math.min(Time.HOUR * 2, offlineTimeSpan) / 180 * 0.01;
         if (prizeValue > 0) {
-          OfflineRewardsView.Create(that, null, null, prizeValue);
+          ViewMgr.Ins.open(ViewConst.OfflineRewardsView, null, prizeValue);
         }
       }
     }
@@ -767,12 +767,14 @@ class HallScene extends ui.hall.HallSceneUI {
             that.curMonsterSprite.setStage(1);
             //判断是否合并或交换位置
             if (that.carparkList) {
+              let flag: boolean = false;
               for (var index = 0; index < HallManager.Instance.hallData.parkMonsterCount; index++) {
                 var element = that.carparkList.getCell(index);
                 if (element) {
                   let heroItem = element.getChildByName("car") as MonsterSprite;
                   if (heroItem && ObjectUtils.isHit(heroItem) && heroItem != that.curMonsterSprite) {
                     if (!heroItem.isBox() && !heroItem.isLock()) {
+                      flag = true;
                       let heroId = heroItem.monsterId;
                       const currHeroLevel: number = BattleManager.Instance.getLevel(heroId);
                       if (that.curMonsterSprite.isSameLevel(heroId)) {
@@ -822,6 +824,9 @@ class HallScene extends ui.hall.HallSceneUI {
                     break;
                   }
                 }
+              }
+              if (!flag) {
+                that.curMonsterSprite = null;
               }
             }
           }
@@ -1184,9 +1189,7 @@ class HallScene extends ui.hall.HallSceneUI {
 
   //任务界面
   public showTaskView(): void {
-    TaskView.Create(null, () => {
-      SDKManager.Instance.closeBannerAd(true);
-    }, true);
+    ViewMgr.Ins.open(ViewConst.TaskView);
   }
 
   //幸运抽奖界面
@@ -1746,6 +1749,10 @@ class HallScene extends ui.hall.HallSceneUI {
 
   private onShowWelfareView(): void {
     ViewMgr.Ins.open(ViewConst.WelfareView);
+  }
+
+  private onShowInvitation(): void {
+    ViewMgr.Ins.open(ViewConst.InvitationView);
   }
 
 }

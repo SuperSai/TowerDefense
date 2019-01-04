@@ -11,7 +11,7 @@ class StrengthenView extends BaseView {
     initUI() {
         super.initUI();
         let self = this;
-        SDKManager.Instance.showBannerAd(true);
+        SDKManager.Instance.showBannerAd();
         //界面初始化
         let imgBg = self.ui.mainView.getChildByName("imgBg");
         if (imgBg) {

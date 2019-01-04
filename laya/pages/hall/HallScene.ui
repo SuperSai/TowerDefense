@@ -1,8 +1,8 @@
 {
     "x":0,
     "type":"View",
-    "selectedBox":2,
-    "selecteID":37,
+    "selectedBox":37,
+    "selecteID":422,
     "referenceLines":null,
     "props":{"y":0,"x":0,"width":750,"sceneColor":"#000000","sceneBg":"laya/views/Game.JPG","height":1334},
     "nodeParent":-1,
@@ -494,7 +494,7 @@
                         {
                             "x":45,
                             "type":"Button",
-                            "props":{"y":1093,"x":30,"var":"btnAcce","stateNum":1,"skin":"images/hall/gbtn_acce.png","scaleY":1,"scaleX":1,"name":"btnAcce"},
+                            "props":{"y":1107,"x":30,"var":"btnAcce","stateNum":1,"skin":"images/hall/gbtn_acce.png","scaleY":1,"scaleX":1,"name":"btnAcce"},
                             "nodeParent":37,
                             "label":"Button(btnAcce)",
                             "isOpen":false,
@@ -680,7 +680,7 @@
                         {
                             "x":45,
                             "type":"Button",
-                            "props":{"y":809,"x":0,"var":"btn_online","stateNum":1,"skin":"images/hall/hall_online_reward.png"},
+                            "props":{"y":748,"x":0,"var":"btn_online","stateNum":1,"skin":"images/hall/hall_online_reward.png"},
                             "nodeParent":37,
                             "label":"Button(btn_online)",
                             "isOpen":true,
@@ -770,7 +770,7 @@
                         {
                             "x":45,
                             "type":"Button",
-                            "props":{"y":722,"x":0,"var":"btnLuckPrize","stateNum":1,"skin":"images/hall/gbtn_luck.png","name":"btnLuckPrize"},
+                            "props":{"y":661,"x":0,"var":"btnLuckPrize","stateNum":1,"skin":"images/hall/gbtn_luck.png","name":"btnLuckPrize"},
                             "nodeParent":37,
                             "label":"Button(btnLuckPrize)",
                             "isOpen":true,
@@ -823,7 +823,7 @@
                         {
                             "x":45,
                             "type":"Button",
-                            "props":{"y":898,"x":0,"var":"btnFeedback","stateNum":1,"skin":"images/hall/gbtn_feedback.png","name":"btnFeedback"},
+                            "props":{"y":921,"x":0,"var":"btnFeedback","stateNum":1,"skin":"images/hall/gbtn_feedback.png","name":"btnFeedback"},
                             "nodeParent":37,
                             "label":"Button(btnFeedback)",
                             "isOpen":false,
@@ -849,7 +849,7 @@
                         {
                             "x":45,
                             "type":"Button",
-                            "props":{"y":988,"x":0,"var":"btnMore","stateNum":1,"skin":"images/hall/more_icon.png","name":"btnMore"},
+                            "props":{"y":1007,"x":0,"var":"btnMore","stateNum":1,"skin":"images/hall/more_icon.png","name":"btnMore"},
                             "nodeParent":37,
                             "label":"Button(btnMore)",
                             "isOpen":false,
@@ -887,17 +887,16 @@
                         {
                             "x":45,
                             "type":"Button",
-                            "props":{"y":1095,"x":606,"var":"btnStrengthen","stateNum":1,"skin":"images/hall/gbtn_strengthen.png","name":"btnStrengthen"},
+                            "props":{"y":1109,"x":606,"var":"btnStrengthen","stateNum":1,"skin":"images/hall/gbtn_strengthen.png","name":"btnStrengthen"},
                             "nodeParent":37,
                             "label":"Button(btnStrengthen)",
-                            "isOpen":true,
+                            "isOpen":false,
                             "isDirectory":true,
                             "isAniNode":true,
                             "hasChild":true,
                             "compId":325,
                             "child":[
                                 {
-                                    "x":60,
                                     "type":"Script",
                                     "source":"laya/pages/ScaleAnimScript.script",
                                     "props":{},
@@ -911,7 +910,6 @@
                                         ]
                                 },
                                 {
-                                    "x":60,
                                     "type":"Image",
                                     "props":{"y":0,"x":71,"visible":false,"var":"strengthenRedPoint","skin":"images/core/red_dot_hint.png","name":"strengthenRedPoint"},
                                     "nodeParent":325,
@@ -1029,7 +1027,7 @@
                         {
                             "x":45,
                             "type":"Button",
-                            "props":{"y":602,"x":0,"width":88,"visible":false,"var":"btnStagePrize","name":"btnStagePrize","labelSize":30,"height":106},
+                            "props":{"y":555,"x":0,"width":88,"visible":false,"var":"btnStagePrize","name":"btnStagePrize","labelSize":30,"height":106},
                             "nodeParent":37,
                             "label":"Button(btnStagePrize)",
                             "isOpen":false,
@@ -1055,7 +1053,7 @@
                         {
                             "x":45,
                             "type":"Button",
-                            "props":{"y":1200,"x":30,"var":"btn_fly","stateNum":"1","skin":"images/core/core_fly_icon.png","rotation":0},
+                            "props":{"y":1209,"x":30,"var":"btn_fly","stateNum":"1","skin":"images/core/core_fly_icon.png","rotation":0},
                             "nodeParent":37,
                             "label":"Button(btn_fly)",
                             "isDirectory":false,
@@ -1068,7 +1066,7 @@
                         {
                             "x":45,
                             "type":"Button",
-                            "props":{"y":1200,"x":604,"var":"btn_eliminate","stateNum":"1","skin":"images/core/core_eliminate_icon.png","rotation":0},
+                            "props":{"y":1209,"x":604,"var":"btn_eliminate","stateNum":"1","skin":"images/core/core_eliminate_icon.png","rotation":0},
                             "nodeParent":37,
                             "label":"Button(btn_eliminate)",
                             "isDirectory":false,
@@ -1090,6 +1088,32 @@
                             "compId":394,
                             "child":[
                                 ]
+                        },
+                        {
+                            "x":45,
+                            "type":"Button",
+                            "props":{"y":832,"x":0,"var":"btnInvitation","stateNum":1,"skin":"images/hall/hall_Invitation_icon.png"},
+                            "nodeParent":37,
+                            "label":"Button(btnInvitation)",
+                            "isOpen":false,
+                            "isDirectory":true,
+                            "isAniNode":true,
+                            "hasChild":true,
+                            "compId":422,
+                            "child":[
+                                {
+                                    "type":"Script",
+                                    "source":"laya/pages/ScaleAnimScript.script",
+                                    "props":{},
+                                    "nodeParent":422,
+                                    "label":"ScaleAnimScript",
+                                    "isDirectory":false,
+                                    "isAniNode":true,
+                                    "hasChild":false,
+                                    "compId":423,
+                                    "child":[
+                                        ]
+                                }]
                         },
                         {
                             "x":45,
@@ -1296,14 +1320,13 @@
                                     "props":{"y":10,"x":5,"var":"btn_welfare","stateNum":"1","skin":"images/hall/btn_welfare_icon.png"},
                                     "nodeParent":410,
                                     "label":"Button(btn_welfare)",
-                                    "isOpen":true,
+                                    "isOpen":false,
                                     "isDirectory":true,
                                     "isAniNode":true,
                                     "hasChild":true,
                                     "compId":418,
                                     "child":[
                                         {
-                                            "x":75,
                                             "type":"Script",
                                             "source":"laya/pages/ScaleAnimScript.script",
                                             "props":{},
@@ -1317,7 +1340,6 @@
                                                 ]
                                         },
                                         {
-                                            "x":75,
                                             "type":"Image",
                                             "props":{"y":4,"x":60,"visible":false,"skin":"images/core/red_dot_hint.png","name":"imgRedPoint"},
                                             "nodeParent":418,

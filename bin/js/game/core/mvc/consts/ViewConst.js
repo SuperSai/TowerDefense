@@ -36,5 +36,11 @@ var ViewConst;
     ViewConst[ViewConst["LuckPrizeItemView"] = 10017] = "LuckPrizeItemView";
     /** 转盘宝箱中奖界面 */
     ViewConst[ViewConst["LuckPrizeBoxView"] = 10018] = "LuckPrizeBoxView";
+    /** 任务界面 */
+    ViewConst[ViewConst["TaskView"] = 10019] = "TaskView";
+    /** 邀请界面 */
+    ViewConst[ViewConst["InvitationView"] = 10020] = "InvitationView";
+    /** 离线奖励界面 */
+    ViewConst[ViewConst["OfflineRewardsView"] = 10021] = "OfflineRewardsView";
 })(ViewConst || (ViewConst = {}));
 //# sourceMappingURL=ViewConst.js.map

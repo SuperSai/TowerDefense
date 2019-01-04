@@ -57,7 +57,7 @@ class GlobleData extends Laya.EventDispatcher {
             let key = self._totalStepCsvList.getKeyByIndex(self._jsonCount);
             key = "config/csvJson/" + key;
             key = key.replace('_', '.');
-            key = PathConfig.CSVUrl + key;
+            key = PathConfig.RES_URL + key;
             Laya.loader.load(key, Laya.Handler.create(self, self.onLoaded, [key]), null, Laya.Loader.TEXT);
             self._jsonCount++;
         }

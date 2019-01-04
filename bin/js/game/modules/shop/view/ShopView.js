@@ -11,7 +11,7 @@ class ShopView extends BaseView {
     initUI() {
         super.initUI();
         let self = this;
-        SDKManager.Instance.showBannerAd(true);
+        SDKManager.Instance.showBannerAd();
         self.initList();
         self.refreshMoney(PlayerManager.Instance.Info.userMoney, PlayerManager.Instance.Info.userDiamond);
     }

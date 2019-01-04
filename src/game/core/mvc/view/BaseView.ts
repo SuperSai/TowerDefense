@@ -115,7 +115,7 @@ class BaseView extends Laya.View implements IBaseView {
     /** 面板关闭执行函数，用于子类继承 */
     public close(...param: any[]): void {
         this.removeEvents();
-        SDKManager.Instance.closeBannerAd(true);
+        SDKManager.Instance.closeBannerAd();
     }
 
     /** 销毁 */
@@ -124,7 +124,7 @@ class BaseView extends Laya.View implements IBaseView {
         this._myParent = null;
         this._ui.removeSelf();
         this._ui = null;
-        SDKManager.Instance.closeBannerAd(true);
+        SDKManager.Instance.closeBannerAd();
     }
 
     public get ui(): any { return this._ui; }

@@ -163,6 +163,7 @@ P DE129311 hall_arrow.png
 P DF23629E hall_concurBtn.png
 P EFAC6458 hall_dailySingBtn.png
 P 892A6464 hall_followBtn.png
+P 91492CE7 hall_Invitation_icon.png
 P 93B1EAFF hall_online_reward.png
 P DE37E78D hall_rankBtn.png
 P B6B1E7F9 hall_suofang_bg.png
@@ -174,6 +175,15 @@ P E746D0CF miniProgram_icon.png
 P 1A434EF7 more_icon.png
 P BAD1BCE5 shop_btn_icon.png
 P 65EDC34E star2.png
+D images/invitation
+R 241CB3CC banner.png
+P 5EE9F3DA btn_obtain.png
+P 98675CCD diamond.png
+P 35D83365 empty_friend_icon.png
+P 1506D2A4 invitation_title.png
+P 50FE6CDD invite_btn.png
+R DA085E50 item_bg.png
+P 10F98E01 reward_bg.png
 D images/levelHero
 P CB77502B levelHero_arrow.png
 P 75B83E5F levelHero_level_icon.png
@@ -187,11 +197,10 @@ P 27A69212 luck_item_box.png
 R 3ACAA4E1 luck_item_title.png
 R 28742DAD luck_item_title_2.png
 P F8378FE5 luck_price_bg.png
-P 62EB7C06 luck_prize_0.png
-P 2D627445 luck_prize_2.png
-P 48B398A3 luck_prize_3.png
-P C7EFCA58 luck_prize_5.png
-P 754AC489 luck_prize_6.png
+P D6DA3465 luck_prize_1.png
+P 01A9DB95 luck_prize_2.png
+P 2EC610C7 luck_prize_3.png
+P A2A3D336 luck_prize_4.png
 R 0DE823A0 luck_title.png
 D images/more
 P 5EEB70E2 custom_service.png
@@ -207,14 +216,11 @@ P EB352E94 interact_circle.png
 D images/offlineReward
 R 21CFCE99 title.png
 D images/quest
-R 241CB3CC banner.png
 P 5EE9F3DA btn_obtain.png
 P 634234AE btn_obtained.png
-P 98675CCD diamond.png
-P 35D83365 empty_friend_icon.png
 P 1F437D20 idle_btn.png
-P 50FE6CDD invite_btn.png
 R DA085E50 item_bg.png
+R F79C3EE3 item_bg_1.png
 P 10F98E01 reward_bg.png
 P B93E802F selected_btn.png
 P 7EDB17DF tab.png

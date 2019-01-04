@@ -94,7 +94,7 @@ class BaseView extends Laya.View {
     /** 面板关闭执行函数，用于子类继承 */
     close(...param) {
         this.removeEvents();
-        SDKManager.Instance.closeBannerAd(true);
+        SDKManager.Instance.closeBannerAd();
     }
     /** 销毁 */
     destroy() {
@@ -102,7 +102,7 @@ class BaseView extends Laya.View {
         this._myParent = null;
         this._ui.removeSelf();
         this._ui = null;
-        SDKManager.Instance.closeBannerAd(true);
+        SDKManager.Instance.closeBannerAd();
     }
     get ui() { return this._ui; }
     set ui(value) { this._ui = value; }

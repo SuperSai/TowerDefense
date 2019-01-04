@@ -1,61 +1,35 @@
 /*
 * TER0807-任务界面;
 */
-class TaskView extends ui.task.TaskViewUI {
-    constructor(_isTask) {
-        super();
-        var that = this;
-        that.frameOnce(1, that, () => {
-            that.visible = true;
-            that.init(_isTask);
-        });
-        that.visible = false;
-    }
-    //新建并添加到节点
-    static Create(_parentNode, _callback = null, _isTask = false) {
-        let resList = [
-            { url: "res/atlas/images/quest.atlas", type: Laya.Loader.ATLAS },
-            { url: "res/atlas/images/component.atlas", type: Laya.Loader.ATLAS }
-        ];
-        Laya.loader.load(resList, Handler.create(null, () => {
-            let viewTag = _isTask ? "taskView" : "shareGiftView";
-            if (_parentNode) {
-                let nodeViewOld = _parentNode.getChildByName(viewTag);
-                if (nodeViewOld) {
-                    return;
-                }
-            }
-            else {
-                let nodeView = new TaskView(_isTask);
-                nodeView.name = viewTag;
-                M.layer.frameLayer.addChildWithMaskCall(nodeView, nodeView.removeSelf);
-                nodeView.once(Laya.Event.REMOVED, nodeView, _callback);
-            }
-        }));
+class TaskView extends BaseView {
+    constructor() {
+        super(LAYER_TYPE.FRAME_LAYER, ui.task.TaskViewUI);
+        this.setResources(["quest", "component"]);
     }
     //初始化
-    init(_isTask) {
+    initData() {
+        super.initData();
         var self = this;
-        SDKManager.Instance.showBannerAd(true);
-        //按钮事件
-        self.btnExit.on(Laya.Event.CLICK, self, self.onClickExit);
-        self.blankView.on(Laya.Event.CLICK, self, self.onClickExit);
-        self._tabGroup = new TabGroup(self.tabGroup._childs);
-        self._tabGroup.on(Laya.Event.CHANGE, self, self.onTabChange);
-        self._tabGroup.selectedIndex = _isTask ? QuestSubView.DAILY_QUEST : QuestSubView.INVITE_AWARD;
+        SDKManager.Instance.showBannerAd();
+        self._tabGroup = new TabGroup(this.ui.tabGroup._childs);
+        this._tabGroup.on(Laya.Event.CHANGE, this, this.onTabChange);
+        self._tabGroup.selectedIndex = QuestSubView.DAILY_QUEST;
     }
-    onClickExit() {
-        this.removeSelf();
+    addEvents() {
+        super.addEvents();
+        this.ui.btnExit.on(Laya.Event.CLICK, this, this.onClickExit);
+        this.ui.blankView.on(Laya.Event.CLICK, this, this.onClickExit);
     }
-    onTabChange(selectedIndex) {
+    removeEvents() {
+        super.removeEvents();
+        this.ui.btnExit.off(Laya.Event.CLICK, this, this.onClickExit);
+        this.ui.blankView.off(Laya.Event.CLICK, this, this.onClickExit);
+        this._tabGroup.off(Laya.Event.CHANGE, this, this.onTabChange);
+    }
+    onTabChange() {
         const index = this._tabGroup.selectedIndex;
-        this.viewStackTask.selectedIndex = index;
-        if (index === QuestSubView.DAILY_QUEST) {
-            this.requestTaskInfo();
-        }
-        else if (index === QuestSubView.INVITE_AWARD) {
-            this.requestShareInfo();
-        }
+        this.ui.viewStackTask.selectedIndex = index;
+        this.requestTaskInfo(index);
     }
     updateTabRetDot(subViewType, isShow) {
         const redDot = this._tabGroup.getButtonByIndex(subViewType).getChildByName("imgRetDotHint");
@@ -80,20 +54,18 @@ class TaskView extends ui.task.TaskViewUI {
         });
         this.updateTabRetDot(QuestSubView.DAILY_QUEST, redPointNum > 0);
         if (listData.length <= 0) {
-            this.viewStackTask.selectedIndex = QuestSubView.EMPTY_QUEST;
+            this.ui.viewStackTask.selectedIndex = QuestSubView.EMPTY_QUEST;
             return;
         }
-        that.taskItemList.vScrollBarSkin = '';
-        that.taskItemList.repeatY = 5;
-        that.taskItemList.array = listData;
-        that.taskItemList.renderHandler = new Laya.Handler(that, (cell, index) => {
-            if (index > listData.length) {
+        that.ui.taskItemList.vScrollBarSkin = '';
+        that.ui.taskItemList.repeatY = 5;
+        that.ui.taskItemList.array = listData;
+        that.ui.taskItemList.renderHandler = new Laya.Handler(that, (cell, index) => {
+            if (index > listData.length)
                 return;
-            }
             let item = listData[index];
-            if (!item) {
+            if (!item)
                 return;
-            }
             let itemTitle = item.title;
             let awardNum = item.reward || 0;
             let totalNum = item.num || 0;
@@ -155,7 +127,7 @@ class TaskView extends ui.task.TaskViewUI {
                                         Laya.Tween.to(cell, { x: -cell.displayWidth }, 250, Laya.Ease.quadOut, Handler.create(that, () => {
                                             listData.splice(index, 1);
                                             Laya.timer.once(100, that, () => {
-                                                that.requestTaskInfo();
+                                                that.requestTaskInfo(this.ui.viewStackTask.selectedIndex);
                                             });
                                         }));
                                     }
@@ -173,139 +145,8 @@ class TaskView extends ui.task.TaskViewUI {
             }
         });
     }
-    //分享
-    refreshShareList(_data) {
-        if (_data == null) {
-            return;
-        }
-        let that = this;
-        let finishNum = _data.share_num;
-        let listDatas = _data.share_status; // [1,3,5,7,8,10];
-        let redPointNum = 0;
-        //排序红点提示
-        // for (var key in listDatas) {
-        //     var element = listDatas[key];
-        //     if (element) {
-        //         if (element.status ==1) {
-        //             redPointNum ++; //统计红点
-        //         }
-        //     }
-        // }
-        listDatas.forEach((item, index, list) => {
-            if (item.status === 1) {
-                redPointNum++;
-            }
-        });
-        this.updateTabRetDot(QuestSubView.INVITE_AWARD, redPointNum > 0);
-        that.shareItemList.vScrollBarSkin = '';
-        that.shareItemList.repeatY = 3;
-        that.shareItemList.array = listDatas;
-        that.shareItemList.renderHandler = new Laya.Handler(that, (cell, index) => {
-            if (index > listDatas.length) {
-                return;
-            }
-            let item = listDatas[index];
-            if (item == null) {
-                return;
-            }
-            let collectNum = item.num;
-            let invitePeople = finishNum;
-            let extraDiamond = item.extra_diamond;
-            let boxStage = item.status;
-            if (invitePeople >= collectNum) {
-                invitePeople = collectNum;
-            }
-            let txtTitle = cell.getChildByName('txtTitle');
-            if (txtTitle) {
-                txtTitle.changeText('第' + collectNum + '个好友');
-            }
-            let awardNum;
-            const imgAwardIcon = cell.getChildByName('imgAwardIcon');
-            if (imgAwardIcon) {
-                switch (item.reward_type) {
-                    case "essence":
-                        awardNum = item.essence;
-                        imgAwardIcon.skin = "images/core/essence.png";
-                        break;
-                    default:
-                        awardNum = item.diamond;
-                        imgAwardIcon.skin = "images/core/diamond.png";
-                        break;
-                }
-                let txtDiamond = imgAwardIcon.getChildByName('txtAward');
-                if (txtDiamond) {
-                    txtDiamond.changeText('' + awardNum);
-                }
-            }
-            const imgHead = cell.getChildByName('imgHead');
-            if (imgHead) {
-                imgHead.offAll(Laya.Event.CLICK);
-                imgHead.on(Laya.Event.CLICK, imgHead, () => {
-                    AnimationUtils.lockBtnStage(imgHead);
-                    userData.toShareAd(null, 0, true);
-                });
-            }
-            //领取
-            let btnGet = cell.getChildByName('btnGet');
-            const btnInvite = cell.getChildByName("btnInvite");
-            if (btnGet) {
-                btnGet.visible = true;
-                if (boxStage > 0) {
-                    btnInvite && (btnInvite.visible = false);
-                    if (boxStage > 1) {
-                        //已领取
-                        btnGet.visible = false;
-                    }
-                    else {
-                        if (imgHead && item.avatarUrl) {
-                            imgHead.skin = item.avatarUrl;
-                            imgHead.offAll(Laya.Event.CLICK);
-                        }
-                        redPointNum++;
-                        btnGet.disabled = false;
-                        btnGet.offAll(Laya.Event.CLICK);
-                        btnGet.on(Laya.Event.CLICK, btnGet, (_item, _btnObj) => {
-                            that.requestPrize(_item.id, (_res) => {
-                                if (_res) {
-                                    MessageUtils.showMsgTips("奖励领取成功");
-                                    if (item.reward_type === "diamond") {
-                                        MessageUtils.shopMsgByObj(btnGet, "+" + awardNum, EFFECT_TYPE.DIAMOND);
-                                    }
-                                    else if (item.reward_type === "essence") {
-                                        MessageUtils.shopMsgByObj(btnGet, "+" + awardNum, EFFECT_TYPE.ESSENCE);
-                                    }
-                                    HttpManager.Instance.requestDiamondData();
-                                    _btnObj.visible = false;
-                                    _item.status = 2;
-                                    redPointNum--;
-                                    this.updateTabRetDot(QuestSubView.INVITE_AWARD, redPointNum > 0);
-                                    if (redPointNum < 1) {
-                                        //移除红点
-                                        if (userData) {
-                                            userData.removeShareGiftRedPoint();
-                                        }
-                                    }
-                                }
-                            });
-                        }, [item, btnGet]);
-                    }
-                }
-                else {
-                    btnGet.visible = false;
-                    if (btnInvite) {
-                        btnInvite.visible = true;
-                        btnInvite.offAll(Laya.Event.CLICK);
-                        btnInvite.on(Laya.Event.CLICK, btnInvite, () => {
-                            AnimationUtils.lockBtnStage(btnInvite);
-                            userData.toShareAd(null, 0, true);
-                        });
-                    }
-                }
-            }
-        });
-    }
     //拉取任务信息
-    requestTaskInfo(_callback) {
+    requestTaskInfo(index) {
         let that = this;
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
@@ -314,7 +155,6 @@ class TaskView extends ui.task.TaskViewUI {
                 console.log("@FREEMAN: requestTaskInfo =>", res);
                 TaskView.questData = res;
                 that.refreshTaskList(res);
-                _callback && _callback(res);
             },
             fail: function (res) {
                 console.log(res);
@@ -323,7 +163,6 @@ class TaskView extends ui.task.TaskViewUI {
     }
     //拉取奖励
     requestTaskPrize(_itemId, _callback) {
-        let that = this;
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/task/rewards/' + _itemId,
@@ -336,44 +175,19 @@ class TaskView extends ui.task.TaskViewUI {
             }
         });
     }
-    //拉取分享信息
-    requestShareInfo(_callback) {
-        let that = this;
-        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
-        HttpReqHelper.request({
-            url: 'v1/share/friend_num',
-            success: function (res) {
-                console.log("@FREEMAN: requestShareInfo =>", res);
-                TaskView.inviteData = res;
-                that.refreshShareList(res);
-                _callback && _callback(res);
-            },
-            fail: function (res) {
-                console.log(res);
-            }
-        });
-    }
-    //拉取奖励
-    requestPrize(_itemId, _callback) {
-        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
-        HttpReqHelper.request({
-            url: 'v1/share/friend_rewards/' + _itemId,
-            success: function (res) {
-                console.log("requestPrize", res);
-                _callback && _callback(res);
-            },
-            fail: function (res) {
-                console.log(res);
-            }
-        });
+    onClickExit() {
+        ViewMgr.Ins.close(ViewConst.TaskView);
     }
 }
 TaskView.questData = null;
 TaskView.inviteData = null;
 var QuestSubView;
 (function (QuestSubView) {
+    /** 每日任务 */
     QuestSubView[QuestSubView["DAILY_QUEST"] = 0] = "DAILY_QUEST";
-    QuestSubView[QuestSubView["INVITE_AWARD"] = 1] = "INVITE_AWARD";
+    /** 成就任务 */
+    QuestSubView[QuestSubView["ACHIEVE_QUEST"] = 1] = "ACHIEVE_QUEST";
+    /** 空任务 */
     QuestSubView[QuestSubView["EMPTY_QUEST"] = 2] = "EMPTY_QUEST";
 })(QuestSubView || (QuestSubView = {}));
 //# sourceMappingURL=TaskView.js.map

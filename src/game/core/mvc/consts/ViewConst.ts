@@ -35,4 +35,10 @@ enum ViewConst {
     LuckPrizeItemView,
     /** 转盘宝箱中奖界面 */
     LuckPrizeBoxView,
+    /** 任务界面 */
+    TaskView,
+    /** 邀请界面 */
+    InvitationView,
+    /** 离线奖励界面 */
+    OfflineRewardsView,
 }

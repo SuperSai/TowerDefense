@@ -34,37 +34,21 @@ class SDKManager {
             }
         });
     }
-    /**
-     * 显示banner广告
-     * @param {boolean} [force=false]
-     * @param {number} [offsetY=0]
-     * @returns {*}
-     * @memberof SDKManager
-     */
-    showBannerAd(force = false) {
-        if (!systemInfo.canUseVersion("2.0.4")) {
-            return;
-        }
+    /** 显示banner广告 */
+    showBannerAd() {
         let self = this;
-        if (self._isForbidBannerAd && force == false) {
+        if (self._isForbidBannerAd || !systemInfo.canUseVersion("2.0.4")) {
             return;
         }
         self.createBanner();
         return self._bannerAd;
     }
-    /**
-     *  关闭banner广告
-     * @param {boolean} [forbid=false]
-     * @memberof SDKManager
-     */
-    closeBannerAd(forbid = false) {
-        if (!systemInfo.canUseVersion("2.0.4")) {
-            return;
-        }
+    /** 关闭banner广告 */
+    closeBannerAd() {
         let self = this;
-        if (forbid) {
-            self._isForbidBannerAd = true;
-        }
+        if (!systemInfo.canUseVersion("2.0.4"))
+            return;
+        self._isForbidBannerAd = true;
         self.createBanner(false);
     }
     createBanner(isShow = true) {

@@ -19,6 +19,9 @@ class ViewRegisterMgr {
         ViewMgr.Ins.register(ViewConst.LuckPrizeView, new LuckPrizeView());
         ViewMgr.Ins.register(ViewConst.LuckPrizeItemView, new LuckPrizeItemView());
         ViewMgr.Ins.register(ViewConst.LuckPrizeBoxView, new LuckPrizeBoxView());
+        ViewMgr.Ins.register(ViewConst.TaskView, new TaskView());
+        ViewMgr.Ins.register(ViewConst.OfflineRewardsView, new OfflineRewardsView());
+        ViewMgr.Ins.register(ViewConst.InvitationView, new InvitationView());
     }
     static get Instance() {
         if (!ViewRegisterMgr._instance) {
