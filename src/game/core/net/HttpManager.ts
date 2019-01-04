@@ -817,7 +817,7 @@ class HttpManager {
     public requestPrizeInfo(callback: any): void {
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
-            url: 'v1/activity/get/roulette',
+            url: 'v2/activity/get/roulette',
             success: function (res) {
                 console.log("requestPrizeInfo", res);
                 callback && callback(res);
@@ -834,7 +834,7 @@ class HttpManager {
         console.log("requestPrizeCensus:", dataString);
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
-            url: 'v1/activity/roulette/log',
+            url: 'v2/activity/roulette/log',
             method: 'Post',
             data: dataString,
             success: function (res) {
@@ -850,7 +850,7 @@ class HttpManager {
     public requestDrawPrize(_itemId: number, _callback: any): void {
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
-            url: 'v1/activity/roulette/' + _itemId,
+            url: 'v2/activity/roulette/' + _itemId,
             success: function (res) {
                 console.log("requestDrawPrize", res);
                 _callback && _callback(res);

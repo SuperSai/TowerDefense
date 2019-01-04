@@ -29,7 +29,11 @@ class TaskView extends BaseView {
     onTabChange() {
         const index = this._tabGroup.selectedIndex;
         this.ui.viewStackTask.selectedIndex = index;
-        this.requestTaskInfo(index);
+        if (index == QuestSubView.DAILY_QUEST) { //每日任务
+            this.requestTaskInfo();
+        }
+        else { //成就任务
+        }
     }
     updateTabRetDot(subViewType, isShow) {
         const redDot = this._tabGroup.getButtonByIndex(subViewType).getChildByName("imgRetDotHint");
@@ -127,7 +131,120 @@ class TaskView extends BaseView {
                                         Laya.Tween.to(cell, { x: -cell.displayWidth }, 250, Laya.Ease.quadOut, Handler.create(that, () => {
                                             listData.splice(index, 1);
                                             Laya.timer.once(100, that, () => {
-                                                that.requestTaskInfo(this.ui.viewStackTask.selectedIndex);
+                                                that.requestTaskInfo();
+                                            });
+                                        }));
+                                    }
+                                    else if (_res.code === 2) {
+                                        MessageUtils.showMsgTips("领取失败！");
+                                    }
+                                }
+                            });
+                        }, [item, btnGet]);
+                    }
+                }
+                else {
+                    btnGet.disabled = true;
+                }
+            }
+        });
+    }
+    /** 成就任务 */
+    refreshAchievementList(data) {
+        if (data == null)
+            return;
+        let self = this;
+        let listData = data;
+        let redPointNum = 0;
+        listData.sort((pre, next) => {
+            if (pre.task_status !== next.task_status) {
+                return next.task_status - pre.task_status;
+            }
+            return pre.id - next.id;
+        });
+        listData.forEach((data, index, list) => {
+            redPointNum += (data.task_status === 1 ? 1 : 0);
+        });
+        this.updateTabRetDot(QuestSubView.ACHIEVE_QUEST, redPointNum > 0);
+        if (listData.length <= 0) {
+            this.ui.viewStackTask.selectedIndex = QuestSubView.EMPTY_QUEST;
+            return;
+        }
+        self.ui.taskItemList.vScrollBarSkin = '';
+        self.ui.taskItemList.repeatY = 5;
+        self.ui.taskItemList.array = listData;
+        self.ui.taskItemList.renderHandler = new Laya.Handler(self, (cell, index) => {
+            if (index > listData.length)
+                return;
+            let item = listData[index];
+            if (!item)
+                return;
+            let itemTitle = item.title;
+            let awardNum = item.reward || 0;
+            let totalNum = item.num || 0;
+            let finishNum = item.task_num || 0;
+            let boxStage = item.task_status;
+            let txtTitle = cell.getChildByName('txtTitle');
+            if (txtTitle) {
+                txtTitle.changeText(itemTitle);
+            }
+            let txtNum = cell.getChildByName('txtNum');
+            if (txtNum) {
+                if (finishNum > totalNum) {
+                    finishNum = totalNum;
+                }
+                txtNum.changeText('(' + finishNum + '/' + totalNum + ')');
+            }
+            const imgAwardIcon = cell.getChildByName('imgAwardIcon');
+            if (imgAwardIcon) {
+                switch (item.reward_type) {
+                    case "essence":
+                        imgAwardIcon.skin = "images/core/essence.png";
+                        break;
+                    default:
+                        imgAwardIcon.skin = "images/core/diamond.png";
+                        break;
+                }
+                const txtDiamond = cell.getChildByName('txtDiamond');
+                if (txtDiamond) {
+                    txtDiamond.changeText('' + awardNum);
+                }
+            }
+            //领取
+            let btnGet = cell.getChildByName('btnGet');
+            if (btnGet) {
+                btnGet.visible = true;
+                if (boxStage > 0) {
+                    if (boxStage > 1) {
+                        //已领取
+                        btnGet.visible = false;
+                    }
+                    else {
+                        btnGet.disabled = false;
+                        btnGet.offAll(Laya.Event.CLICK);
+                        btnGet.on(Laya.Event.CLICK, btnGet, (_item, _btnObj) => {
+                            // console.log("领取奖励")
+                            self.requestTaskPrize(_item.id, (_res) => {
+                                if (_res) {
+                                    if (_res.code === 1) {
+                                        MessageUtils.showMsgTips("奖励领取成功");
+                                        MessageUtils.shopMsgByObj(btnGet, "+" + awardNum, EFFECT_TYPE.DIAMOND);
+                                        if (EventsManager.Instance) {
+                                            EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, _res);
+                                        }
+                                        _btnObj.visible = false;
+                                        _item.task_status = 2;
+                                        redPointNum--;
+                                        this.updateTabRetDot(QuestSubView.ACHIEVE_QUEST, redPointNum > 0);
+                                        if (redPointNum < 1) {
+                                            if (userData) {
+                                                userData.removeTaskRedPoint();
+                                            }
+                                        }
+                                        Laya.Tween.to(cell, { x: -cell.displayWidth }, 250, Laya.Ease.quadOut, Handler.create(self, () => {
+                                            listData.splice(index, 1);
+                                            Laya.timer.once(100, self, () => {
+                                                self.requestTaskInfo();
                                             });
                                         }));
                                     }
@@ -146,14 +263,13 @@ class TaskView extends BaseView {
         });
     }
     //拉取任务信息
-    requestTaskInfo(index) {
+    requestTaskInfo() {
         let that = this;
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/task/info',
             success: function (res) {
                 console.log("@FREEMAN: requestTaskInfo =>", res);
-                TaskView.questData = res;
                 that.refreshTaskList(res);
             },
             fail: function (res) {
@@ -179,8 +295,6 @@ class TaskView extends BaseView {
         ViewMgr.Ins.close(ViewConst.TaskView);
     }
 }
-TaskView.questData = null;
-TaskView.inviteData = null;
 var QuestSubView;
 (function (QuestSubView) {
     /** 每日任务 */

@@ -3498,7 +3498,7 @@ class HttpManager {
     requestPrizeInfo(callback) {
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
-            url: 'v1/activity/get/roulette',
+            url: 'v2/activity/get/roulette',
             success: function (res) {
                 console.log("requestPrizeInfo", res);
                 callback && callback(res);
@@ -3514,7 +3514,7 @@ class HttpManager {
         console.log("requestPrizeCensus:", dataString);
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
-            url: 'v1/activity/roulette/log',
+            url: 'v2/activity/roulette/log',
             method: 'Post',
             data: dataString,
             success: function (res) {
@@ -3529,7 +3529,7 @@ class HttpManager {
     requestDrawPrize(_itemId, _callback) {
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
-            url: 'v1/activity/roulette/' + _itemId,
+            url: 'v2/activity/roulette/' + _itemId,
             success: function (res) {
                 console.log("requestDrawPrize", res);
                 _callback && _callback(res);
@@ -5070,37 +5070,21 @@ class SDKManager {
             }
         });
     }
-    /**
-     * 显示banner广告
-     * @param {boolean} [force=false]
-     * @param {number} [offsetY=0]
-     * @returns {*}
-     * @memberof SDKManager
-     */
-    showBannerAd(force = false) {
-        if (!systemInfo.canUseVersion("2.0.4")) {
-            return;
-        }
+    /** 显示banner广告 */
+    showBannerAd() {
         let self = this;
-        if (self._isForbidBannerAd && force == false) {
+        if (self._isForbidBannerAd || !systemInfo.canUseVersion("2.0.4")) {
             return;
         }
         self.createBanner();
         return self._bannerAd;
     }
-    /**
-     *  关闭banner广告
-     * @param {boolean} [forbid=false]
-     * @memberof SDKManager
-     */
-    closeBannerAd(forbid = false) {
-        if (!systemInfo.canUseVersion("2.0.4")) {
-            return;
-        }
+    /** 关闭banner广告 */
+    closeBannerAd() {
         let self = this;
-        if (forbid) {
-            self._isForbidBannerAd = true;
-        }
+        if (!systemInfo.canUseVersion("2.0.4"))
+            return;
+        self._isForbidBannerAd = true;
         self.createBanner(false);
     }
     createBanner(isShow = true) {
@@ -7090,7 +7074,7 @@ class BaseView extends Laya.View {
     /** 面板关闭执行函数，用于子类继承 */
     close(...param) {
         this.removeEvents();
-        SDKManager.Instance.closeBannerAd(true);
+        SDKManager.Instance.closeBannerAd();
     }
     /** 销毁 */
     destroy() {
@@ -7098,7 +7082,7 @@ class BaseView extends Laya.View {
         this._myParent = null;
         this._ui.removeSelf();
         this._ui = null;
-        SDKManager.Instance.closeBannerAd(true);
+        SDKManager.Instance.closeBannerAd();
     }
     get ui() { return this._ui; }
     set ui(value) { this._ui = value; }
@@ -8615,7 +8599,7 @@ var ui;
                 this.createView(ui.luckPrize.LuckPrizeBoxViewUI.uiView);
             }
         }
-        LuckPrizeBoxViewUI.uiView = { "type": "View", "props": { "width": 608, "height": 721 }, "child": [{ "type": "Box", "props": { "y": 0, "x": 0, "width": 608, "height": 721 }, "child": [{ "type": "Image", "props": { "y": 355, "x": 300, "width": 600, "skin": "images/hall/common_bg_light.png", "height": 600, "anchorY": 0.5, "anchorX": 0.5 } }, { "type": "Image", "props": { "skin": "images/luckLottery/luck_item_title_2.png" } }, { "type": "Button", "props": { "y": 106, "x": 577, "var": "btnExit", "stateNum": 1, "skin": "images/component/frame_close_btn.png" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }, { "type": "Image", "props": { "y": 263, "x": 225, "skin": "images/component/frame_9calce_03.png", "scaleY": 1.2, "scaleX": 1.2, "sizeGrid": "26,31,23,28" } }, { "type": "Button", "props": { "y": 597, "x": 140, "var": "btn_get", "stateNum": 1, "skin": "images/component/yellow_btn.png", "labelStrokeColor": "#946430", "labelStroke": 2, "labelSize": 50, "labelColors": "#ffffff,#ffffff,#ffffff,#ffffff", "labelBold": true, "label": "领取" } }, { "type": "Image", "props": { "y": 295, "x": 252, "skin": "images/luckLottery/luck_item_box.png" } }, { "type": "Label", "props": { "y": 483, "x": 219, "text": "中大奖啦", "strokeColor": "#946430", "stroke": 2, "fontSize": 45, "color": "#ffebbc", "bold": true, "align": "center" } }, { "type": "Label", "props": { "y": 533, "x": 131, "var": "txt_des", "text": "下次转盘2倍奖励", "strokeColor": "#946430", "stroke": 2, "fontSize": 45, "color": "#ffebbc", "bold": true, "align": "center" } }] }] };
+        LuckPrizeBoxViewUI.uiView = { "type": "View", "props": { "width": 608, "height": 721 }, "child": [{ "type": "Box", "props": { "y": 0, "x": 0, "width": 608, "height": 721 }, "child": [{ "type": "Image", "props": { "y": 355, "x": 300, "width": 600, "var": "imgLight", "skin": "images/hall/common_bg_light.png", "height": 600, "anchorY": 0.5, "anchorX": 0.5 } }, { "type": "Image", "props": { "skin": "images/luckLottery/luck_item_title_2.png" } }, { "type": "Button", "props": { "y": 106, "x": 577, "var": "btnExit", "stateNum": 1, "skin": "images/component/frame_close_btn.png" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }, { "type": "Image", "props": { "y": 263, "x": 225, "skin": "images/component/frame_9calce_03.png", "scaleY": 1.2, "scaleX": 1.2, "sizeGrid": "26,31,23,28" } }, { "type": "Button", "props": { "y": 597, "x": 140, "var": "btn_get", "stateNum": 1, "skin": "images/component/yellow_btn.png", "labelStrokeColor": "#946430", "labelStroke": 2, "labelSize": 50, "labelColors": "#ffffff,#ffffff,#ffffff,#ffffff", "labelBold": true, "label": "领取" } }, { "type": "Image", "props": { "y": 295, "x": 252, "skin": "images/luckLottery/luck_item_box.png" } }, { "type": "Label", "props": { "y": 483, "x": 219, "text": "中大奖啦", "strokeColor": "#946430", "stroke": 2, "fontSize": 45, "color": "#ffebbc", "bold": true, "align": "center" } }, { "type": "Label", "props": { "y": 533, "x": 131, "var": "txt_des", "text": "下次转盘2倍奖励", "strokeColor": "#946430", "stroke": 2, "fontSize": 45, "color": "#ffebbc", "bold": true, "align": "center" } }] }] };
         luckPrize.LuckPrizeBoxViewUI = LuckPrizeBoxViewUI;
     })(luckPrize = ui.luckPrize || (ui.luckPrize = {}));
 })(ui || (ui = {}));
@@ -8645,7 +8629,7 @@ var ui;
                 this.createView(ui.luckPrize.LuckPrizeViewUI.uiView);
             }
         }
-        LuckPrizeViewUI.uiView = { "type": "View", "props": { "y": 0, "x": 0, "width": 750, "name": "rolledTIme", "height": 869 }, "child": [{ "type": "View", "props": { "y": 0, "x": 0, "width": 750, "var": "mainView", "name": "mainView", "height": 869 }, "child": [{ "type": "Image", "props": { "y": 532, "x": 371, "var": "imgBg", "skin": "images/luckLottery/luck_huanpan.png", "rotation": 0, "name": "imgBg", "anchorY": 0.5, "anchorX": 0.5 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "skin": "images/luckLottery/luck_huanpan_light.png", "name": "imgEffect1" }, "compId": 68 }] }, { "type": "Image", "props": { "y": -71, "x": 37, "skin": "images/luckLottery/luck_title.png" } }, { "type": "Button", "props": { "y": -2, "x": 634, "var": "btnExit", "stateNum": 1, "skin": "images/component/frame_close_btn.png", "name": "btnExit" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }, { "type": "Button", "props": { "y": 394, "x": 263, "var": "btnStart", "stateNum": 1, "skin": "images/luckLottery/luck_go.png", "name": "btnStart" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }, { "type": "Image", "props": { "y": 161, "x": 83, "skin": "images/core/diamond.png", "name": "imgDiamond", "anchorY": 0.5, "anchorX": 0.5 }, "child": [{ "type": "Label", "props": { "y": 6, "x": 41, "var": "txtDiamond", "text": "120", "strokeColor": "#000000", "stroke": 2, "name": "txtDiamond", "fontSize": 28, "color": "#f4d80d", "bold": true, "align": "left" } }] }] }, { "type": "Box", "props": { "y": 130, "x": 267 }, "child": [{ "type": "Image", "props": { "skin": "images/luckLottery/luck_price_bg.png" } }, { "type": "Image", "props": { "y": 15, "x": 21, "skin": "images/core/diamond.png" } }, { "type": "Label", "props": { "y": 19, "x": 70, "var": "txt_diamond", "text": "0", "fontSize": 30, "color": "#ffffff", "bold": true } }] }] }], "animations": [{ "nodes": [{ "target": 68, "keyframes": { "alpha": [{ "value": 1, "tweenMethod": "linearNone", "tween": true, "target": 68, "key": "alpha", "index": 0 }, { "value": 0, "tweenMethod": "linearNone", "tween": true, "target": 68, "key": "alpha", "index": 10 }, { "value": 1, "tweenMethod": "linearNone", "tween": true, "target": 68, "key": "alpha", "index": 20 }] } }], "name": "ani1", "id": 1, "frameRate": 24, "action": 2 }] };
+        LuckPrizeViewUI.uiView = { "type": "View", "props": { "y": 0, "x": 0, "width": 750, "name": "rolledTIme", "height": 902 }, "child": [{ "type": "View", "props": { "y": 0, "x": 0, "width": 750, "var": "mainView", "name": "mainView", "height": 902 }, "child": [{ "type": "Image", "props": { "y": 532, "x": 371, "var": "imgBg", "skin": "images/luckLottery/luck_huanpan.png", "rotation": 0, "name": "imgBg", "anchorY": 0.5, "anchorX": 0.5 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "skin": "images/luckLottery/luck_huanpan_light.png", "name": "imgEffect1" }, "compId": 68 }] }, { "type": "Image", "props": { "y": -71, "x": 37, "skin": "images/luckLottery/luck_title.png" } }, { "type": "Button", "props": { "y": -2, "x": 634, "var": "btnExit", "stateNum": 1, "skin": "images/component/frame_close_btn.png", "name": "btnExit" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }, { "type": "Button", "props": { "y": 394, "x": 263, "var": "btnStart", "stateNum": 1, "skin": "images/luckLottery/luck_go.png", "name": "btnStart" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }, { "type": "Image", "props": { "y": 161, "x": 83, "skin": "images/core/diamond.png", "name": "imgDiamond", "anchorY": 0.5, "anchorX": 0.5 }, "child": [{ "type": "Label", "props": { "y": 6, "x": 41, "var": "txtDiamond", "text": "120", "strokeColor": "#000000", "stroke": 2, "name": "txtDiamond", "fontSize": 28, "color": "#f4d80d", "bold": true, "align": "left" } }] }] }, { "type": "Box", "props": { "y": 130, "x": 267 }, "child": [{ "type": "Image", "props": { "skin": "images/luckLottery/luck_price_bg.png" } }, { "type": "Image", "props": { "y": 15, "x": 21, "skin": "images/core/diamond.png" } }, { "type": "Label", "props": { "y": 19, "x": 70, "var": "txt_diamond", "text": "0", "fontSize": 30, "color": "#ffffff", "bold": true } }] }, { "type": "Label", "props": { "y": 856, "x": 200, "width": 350, "var": "txt_des", "text": "当前倍率：1倍", "fontSize": 32, "color": "#a17338", "bold": true, "align": "center" } }] }], "animations": [{ "nodes": [{ "target": 68, "keyframes": { "alpha": [{ "value": 1, "tweenMethod": "linearNone", "tween": true, "target": 68, "key": "alpha", "index": 0 }, { "value": 0, "tweenMethod": "linearNone", "tween": true, "target": 68, "key": "alpha", "index": 10 }, { "value": 1, "tweenMethod": "linearNone", "tween": true, "target": 68, "key": "alpha", "index": 20 }] } }], "name": "ani1", "id": 1, "frameRate": 24, "action": 2 }] };
         luckPrize.LuckPrizeViewUI = LuckPrizeViewUI;
     })(luckPrize = ui.luckPrize || (ui.luckPrize = {}));
 })(ui || (ui = {}));
@@ -8807,7 +8791,7 @@ var ui;
                 this.createView(ui.task.TaskViewUI.uiView);
             }
         }
-        TaskViewUI.uiView = { "type": "View", "props": { "y": 0, "x": 0 }, "child": [{ "type": "View", "props": { "width": 750, "visible": true, "var": "mainView", "name": "mainView", "height": 1334, "centerY": 0, "centerX": 0 }, "child": [{ "type": "View", "props": { "y": 0, "x": 0, "var": "blankView", "top": 0, "right": 0, "name": "blankView", "left": 0, "bottom": 0 } }, { "type": "View", "props": { "y": 124, "x": 0, "width": 750, "name": "coverView", "mouseThrough": false, "mouseEnabled": true, "height": 1050 } }, { "type": "Image", "props": { "y": 103, "x": 19, "width": 713, "skin": "images/component/frame_9calce_01.png", "height": 1013, "sizeGrid": "168,65,62,82" } }, { "type": "Image", "props": { "y": 140, "x": 324, "skin": "images/quest/title.png" } }, { "type": "Image", "props": { "y": 338, "x": 52, "width": 646, "skin": "images/component/frame_9calce_02.png", "height": 745, "sizeGrid": "25,32,32,36" } }, { "type": "View", "props": { "y": 239, "x": 137, "var": "tabGroup" }, "child": [{ "type": "Button", "props": { "y": 10, "x": 0, "strokeColors": "#998a4e,#a86c24", "stateNum": 2, "skin": "images/component/tab_01.png", "selected": true, "labelStroke": 5, "labelSize": 36, "labelPadding": "0,0,13,0", "labelColors": "#fff4e1,#fff4e1", "labelBold": true, "labelAlign": "center", "label": "每日任务" }, "child": [{ "type": "Image", "props": { "y": -10, "x": 180, "visible": false, "skin": "images/core/red_dot_hint.png", "name": "imgRetDotHint" } }] }, { "type": "Button", "props": { "y": 10, "x": 274, "strokeColors": "#998a4e,#a86c24", "stateNum": 2, "skin": "images/component/tab_01.png", "selected": false, "labelStroke": 5, "labelSize": 36, "labelPadding": "0,0,13,0", "labelColors": "#fff4e1,#fff4e1", "labelBold": true, "labelAlign": "center", "label": "成就任务" }, "child": [{ "type": "Image", "props": { "y": -10, "x": 180, "visible": false, "skin": "images/core/red_dot_hint.png", "name": "imgRetDotHint" } }] }] }, { "type": "ViewStack", "props": { "y": 341, "width": 750, "var": "viewStackTask", "selectedIndex": 0, "right": 0, "name": "viewStackTask", "left": 0, "height": 738 }, "child": [{ "type": "Image", "props": { "y": 1, "x": 56, "width": 637, "name": "item0", "height": 736 }, "child": [{ "type": "List", "props": { "y": 0, "x": 0, "width": 638, "var": "taskItemList", "spaceY": 15, "repeatY": 1, "repeatX": 1, "name": "taskItemList", "height": 690 }, "child": [{ "type": "Box", "props": { "y": 0, "x": 2, "visible": false, "right": 2, "renderType": "render", "left": 2, "height": 130, "cacheAs": "bitmap" }, "child": [{ "type": "Image", "props": { "y": 10, "x": 6, "skin": "images/quest/item_bg.png" } }, { "type": "Image", "props": { "y": 82, "x": 45, "skin": "images/quest/reward_bg.png" } }, { "type": "Image", "props": { "y": 81, "x": 33, "skin": "images/core/diamond.png", "name": "imgAwardIcon" } }, { "type": "Label", "props": { "y": 28, "x": 35, "width": 350, "text": "完成车辆合成30次 (0/30)", "name": "txtTitle", "fontSize": 32, "color": "#a17338", "bold": true, "align": "left" } }, { "type": "Label", "props": { "y": 85, "x": 79, "width": 100, "text": "100", "name": "txtDiamond", "fontSize": 30, "color": "#fcf4cd", "align": "left" } }, { "type": "Image", "props": { "y": 52, "x": 433, "skin": "images/component/frame_9scale_11.png", "name": "txtGet" }, "child": [{ "type": "Label", "props": { "y": 9, "x": 22, "width": 120, "text": "已领取", "fontSize": 30, "color": "#fff4e1", "bold": true, "align": "center" } }] }, { "type": "Button", "props": { "y": 44, "x": 424, "stateNum": 1, "skin": "images/quest/btn_obtain.png", "name": "btnGet", "labelStrokeColor": "#946430", "labelStroke": 3, "labelSize": 30, "labelColors": "#fff4e1", "labelBold": true, "label": "领取" } }] }] }, { "type": "Label", "props": { "y": 699, "x": -1, "width": 638, "text": "每天00:00时系统自动重置任务", "strokeColor": "#7a572b", "stroke": 2, "height": 24, "fontSize": 24, "color": "#ffffff", "bold": true, "align": "center" } }] }, { "type": "Label", "props": { "y": 317, "x": 193, "width": 350, "text": "暂时没有任务", "strokeColor": "#7a572b", "name": "item2", "fontSize": 46, "color": "#d9d9d9", "bold": true, "align": "center" } }] }, { "type": "Button", "props": { "y": 99, "x": 649, "var": "btnExit", "stateNum": 1, "skin": "images/component/frame_close_btn.png", "name": "btnExit" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }] }] };
+        TaskViewUI.uiView = { "type": "View", "props": { "y": 0, "x": 0 }, "child": [{ "type": "View", "props": { "width": 750, "visible": true, "var": "mainView", "name": "mainView", "height": 1334, "centerY": 0, "centerX": 0 }, "child": [{ "type": "View", "props": { "y": 0, "x": 0, "var": "blankView", "top": 0, "right": 0, "name": "blankView", "left": 0, "bottom": 0 } }, { "type": "View", "props": { "y": 124, "x": 0, "width": 750, "name": "coverView", "mouseThrough": false, "mouseEnabled": true, "height": 1050 } }, { "type": "Image", "props": { "y": 103, "x": 19, "width": 713, "skin": "images/component/frame_9calce_01.png", "height": 1013, "sizeGrid": "168,65,62,82" } }, { "type": "Image", "props": { "y": 140, "x": 324, "skin": "images/quest/title.png" } }, { "type": "Image", "props": { "y": 338, "x": 52, "width": 646, "skin": "images/component/frame_9calce_02.png", "height": 745, "sizeGrid": "25,32,32,36" } }, { "type": "View", "props": { "y": 239, "x": 137, "var": "tabGroup" }, "child": [{ "type": "Button", "props": { "y": 10, "x": 0, "strokeColors": "#998a4e,#a86c24", "stateNum": 2, "skin": "images/component/tab_01.png", "selected": true, "labelStroke": 5, "labelSize": 36, "labelPadding": "0,0,13,0", "labelColors": "#fff4e1,#fff4e1", "labelBold": true, "labelAlign": "center", "label": "每日任务" }, "child": [{ "type": "Image", "props": { "y": -10, "x": 180, "visible": false, "skin": "images/core/red_dot_hint.png", "name": "imgRetDotHint" } }] }, { "type": "Button", "props": { "y": 10, "x": 274, "strokeColors": "#998a4e,#a86c24", "stateNum": 2, "skin": "images/component/tab_01.png", "selected": false, "labelStroke": 5, "labelSize": 36, "labelPadding": "0,0,13,0", "labelColors": "#fff4e1,#fff4e1", "labelBold": true, "labelAlign": "center", "label": "成就任务" }, "child": [{ "type": "Image", "props": { "y": -10, "x": 180, "visible": false, "skin": "images/core/red_dot_hint.png", "name": "imgRetDotHint" } }] }] }, { "type": "ViewStack", "props": { "y": 341, "width": 750, "var": "viewStackTask", "selectedIndex": 0, "right": 0, "name": "viewStackTask", "left": 0, "height": 738 }, "child": [{ "type": "Image", "props": { "y": 1, "x": 56, "width": 637, "name": "item0", "height": 736 }, "child": [{ "type": "List", "props": { "y": 0, "x": 0, "width": 638, "var": "taskItemList", "spaceY": 15, "repeatY": 1, "repeatX": 1, "name": "taskItemList", "height": 690 }, "child": [{ "type": "Box", "props": { "y": 0, "x": 2, "visible": false, "right": 2, "renderType": "render", "left": 2, "height": 130, "cacheAs": "bitmap" }, "child": [{ "type": "Image", "props": { "y": 10, "x": 6, "skin": "images/quest/item_bg.png" } }, { "type": "Image", "props": { "y": 82, "x": 45, "skin": "images/quest/reward_bg.png" } }, { "type": "Image", "props": { "y": 81, "x": 33, "skin": "images/core/diamond.png", "name": "imgAwardIcon" } }, { "type": "Label", "props": { "y": 28, "x": 35, "width": 350, "text": "完成车辆合成30次 (0/30)", "name": "txtTitle", "fontSize": 32, "color": "#a17338", "bold": true, "align": "left" } }, { "type": "Label", "props": { "y": 85, "x": 79, "width": 100, "text": "100", "name": "txtDiamond", "fontSize": 30, "color": "#fcf4cd", "align": "left" } }, { "type": "Image", "props": { "y": 52, "x": 433, "skin": "images/component/frame_9scale_11.png", "name": "txtGet" }, "child": [{ "type": "Label", "props": { "y": 9, "x": 22, "width": 120, "text": "已领取", "fontSize": 30, "color": "#fff4e1", "bold": true, "align": "center" } }] }, { "type": "Button", "props": { "y": 44, "x": 424, "stateNum": 1, "skin": "images/quest/btn_obtain.png", "name": "btnGet", "labelStrokeColor": "#946430", "labelStroke": 3, "labelSize": 30, "labelColors": "#fff4e1", "labelBold": true, "label": "领取" } }] }] }, { "type": "Label", "props": { "y": 699, "x": -1, "width": 638, "text": "每天00:00时系统自动重置任务", "strokeColor": "#7a572b", "stroke": 2, "height": 24, "fontSize": 24, "color": "#ffffff", "bold": true, "align": "center" } }] }, { "type": "Image", "props": { "y": 1, "x": 56, "width": 637, "name": "item1", "height": 736 }, "child": [{ "type": "List", "props": { "y": 0, "x": 0, "width": 638, "spaceY": 15, "repeatY": 1, "repeatX": 1, "name": "taskItemList", "height": 690 }, "child": [{ "type": "Box", "props": { "y": 0, "x": 2, "visible": false, "right": 2, "renderType": "render", "left": 2, "cacheAs": "bitmap" }, "child": [{ "type": "Image", "props": { "y": 10, "x": 6, "skin": "images/quest/item_bg_1.png" } }, { "type": "Label", "props": { "y": 28, "x": 35, "width": 350, "text": "完成车辆合成30次", "name": "txtTitle", "fontSize": 32, "color": "#a17338", "bold": true, "align": "left" } }, { "type": "Image", "props": { "y": 79, "x": 433, "skin": "images/component/frame_9scale_11.png", "name": "txtGet" }, "child": [{ "type": "Label", "props": { "y": 9, "x": 22, "width": 120, "text": "已领取", "fontSize": 30, "color": "#fff4e1", "bold": true, "align": "center" } }] }, { "type": "Label", "props": { "y": 28, "x": 425, "width": 185, "text": "(0/30)", "name": "txtNum", "height": 32, "fontSize": 32, "color": "#a17338", "bold": true, "align": "center" } }, { "type": "Box", "props": { "y": 81, "x": 33, "name": "reward0" }, "child": [{ "type": "Image", "props": { "y": 1, "x": 12, "skin": "images/quest/reward_bg.png" } }, { "type": "Image", "props": { "skin": "images/core/diamond.png", "name": "imgAwardIcon" } }, { "type": "Label", "props": { "y": 4, "x": 46, "width": 100, "text": "100", "name": "txtDiamond", "fontSize": 30, "color": "#fcf4cd", "align": "left" } }] }, { "type": "Box", "props": { "y": 81, "x": 177, "name": "reward1" }, "child": [{ "type": "Image", "props": { "y": 1, "x": 12, "skin": "images/quest/reward_bg.png" } }, { "type": "Image", "props": { "skin": "images/core/diamond.png", "name": "imgAwardIcon" } }, { "type": "Label", "props": { "y": 4, "x": 46, "width": 100, "text": "100", "name": "txtDiamond", "fontSize": 30, "color": "#fcf4cd", "align": "left" } }] }, { "type": "Button", "props": { "y": 71, "x": 424, "stateNum": 1, "skin": "images/quest/btn_obtain.png", "name": "btnGet", "labelStrokeColor": "#946430", "labelStroke": 3, "labelSize": 30, "labelColors": "#fff4e1", "labelBold": true, "label": "领取" } }] }] }, { "type": "Label", "props": { "y": 699, "x": -1, "width": 638, "text": "每天00:00时系统自动重置任务", "strokeColor": "#7a572b", "stroke": 2, "height": 24, "fontSize": 24, "color": "#ffffff", "bold": true, "align": "center" } }] }, { "type": "Label", "props": { "y": 317, "x": 193, "width": 350, "text": "暂时没有任务", "strokeColor": "#7a572b", "name": "item2", "fontSize": 46, "color": "#d9d9d9", "bold": true, "align": "center" } }] }, { "type": "Button", "props": { "y": 99, "x": 649, "var": "btnExit", "stateNum": 1, "skin": "images/component/frame_close_btn.png", "name": "btnExit" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }] }] };
         task.TaskViewUI = TaskViewUI;
     })(task = ui.task || (ui.task = {}));
 })(ui || (ui = {}));
@@ -9132,7 +9116,7 @@ class DiamondBuyView extends BaseView {
                 self.ui.imgMonster.skin = "images/carImg/" + self.datas[2].imgUrl;
                 break;
             case DILOG_TYPE.ACC:
-                SDKManager.Instance.showBannerAd(true);
+                SDKManager.Instance.showBannerAd();
                 self.ui.petTitleImg.visible = self.ui.imgMonster.visible = false;
                 self.ui.accTitleImg.visible = self.ui.accIcon.visible = true;
                 break;
@@ -9361,7 +9345,7 @@ class RewardGoldView extends BaseView {
     initUI() {
         super.initUI();
         let self = this;
-        SDKManager.Instance.showBannerAd(true);
+        SDKManager.Instance.showBannerAd();
         self.ui.txt_share.visible = false;
         self.ui.advBox.visible = !self.ui.txt_share.visible;
         self.ui.txt_lastCount.text = "今天剩余" + PlayerManager.Instance.Info.dayGetGoldCount + "次";
@@ -10202,7 +10186,7 @@ class FriendConcurView extends BaseView {
     initUI() {
         super.initUI();
         let self = this;
-        SDKManager.Instance.showBannerAd(true);
+        SDKManager.Instance.showBannerAd();
         self.ui.rewardList.visible = false;
         self.ui.rewardList.itemRender = FriendConcurItem;
         self.ui.rewardList.vScrollBarSkin = "";
@@ -12524,6 +12508,7 @@ class InvitationView extends BaseView {
     }
     initData() {
         super.initData();
+        SDKManager.Instance.showBannerAd();
         HttpManager.Instance.requestShareInfo((res) => {
             this.refreshShareList(res);
         });
@@ -12695,6 +12680,7 @@ class LuckPrizeBoxView extends BaseView {
                     }
                     break;
             }
+            this.callback && this.callback();
             this.ui.txt_des.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.40", this.datas[0].num);
         }
     }
@@ -12804,6 +12790,7 @@ class LuckPrizeItemView extends BaseView {
         super.close(param);
         Laya.Tween.clear(this._tween);
         HallManager.Instance.hallData.magnification = 1;
+        this.callback && this.callback();
     }
 }
 //# sourceMappingURL=LuckPrizeItemView.js.map
@@ -12834,13 +12821,13 @@ class LuckPrizeView extends BaseView {
     initUI() {
         super.initUI();
         var self = this;
-        SDKManager.Instance.showBannerAd(true);
+        SDKManager.Instance.showBannerAd();
+        self.startBtnEnabled(false);
         self.initPrizeInfo();
         //移除红点
-        if (userData) {
-            userData.removeLuckPrizeRedPoint();
-        }
+        userData.removeLuckPrizeRedPoint();
         self.showMyDiamond(PlayerManager.Instance.Info.userDiamond);
+        this.ui.txt_des.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.41", HallManager.Instance.hallData.magnification);
     }
     addEvents() {
         super.addEvents();
@@ -12864,6 +12851,7 @@ class LuckPrizeView extends BaseView {
                 this.freeTimes = MathUtils.parseInt(_res.free_num);
                 this.freeTime = MathUtils.parseInt(_res.remain_time);
                 this.nextFreeTime = MathUtils.parseInt(_res.next_free);
+                HallManager.Instance.hallData.magnification = MathUtils.parseInt(_res.reward_x);
             }
             this.costDiamond = MathUtils.parseInt(_res.roulette_price);
             //免费次数已用完
@@ -12960,10 +12948,16 @@ class LuckPrizeView extends BaseView {
                     that.ui.imgBg.clearTimer(that, animFun);
                     //显示奖励物品
                     if (_itemId != 1 && _itemId != 5) {
-                        ViewMgr.Ins.open(ViewConst.LuckPrizeItemView, null, that.prizeItemTable[_itemId - 1]);
+                        ViewMgr.Ins.open(ViewConst.LuckPrizeItemView, () => {
+                            this.ui.txt_des.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.41", HallManager.Instance.hallData.magnification);
+                            that.startBtnEnabled(false);
+                        }, that.prizeItemTable[_itemId - 1]);
                     }
                     else {
-                        ViewMgr.Ins.open(ViewConst.LuckPrizeBoxView, null, that.prizeItemTable[_itemId - 1]);
+                        ViewMgr.Ins.open(ViewConst.LuckPrizeBoxView, () => {
+                            this.ui.txt_des.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.41", HallManager.Instance.hallData.magnification);
+                            that.startBtnEnabled(false);
+                        }, that.prizeItemTable[_itemId - 1]);
                     }
                 }
             }
@@ -13842,7 +13836,7 @@ class ShopView extends BaseView {
     initUI() {
         super.initUI();
         let self = this;
-        SDKManager.Instance.showBannerAd(true);
+        SDKManager.Instance.showBannerAd();
         self.initList();
         self.refreshMoney(PlayerManager.Instance.Info.userMoney, PlayerManager.Instance.Info.userDiamond);
     }
@@ -14100,7 +14094,7 @@ class StrengthenView extends BaseView {
     initUI() {
         super.initUI();
         let self = this;
-        SDKManager.Instance.showBannerAd(true);
+        SDKManager.Instance.showBannerAd();
         //界面初始化
         let imgBg = self.ui.mainView.getChildByName("imgBg");
         if (imgBg) {
@@ -14219,7 +14213,7 @@ class TaskView extends BaseView {
     initData() {
         super.initData();
         var self = this;
-        SDKManager.Instance.showBannerAd(true);
+        SDKManager.Instance.showBannerAd();
         self._tabGroup = new TabGroup(this.ui.tabGroup._childs);
         this._tabGroup.on(Laya.Event.CHANGE, this, this.onTabChange);
         self._tabGroup.selectedIndex = QuestSubView.DAILY_QUEST;
@@ -14238,7 +14232,11 @@ class TaskView extends BaseView {
     onTabChange() {
         const index = this._tabGroup.selectedIndex;
         this.ui.viewStackTask.selectedIndex = index;
-        this.requestTaskInfo(index);
+        if (index == QuestSubView.DAILY_QUEST) { //每日任务
+            this.requestTaskInfo();
+        }
+        else { //成就任务
+        }
     }
     updateTabRetDot(subViewType, isShow) {
         const redDot = this._tabGroup.getButtonByIndex(subViewType).getChildByName("imgRetDotHint");
@@ -14336,7 +14334,120 @@ class TaskView extends BaseView {
                                         Laya.Tween.to(cell, { x: -cell.displayWidth }, 250, Laya.Ease.quadOut, Handler.create(that, () => {
                                             listData.splice(index, 1);
                                             Laya.timer.once(100, that, () => {
-                                                that.requestTaskInfo(this.ui.viewStackTask.selectedIndex);
+                                                that.requestTaskInfo();
+                                            });
+                                        }));
+                                    }
+                                    else if (_res.code === 2) {
+                                        MessageUtils.showMsgTips("领取失败！");
+                                    }
+                                }
+                            });
+                        }, [item, btnGet]);
+                    }
+                }
+                else {
+                    btnGet.disabled = true;
+                }
+            }
+        });
+    }
+    /** 成就任务 */
+    refreshAchievementList(data) {
+        if (data == null)
+            return;
+        let self = this;
+        let listData = data;
+        let redPointNum = 0;
+        listData.sort((pre, next) => {
+            if (pre.task_status !== next.task_status) {
+                return next.task_status - pre.task_status;
+            }
+            return pre.id - next.id;
+        });
+        listData.forEach((data, index, list) => {
+            redPointNum += (data.task_status === 1 ? 1 : 0);
+        });
+        this.updateTabRetDot(QuestSubView.ACHIEVE_QUEST, redPointNum > 0);
+        if (listData.length <= 0) {
+            this.ui.viewStackTask.selectedIndex = QuestSubView.EMPTY_QUEST;
+            return;
+        }
+        self.ui.taskItemList.vScrollBarSkin = '';
+        self.ui.taskItemList.repeatY = 5;
+        self.ui.taskItemList.array = listData;
+        self.ui.taskItemList.renderHandler = new Laya.Handler(self, (cell, index) => {
+            if (index > listData.length)
+                return;
+            let item = listData[index];
+            if (!item)
+                return;
+            let itemTitle = item.title;
+            let awardNum = item.reward || 0;
+            let totalNum = item.num || 0;
+            let finishNum = item.task_num || 0;
+            let boxStage = item.task_status;
+            let txtTitle = cell.getChildByName('txtTitle');
+            if (txtTitle) {
+                txtTitle.changeText(itemTitle);
+            }
+            let txtNum = cell.getChildByName('txtNum');
+            if (txtNum) {
+                if (finishNum > totalNum) {
+                    finishNum = totalNum;
+                }
+                txtNum.changeText('(' + finishNum + '/' + totalNum + ')');
+            }
+            const imgAwardIcon = cell.getChildByName('imgAwardIcon');
+            if (imgAwardIcon) {
+                switch (item.reward_type) {
+                    case "essence":
+                        imgAwardIcon.skin = "images/core/essence.png";
+                        break;
+                    default:
+                        imgAwardIcon.skin = "images/core/diamond.png";
+                        break;
+                }
+                const txtDiamond = cell.getChildByName('txtDiamond');
+                if (txtDiamond) {
+                    txtDiamond.changeText('' + awardNum);
+                }
+            }
+            //领取
+            let btnGet = cell.getChildByName('btnGet');
+            if (btnGet) {
+                btnGet.visible = true;
+                if (boxStage > 0) {
+                    if (boxStage > 1) {
+                        //已领取
+                        btnGet.visible = false;
+                    }
+                    else {
+                        btnGet.disabled = false;
+                        btnGet.offAll(Laya.Event.CLICK);
+                        btnGet.on(Laya.Event.CLICK, btnGet, (_item, _btnObj) => {
+                            // console.log("领取奖励")
+                            self.requestTaskPrize(_item.id, (_res) => {
+                                if (_res) {
+                                    if (_res.code === 1) {
+                                        MessageUtils.showMsgTips("奖励领取成功");
+                                        MessageUtils.shopMsgByObj(btnGet, "+" + awardNum, EFFECT_TYPE.DIAMOND);
+                                        if (EventsManager.Instance) {
+                                            EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, _res);
+                                        }
+                                        _btnObj.visible = false;
+                                        _item.task_status = 2;
+                                        redPointNum--;
+                                        this.updateTabRetDot(QuestSubView.ACHIEVE_QUEST, redPointNum > 0);
+                                        if (redPointNum < 1) {
+                                            if (userData) {
+                                                userData.removeTaskRedPoint();
+                                            }
+                                        }
+                                        Laya.Tween.to(cell, { x: -cell.displayWidth }, 250, Laya.Ease.quadOut, Handler.create(self, () => {
+                                            listData.splice(index, 1);
+                                            Laya.timer.once(100, self, () => {
+                                                self.requestTaskInfo();
                                             });
                                         }));
                                     }
@@ -14355,14 +14466,13 @@ class TaskView extends BaseView {
         });
     }
     //拉取任务信息
-    requestTaskInfo(index) {
+    requestTaskInfo() {
         let that = this;
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/task/info',
             success: function (res) {
                 console.log("@FREEMAN: requestTaskInfo =>", res);
-                TaskView.questData = res;
                 that.refreshTaskList(res);
             },
             fail: function (res) {
@@ -14388,8 +14498,6 @@ class TaskView extends BaseView {
         ViewMgr.Ins.close(ViewConst.TaskView);
     }
 }
-TaskView.questData = null;
-TaskView.inviteData = null;
 var QuestSubView;
 (function (QuestSubView) {
     /** 每日任务 */

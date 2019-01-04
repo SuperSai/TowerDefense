@@ -30,12 +30,12 @@ class LuckPrizeView extends BaseView {
         super.initUI();
         var self = this;
         SDKManager.Instance.showBannerAd();
+        self.startBtnEnabled(false);
         self.initPrizeInfo();
         //移除红点
-        if (userData) {
-            userData.removeLuckPrizeRedPoint();
-        }
+        userData.removeLuckPrizeRedPoint();
         self.showMyDiamond(PlayerManager.Instance.Info.userDiamond);
+        this.ui.txt_des.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.41", HallManager.Instance.hallData.magnification);
     }
 
     public addEvents(): void {
@@ -61,6 +61,7 @@ class LuckPrizeView extends BaseView {
                 this.freeTimes = MathUtils.parseInt(_res.free_num);
                 this.freeTime = MathUtils.parseInt(_res.remain_time);
                 this.nextFreeTime = MathUtils.parseInt(_res.next_free);
+                HallManager.Instance.hallData.magnification = MathUtils.parseInt(_res.reward_x);
             }
             this.costDiamond = MathUtils.parseInt(_res.roulette_price);
             //免费次数已用完
@@ -93,7 +94,6 @@ class LuckPrizeView extends BaseView {
                 that.onRotation(360 * 7 + rotation, itemId);
                 that.freeTimes--;
                 that.freeTime = 0;
-
                 //移除红点
                 if (userData) {
                     userData.removeLuckPrizeRedPoint();
@@ -157,9 +157,15 @@ class LuckPrizeView extends BaseView {
                     that.ui.imgBg.clearTimer(that, animFun);
                     //显示奖励物品
                     if (_itemId != 1 && _itemId != 5) {
-                        ViewMgr.Ins.open(ViewConst.LuckPrizeItemView, null, that.prizeItemTable[_itemId - 1]);
+                        ViewMgr.Ins.open(ViewConst.LuckPrizeItemView, () => {
+                            this.ui.txt_des.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.41", HallManager.Instance.hallData.magnification);
+                            that.startBtnEnabled(false);
+                        }, that.prizeItemTable[_itemId - 1]);
                     } else {
-                        ViewMgr.Ins.open(ViewConst.LuckPrizeBoxView, null, that.prizeItemTable[_itemId - 1]);
+                        ViewMgr.Ins.open(ViewConst.LuckPrizeBoxView, () => {
+                            this.ui.txt_des.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.41", HallManager.Instance.hallData.magnification);
+                            that.startBtnEnabled(false);
+                        }, that.prizeItemTable[_itemId - 1]);
                     }
                 }
             } else if (fAdd < 0) {

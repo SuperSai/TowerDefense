@@ -26,6 +26,7 @@ class LuckPrizeBoxView extends BaseView {
                     }
                     break;
             }
+            this.callback && this.callback();
             this.ui.txt_des.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.40", this.datas[0].num);
         }
     }

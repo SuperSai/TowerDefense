@@ -1,8 +1,8 @@
 {
     "x":0,
     "type":"View",
-    "selectedBox":1,
-    "selecteID":11,
+    "selectedBox":11,
+    "selecteID":5,
     "props":{"width":608,"sceneWidth":750,"sceneHeight":1334,"sceneColor":"#000000","sceneBg":"laya/views/luckPrize/LuckPrizeBoxView.jpg","height":721},
     "nodeParent":-1,
     "label":"View",
@@ -27,9 +27,9 @@
                 {
                     "x":30,
                     "type":"Image",
-                    "props":{"y":355,"x":300,"width":600,"skin":"images/hall/common_bg_light.png","height":600,"anchorY":0.5,"anchorX":0.5},
+                    "props":{"y":355,"x":300,"width":600,"var":"imgLight","skin":"images/hall/common_bg_light.png","height":600,"anchorY":0.5,"anchorX":0.5},
                     "nodeParent":11,
-                    "label":"Image",
+                    "label":"Image(imgLight)",
                     "isOpen":true,
                     "isDirectory":false,
                     "isAniNode":true,

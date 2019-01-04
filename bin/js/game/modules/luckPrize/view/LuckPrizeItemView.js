@@ -74,6 +74,7 @@ class LuckPrizeItemView extends BaseView {
         super.close(param);
         Laya.Tween.clear(this._tween);
         HallManager.Instance.hallData.magnification = 1;
+        this.callback && this.callback();
     }
 }
 //# sourceMappingURL=LuckPrizeItemView.js.map
