@@ -12,8 +12,7 @@ class DaySignView extends ui.daySign.DaySignViewUI {
     //新建并添加到节点
     static Create(onAddHandler) {
         let resList = [
-            { url: "res/atlas/images/dailySign.atlas", type: Laya.Loader.ATLAS },
-            { url: "images/dailySign/item_bg_7th_day.png", type: Laya.Loader.IMAGE },
+            { url: "res/atlas/images/dailySign.atlas", type: Laya.Loader.ATLAS }
         ];
         Laya.loader.load(resList, Handler.create(null, () => {
             if (!this._view) {

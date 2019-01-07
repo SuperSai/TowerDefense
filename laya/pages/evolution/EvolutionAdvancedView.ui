@@ -1,8 +1,8 @@
 {
     "x":0,
     "type":"View",
-    "selectedBox":19,
-    "selecteID":19,
+    "selectedBox":2,
+    "selecteID":148,
     "props":{"width":715,"sceneColor":"#000000","height":1014},
     "nodeParent":-1,
     "label":"View",
@@ -157,7 +157,7 @@
                         {
                             "x":45,
                             "type":"Image",
-                            "props":{"y":301,"x":537,"skin":"images/luckLottery/luck_prize_5.png"},
+                            "props":{"y":278,"x":509,"skin":"images/core/essence_icon.png"},
                             "nodeParent":2,
                             "label":"Image",
                             "isDirectory":false,
@@ -170,7 +170,7 @@
                         {
                             "x":45,
                             "type":"Image",
-                            "props":{"y":310,"x":310,"skin":"images/luckLottery/luck_prize_6.png"},
+                            "props":{"y":289,"x":299,"skin":"images/core/diamond_icon_more.png","scaleY":0.8,"scaleX":0.8},
                             "nodeParent":2,
                             "label":"Image",
                             "isDirectory":false,

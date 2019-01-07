@@ -6,6 +6,28 @@ class HttpManager {
 
     }
 
+    public requestSaveNovice(groupId: number): void {
+        if (userData.cache.hasCache(CacheKey.NOVICE_GROUP_ID)) {
+            const cacheGroupId = userData.cache.getCache(CacheKey.NOVICE_GROUP_ID);
+            if (cacheGroupId === groupId) {
+                console.log("color:#336699", "%c@FREEMAN: 新手节点进度没有变化，不需要保存，当前节点：" + groupId);
+                return;
+            }
+        }
+
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+        HttpReqHelper.request({
+            url: 'v1/novice/' + groupId,
+            success: () => {
+                console.log("@FREEMAN: 新手节点进度保存成功，当前节点：", groupId);
+            },
+            fail: () => {
+                console.error("@FREEMAN: 新手节点进度保存失败，当前节点：", groupId);
+            }
+        });
+        userData.cache.setCache(CacheKey.NOVICE_GROUP_ID, groupId);
+    }
+
     /** 请求通关奖励 */
     public requestStagePrizeDiamond(_stage: number, _diamond: number, _essence: number, _callback: any): void {
         let that = this;
@@ -80,11 +102,11 @@ class HttpManager {
     /** 钻石购怪物下单 */
     public requestDiamondBuyOrder(diamond: number, callback: any, type: number = 0): void {
         console.log("钻石购怪物订单", diamond);
-        let that = this;
         let strKind: string = 'buy_car';
         if (type == 1) {
             strKind = 'diamond_acce';
         }
+        console.log("@David 钻石购怪物下单 type:", type);
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/diamond/order/' + diamond + '/' + strKind,
@@ -433,7 +455,7 @@ class HttpManager {
                         userData.setEssence(MathUtils.parseInt(res.essence));
                     }
                     if (res.stage) {
-                        group[CacheKey.STAGE_PASSED] = HallManager.Instance.hallData.passStage = userData.passStage = MathUtils.parseInt(res.stage);
+                        group[CacheKey.STAGE_PASSED] = M.hall.hallData.passStage = userData.passStage = MathUtils.parseInt(res.stage);
                     }
                     if (res.king_level) {
                         group[CacheKey.GUARD_LEVEL] = userData.kingLevel = MathUtils.parseStringNum(res.king_level);
@@ -442,7 +464,7 @@ class HttpManager {
                         group[CacheKey.EVOLUTION_LEVEL] = userData.evolutionLevel = MathUtils.parseStringNum(res.evolution_level);
                     }
                     if (res.tutorial) {
-                        group[CacheKey.NOVICE_GROUP_ID] = userData.noviceGroupId = parseInt(res.tutorial);
+                        group[CacheKey.NOVICE_GROUP_ID] = M.novice.currGroupId = parseInt(res.tutorial);
                     }
 
                     userData.cache.setCacheGroup(group);
@@ -756,10 +778,10 @@ class HttpManager {
                 "appId": param.referrerInfo.appId
             },
             success: function (res) {
-                console.log(res);
+                console.log("@David 公众号给服务器发送完毕！", res);
             },
             fail: function (res) {
-                console.log(res);
+                console.log("@David 公众号给服务器发送错误！", res);
             }
         });
     }

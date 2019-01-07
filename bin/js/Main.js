@@ -1,4 +1,3 @@
-xiaoduo = window.xiaoduo;
 const M = new ManagerShortcuts();
 let userData;
 let systemInfo;

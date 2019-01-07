@@ -42,9 +42,7 @@ class MainLoadingView extends Laya.Sprite {
             if (launch.scene == 1104 || launch.scene == 1103 || launch.scene == 1023) { //ios从我的小程序入口进
                 PlayerManager.Instance.Info.isMySceneEnter = true;
             }
-            if (launch.scene == 1008) {
-                SDKManager.Instance.handlerSceneValue(launch);
-            }
+            SDKManager.Instance.handlerSceneValue(launch);
         }
         this.startCountDown();
         // if (Laya.Browser.onMiniGame) {
@@ -56,7 +54,7 @@ class MainLoadingView extends Laya.Sprite {
     loadSubPackages() {
         const self = this;
         platform.startLoading((percentage) => {
-            self.updateLoadingProgress(percentage, 1);
+            self.updateLoadingProgress(percentage);
             if (percentage >= 100) {
                 self.loadRemoteRes();
             }
@@ -81,7 +79,7 @@ class MainLoadingView extends Laya.Sprite {
             Laya.loader.load(resList, Handler.create(this, () => {
                 this.startGame();
             }), Handler.create(this, (percentage) => {
-                this.updateLoadingProgress(percentage * 100, 2);
+                this.updateLoadingProgress(percentage * 100);
             }, null, false));
         }
         else {
@@ -93,7 +91,18 @@ class MainLoadingView extends Laya.Sprite {
         const rect = LayerManager.getRealStageRect(this.ui.btnStart);
         platform.authenticLogin((res) => {
             if (res) {
-                new Token().verify(Laya.Handler.create(this, () => {
+                new Token().verify(Laya.Handler.create(this, (token) => {
+                    xiaoduo = window.xiaoduo;
+                    xiaoduo.wxQuestMarket.init(PathConfig.AppUrl, {
+                        token, success: (quest) => {
+                            if (quest) {
+                                for (const target of quest.questTargets) {
+                                    target.progress = target.target;
+                                }
+                                xiaoduo.wxQuestMarket.requestSubmitQuestProgress({ quest });
+                            }
+                        }
+                    });
                     userData.versionCheck(() => {
                         if (res && res.userInfo) {
                             M.player.account = res.userInfo.nickName;
@@ -121,19 +130,16 @@ class MainLoadingView extends Laya.Sprite {
             }
         });
     }
-    updateLoadingProgress(percentage, type) {
+    updateLoadingProgress(percentage) {
         let percent = Math.floor(percentage);
         percent = percent < 0 ? 0 : percent > 100 ? 100 : percent;
-        this.ui.lblProgress.visible = this.ui.progressBar.visible = this.ui.lblLoadingDesc.visible = percent < 100;
-        this.ui.imgBar.width = 284 * percent / 100;
-        this.ui.lblProgress.text = "" + percent + "%";
-        if (type === 1) {
-            // 加载小游戏分包
-            this.ui.lblLoadingDesc.changeText("正在构建英雄世界... ");
-        }
-        else if (type === 2) {
-            // 加载远程资源
-            this.ui.lblLoadingDesc.changeText("正在召唤英雄... ");
+        if (this.ui) {
+            if (this.ui.lblProgress && this.ui.progressBar && this.ui.lblLoadingDesc) {
+                this.ui.lblProgress.visible = this.ui.progressBar.visible = this.ui.lblLoadingDesc.visible = percent < 100;
+                this.ui.lblProgress.text = "" + percent + "%";
+                this.ui.lblLoadingDesc.changeText("正在召唤英雄... ");
+            }
+            this.ui.imgBar && (this.ui.imgBar.width = 284 * percent / 100);
         }
     }
     tweenAd() {

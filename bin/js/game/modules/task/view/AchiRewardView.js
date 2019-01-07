@@ -7,16 +7,20 @@ class AchiRewardView extends BaseView {
         this._rewardName = "金币";
         this._awardNum = 0;
         this.myParent.maskEnabled = false;
-        this.y = LayerManager.stageDesignHeight - 200;
+        this.visible = false;
+        this.y = LayerManager.stageDesignHeight - 350;
     }
     initUI() {
         super.initUI();
         this.x = LayerManager.stageDesignWidth;
+        this.y = LayerManager.stageDesignHeight - 350;
+        this.visible = true;
         Laya.Tween.to(this, { x: LayerManager.stageDesignWidth - this.width }, 500, null, Handler.create(this, () => {
             Laya.Tween.clearTween(this);
             TimerManager.Instance.doTimer(5000, 1, () => {
                 Laya.Tween.to(this, { x: LayerManager.stageDesignWidth }, 500, null, Handler.create(this, () => {
                     Laya.Tween.clearTween(this);
+                    this.visible = false;
                     ViewMgr.Ins.close(ViewConst.AchiRewardView);
                 }));
             }, this);
@@ -67,10 +71,10 @@ class AchiRewardView extends BaseView {
         }
         else {
             ViewMgr.Ins.close(ViewConst.AchiRewardView);
-            MessageUtils.showMsgTips("成就奖励:" + this._rewardName + "x" + this._awardNum);
+            MessageUtils.showMsgTips("成就奖励:" + this._rewardName + "x" + MathUtils.bytesToSize(this._awardNum));
             let point = PointUtils.localToGlobal(this.ui.imgIcon);
             LayerMgr.Instance.addToLayer(new FlyEffect().play("rollingCoin", point.x, point.y), LAYER_TYPE.SCREEN_EFFECT_LAYER);
-            EventsManager.Instance.event(EventsType.GLOD_CHANGE, { diamond: M.player.Info.userMoney += this._awardNum });
+            EventsManager.Instance.event(EventsType.GOLD_CHANGE, { diamond: M.player.Info.userMoney += this._awardNum });
         }
     }
     getGold() {

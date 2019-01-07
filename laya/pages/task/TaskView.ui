@@ -1,8 +1,8 @@
 {
     "x":0,
     "type":"View",
-    "selectedBox":105,
-    "selecteID":110,
+    "selectedBox":1,
+    "selecteID":2,
     "props":{"y":0,"x":0,"sceneWidth":750,"sceneHeight":1334,"sceneColor":"#000000","sceneBg":"laya/views/ShareGift.jpg"},
     "nodeParent":-1,
     "label":"View",
@@ -484,19 +484,6 @@
                                                 }]
                                         }],
                                     "$HIDDEN":false
-                                },
-                                {
-                                    "x":60,
-                                    "type":"Label",
-                                    "props":{"y":699,"x":-1,"width":638,"text":"每天00:00时系统自动重置任务","strokeColor":"#7a572b","stroke":2,"height":24,"fontSize":24,"color":"#ffffff","bold":true,"align":"center"},
-                                    "nodeParent":103,
-                                    "label":"Label",
-                                    "isDirectory":false,
-                                    "isAniNode":true,
-                                    "hasChild":false,
-                                    "compId":114,
-                                    "child":[
-                                        ]
                                 }],
                             "$HIDDEN":false
                         },

@@ -195,7 +195,15 @@ class TaskView extends BaseView {
                 if (finishNum > totalNum) {
                     finishNum = totalNum;
                 }
-                txtNum.changeText('(' + finishNum + '/' + totalNum + ')');
+                if (item.category == 19) {//世界排名特殊处理
+                    if (item.task_status == 0) {
+                        txtNum.changeText('(' + 0 + '/' + 1 + ')');
+                    } else if (item.task_status == 1) {
+                        txtNum.changeText('(' + 1 + '/' + 1 + ')');
+                    }
+                } else {
+                    txtNum.changeText('(' + finishNum + '/' + totalNum + ')');
+                }
             }
             const imgAwardIcon: Laya.Image = cell.getChildByName('imgAwardIcon') as Laya.Image;
             if (imgAwardIcon) {
@@ -236,7 +244,7 @@ class TaskView extends BaseView {
                                         if (item.reward_type == "money") {
                                             MessageUtils.shopMsgByObj(btnGet, "+" + MathUtils.bytesToSize(awardNum), EFFECT_TYPE.GOLD);
                                             LayerMgr.Instance.addToLayer(new FlyEffect().play("rollingCoin", LayerManager.mouseX, LayerManager.mouseY), LAYER_TYPE.SCREEN_EFFECT_LAYER);
-                                            EventsManager.Instance.event(EventsType.GLOD_CHANGE, { diamond: M.player.Info.userMoney += awardNum });
+                                            EventsManager.Instance.event(EventsType.GOLD_CHANGE, { diamond: M.player.Info.userMoney += awardNum });
                                         } else {
                                             MessageUtils.shopMsgByObj(btnGet, "+" + awardNum, EFFECT_TYPE.DIAMOND);
                                             LayerMgr.Instance.addToLayer(new FlyEffect().play("diamond", LayerManager.mouseX, LayerManager.mouseY), LAYER_TYPE.SCREEN_EFFECT_LAYER);

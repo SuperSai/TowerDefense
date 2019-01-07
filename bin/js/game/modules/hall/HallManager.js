@@ -62,33 +62,11 @@ class HallManager extends Laya.EventDispatcher {
             let kingVO = GlobleData.getData(GlobleData.KindLevelConfigVO, kingLevel);
             //需要钻石
             let diamond = M.player.Info.userDiamond;
-            let needDiamond = kingVO.gemxh;
-            //升级条件
-            let monsterLevel = 0;
-            let itemId1 = 0;
-            let itemId2 = 0;
-            let itemId3 = 0;
-            //进化设定
-            if (userData.isEvolution()) {
-                monsterLevel = ((kingLevel - 30) % 60) + 1;
-                itemId1 = 1000 + monsterLevel;
-                itemId2 = 2000 + monsterLevel;
-                itemId3 = 3000 + monsterLevel;
-            }
-            else {
-                monsterLevel = ((kingLevel - 1) % 30) + 1;
-                itemId1 = 100 + monsterLevel;
-                itemId2 = 200 + monsterLevel;
-                itemId3 = 300 + monsterLevel;
-            }
-            let itemNum1 = userData.caculateMonsterCount(itemId1);
-            let itemNum2 = userData.caculateMonsterCount(itemId2);
-            let itemNum3 = userData.caculateMonsterCount(itemId3);
-            let needItemNum1 = 1;
-            let needItemNum2 = 1;
-            let needItemNum3 = 1;
+            let needDiamond = MathUtils.parseInt(kingVO.gemxh.toString());
+            let itemNum = userData.caculateMonsterCount(EvolutionManager.Instance.getHeroId());
+            let needItemNum = 3;
             if (kingLevel > 10) {
-                HallManager.Instance.hallData.isUpdate = !((diamond < needDiamond) || (itemNum1 < needItemNum1) || (itemNum2 < needItemNum2) || (itemNum3 < needItemNum3));
+                HallManager.Instance.hallData.isUpdate = !((diamond < needDiamond) || (itemNum < needItemNum));
             }
             else {
                 HallManager.Instance.hallData.isUpdate = !((diamond < needDiamond));
@@ -140,6 +118,11 @@ class HallManager extends Laya.EventDispatcher {
         let imgRedPoint = this._hall.btnShop.getChildByName("imgRedPoint");
         imgRedPoint && (imgRedPoint.visible = showRedPoint);
         !showRedPoint && this._hall.timerOnce(5 * Time.MIN_IN_MILI, this, this.resolveShopRedPoint);
+    }
+    resolveMoreRedPoint() {
+        const showRedPoint = !M.more.openedOnce;
+        let imgRedPoint = this._hall.btnMore.getChildByName("imgRedPoint");
+        imgRedPoint && (imgRedPoint.visible = showRedPoint);
     }
     /** 钻石购买 */
     onDiamondBuy(heroInfo = null) {
@@ -256,5 +239,6 @@ var ITEM_ID;
 (function (ITEM_ID) {
     ITEM_ID[ITEM_ID["GOLD"] = 1] = "GOLD";
     ITEM_ID[ITEM_ID["DIAMOND"] = 2] = "DIAMOND";
+    ITEM_ID[ITEM_ID["ESSENCE"] = 3] = "ESSENCE";
 })(ITEM_ID || (ITEM_ID = {}));
 //# sourceMappingURL=HallManager.js.map

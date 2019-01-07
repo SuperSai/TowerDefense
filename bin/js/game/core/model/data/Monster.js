@@ -92,6 +92,8 @@ class MonsterSprite extends Laya.Sprite {
             self._isLoadComplete = false;
             anim.loadAtlas(aniAtlas, Handler.create(self, () => {
                 //创建动画模板dizziness
+                if (!self._monsterInfo)
+                    return;
                 self._aniStandFrameStart = self._monsterInfo.modelImgWait - (self._monsterInfo.modelImgWait - self._monsterInfo.modelImgAtk);
                 if (self._monsterInfo.type == MONSTER_TYPE.MONSTER || self._monsterInfo.type == MONSTER_TYPE.BOSS) {
                     self._aniStandFrameStart = 0;

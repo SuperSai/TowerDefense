@@ -194,6 +194,7 @@ class SDKManager {
             case 1035:
             case 1043:
                 if (data.referrerInfo && data.referrerInfo.appId) {
+                    console.log("@David 公众号开始给服务器发送协议");
                     HttpManager.Instance.requestPublicAddress(data);
                 }
                 break;

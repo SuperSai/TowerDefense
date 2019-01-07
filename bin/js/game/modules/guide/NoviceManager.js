@@ -5,8 +5,8 @@ class NoviceManager extends EventDispatcher {
         }
         return this._instance;
     }
-    init(groupId = 1) {
-        this._currGroupId = groupId;
+    init(groupId) {
+        this._currGroupId = groupId || this._currGroupId || 1;
         this._finalGroupId =
             NoviceGuide.dataArr[NoviceGuide.dataArr.length - 1].groupId;
         this._activateTargets = [];
@@ -19,6 +19,9 @@ class NoviceManager extends EventDispatcher {
     }
     get currGroupId() {
         return this._currGroupId;
+    }
+    set currGroupId(value) {
+        this._currGroupId = value;
     }
     set saveFunc(func) {
         this._saveFunc = func;

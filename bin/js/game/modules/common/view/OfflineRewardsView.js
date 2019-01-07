@@ -50,7 +50,7 @@ class OfflineRewardsView extends BaseView {
         }
         self._tween && (Laya.Tween.clear(self._tween));
         self._tween = null;
-        EventsManager.Instance.event(EventsType.GLOD_CHANGE, { money: M.player.Info.userMoney + self._price });
+        EventsManager.Instance.event(EventsType.GOLD_CHANGE, { money: M.player.Info.userMoney + self._price });
     }
 }
 //# sourceMappingURL=OfflineRewardsView.js.map

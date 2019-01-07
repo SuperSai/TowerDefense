@@ -75,7 +75,7 @@ class FriendConcurItem extends ui.friendConcur.FriendConcurItemUI {
                         userData.removeFriendConcurRedPoint();
                         FriendConcurView.redPointNum = 0;
                     }
-                    EventsManager.Instance.event(EventsType.GLOD_CHANGE, { money: M.player.Info.userMoney += self._gold });
+                    EventsManager.Instance.event(EventsType.GOLD_CHANGE, { money: M.player.Info.userMoney += self._gold });
                     if (self.diamondBox.visible && self._rewards.length > 1) {
                         EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: M.player.Info.userDiamond += self._rewards[1] });
                     }

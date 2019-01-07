@@ -70,21 +70,6 @@ class UserData {
         let that = this;
         return ("user_" + that.userId);
     }
-    saveNovice(groupId) {
-        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
-        HttpReqHelper.request({
-            url: 'v1/novice/' + groupId,
-            success: () => {
-                console.log("@FREEMAN: saveNovice: success, currGroupId =>", groupId);
-            },
-            fail: () => {
-                console.log("@FREEMAN: saveNovice: fail, currGroupId =>", groupId);
-            }
-        });
-        this.noviceGroupId = groupId;
-        this.cache.setCache(CacheKey.NOVICE_GROUP_ID, groupId);
-        Laya.timer.callLater(this, this.saveLocal, [true]);
-    }
     /** 刷新购买记录 */
     refreshBuyRecord(_carId, _isDiamond = false) {
         let that = this;
@@ -203,6 +188,8 @@ class UserData {
     }
     resetMonsterLevel() {
         this.carLevel = 1;
+        this.cache.setCache(CacheKey.MAX_SYNTHESIS_LEVEL, this.carLevel);
+        Laya.timer.callLater(this, this.saveLocal, [true]);
     }
     //设置金币并保存
     setMoney(value) {
@@ -316,7 +303,7 @@ class UserData {
                 return that.shareAdTimes.share_acce_num;
             }
             else if (type == 11) {
-                return that.shareAdTimes.share_shop_car;
+                return that.shareAdTimes.share_shop_num;
             }
             else if (type == 12) {
                 return that.shareAdTimes.share_no_money_num;
@@ -350,7 +337,7 @@ class UserData {
                 that.shareAdTimes.share_acce_num--;
             }
             else if (type == 11) {
-                that.shareAdTimes.share_shop_car--;
+                that.shareAdTimes.share_shop_num--;
             }
             else if (type == 12) {
                 that.shareAdTimes.share_no_money_num--;
@@ -921,10 +908,10 @@ class UserData {
                 HallManager.Instance.hallData.passStage = this.passStage = cache.getCache(CacheKey.STAGE_PASSED);
                 this.kingLevel = cache.getCache(CacheKey.GUARD_LEVEL);
                 this.evolutionLevel = cache.getCache(CacheKey.EVOLUTION_LEVEL);
-                this.noviceGroupId = cache.getCache(CacheKey.NOVICE_GROUP_ID);
             }
         }));
         // 不管有没有缓存都需要赋值
+        M.novice.currGroupId = this.cache.hasCache(CacheKey.NOVICE_GROUP_ID) ? this.cache.getCache(CacheKey.NOVICE_GROUP_ID) : 1;
         M.more.model.mute = this.cache.hasCache(CacheKey.SOUND_MUTE) ? this.cache.getCache(CacheKey.SOUND_MUTE) : false;
         userData.lastHeartBeatTime = this.cache.hasCache(CacheKey.LAST_HEART_BEAT_TIME) ? this.cache.getCache(CacheKey.LAST_HEART_BEAT_TIME) : 0;
     }

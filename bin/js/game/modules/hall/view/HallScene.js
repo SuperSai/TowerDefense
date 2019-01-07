@@ -21,7 +21,6 @@ class HallScene extends ui.hall.HallSceneUI {
     //新建并添加到节点
     static Create(_parentNode) {
         let resList = [
-            { url: "res/atlas/images/hall.atlas", type: Laya.Loader.ATLAS },
             { url: "res/atlas/images/skill.atlas", type: Laya.Loader.ATLAS },
             { url: "res/atlas/images/fontImg.atlas", type: Laya.Loader.ATLAS }
         ];
@@ -74,20 +73,20 @@ class HallScene extends ui.hall.HallSceneUI {
             LayerManager.getInstance().debugLayer.addChild(new DebugView());
         }
         Sheet.initSheets(Laya.loader.getRes("sheets/sheet.json"));
-        M.novice.init(userData.noviceGroupId);
+        M.novice.init();
         M.novice.saveFunc = groupId => {
-            userData.saveNovice(groupId);
+            M.http.requestSaveNovice(groupId);
         };
         M.novice.start();
         M.more.applyMute();
         BuffController.getInstance().init(self.viewBuffContainer);
         SkyDropController.getInstance().init(self.viewSkyDropContainer);
-        Laya.timer.once(1e3, this, () => {
+        Laya.timer.once(1000, this, () => {
             if (Laya.Browser.window.wxUserInfo) {
                 PlayerManager.Instance.Info.wxUserInfo = Laya.Browser.window.wxUserInfo;
             }
         });
-        Laya.timer.once(2e3, this, () => {
+        Laya.timer.once(1200, this, () => {
             self.showDaySignView();
         });
         if (!NoviceManager.isComplete) {
@@ -224,6 +223,8 @@ class HallScene extends ui.hall.HallSceneUI {
             }
             //怪物商店红点
             M.hall.resolveShopRedPoint();
+            //怪物商店红点
+            M.hall.resolveMoreRedPoint();
             //任务红点
             if (userData.isShowTaskRedPoint()) {
                 self.showTaskRedPoint();
@@ -282,7 +283,7 @@ class HallScene extends ui.hall.HallSceneUI {
         BattleManager.Instance.on(BattleEventsConst.BATTLE_NO_CLEARANC, self, self.onBattleNoClearanc);
         EventsManager.Instance.on(EventsType.OFFLINE, self, self.onOffLineRevenue); //离线收益
         EventsManager.Instance.on(EventsType.DIAMOND_CHANGE, self, self.onRefreshDiamond); //钻石刷新
-        EventsManager.Instance.on(EventsType.GLOD_CHANGE, self, self.onRefreshGold); //金币刷新
+        EventsManager.Instance.on(EventsType.GOLD_CHANGE, self, self.onRefreshGold); //金币刷新
         EventsManager.Instance.on(EventsType.DAY_SIGN_RED_POINT, self, self.onUpdateSignRenPoint); //每日签到红点移除事件
         EventsManager.Instance.on(EventsType.TASK_RED_POINT, self, self.onUpdateTaskRedPoint); //任务红点移除事件
         EventsManager.Instance.on(EventsType.LUCK_PRIZED_RED_POINT, self, self.onUpdatePrizeRedPoint); //转盘红点移除事件
@@ -484,14 +485,16 @@ class HallScene extends ui.hall.HallSceneUI {
         that.refreshShortcutCreateBtn();
         //奖励三个高级精灵
         let prizeMonsterArray = [1001, 1001, 1001];
+        let count = 0;
         if (that.carparkList) {
             for (var index = 0; index < HallManager.Instance.hallData.parkMonsterCount; index++) {
                 var element = that.carparkList.getCell(index);
                 if (element) {
                     let carParkSp = element.getChildByName("car");
                     if (carParkSp && carParkSp.monsterId > 0) {
-                        if (index < 3) {
-                            carParkSp.setKind(prizeMonsterArray[index]);
+                        if (count < 3) {
+                            carParkSp.setKind(prizeMonsterArray[count]);
+                            count++;
                         }
                         else {
                             carParkSp.clearStage();
@@ -1527,7 +1530,7 @@ class HallScene extends ui.hall.HallSceneUI {
         }
         else {
             //显示广告
-            let adStage = userData.toShareAd((_res) => {
+            let adStage = userData.toShareAd(() => {
                 self.playAcceEffectView();
             }, 10, false, true);
             //无分享广告则显示钻石购买
@@ -1558,10 +1561,10 @@ class HallScene extends ui.hall.HallSceneUI {
             else {
                 curSection = 1;
                 self.setPassStage(HallManager.Instance.hallData.passStage + 1);
+                //查询是否有成就任务完成
+                HallManager.Instance.checkIsGetAchievementReward();
             }
             self.setPassSection(curSection);
-            //查询是否有成就任务完成
-            HallManager.Instance.checkIsGetAchievementReward();
             //创建怪物
             self.createMonster(HallManager.Instance.hallData.passStage, HallManager.Instance.hallData.passSection);
         });

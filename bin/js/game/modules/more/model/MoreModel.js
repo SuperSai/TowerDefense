@@ -12,20 +12,11 @@ class MoreModel extends Laya.EventDispatcher {
     set subscribable(value) {
         this._subscribable = value;
     }
-    get itemList() {
-        return this._itemList;
-    }
     constructor() {
         super();
         this.init();
     }
     init() {
-        this._itemList = [];
-        // this._itemList.push(new MoreViewListItemVO());
-        // this._itemList.push(new MoreViewListItemVO());
-        // this._itemList.push(new MoreViewListItemVO());
-        // this._itemList.push(new MoreViewListItemVO());
-        // this._itemList.push(new MoreViewListItemVO());
     }
 }
 //# sourceMappingURL=MoreModel.js.map
