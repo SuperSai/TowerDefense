@@ -73,7 +73,7 @@ class DiamondBuyView extends BaseView {
                             break;
                     }
                 }
-            });
+            }, self.datas[0]);
         } else {
             MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.04"));
         }

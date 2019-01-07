@@ -185,39 +185,17 @@ class HallScene extends ui.hall.HallSceneUI {
       self.refreshShortcutCreateBtn();
       //延迟处理
       self.frameOnce(50, self, () => {
-        //离线收益
-        // if (userData && userData.hasOfflinePrize == false) {
-        //   userData.hasOfflinePrize = true;
-        //   userData.requestOfflinePrizeData();
-        // } else {
-        //   self.onOffLineRevenue();
-        // }
-
         //离线收益， 离线超过10分钟才向服务器请求离线时间，否则没有离线奖励
         const now: number = new Date().getTime();
         if (now - userData.lastHeartBeatTime > 10 * Time.MIN_IN_MILI) {
           M.http.requestOfflinePrizeData();
         }
-
         //超越好友
         self.showSurpassView();
-
-        // if (userData) {
-        //   let acceLeftTime: number = userData.getAcceLeftTime();
-        //   if (acceLeftTime > 0) {
-        //     let imgAcce = self.btnAcce.getChildByName("imgAcce") as Laya.Image;
-        //     if (imgAcce.visible == false) {
-        //       self.playAcceEffectView(acceLeftTime, false);
-        //     }
-        //
-        //   }
-        // }
-
         if (userData) {
           const remainingTime: number = userData.cache.getCache(CacheKey.ACCELERATE_SEC_REMAINING);
           remainingTime && self.playAcceEffectView(remainingTime, false);
         }
-
         //先到后台拉取未领取的奖励
         HttpManager.Instance.requestStagePrizeData((_prizeList: Array<any>) => {
           if (_prizeList == null || _prizeList.length < 1) return;
@@ -544,7 +522,7 @@ class HallScene extends ui.hall.HallSceneUI {
   //敌方出怪
   private createMonster(_stage: number, _section: number): void {
     let that = this;
-    let stageSectionCfg: any = BattleManager.Instance.getBarrierSectionConfig(_stage, _section);// getStageSectionConfig(_stage, _section);
+    let stageSectionCfg: any = BattleManager.Instance.getBarrierSectionConfig(_stage, _section);
     if (stageSectionCfg) {
       let mBlood: number = MathUtils.parseStringNum(stageSectionCfg["blood"]);
       let mMoney: number = MathUtils.parseStringNum(stageSectionCfg["earnings"]);

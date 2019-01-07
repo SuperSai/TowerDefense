@@ -91,6 +91,7 @@ class LuckPrizeView extends BaseView {
                     userData.removeLuckPrizeRedPoint();
                 }
                 this.refreshDiamondText();
+                HallManager.Instance.showLuckPrizeTime();
             });
         }
         else if (M.player.Info.userDiamond >= that.costDiamond) {
@@ -108,6 +109,7 @@ class LuckPrizeView extends BaseView {
                 that.freeTime = 0;
                 //刷新钻石数量
                 HttpManager.Instance.requestDiamondData();
+                HallManager.Instance.showLuckPrizeTime();
             });
         }
         else {

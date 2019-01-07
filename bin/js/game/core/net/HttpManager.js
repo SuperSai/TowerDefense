@@ -72,19 +72,19 @@ class HttpManager {
         });
     }
     /** 钻石购怪物下单 */
-    requestDiamondBuyOrder(_diamond, _callback, _kind = 0) {
-        console.log("钻石购怪物订单", _diamond);
+    requestDiamondBuyOrder(diamond, callback, type = 0) {
+        console.log("钻石购怪物订单", diamond);
         let that = this;
         let strKind = 'buy_car';
-        if (_kind == 1) {
+        if (type == 1) {
             strKind = 'diamond_acce';
         }
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
-            url: 'v1/diamond/order/' + _diamond + '/' + strKind,
+            url: 'v1/diamond/order/' + diamond + '/' + strKind,
             success: function (res) {
                 console.log("requestDiamondBuyOrder", res);
-                _callback && _callback(res);
+                callback && callback(res);
             },
             fail: function (res) {
                 console.log(res);
@@ -835,10 +835,10 @@ class HttpManager {
         });
     }
     /** 拉取任务奖励 */
-    requestTaskReward(itemId, callback) {
+    requestTaskReward(itemId, callback, type) {
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
-            url: 'v1/task/rewards/' + itemId,
+            url: 'v2/task/rewards/' + itemId + "?type=" + type,
             success: function (res) {
                 console.log("requestTaskReward", res);
                 callback && callback(res);

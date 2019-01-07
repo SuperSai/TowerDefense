@@ -123,9 +123,7 @@ class TaskView extends BaseView {
                                     if (_res.code === 1) {
                                         MessageUtils.showMsgTips("奖励领取成功");
                                         MessageUtils.shopMsgByObj(btnGet, "+" + awardNum, EFFECT_TYPE.DIAMOND);
-                                        if (EventsManager.Instance) {
-                                            EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, _res);
-                                        }
+                                        EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, _res);
                                         _btnObj.visible = false;
                                         _item.task_status = 2;
                                         redPointNum--;
@@ -145,7 +143,7 @@ class TaskView extends BaseView {
                                         MessageUtils.showMsgTips("领取失败！");
                                     }
                                 }
-                            });
+                            }, 1);
                         }, [item, btnGet]);
                     }
                 } else {
@@ -231,13 +229,18 @@ class TaskView extends BaseView {
                         btnGet.offAll(Laya.Event.CLICK);
                         btnGet.on(Laya.Event.CLICK, btnGet, (_item: any, _btnObj: Laya.Button) => {
                             // console.log("领取奖励")
-                            HttpManager.Instance.requestTaskReward(_item.id, (_res: any) => {
-                                if (_res) {
-                                    if (_res.code === 1) {
+                            HttpManager.Instance.requestTaskReward(_item.id, (res: any) => {
+                                if (res) {
+                                    if (res.code == 1) {
                                         MessageUtils.showMsgTips("奖励领取成功");
-                                        MessageUtils.shopMsgByObj(btnGet, "+" + awardNum, EFFECT_TYPE.DIAMOND);
-                                        if (EventsManager.Instance) {
-                                            EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, _res);
+                                        if (item.reward_type == "money") {
+                                            MessageUtils.shopMsgByObj(btnGet, "+" + MathUtils.bytesToSize(awardNum), EFFECT_TYPE.GOLD);
+                                            LayerMgr.Instance.addToLayer(new FlyEffect().play("rollingCoin", LayerManager.mouseX, LayerManager.mouseY), LAYER_TYPE.SCREEN_EFFECT_LAYER);
+                                            EventsManager.Instance.event(EventsType.GLOD_CHANGE, { diamond: M.player.Info.userMoney += awardNum });
+                                        } else {
+                                            MessageUtils.shopMsgByObj(btnGet, "+" + awardNum, EFFECT_TYPE.DIAMOND);
+                                            LayerMgr.Instance.addToLayer(new FlyEffect().play("diamond", LayerManager.mouseX, LayerManager.mouseY), LAYER_TYPE.SCREEN_EFFECT_LAYER);
+                                            EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, res);
                                         }
                                         _btnObj.visible = false;
                                         _item.task_status = 2;
@@ -256,12 +259,12 @@ class TaskView extends BaseView {
                                                 });
                                             })
                                         }));
-                                    } else if (_res.code === 2) {
+                                    } else if (res.code == 2) {
                                         MessageUtils.showMsgTips("领取失败！");
                                     }
                                 }
-                            });
-                        }, [item, btnGet]);
+                            }, 2);
+                        }, [item]);
                     }
                 } else {
                     btnGet.disabled = true;

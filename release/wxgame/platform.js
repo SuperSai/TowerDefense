@@ -278,7 +278,6 @@ class WxgamePlatform {
     //亮屏
     onShow(callback) {
         wx.onShow(function (res) {
-            console.log("@David onShow res:", res, " ---- shareTicket:", res.shareTicket);
             if (callback) {
                 callback(res);
             }

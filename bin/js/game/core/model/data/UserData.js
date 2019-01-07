@@ -294,47 +294,47 @@ class UserData {
         return this.passSection;
     }
     //分享广告可点击次数
-    getAdTimes(_kind) {
+    getAdTimes(type) {
         let that = this;
         if (that.shareAdTimes && that.hasVideoAd) {
-            if (_kind == 10) {
+            if (type == 10) {
                 return that.shareAdTimes.ad_acce_num;
             }
-            else if (_kind == 11) {
+            else if (type == 11) {
                 return that.shareAdTimes.ad_free_car_num;
             }
-            else if (_kind == 12) {
+            else if (type == 12) {
                 return that.shareAdTimes.ad_no_money_num;
             }
         }
         return 0;
     }
-    getShareTimes(_kind) {
+    getShareTimes(type) {
         let that = this;
         if (that.shareAdTimes) {
-            if (_kind == 10) {
+            if (type == 10) {
                 return that.shareAdTimes.share_acce_num;
             }
-            else if (_kind == 11) {
-                return that.shareAdTimes.share_free_car_num;
+            else if (type == 11) {
+                return that.shareAdTimes.share_shop_car;
             }
-            else if (_kind == 12) {
+            else if (type == 12) {
                 return that.shareAdTimes.share_no_money_num;
             }
         }
         return 0;
     }
     /** 减少观看视频的次数 */
-    decreAdTimes(_kind) {
+    decreAdTimes(type) {
         let that = this;
         if (that.shareAdTimes) {
-            if (_kind == 10) {
+            if (type == 10) {
                 that.shareAdTimes.ad_acce_num--;
             }
-            else if (_kind == 11) {
+            else if (type == 11) {
                 that.shareAdTimes.ad_free_car_num--;
             }
-            else if (_kind == 12) {
+            else if (type == 12) {
                 that.shareAdTimes.ad_no_money_num--;
             }
             else {
@@ -343,16 +343,16 @@ class UserData {
         }
     }
     /** 减少分享广告的次数 */
-    decreShareTimes(_kind) {
+    decreShareTimes(type) {
         let that = this;
         if (that.shareAdTimes) {
-            if (_kind == 10) {
+            if (type == 10) {
                 that.shareAdTimes.share_acce_num--;
             }
-            else if (_kind == 11) {
-                that.shareAdTimes.share_free_car_num--;
+            else if (type == 11) {
+                that.shareAdTimes.share_shop_car--;
             }
-            else if (_kind == 12) {
+            else if (type == 12) {
                 that.shareAdTimes.share_no_money_num--;
             }
         }
@@ -852,6 +852,7 @@ class UserData {
                 if (res) {
                     self.offlineRewardCount = res.remain_online_num;
                     self.shareAdTimes = res.operation;
+                    console.log("@David 用户基础数据 operation：", self.shareAdTimes);
                     PlayerManager.Instance.Info.dayGetGoldCount = self.shareAdTimes.share_no_money_num;
                     self.showShareGiftRedPoint = res.share_reward_flag;
                     self.showDailySignRedPoint = res.sign_flag;

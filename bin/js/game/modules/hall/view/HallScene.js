@@ -179,13 +179,6 @@ class HallScene extends ui.hall.HallSceneUI {
             self.refreshShortcutCreateBtn();
             //延迟处理
             self.frameOnce(50, self, () => {
-                //离线收益
-                // if (userData && userData.hasOfflinePrize == false) {
-                //   userData.hasOfflinePrize = true;
-                //   userData.requestOfflinePrizeData();
-                // } else {
-                //   self.onOffLineRevenue();
-                // }
                 //离线收益， 离线超过10分钟才向服务器请求离线时间，否则没有离线奖励
                 const now = new Date().getTime();
                 if (now - userData.lastHeartBeatTime > 10 * Time.MIN_IN_MILI) {
@@ -193,16 +186,6 @@ class HallScene extends ui.hall.HallSceneUI {
                 }
                 //超越好友
                 self.showSurpassView();
-                // if (userData) {
-                //   let acceLeftTime: number = userData.getAcceLeftTime();
-                //   if (acceLeftTime > 0) {
-                //     let imgAcce = self.btnAcce.getChildByName("imgAcce") as Laya.Image;
-                //     if (imgAcce.visible == false) {
-                //       self.playAcceEffectView(acceLeftTime, false);
-                //     }
-                //
-                //   }
-                // }
                 if (userData) {
                     const remainingTime = userData.cache.getCache(CacheKey.ACCELERATE_SEC_REMAINING);
                     remainingTime && self.playAcceEffectView(remainingTime, false);
@@ -526,7 +509,7 @@ class HallScene extends ui.hall.HallSceneUI {
     //敌方出怪
     createMonster(_stage, _section) {
         let that = this;
-        let stageSectionCfg = BattleManager.Instance.getBarrierSectionConfig(_stage, _section); // getStageSectionConfig(_stage, _section);
+        let stageSectionCfg = BattleManager.Instance.getBarrierSectionConfig(_stage, _section);
         if (stageSectionCfg) {
             let mBlood = MathUtils.parseStringNum(stageSectionCfg["blood"]);
             let mMoney = MathUtils.parseStringNum(stageSectionCfg["earnings"]);

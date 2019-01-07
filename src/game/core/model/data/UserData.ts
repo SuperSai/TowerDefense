@@ -335,28 +335,28 @@ class UserData {
     }
 
     //分享广告可点击次数
-    public getAdTimes(_kind: number): number {
+    public getAdTimes(type: number): number {
         let that = this;
         if (that.shareAdTimes && that.hasVideoAd) {
-            if (_kind == 10) {
+            if (type == 10) {
                 return that.shareAdTimes.ad_acce_num;
-            } else if (_kind == 11) {
+            } else if (type == 11) {
                 return that.shareAdTimes.ad_free_car_num;
-            } else if (_kind == 12) {
+            } else if (type == 12) {
                 return that.shareAdTimes.ad_no_money_num;
             }
         }
         return 0;
     }
 
-    public getShareTimes(_kind: number): number {
+    public getShareTimes(type: number): number {
         let that = this;
         if (that.shareAdTimes) {
-            if (_kind == 10) {
+            if (type == 10) {
                 return that.shareAdTimes.share_acce_num;
-            } else if (_kind == 11) {
-                return that.shareAdTimes.share_free_car_num;
-            } else if (_kind == 12) {
+            } else if (type == 11) {
+                return that.shareAdTimes.share_shop_car;
+            } else if (type == 12) {
                 return that.shareAdTimes.share_no_money_num;
             }
         }
@@ -364,14 +364,14 @@ class UserData {
     }
 
     /** 减少观看视频的次数 */
-    public decreAdTimes(_kind: number): void {
+    public decreAdTimes(type: number): void {
         let that = this;
         if (that.shareAdTimes) {
-            if (_kind == 10) {
+            if (type == 10) {
                 that.shareAdTimes.ad_acce_num--;
-            } else if (_kind == 11) {
+            } else if (type == 11) {
                 that.shareAdTimes.ad_free_car_num--;
-            } else if (_kind == 12) {
+            } else if (type == 12) {
                 that.shareAdTimes.ad_no_money_num--;
             } else {
                 that.shareAdTimes.ad_num--;
@@ -380,18 +380,18 @@ class UserData {
     }
 
     /** 减少分享广告的次数 */
-    public decreShareTimes(_kind: number): void {
+    public decreShareTimes(type: number): void {
         let that = this;
         if (that.shareAdTimes) {
-            if (_kind == 10) {
+            if (type == 10) {
                 that.shareAdTimes.share_acce_num--;
-            } else if (_kind == 11) {
-                that.shareAdTimes.share_free_car_num--;
-            } else if (_kind == 12) {
+            } else if (type == 11) {
+                that.shareAdTimes.share_shop_car--;
+            } else if (type == 12) {
                 that.shareAdTimes.share_no_money_num--;
             }
         }
-        console.log("decreShareTimes", that.shareAdTimes)
+        console.log("decreShareTimes", that.shareAdTimes);
     }
 
     //分享或广告开关

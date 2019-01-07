@@ -78,19 +78,19 @@ class HttpManager {
     }
 
     /** 钻石购怪物下单 */
-    public requestDiamondBuyOrder(_diamond: number, _callback: any, _kind: number = 0): void {
-        console.log("钻石购怪物订单", _diamond);
+    public requestDiamondBuyOrder(diamond: number, callback: any, type: number = 0): void {
+        console.log("钻石购怪物订单", diamond);
         let that = this;
         let strKind: string = 'buy_car';
-        if (_kind == 1) {
+        if (type == 1) {
             strKind = 'diamond_acce';
         }
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
-            url: 'v1/diamond/order/' + _diamond + '/' + strKind,
+            url: 'v1/diamond/order/' + diamond + '/' + strKind,
             success: function (res) {
                 console.log("requestDiamondBuyOrder", res);
-                _callback && _callback(res);
+                callback && callback(res);
             },
             fail: function (res) {
                 console.log(res);
@@ -894,10 +894,10 @@ class HttpManager {
     }
 
     /** 拉取任务奖励 */
-    public requestTaskReward(itemId: number, callback: any): void {
+    public requestTaskReward(itemId: number, callback: any, type: number): void {
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
-            url: 'v1/task/rewards/' + itemId,
+            url: 'v2/task/rewards/' + itemId + "?type=" + type,
             success: function (res) {
                 console.log("requestTaskReward", res);
                 callback && callback(res);

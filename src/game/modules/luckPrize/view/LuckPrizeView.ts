@@ -99,6 +99,7 @@ class LuckPrizeView extends BaseView {
                     userData.removeLuckPrizeRedPoint();
                 }
                 this.refreshDiamondText();
+                HallManager.Instance.showLuckPrizeTime();
             });
         } else if (M.player.Info.userDiamond >= that.costDiamond) {
             //钻石抽奖
@@ -115,6 +116,7 @@ class LuckPrizeView extends BaseView {
                 that.freeTime = 0;
                 //刷新钻石数量
                 HttpManager.Instance.requestDiamondData();
+                HallManager.Instance.showLuckPrizeTime();
             });
         } else {
             MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.04"));

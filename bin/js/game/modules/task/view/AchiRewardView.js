@@ -7,15 +7,18 @@ class AchiRewardView extends BaseView {
         this._rewardName = "金币";
         this._awardNum = 0;
         this.myParent.maskEnabled = false;
+        this.y = LayerManager.stageDesignHeight - 200;
     }
     initUI() {
         super.initUI();
         this.x = LayerManager.stageDesignWidth;
-        this.y = LayerManager.stageDesignHeight - 100;
         Laya.Tween.to(this, { x: LayerManager.stageDesignWidth - this.width }, 500, null, Handler.create(this, () => {
             Laya.Tween.clearTween(this);
             TimerManager.Instance.doTimer(5000, 1, () => {
-                ViewMgr.Ins.close(ViewConst.AchiRewardView);
+                Laya.Tween.to(this, { x: LayerManager.stageDesignWidth }, 500, null, Handler.create(this, () => {
+                    Laya.Tween.clearTween(this);
+                    ViewMgr.Ins.close(ViewConst.AchiRewardView);
+                }));
             }, this);
         }));
     }
@@ -60,7 +63,7 @@ class AchiRewardView extends BaseView {
                         MessageUtils.showMsgTips("成就奖励领取失败！");
                     }
                 }
-            });
+            }, 2);
         }
         else {
             ViewMgr.Ins.close(ViewConst.AchiRewardView);

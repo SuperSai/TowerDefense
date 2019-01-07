@@ -2807,19 +2807,19 @@ class HttpManager {
         });
     }
     /** 钻石购怪物下单 */
-    requestDiamondBuyOrder(_diamond, _callback, _kind = 0) {
-        console.log("钻石购怪物订单", _diamond);
+    requestDiamondBuyOrder(diamond, callback, type = 0) {
+        console.log("钻石购怪物订单", diamond);
         let that = this;
         let strKind = 'buy_car';
-        if (_kind == 1) {
+        if (type == 1) {
             strKind = 'diamond_acce';
         }
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
-            url: 'v1/diamond/order/' + _diamond + '/' + strKind,
+            url: 'v1/diamond/order/' + diamond + '/' + strKind,
             success: function (res) {
                 console.log("requestDiamondBuyOrder", res);
-                _callback && _callback(res);
+                callback && callback(res);
             },
             fail: function (res) {
                 console.log(res);
@@ -3570,10 +3570,10 @@ class HttpManager {
         });
     }
     /** 拉取任务奖励 */
-    requestTaskReward(itemId, callback) {
+    requestTaskReward(itemId, callback, type) {
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
-            url: 'v1/task/rewards/' + itemId,
+            url: 'v2/task/rewards/' + itemId + "?type=" + type,
             success: function (res) {
                 console.log("requestTaskReward", res);
                 callback && callback(res);
@@ -4191,47 +4191,47 @@ class UserData {
         return this.passSection;
     }
     //分享广告可点击次数
-    getAdTimes(_kind) {
+    getAdTimes(type) {
         let that = this;
         if (that.shareAdTimes && that.hasVideoAd) {
-            if (_kind == 10) {
+            if (type == 10) {
                 return that.shareAdTimes.ad_acce_num;
             }
-            else if (_kind == 11) {
+            else if (type == 11) {
                 return that.shareAdTimes.ad_free_car_num;
             }
-            else if (_kind == 12) {
+            else if (type == 12) {
                 return that.shareAdTimes.ad_no_money_num;
             }
         }
         return 0;
     }
-    getShareTimes(_kind) {
+    getShareTimes(type) {
         let that = this;
         if (that.shareAdTimes) {
-            if (_kind == 10) {
+            if (type == 10) {
                 return that.shareAdTimes.share_acce_num;
             }
-            else if (_kind == 11) {
-                return that.shareAdTimes.share_free_car_num;
+            else if (type == 11) {
+                return that.shareAdTimes.share_shop_car;
             }
-            else if (_kind == 12) {
+            else if (type == 12) {
                 return that.shareAdTimes.share_no_money_num;
             }
         }
         return 0;
     }
     /** 减少观看视频的次数 */
-    decreAdTimes(_kind) {
+    decreAdTimes(type) {
         let that = this;
         if (that.shareAdTimes) {
-            if (_kind == 10) {
+            if (type == 10) {
                 that.shareAdTimes.ad_acce_num--;
             }
-            else if (_kind == 11) {
+            else if (type == 11) {
                 that.shareAdTimes.ad_free_car_num--;
             }
-            else if (_kind == 12) {
+            else if (type == 12) {
                 that.shareAdTimes.ad_no_money_num--;
             }
             else {
@@ -4240,16 +4240,16 @@ class UserData {
         }
     }
     /** 减少分享广告的次数 */
-    decreShareTimes(_kind) {
+    decreShareTimes(type) {
         let that = this;
         if (that.shareAdTimes) {
-            if (_kind == 10) {
+            if (type == 10) {
                 that.shareAdTimes.share_acce_num--;
             }
-            else if (_kind == 11) {
-                that.shareAdTimes.share_free_car_num--;
+            else if (type == 11) {
+                that.shareAdTimes.share_shop_car--;
             }
-            else if (_kind == 12) {
+            else if (type == 12) {
                 that.shareAdTimes.share_no_money_num--;
             }
         }
@@ -4749,6 +4749,7 @@ class UserData {
                 if (res) {
                     self.offlineRewardCount = res.remain_online_num;
                     self.shareAdTimes = res.operation;
+                    console.log("@David 用户基础数据 operation：", self.shareAdTimes);
                     PlayerManager.Instance.Info.dayGetGoldCount = self.shareAdTimes.share_no_money_num;
                     self.showShareGiftRedPoint = res.share_reward_flag;
                     self.showDailySignRedPoint = res.sign_flag;
@@ -5566,7 +5567,7 @@ PathConfig.AppUrl = "https://pokemon.vuggame.com/api/";
 PathConfig.AppResUrl = "https://miniapp.vuggame.com/pokemon_vuggame_com_single/";
 PathConfig.RES_URL = PathConfig.AppResUrl + "v2/";
 PathConfig.Language = PathConfig.RES_URL + "config/language.txt";
-PathConfig.MonsterUrl = PathConfig.AppResUrl + "images/anim/{0}.atlas";
+PathConfig.MonsterUrl = PathConfig.RES_URL + "anim/{0}.atlas";
 PathConfig.GameResUrl = "images/skill/{0}.png";
 PathConfig.EffectUrl = "images/effect/{0}.atlas";
 PathConfig.ItemUrl = "images/core/{0}.png";
@@ -9207,7 +9208,7 @@ class DiamondBuyView extends BaseView {
                             break;
                     }
                 }
-            });
+            }, self.datas[0]);
         }
         else {
             MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.04"));
@@ -10750,15 +10751,15 @@ class HallManager extends Laya.EventDispatcher {
     }
     /** 轮盘免费抽奖倒计时 */
     showLuckPrizeTime() {
-        this.hall.txt_prizeTime.visible = false;
+        this.hall.txt_prizeTime.text = "大转盘";
         HttpManager.Instance.requestPrizeInfo((res) => {
             if (!res)
                 return;
             let freeTimes = MathUtils.parseInt(res.free_num); //免费次数
+            console.log("@David 轮盘免费抽奖倒计时:免费次数：", freeTimes);
             this._model.freeTime = MathUtils.parseInt(res.remain_time); //免费时间
             this._model.nextFreeTime = MathUtils.parseInt(res.next_free); //离下次免费时间
             if (freeTimes > 0) {
-                this.hall.txt_prizeTime.visible = true;
                 this.hall.txt_prizeTime.text = "免费抽奖";
             }
             else {
@@ -10770,7 +10771,6 @@ class HallManager extends Laya.EventDispatcher {
                         }
                     }
                     else if (this._model.nextFreeTime > 0) {
-                        this.hall.txt_prizeTime.visible = true;
                         this.hall.txt_prizeTime.text = TimeUtil.timeFormatStr(this._model.nextFreeTime, true);
                         this._model.nextFreeTime--;
                         freeTimes = 0; //免费次数清零
@@ -10780,7 +10780,7 @@ class HallManager extends Laya.EventDispatcher {
                         }
                     }
                     else {
-                        this.hall.txt_prizeTime.visible = false;
+                        this.hall.txt_prizeTime.text = "大转盘";
                         TimerManager.Instance.remove(loopFun, this);
                     }
                 };
@@ -11010,13 +11010,6 @@ class HallScene extends ui.hall.HallSceneUI {
             self.refreshShortcutCreateBtn();
             //延迟处理
             self.frameOnce(50, self, () => {
-                //离线收益
-                // if (userData && userData.hasOfflinePrize == false) {
-                //   userData.hasOfflinePrize = true;
-                //   userData.requestOfflinePrizeData();
-                // } else {
-                //   self.onOffLineRevenue();
-                // }
                 //离线收益， 离线超过10分钟才向服务器请求离线时间，否则没有离线奖励
                 const now = new Date().getTime();
                 if (now - userData.lastHeartBeatTime > 10 * Time.MIN_IN_MILI) {
@@ -11024,16 +11017,6 @@ class HallScene extends ui.hall.HallSceneUI {
                 }
                 //超越好友
                 self.showSurpassView();
-                // if (userData) {
-                //   let acceLeftTime: number = userData.getAcceLeftTime();
-                //   if (acceLeftTime > 0) {
-                //     let imgAcce = self.btnAcce.getChildByName("imgAcce") as Laya.Image;
-                //     if (imgAcce.visible == false) {
-                //       self.playAcceEffectView(acceLeftTime, false);
-                //     }
-                //
-                //   }
-                // }
                 if (userData) {
                     const remainingTime = userData.cache.getCache(CacheKey.ACCELERATE_SEC_REMAINING);
                     remainingTime && self.playAcceEffectView(remainingTime, false);
@@ -11357,7 +11340,7 @@ class HallScene extends ui.hall.HallSceneUI {
     //敌方出怪
     createMonster(_stage, _section) {
         let that = this;
-        let stageSectionCfg = BattleManager.Instance.getBarrierSectionConfig(_stage, _section); // getStageSectionConfig(_stage, _section);
+        let stageSectionCfg = BattleManager.Instance.getBarrierSectionConfig(_stage, _section);
         if (stageSectionCfg) {
             let mBlood = MathUtils.parseStringNum(stageSectionCfg["blood"]);
             let mMoney = MathUtils.parseStringNum(stageSectionCfg["earnings"]);
@@ -12944,6 +12927,7 @@ class LuckPrizeView extends BaseView {
                     userData.removeLuckPrizeRedPoint();
                 }
                 this.refreshDiamondText();
+                HallManager.Instance.showLuckPrizeTime();
             });
         }
         else if (M.player.Info.userDiamond >= that.costDiamond) {
@@ -12961,6 +12945,7 @@ class LuckPrizeView extends BaseView {
                 that.freeTime = 0;
                 //刷新钻石数量
                 HttpManager.Instance.requestDiamondData();
+                HallManager.Instance.showLuckPrizeTime();
             });
         }
         else {
@@ -14268,15 +14253,18 @@ class AchiRewardView extends BaseView {
         this._rewardName = "金币";
         this._awardNum = 0;
         this.myParent.maskEnabled = false;
+        this.y = LayerManager.stageDesignHeight - 200;
     }
     initUI() {
         super.initUI();
         this.x = LayerManager.stageDesignWidth;
-        this.y = LayerManager.stageDesignHeight - 100;
         Laya.Tween.to(this, { x: LayerManager.stageDesignWidth - this.width }, 500, null, Handler.create(this, () => {
             Laya.Tween.clearTween(this);
             TimerManager.Instance.doTimer(5000, 1, () => {
-                ViewMgr.Ins.close(ViewConst.AchiRewardView);
+                Laya.Tween.to(this, { x: LayerManager.stageDesignWidth }, 500, null, Handler.create(this, () => {
+                    Laya.Tween.clearTween(this);
+                    ViewMgr.Ins.close(ViewConst.AchiRewardView);
+                }));
             }, this);
         }));
     }
@@ -14321,7 +14309,7 @@ class AchiRewardView extends BaseView {
                         MessageUtils.showMsgTips("成就奖励领取失败！");
                     }
                 }
-            });
+            }, 2);
         }
         else {
             ViewMgr.Ins.close(ViewConst.AchiRewardView);
@@ -14462,9 +14450,7 @@ class TaskView extends BaseView {
                                     if (_res.code === 1) {
                                         MessageUtils.showMsgTips("奖励领取成功");
                                         MessageUtils.shopMsgByObj(btnGet, "+" + awardNum, EFFECT_TYPE.DIAMOND);
-                                        if (EventsManager.Instance) {
-                                            EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, _res);
-                                        }
+                                        EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, _res);
                                         _btnObj.visible = false;
                                         _item.task_status = 2;
                                         redPointNum--;
@@ -14485,7 +14471,7 @@ class TaskView extends BaseView {
                                         MessageUtils.showMsgTips("领取失败！");
                                     }
                                 }
-                            });
+                            }, 1);
                         }, [item, btnGet]);
                     }
                 }
@@ -14575,13 +14561,19 @@ class TaskView extends BaseView {
                         btnGet.offAll(Laya.Event.CLICK);
                         btnGet.on(Laya.Event.CLICK, btnGet, (_item, _btnObj) => {
                             // console.log("领取奖励")
-                            HttpManager.Instance.requestTaskReward(_item.id, (_res) => {
-                                if (_res) {
-                                    if (_res.code === 1) {
+                            HttpManager.Instance.requestTaskReward(_item.id, (res) => {
+                                if (res) {
+                                    if (res.code == 1) {
                                         MessageUtils.showMsgTips("奖励领取成功");
-                                        MessageUtils.shopMsgByObj(btnGet, "+" + awardNum, EFFECT_TYPE.DIAMOND);
-                                        if (EventsManager.Instance) {
-                                            EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, _res);
+                                        if (item.reward_type == "money") {
+                                            MessageUtils.shopMsgByObj(btnGet, "+" + MathUtils.bytesToSize(awardNum), EFFECT_TYPE.GOLD);
+                                            LayerMgr.Instance.addToLayer(new FlyEffect().play("rollingCoin", LayerManager.mouseX, LayerManager.mouseY), LAYER_TYPE.SCREEN_EFFECT_LAYER);
+                                            EventsManager.Instance.event(EventsType.GLOD_CHANGE, { diamond: M.player.Info.userMoney += awardNum });
+                                        }
+                                        else {
+                                            MessageUtils.shopMsgByObj(btnGet, "+" + awardNum, EFFECT_TYPE.DIAMOND);
+                                            LayerMgr.Instance.addToLayer(new FlyEffect().play("diamond", LayerManager.mouseX, LayerManager.mouseY), LAYER_TYPE.SCREEN_EFFECT_LAYER);
+                                            EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, res);
                                         }
                                         _btnObj.visible = false;
                                         _item.task_status = 2;
@@ -14601,12 +14593,12 @@ class TaskView extends BaseView {
                                             });
                                         }));
                                     }
-                                    else if (_res.code === 2) {
+                                    else if (res.code == 2) {
                                         MessageUtils.showMsgTips("领取失败！");
                                     }
                                 }
-                            });
-                        }, [item, btnGet]);
+                            }, 2);
+                        }, [item]);
                     }
                 }
                 else {

@@ -189,14 +189,14 @@ class HallManager extends Laya.EventDispatcher {
 
     /** 轮盘免费抽奖倒计时 */
     public showLuckPrizeTime(): void {
-        this.hall.txt_prizeTime.visible = false;
+        this.hall.txt_prizeTime.text = "大转盘";
         HttpManager.Instance.requestPrizeInfo((res: any) => {
             if (!res) return;
             let freeTimes = MathUtils.parseInt(res.free_num);//免费次数
+            console.log("@David 轮盘免费抽奖倒计时:免费次数：", freeTimes);
             this._model.freeTime = MathUtils.parseInt(res.remain_time);//免费时间
             this._model.nextFreeTime = MathUtils.parseInt(res.next_free);//离下次免费时间
             if (freeTimes > 0) {
-                this.hall.txt_prizeTime.visible = true;
                 this.hall.txt_prizeTime.text = "免费抽奖";
             } else {
                 let loopFun = () => {
@@ -206,7 +206,6 @@ class HallManager extends Laya.EventDispatcher {
                             EventsManager.Instance.event(EventsType.UPDATE_LUCK_PRIZE);
                         }
                     } else if (this._model.nextFreeTime > 0) {
-                        this.hall.txt_prizeTime.visible = true;
                         this.hall.txt_prizeTime.text = TimeUtil.timeFormatStr(this._model.nextFreeTime, true)
                         this._model.nextFreeTime--;
                         freeTimes = 0; //免费次数清零
@@ -215,7 +214,7 @@ class HallManager extends Laya.EventDispatcher {
                             EventsManager.Instance.event(EventsType.UPDATE_LUCK_PRIZE);
                         }
                     } else {
-                        this.hall.txt_prizeTime.visible = false;
+                        this.hall.txt_prizeTime.text = "大转盘";
                         TimerManager.Instance.remove(loopFun, this);
                     }
                 }
