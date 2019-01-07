@@ -22,6 +22,7 @@ class ViewRegisterMgr {
         ViewMgr.Ins.register(ViewConst.TaskView, new TaskView());
         ViewMgr.Ins.register(ViewConst.OfflineRewardsView, new OfflineRewardsView());
         ViewMgr.Ins.register(ViewConst.InvitationView, new InvitationView());
+        ViewMgr.Ins.register(ViewConst.AchiRewardView, new AchiRewardView());
     }
     static get Instance() {
         if (!ViewRegisterMgr._instance) {

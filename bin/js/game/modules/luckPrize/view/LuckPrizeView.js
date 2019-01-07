@@ -11,13 +11,13 @@ class LuckPrizeView extends BaseView {
         this.isFreeDrawing = false; //是否正在免费抽奖
         this.prizeItemTable = [
             { id: 1, name: "2倍奖励", num: 2, imgUrl: "images/luckLottery/luck_item_box.png" },
-            { id: 2, name: "大量钻石x888", num: 888, imgUrl: "images/core/diamond_icon_more.png" },
+            { id: 2, name: "大量钻石", num: 888, imgUrl: "images/core/diamond_icon_more.png" },
             { id: 3, name: "少量金币", num: 1, imgUrl: "images/luckLottery/luck_prize_1.png" },
-            { id: 4, name: "大量精华x20", num: 20, imgUrl: "images/luckLottery/luck_prize_2.png" },
+            { id: 4, name: "大量精华", num: 20, imgUrl: "images/luckLottery/luck_prize_2.png" },
             { id: 5, name: "4倍奖励", num: 4, imgUrl: "images/luckLottery/luck_item_box.png" },
-            { id: 6, name: "少量钻石x188", num: 188, imgUrl: "images/luckLottery/luck_prize_4.png" },
+            { id: 6, name: "少量钻石", num: 188, imgUrl: "images/luckLottery/luck_prize_4.png" },
             { id: 7, name: "大量金币", num: 1, imgUrl: "images/core/coin_stack_01.png" },
-            { id: 8, name: "少量精华x10", num: 10, imgUrl: "images/luckLottery/luck_prize_3.png" }
+            { id: 8, name: "少量精华", num: 10, imgUrl: "images/luckLottery/luck_prize_3.png" }
         ]; //奖励物品列表
         this.setResources(["luckLottery"]);
     }
@@ -90,6 +90,7 @@ class LuckPrizeView extends BaseView {
                 if (userData) {
                     userData.removeLuckPrizeRedPoint();
                 }
+                this.refreshDiamondText();
             });
         }
         else if (M.player.Info.userDiamond >= that.costDiamond) {

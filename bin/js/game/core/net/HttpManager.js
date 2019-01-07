@@ -114,7 +114,7 @@ class HttpManager {
         let that = this;
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
-            url: 'v1/task/progress/' + _taskId,
+            url: 'v2/task/progress/' + _taskId,
             success: function (res) {
                 console.log("requestDailyTaskData:", res);
             },
@@ -774,8 +774,8 @@ class HttpManager {
         });
     }
     /** 转盘信息统计 */
-    requestPrizeCensus(itemId, num) {
-        let dataString = 'prizeId=' + itemId + '&prizeNum=' + num;
+    requestPrizeCensus(itemId) {
+        let dataString = 'prizeId=' + itemId;
         console.log("requestPrizeCensus:", dataString);
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
@@ -812,6 +812,35 @@ class HttpManager {
             url: 'v1/share/friend_num',
             success: function (res) {
                 console.log("@FREEMAN: requestShareInfo =>", res);
+                callback && callback(res);
+            },
+            fail: function (res) {
+                console.log(res);
+            }
+        });
+    }
+    //拉取成就任务信息
+    requestAchievementInfo(callback) {
+        let that = this;
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+        HttpReqHelper.request({
+            url: 'v2/task/success/list',
+            success: function (res) {
+                console.log("@FREEMAN: requestAchievementInfo =>", res);
+                callback && callback(res);
+            },
+            fail: function (res) {
+                console.log(res);
+            }
+        });
+    }
+    /** 拉取任务奖励 */
+    requestTaskReward(itemId, callback) {
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+        HttpReqHelper.request({
+            url: 'v1/task/rewards/' + itemId,
+            success: function (res) {
+                console.log("requestTaskReward", res);
                 callback && callback(res);
             },
             fail: function (res) {

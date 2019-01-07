@@ -17,7 +17,7 @@ D sheets
 R 60254AD8 sheet.json
 D config/csvJson
 R A06487AE BarrierConfig.json
-R B277BDF6 BarrierReward.json
+R D7B55D3D BarrierReward.json
 R 0FA4EFC9 Item.json
 R 843E43E6 KindLevelConfig.json
 R FB3CB231 Monster.json
@@ -167,6 +167,7 @@ P 91492CE7 hall_Invitation_icon.png
 P 93B1EAFF hall_online_reward.png
 P DE37E78D hall_rankBtn.png
 P B6B1E7F9 hall_suofang_bg.png
+P 0FF5CADC hall_task_bg.png
 P DD3391E0 hall_time_bg.png
 P 6833E726 huishou_icon_0.png
 P 4956FE80 huishou_icon_1.png
@@ -191,7 +192,7 @@ P CE6B89CF levelHero_name_bg.png
 P 411A7C2E levelHero_titel.png
 D images/luckLottery
 P 043405C4 luck_go.png
-R 9B572172 luck_huanpan.png
+R 9D3A5DA7 luck_huanpan.png
 R E0670AD6 luck_huanpan_light.png
 P 27A69212 luck_item_box.png
 R 3ACAA4E1 luck_item_title.png
@@ -201,7 +202,7 @@ P D6DA3465 luck_prize_1.png
 P 01A9DB95 luck_prize_2.png
 P 2EC610C7 luck_prize_3.png
 P A2A3D336 luck_prize_4.png
-R 0DE823A0 luck_title.png
+R 89D4FC83 luck_title.png
 D images/more
 P 5EEB70E2 custom_service.png
 R BBF02B37 item_bg.png

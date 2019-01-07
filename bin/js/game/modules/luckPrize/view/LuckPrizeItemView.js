@@ -30,7 +30,7 @@ class LuckPrizeItemView extends BaseView {
                     this.showEssence(this.datas[0].name, this.datas[0].num);
                     break;
             }
-            HttpManager.Instance.requestPrizeCensus(this.datas[0].id, 1);
+            HttpManager.Instance.requestPrizeCensus(this.datas[0].id);
         }
     }
     addEvents() {
@@ -44,18 +44,20 @@ class LuckPrizeItemView extends BaseView {
     showGold(gold) {
         gold = gold * HallManager.Instance.hallData.magnification;
         this.ui.txtItemName.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.20", this.datas[0].name, MathUtils.bytesToSize(gold));
-        LayerManager.getInstance().screenEffectLayer.addChild(new FlyEffect().play("rollingCoin", LayerManager.mouseX, LayerManager.mouseY));
-        EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: M.player.Info.userMoney += gold });
+        let point = PointUtils.localToGlobal(this.ui.imgItem);
+        LayerMgr.Instance.addToLayer(new FlyEffect().play("rollingCoin", point.x, point.y), LAYER_TYPE.SCREEN_EFFECT_LAYER);
+        EventsManager.Instance.event(EventsType.GLOD_CHANGE, { diamond: M.player.Info.userMoney += gold });
     }
     showDiamond(name, diamond) {
         diamond = diamond * HallManager.Instance.hallData.magnification;
-        LanguageManager.Instance.getLanguageText("hallScene.label.txt.20", name, diamond);
-        LayerManager.getInstance().screenEffectLayer.addChild(new FlyEffect().play("diamond", LayerManager.mouseX, LayerManager.mouseY));
+        this.ui.txtItemName.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.20", name, diamond);
+        let point = PointUtils.localToGlobal(this.ui.imgItem);
+        LayerMgr.Instance.addToLayer(new FlyEffect().play("diamond", point.x, point.y), LAYER_TYPE.SCREEN_EFFECT_LAYER);
         HttpManager.Instance.requestDiamondData(); //刷新钻石数量
     }
     showEssence(name, essence) {
         essence = essence * HallManager.Instance.hallData.magnification;
-        LanguageManager.Instance.getLanguageText("hallScene.label.txt.20", name, essence);
+        this.ui.txtItemName.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.20", name, essence);
         HttpManager.Instance.requestEssenceData();
     }
     getGold() {

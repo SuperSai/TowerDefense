@@ -107,13 +107,6 @@ class HallManager extends Laya.EventDispatcher {
     updateIncomePerSec(value) {
         HallManager.Instance.hallData.userIncomePerSec = value;
     }
-    /** 新手引导 */
-    isGuide() {
-        if (userData && userData.isGuide()) {
-            return true;
-        }
-        return false;
-    }
     /** 显示通关奖励礼包界面 */
     showClearanceRewardView(isDouble = false) {
         if (this._hall) {
@@ -223,6 +216,24 @@ class HallManager extends Laya.EventDispatcher {
                 };
                 loopFun();
                 TimerManager.Instance.doTimer(1000, 0, loopFun, this);
+            }
+        });
+    }
+    /** 查询是否可以领取的成就任务 */
+    checkIsGetAchievementReward() {
+        HttpManager.Instance.requestAchievementInfo((data) => {
+            let listData = data;
+            let taskInfo = null;
+            for (let index = 0; index < listData.length; index++) {
+                const element = listData[index];
+                //task_status 0为完成  1可领取 2已领取
+                if (element.task_status == 1) {
+                    taskInfo = element;
+                    break;
+                }
+            }
+            if (taskInfo != null) {
+                ViewMgr.Ins.open(ViewConst.AchiRewardView, null, taskInfo);
             }
         });
     }

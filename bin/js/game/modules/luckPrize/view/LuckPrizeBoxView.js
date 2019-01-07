@@ -24,6 +24,7 @@ class LuckPrizeBoxView extends BaseView {
             }
             this.callback && this.callback();
             this.ui.txt_des.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.40", this.datas[0].num);
+            HttpManager.Instance.requestPrizeCensus(this.datas[0].id);
         }
     }
     addEvents() {
@@ -39,10 +40,12 @@ class LuckPrizeBoxView extends BaseView {
     onGetReward() {
         SDKManager.Instance.showVideoAd((_res) => {
             if (_res && _res.isEnded || _res == undefined) {
+                this.onCloseHandler();
                 ViewMgr.Ins.open(ViewConst.LuckPrizeView);
             }
         }, () => {
             userData.toShareAd(() => {
+                this.onCloseHandler();
                 ViewMgr.Ins.open(ViewConst.LuckPrizeView);
             });
         });

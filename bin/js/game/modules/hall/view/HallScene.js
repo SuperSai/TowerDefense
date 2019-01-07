@@ -340,7 +340,7 @@ class HallScene extends ui.hall.HallSceneUI {
             self._levelReward = Laya.Pool.getItemByClass(userData.ANIMATION_POOL_NAME, Laya.Animation);
             self.btnStagePrize.addChild(self._levelReward);
             // 加载动画图集,加载成功后执行回调方法
-            let aniAtlas = "images/effect/levelReward/levelReward.atlas";
+            let aniAtlas = PathConfig.RES_URL + "images/effect/levelReward/levelReward.atlas";
             self._levelReward.loadAtlas(aniAtlas, Handler.create(self, () => {
                 self._levelReward.interval = 77;
                 self._levelReward.play();
@@ -723,7 +723,7 @@ class HallScene extends ui.hall.HallSceneUI {
                 //移除高亮提示
                 that.setCarparkLight();
                 if (that.parkMonsterModelSp && that.curMonsterSprite) {
-                    if (that.btnDelete && ObjectUtils.isHit(that.btnDelete) && HallManager.Instance.isGuide() == false) {
+                    if (that.btnDelete && ObjectUtils.isHit(that.btnDelete) && !M.novice.isRunning) {
                         let obtainMoney = that.curMonsterSprite.getSellPrice();
                         that.curMonsterSprite.clearStage();
                         let imgDest = that.btnDelete;
@@ -785,7 +785,7 @@ class HallScene extends ui.hall.HallSceneUI {
                                                     this.handlerHeroLevel(heroItem, heroId, index, currHeroLevel);
                                                 }
                                             }
-                                            else if (!heroItem.isRunning() && HallManager.Instance.isGuide() == false) {
+                                            else if (!heroItem.isRunning() && !M.novice.isRunning) {
                                                 //交换
                                                 let isEmpty = heroItem.isEmpty();
                                                 heroItem.setKind(that.curMonsterSprite.monsterId);
@@ -816,7 +816,7 @@ class HallScene extends ui.hall.HallSceneUI {
                     that.parkMonsterModelSp.removeSelf();
                     that.btnDelete.skin = "images/hall/huishou_icon_0.png";
                 }
-                else if (that.curMonsterSprite && HallManager.Instance.isGuide() == false) {
+                else if (that.curMonsterSprite && !M.novice.isRunning) {
                     //取消选中状态
                     if (ObjectUtils.isHit(that.curMonsterSprite)) {
                         if (that.curMonsterSprite.isRunning()) {
@@ -1031,7 +1031,7 @@ class HallScene extends ui.hall.HallSceneUI {
     /** 赠送英雄中 */
     handlerGiveMonster() {
         let self = this;
-        if (HallManager.Instance.isGuide()) { //新手关闭赠送
+        if (M.novice.isRunning) { //新手关闭赠送
             return;
         }
         HallManager.Instance.hallData.giveMonsterAllTime = 3 * 60 * 60;
@@ -1577,6 +1577,8 @@ class HallScene extends ui.hall.HallSceneUI {
                 self.setPassStage(HallManager.Instance.hallData.passStage + 1);
             }
             self.setPassSection(curSection);
+            //查询是否有成就任务完成
+            HallManager.Instance.checkIsGetAchievementReward();
             //创建怪物
             self.createMonster(HallManager.Instance.hallData.passStage, HallManager.Instance.hallData.passSection);
         });

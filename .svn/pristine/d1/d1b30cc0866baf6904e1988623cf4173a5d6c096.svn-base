@@ -1,0 +1,59 @@
+/*
+* 成就奖励领取界面;
+*/
+class AchiRewardView extends BaseView {
+    constructor() {
+        super(LAYER_TYPE.SUB_FRAME_LAYER, ui.task.AchiRewardViewUI);
+    }
+
+    public initUI(): void {
+        super.initUI();
+        this.x = LayerManager.clientWidth;
+        this.y = LayerManager.clientHeight - 300;
+        Laya.Tween.to(this, { x: LayerManager.clientWidth - this.width }, 300, null, Handler.create(this, () => {
+            Laya.Tween.clearTween(this);
+            TimerManager.Instance.doTimer(5000, 1, () => {
+                ViewMgr.Ins.close(ViewConst.AchiRewardView);
+            }, this);
+        }));
+    }
+
+    public initData(): void {
+        super.initData();
+        let awardNum: number = this.datas[0].reward || 0;
+        switch (this.datas[0].reward_type) {
+            case "money":
+                this.ui.imgIcon.skin = "images/core/coin_40x40.png";
+                awardNum = this.getGold() * awardNum;
+                break;
+            default:
+                this.ui.imgIcon.skin = "images/core/diamond.png";
+                break;
+        }
+        this.ui.txt_num.text = awardNum + "";
+    }
+
+    public addEvents(): void {
+        super.addEvents();
+        this.on(Laya.Event.CLICK, this, this.onGetReward);
+    }
+
+    public removeEvents(): void {
+        super.removeEvents();
+        this.off(Laya.Event.CLICK, this, this.onGetReward);
+    }
+
+    private onGetReward(): void {
+
+    }
+
+    private getGold(): number {
+        let monsterType: number = userData.isEvolution() ? 2 : 1;
+        let monsterInfo = BattleManager.Instance.getUnLockMonster(monsterType, userData.getCarLevel());
+        if (monsterInfo) {
+            let curPrice = BattleManager.Instance.getMonsterPrice(monsterInfo.buyPrice, userData.queryBuyRecord(monsterInfo.id));
+            return curPrice;
+        }
+        return 0;
+    }
+}

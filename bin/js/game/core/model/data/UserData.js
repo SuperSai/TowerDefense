@@ -460,11 +460,6 @@ class UserData {
         this.menuRedPointCount--;
         EventsManager.Instance.event(EventsType.EVERY_DAY_INTO_REWARD, "remove");
     }
-    //是否新手
-    isGuide() {
-        let that = this;
-        return false;
-    }
     //小程序跳转
     miniCode() {
         let that = this;

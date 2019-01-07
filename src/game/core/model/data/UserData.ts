@@ -1,7 +1,7 @@
 class UserData {
     public cache: CacheObject;
     public noviceGroupId: number;
-    public lastHeartBeatTime:number;
+    public lastHeartBeatTime: number;
 
     get dayGetGoldCount(): number {
         return PlayerManager.Instance.Info.dayGetGoldCount;
@@ -77,7 +77,7 @@ class UserData {
     constructor() {
         //初始化车位
         for (let index = 0; index < 20; index++) {
-            this.parkcarInfoArray[index] = { id: index, carId: 0};
+            this.parkcarInfoArray[index] = { id: index, carId: 0 };
         }
         //分享广告
         [this.shareAdStage[10], this.shareAdStage[11], this.shareAdStage[12]] = [true, true, true];
@@ -218,9 +218,9 @@ class UserData {
     }
 
     public getCarLevel(): number {
-        if(!this.carLevel){
+        if (!this.carLevel) {
             this.carLevel = 1;
-            this.parkcarInfoArray.map((item)=>{
+            this.parkcarInfoArray.map((item) => {
                 this.carLevel = Math.max(BattleManager.Instance.getLevel(item.carId), this.carLevel);
             });
         }
@@ -504,13 +504,6 @@ class UserData {
         EventsManager.Instance.event(EventsType.EVERY_DAY_INTO_REWARD, "remove");
     }
 
-
-    //是否新手
-    public isGuide(): boolean {
-        let that = this;
-        return false;
-    }
-
     //小程序跳转
     public miniCode(): string {
         let that = this;
@@ -544,7 +537,7 @@ class UserData {
     }
 
     //保存本地
-    public saveLocal(_upload: boolean = false, saveOptions?: { petList: boolean, petShop: boolean, skill: boolean }, forceRightNow:boolean = false): void {
+    public saveLocal(_upload: boolean = false, saveOptions?: { petList: boolean, petShop: boolean, skill: boolean }, forceRightNow: boolean = false): void {
         if (this._isLoadStorage == false) {
             console.log("未同步本地/服务器数据");
             return;
@@ -558,7 +551,7 @@ class UserData {
         }
     }
     //取出本地数据
-    public loadStorage(_callback: any, dataType?:{userInfo?:boolean, petList?:boolean, shopData?:boolean, skillData?:boolean, shareData?:boolean, extraData?:boolean}): void {
+    public loadStorage(_callback: any, dataType?: { userInfo?: boolean, petList?: boolean, shopData?: boolean, skillData?: boolean, shareData?: boolean, extraData?: boolean }): void {
         this._isLoadStorage = true;
         if (GlobalConfig.DEBUG) {
             // if (GlobalConfig.USER) {
@@ -570,16 +563,16 @@ class UserData {
             }
         }
 
-        let serverDataProgress:number = 6;
-        const status:any = {
-            userInfo:dataType && dataType.userInfo,
-            petList:dataType && dataType.petList,
-            shopData:dataType && dataType.shopData,
-            skillData:dataType && dataType.skillData,
-            shareData:dataType && dataType.shareData,
-            extraData:dataType && dataType.extraData,
+        let serverDataProgress: number = 6;
+        const status: any = {
+            userInfo: dataType && dataType.userInfo,
+            petList: dataType && dataType.petList,
+            shopData: dataType && dataType.shopData,
+            skillData: dataType && dataType.skillData,
+            shareData: dataType && dataType.shareData,
+            extraData: dataType && dataType.extraData,
         };
-        if(!this.cache.hasCache(CacheKey.USER_ID) && !status.userInfo){
+        if (!this.cache.hasCache(CacheKey.USER_ID) && !status.userInfo) {
             M.http.requestUserinfoData((res: any) => {
                 status.userInfo = true;
                 serverDataProgress--;
@@ -587,9 +580,9 @@ class UserData {
                     _callback && _callback(true);
                 }
             });
-        } else {serverDataProgress--; status.userInfo = true;}
+        } else { serverDataProgress--; status.userInfo = true; }
 
-        if(!this.cache.hasCache(CacheKey.PET_LIST) && !status.petList){
+        if (!this.cache.hasCache(CacheKey.PET_LIST) && !status.petList) {
             M.http.requestCarparkData((res: any) => {
                 status.petList = true;
                 serverDataProgress--;
@@ -597,9 +590,9 @@ class UserData {
                     _callback && _callback(true);
                 }
             });
-        } else {serverDataProgress--; status.petList = true;}
+        } else { serverDataProgress--; status.petList = true; }
 
-        if(!this.cache.hasCache(CacheKey.SHOP_DATA) && !status.shopData){
+        if (!this.cache.hasCache(CacheKey.SHOP_DATA) && !status.shopData) {
             M.http.requestCarshopData((res: any) => {
                 status.shopData = true;
                 serverDataProgress--;
@@ -607,9 +600,9 @@ class UserData {
                     _callback && _callback(true);
                 }
             });
-        } else {serverDataProgress--; status.shopData = true;}
+        } else { serverDataProgress--; status.shopData = true; }
 
-        if(!this.cache.hasCache(CacheKey.SKILL_DATA) && !status.skillData){
+        if (!this.cache.hasCache(CacheKey.SKILL_DATA) && !status.skillData) {
             M.http.requestSkillAddtionData((res: any) => {
                 status.skillData = true;
                 serverDataProgress--;
@@ -617,10 +610,10 @@ class UserData {
                     _callback && _callback(true);
                 }
             });
-        } else {serverDataProgress--; status.skillData = true;}
+        } else { serverDataProgress--; status.skillData = true; }
 
         //请求分享开关
-        if(!status.shareData){
+        if (!status.shareData) {
             M.http.requestShareFlag(() => {
                 status.shareData = true;
                 serverDataProgress--;
@@ -631,7 +624,7 @@ class UserData {
         }
 
         //用户更多信息
-        if(!status.extraData) {
+        if (!status.extraData) {
             this.requestUserBaseData(() => {
                 status.extraData = true;
                 serverDataProgress--;
@@ -641,7 +634,7 @@ class UserData {
             });
         }
 
-        if(serverDataProgress){
+        if (serverDataProgress) {
             //超时尝试重新请求
             Laya.stage.timerOnce(5e3, this, () => {
                 if (serverDataProgress > 0) {
@@ -900,6 +893,7 @@ class UserData {
                 if (res) {
                     self.offlineRewardCount = res.remain_online_num;
                     self.shareAdTimes = res.operation;
+                    console.log("@David 用户基础数据 operation：", self.shareAdTimes);
                     PlayerManager.Instance.Info.dayGetGoldCount = self.shareAdTimes.share_no_money_num;
                     self.showShareGiftRedPoint = res.share_reward_flag;
                     self.showDailySignRedPoint = res.sign_flag;
@@ -951,16 +945,16 @@ class UserData {
     }
 
 
-    public loadCache():void{
+    public loadCache(): void {
         this.cache.setCacheKey("xd_" + M.player.account);
-        this.cache.loadCache(Laya.Handler.create(this, (cache:CacheObject)=>{
+        this.cache.loadCache(Laya.Handler.create(this, (cache: CacheObject) => {
             // 有缓存才赋值
             cache.hasCache(CacheKey.PET_LIST) && (this.parkcarInfoArray = cache.getCache(CacheKey.PET_LIST));
             cache.hasCache(CacheKey.SHOP_DATA) && (this.carBuyRecordArray = cache.getCache(CacheKey.SHOP_DATA));
             cache.hasCache(CacheKey.SKILL_DATA) && (this.skillAdditionArray = cache.getCache(CacheKey.SKILL_DATA));
             cache.hasCache(CacheKey.CONCUR) && (HallManager.Instance.hallData.concurGoldDic.fromJsonObject(cache.getCache(CacheKey.CONCUR)));
 
-            if(cache.hasCache(CacheKey.USER_ID)){
+            if (cache.hasCache(CacheKey.USER_ID)) {
                 this.userId = cache.getCache(CacheKey.USER_ID);
                 M.player.Info.userMoney = cache.getCache(CacheKey.GOLD);
                 this.level = cache.getCache(CacheKey.LEVEL);

@@ -33,14 +33,16 @@ class TaskView extends BaseView {
             this.requestTaskInfo();
         }
         else { //成就任务
+            HttpManager.Instance.requestAchievementInfo((res) => {
+                this.refreshAchievementList(res);
+            });
         }
     }
     updateTabRetDot(subViewType, isShow) {
         const redDot = this._tabGroup.getButtonByIndex(subViewType).getChildByName("imgRetDotHint");
         redDot && (redDot.visible = isShow);
     }
-    //初始化list
-    //任务
+    /** 每日任务 */
     refreshTaskList(_data) {
         if (_data == null)
             return;
@@ -111,7 +113,7 @@ class TaskView extends BaseView {
                         btnGet.offAll(Laya.Event.CLICK);
                         btnGet.on(Laya.Event.CLICK, btnGet, (_item, _btnObj) => {
                             // console.log("领取奖励")
-                            that.requestTaskPrize(_item.id, (_res) => {
+                            HttpManager.Instance.requestTaskReward(_item.id, (_res) => {
                                 if (_res) {
                                     if (_res.code === 1) {
                                         MessageUtils.showMsgTips("奖励领取成功");
@@ -156,6 +158,7 @@ class TaskView extends BaseView {
         let self = this;
         let listData = data;
         let redPointNum = 0;
+        //task_status 0为完成  1可领取 2已领取
         listData.sort((pre, next) => {
             if (pre.task_status !== next.task_status) {
                 return next.task_status - pre.task_status;
@@ -170,10 +173,10 @@ class TaskView extends BaseView {
             this.ui.viewStackTask.selectedIndex = QuestSubView.EMPTY_QUEST;
             return;
         }
-        self.ui.taskItemList.vScrollBarSkin = '';
-        self.ui.taskItemList.repeatY = 5;
-        self.ui.taskItemList.array = listData;
-        self.ui.taskItemList.renderHandler = new Laya.Handler(self, (cell, index) => {
+        self.ui.achiItemList.vScrollBarSkin = '';
+        self.ui.achiItemList.repeatY = 5;
+        self.ui.achiItemList.array = listData;
+        self.ui.achiItemList.renderHandler = new Laya.Handler(self, (cell, index) => {
             if (index > listData.length)
                 return;
             let item = listData[index];
@@ -197,17 +200,21 @@ class TaskView extends BaseView {
             }
             const imgAwardIcon = cell.getChildByName('imgAwardIcon');
             if (imgAwardIcon) {
+                const txtDiamond = cell.getChildByName('txtDiamond');
                 switch (item.reward_type) {
-                    case "essence":
-                        imgAwardIcon.skin = "images/core/essence.png";
+                    case "money":
+                        imgAwardIcon.skin = "images/core/coin_40x40.png";
+                        awardNum = this.getGold() * awardNum;
+                        if (txtDiamond) {
+                            txtDiamond.changeText('' + MathUtils.bytesToSize(awardNum));
+                        }
                         break;
                     default:
                         imgAwardIcon.skin = "images/core/diamond.png";
+                        if (txtDiamond) {
+                            txtDiamond.changeText('' + awardNum);
+                        }
                         break;
-                }
-                const txtDiamond = cell.getChildByName('txtDiamond');
-                if (txtDiamond) {
-                    txtDiamond.changeText('' + awardNum);
                 }
             }
             //领取
@@ -224,7 +231,7 @@ class TaskView extends BaseView {
                         btnGet.offAll(Laya.Event.CLICK);
                         btnGet.on(Laya.Event.CLICK, btnGet, (_item, _btnObj) => {
                             // console.log("领取奖励")
-                            self.requestTaskPrize(_item.id, (_res) => {
+                            HttpManager.Instance.requestTaskReward(_item.id, (_res) => {
                                 if (_res) {
                                     if (_res.code === 1) {
                                         MessageUtils.showMsgTips("奖励领取成功");
@@ -244,7 +251,9 @@ class TaskView extends BaseView {
                                         Laya.Tween.to(cell, { x: -cell.displayWidth }, 250, Laya.Ease.quadOut, Handler.create(self, () => {
                                             listData.splice(index, 1);
                                             Laya.timer.once(100, self, () => {
-                                                self.requestTaskInfo();
+                                                HttpManager.Instance.requestAchievementInfo((res) => {
+                                                    this.refreshAchievementList(res);
+                                                });
                                             });
                                         }));
                                     }
@@ -277,19 +286,14 @@ class TaskView extends BaseView {
             }
         });
     }
-    //拉取奖励
-    requestTaskPrize(_itemId, _callback) {
-        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
-        HttpReqHelper.request({
-            url: 'v1/task/rewards/' + _itemId,
-            success: function (res) {
-                console.log("requestTaskPrize", res);
-                _callback && _callback(res);
-            },
-            fail: function (res) {
-                console.log(res);
-            }
-        });
+    getGold() {
+        let monsterType = userData.isEvolution() ? 2 : 1;
+        let monsterInfo = BattleManager.Instance.getUnLockMonster(monsterType, userData.getCarLevel());
+        if (monsterInfo) {
+            let curPrice = BattleManager.Instance.getMonsterPrice(monsterInfo.buyPrice, userData.queryBuyRecord(monsterInfo.id));
+            return curPrice;
+        }
+        return 0;
     }
     onClickExit() {
         ViewMgr.Ins.close(ViewConst.TaskView);

@@ -1,8 +1,8 @@
 {
     "x":0,
     "type":"View",
-    "selectedBox":62,
-    "selecteID":87,
+    "selectedBox":1,
+    "selecteID":62,
     "props":{"y":0,"x":0,"width":750,"sceneColor":"#000000","name":"rolledTIme","height":902},
     "nodeParent":-1,
     "label":"View(rolledTIme)",

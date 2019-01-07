@@ -39,7 +39,9 @@ class TaskView extends BaseView {
         if (index == QuestSubView.DAILY_QUEST) {//每日任务
             this.requestTaskInfo();
         } else {//成就任务
-
+            HttpManager.Instance.requestAchievementInfo((res) => {
+                this.refreshAchievementList(res);
+            });
         }
     }
 
@@ -48,8 +50,7 @@ class TaskView extends BaseView {
         redDot && (redDot.visible = isShow);
     }
 
-    //初始化list
-    //任务
+    /** 每日任务 */
     private refreshTaskList(_data: any) {
         if (_data == null) return;
         let that = this;
@@ -117,7 +118,7 @@ class TaskView extends BaseView {
                         btnGet.offAll(Laya.Event.CLICK);
                         btnGet.on(Laya.Event.CLICK, btnGet, (_item: any, _btnObj: Laya.Button) => {
                             // console.log("领取奖励")
-                            that.requestTaskPrize(_item.id, (_res: any) => {
+                            HttpManager.Instance.requestTaskReward(_item.id, (_res: any) => {
                                 if (_res) {
                                     if (_res.code === 1) {
                                         MessageUtils.showMsgTips("奖励领取成功");
@@ -160,6 +161,7 @@ class TaskView extends BaseView {
         let self = this;
         let listData: any[] = data;
         let redPointNum = 0;
+        //task_status 0为完成  1可领取 2已领取
         listData.sort((pre, next): number => {
             if (pre.task_status !== next.task_status) {
                 return next.task_status - pre.task_status;
@@ -174,10 +176,10 @@ class TaskView extends BaseView {
             this.ui.viewStackTask.selectedIndex = QuestSubView.EMPTY_QUEST;
             return;
         }
-        self.ui.taskItemList.vScrollBarSkin = '';
-        self.ui.taskItemList.repeatY = 5;
-        self.ui.taskItemList.array = listData;
-        self.ui.taskItemList.renderHandler = new Laya.Handler(self, (cell: Laya.Box, index: number) => {
+        self.ui.achiItemList.vScrollBarSkin = '';
+        self.ui.achiItemList.repeatY = 5;
+        self.ui.achiItemList.array = listData;
+        self.ui.achiItemList.renderHandler = new Laya.Handler(self, (cell: Laya.Box, index: number) => {
             if (index > listData.length) return;
             let item = listData[index];
             if (!item) return;
@@ -199,18 +201,21 @@ class TaskView extends BaseView {
             }
             const imgAwardIcon: Laya.Image = cell.getChildByName('imgAwardIcon') as Laya.Image;
             if (imgAwardIcon) {
+                const txtDiamond = cell.getChildByName('txtDiamond') as Laya.Label;
                 switch (item.reward_type) {
-                    case "essence":
-                        imgAwardIcon.skin = "images/core/essence.png";
+                    case "money":
+                        imgAwardIcon.skin = "images/core/coin_40x40.png";
+                        awardNum = this.getGold() * awardNum;
+                        if (txtDiamond) {
+                            txtDiamond.changeText('' + MathUtils.bytesToSize(awardNum));
+                        }
                         break;
                     default:
                         imgAwardIcon.skin = "images/core/diamond.png";
+                        if (txtDiamond) {
+                            txtDiamond.changeText('' + awardNum);
+                        }
                         break;
-                }
-
-                const txtDiamond = cell.getChildByName('txtDiamond') as Laya.Label;
-                if (txtDiamond) {
-                    txtDiamond.changeText('' + awardNum);
                 }
             }
             //领取
@@ -226,7 +231,7 @@ class TaskView extends BaseView {
                         btnGet.offAll(Laya.Event.CLICK);
                         btnGet.on(Laya.Event.CLICK, btnGet, (_item: any, _btnObj: Laya.Button) => {
                             // console.log("领取奖励")
-                            self.requestTaskPrize(_item.id, (_res: any) => {
+                            HttpManager.Instance.requestTaskReward(_item.id, (_res: any) => {
                                 if (_res) {
                                     if (_res.code === 1) {
                                         MessageUtils.showMsgTips("奖励领取成功");
@@ -246,7 +251,9 @@ class TaskView extends BaseView {
                                         Laya.Tween.to(cell, { x: -cell.displayWidth }, 250, Laya.Ease.quadOut, Handler.create(self, () => {
                                             listData.splice(index, 1);
                                             Laya.timer.once(100, self, () => {
-                                                self.requestTaskInfo();
+                                                HttpManager.Instance.requestAchievementInfo((res) => {
+                                                    this.refreshAchievementList(res);
+                                                });
                                             })
                                         }));
                                     } else if (_res.code === 2) {
@@ -264,7 +271,7 @@ class TaskView extends BaseView {
     }
 
     //拉取任务信息
-    public requestTaskInfo(): void {
+    private requestTaskInfo(): void {
         let that = this;
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
@@ -278,19 +285,15 @@ class TaskView extends BaseView {
             }
         });
     }
-    //拉取奖励
-    public requestTaskPrize(_itemId: number, _callback: any): void {
-        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
-        HttpReqHelper.request({
-            url: 'v1/task/rewards/' + _itemId,
-            success: function (res) {
-                console.log("requestTaskPrize", res);
-                _callback && _callback(res);
-            },
-            fail: function (res) {
-                console.log(res);
-            }
-        });
+
+    private getGold(): number {
+        let monsterType: number = userData.isEvolution() ? 2 : 1;
+        let monsterInfo = BattleManager.Instance.getUnLockMonster(monsterType, userData.getCarLevel());
+        if (monsterInfo) {
+            let curPrice = BattleManager.Instance.getMonsterPrice(monsterInfo.buyPrice, userData.queryBuyRecord(monsterInfo.id));
+            return curPrice;
+        }
+        return 0;
     }
 
     private onClickExit(): void {

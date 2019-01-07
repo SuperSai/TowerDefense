@@ -2849,7 +2849,7 @@ class HttpManager {
         let that = this;
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
-            url: 'v1/task/progress/' + _taskId,
+            url: 'v2/task/progress/' + _taskId,
             success: function (res) {
                 console.log("requestDailyTaskData:", res);
             },
@@ -3509,8 +3509,8 @@ class HttpManager {
         });
     }
     /** 转盘信息统计 */
-    requestPrizeCensus(itemId, num) {
-        let dataString = 'prizeId=' + itemId + '&prizeNum=' + num;
+    requestPrizeCensus(itemId) {
+        let dataString = 'prizeId=' + itemId;
         console.log("requestPrizeCensus:", dataString);
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
@@ -3554,6 +3554,35 @@ class HttpManager {
             }
         });
     }
+    //拉取成就任务信息
+    requestAchievementInfo(callback) {
+        let that = this;
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+        HttpReqHelper.request({
+            url: 'v2/task/success/list',
+            success: function (res) {
+                console.log("@FREEMAN: requestAchievementInfo =>", res);
+                callback && callback(res);
+            },
+            fail: function (res) {
+                console.log(res);
+            }
+        });
+    }
+    /** 拉取任务奖励 */
+    requestTaskReward(itemId, callback) {
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+        HttpReqHelper.request({
+            url: 'v1/task/rewards/' + itemId,
+            success: function (res) {
+                console.log("requestTaskReward", res);
+                callback && callback(res);
+            },
+            fail: function (res) {
+                console.log(res);
+            }
+        });
+    }
     static get Instance() {
         if (HttpManager._instance == null) {
             HttpManager._instance = new HttpManager();
@@ -3586,6 +3615,7 @@ class ViewRegisterMgr {
         ViewMgr.Ins.register(ViewConst.TaskView, new TaskView());
         ViewMgr.Ins.register(ViewConst.OfflineRewardsView, new OfflineRewardsView());
         ViewMgr.Ins.register(ViewConst.InvitationView, new InvitationView());
+        ViewMgr.Ins.register(ViewConst.AchiRewardView, new AchiRewardView());
     }
     static get Instance() {
         if (!ViewRegisterMgr._instance) {
@@ -3787,6 +3817,8 @@ var ViewConst;
     ViewConst[ViewConst["InvitationView"] = 10020] = "InvitationView";
     /** 离线奖励界面 */
     ViewConst[ViewConst["OfflineRewardsView"] = 10021] = "OfflineRewardsView";
+    /** 成就奖励领取界面 */
+    ViewConst[ViewConst["AchiRewardView"] = 10022] = "AchiRewardView";
 })(ViewConst || (ViewConst = {}));
 //# sourceMappingURL=ViewConst.js.map
 /*
@@ -4324,11 +4356,6 @@ class UserData {
         this.every_day_into_rewards = false;
         this.menuRedPointCount--;
         EventsManager.Instance.event(EventsType.EVERY_DAY_INTO_REWARD, "remove");
-    }
-    //是否新手
-    isGuide() {
-        let that = this;
-        return false;
     }
     //小程序跳转
     miniCode() {
@@ -5537,7 +5564,7 @@ class PathConfig {
 }
 PathConfig.AppUrl = "https://pokemon.vuggame.com/api/";
 PathConfig.AppResUrl = "https://miniapp.vuggame.com/pokemon_vuggame_com_single/";
-PathConfig.RES_URL = PathConfig.AppResUrl + "index/";
+PathConfig.RES_URL = PathConfig.AppResUrl + "v2/";
 PathConfig.Language = PathConfig.RES_URL + "config/language.txt";
 PathConfig.MonsterUrl = PathConfig.AppResUrl + "images/anim/{0}.atlas";
 PathConfig.GameResUrl = "images/skill/{0}.png";
@@ -8614,7 +8641,7 @@ var ui;
                 this.createView(ui.luckPrize.LuckPrizeItemViewUI.uiView);
             }
         }
-        LuckPrizeItemViewUI.uiView = { "type": "View", "props": { "width": 600, "height": 400 }, "child": [{ "type": "View", "props": { "width": 748, "name": "bgView", "height": 519, "centerX": 0 }, "child": [{ "type": "Image", "props": { "y": 214, "x": 376, "width": 600, "var": "imgLight", "skin": "images/hall/common_bg_light.png", "height": 600, "anchorY": 0.5, "anchorX": 0.5 } }, { "type": "Button", "props": { "y": -171, "x": 596, "var": "btnExit", "stateNum": 1, "skin": "images/component/frame_close_btn.png" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }, { "type": "Image", "props": { "y": -147, "x": 84, "skin": "images/luckLottery/luck_item_title.png" } }, { "type": "Image", "props": { "y": 209, "x": 374, "skin": "images/component/frame_9calce_03.png", "anchorY": 0.5, "anchorX": 0.5, "sizeGrid": "26,31,23,28" } }, { "type": "Image", "props": { "y": 210, "x": 374, "visible": false, "var": "imgItem", "skin": "images/luckLottery/luck_prize_3.png", "anchorY": 0.5, "anchorX": 0.5 } }, { "type": "Label", "props": { "y": 445, "x": 89, "width": 578, "var": "txtItemName", "text": "先知球x1", "strokeColor": "#946430", "stroke": 2, "height": 50, "fontSize": 50, "color": "#ffebbc", "bold": true, "align": "center" } }] }] };
+        LuckPrizeItemViewUI.uiView = { "type": "View", "props": { "width": 600, "height": 400 }, "child": [{ "type": "View", "props": { "width": 748, "name": "bgView", "height": 519, "centerX": 0 }, "child": [{ "type": "Image", "props": { "y": 214, "x": 376, "width": 600, "var": "imgLight", "skin": "images/hall/common_bg_light.png", "height": 600, "anchorY": 0.5, "anchorX": 0.5 } }, { "type": "Button", "props": { "y": -171, "x": 596, "var": "btnExit", "stateNum": 1, "skin": "images/component/frame_close_btn.png" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }, { "type": "Image", "props": { "y": -147, "x": 84, "skin": "images/luckLottery/luck_item_title.png" } }, { "type": "Image", "props": { "y": 209, "x": 374, "skin": "images/component/frame_9calce_03.png", "anchorY": 0.5, "anchorX": 0.5, "sizeGrid": "26,31,23,28" } }, { "type": "Image", "props": { "y": 210, "x": 374, "var": "imgItem", "skin": "images/luckLottery/luck_prize_3.png", "anchorY": 0.5, "anchorX": 0.5 } }, { "type": "Label", "props": { "y": 445, "x": 89, "width": 578, "var": "txtItemName", "text": "先知球x1", "strokeColor": "#946430", "stroke": 2, "height": 50, "fontSize": 50, "color": "#ffebbc", "bold": true, "align": "center" } }] }] };
         luckPrize.LuckPrizeItemViewUI = LuckPrizeItemViewUI;
     })(luckPrize = ui.luckPrize || (ui.luckPrize = {}));
 })(ui || (ui = {}));
@@ -8783,6 +8810,20 @@ var ui;
 (function (ui) {
     var task;
     (function (task) {
+        class AchiRewardViewUI extends View {
+            constructor() { super(); }
+            createChildren() {
+                super.createChildren();
+                this.createView(ui.task.AchiRewardViewUI.uiView);
+            }
+        }
+        AchiRewardViewUI.uiView = { "type": "View", "props": { "width": 266, "height": 143 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "skin": "images/hall/hall_task_bg.png" } }, { "type": "Label", "props": { "y": 46, "x": 121, "text": "成就任务完成", "strokeColor": "#584200", "stroke": 2, "fontSize": 22, "color": "#fff263" } }, { "type": "Label", "props": { "y": 75, "x": 114, "text": "奖励:", "strokeColor": "#8d5d2e", "stroke": 2, "fontSize": 22, "color": "#ffffff" } }, { "type": "Image", "props": { "y": 72, "x": 166, "var": "imgIcon", "skin": "images/core/diamond.png", "scaleY": 0.8, "scaleX": 0.8 } }, { "type": "Label", "props": { "y": 76, "x": 199, "var": "txt_num", "text": "1000", "strokeColor": "#8d5d2e", "stroke": 2, "fontSize": 22, "color": "#ffffff" } }] };
+        task.AchiRewardViewUI = AchiRewardViewUI;
+    })(task = ui.task || (ui.task = {}));
+})(ui || (ui = {}));
+(function (ui) {
+    var task;
+    (function (task) {
         class TaskViewUI extends View {
             constructor() { super(); }
             createChildren() {
@@ -8791,7 +8832,7 @@ var ui;
                 this.createView(ui.task.TaskViewUI.uiView);
             }
         }
-        TaskViewUI.uiView = { "type": "View", "props": { "y": 0, "x": 0 }, "child": [{ "type": "View", "props": { "width": 750, "visible": true, "var": "mainView", "name": "mainView", "height": 1334, "centerY": 0, "centerX": 0 }, "child": [{ "type": "View", "props": { "y": 0, "x": 0, "var": "blankView", "top": 0, "right": 0, "name": "blankView", "left": 0, "bottom": 0 } }, { "type": "View", "props": { "y": 124, "x": 0, "width": 750, "name": "coverView", "mouseThrough": false, "mouseEnabled": true, "height": 1050 } }, { "type": "Image", "props": { "y": 103, "x": 19, "width": 713, "skin": "images/component/frame_9calce_01.png", "height": 1013, "sizeGrid": "168,65,62,82" } }, { "type": "Image", "props": { "y": 140, "x": 324, "skin": "images/quest/title.png" } }, { "type": "Image", "props": { "y": 338, "x": 52, "width": 646, "skin": "images/component/frame_9calce_02.png", "height": 745, "sizeGrid": "25,32,32,36" } }, { "type": "View", "props": { "y": 239, "x": 137, "var": "tabGroup" }, "child": [{ "type": "Button", "props": { "y": 10, "x": 0, "strokeColors": "#998a4e,#a86c24", "stateNum": 2, "skin": "images/component/tab_01.png", "selected": true, "labelStroke": 5, "labelSize": 36, "labelPadding": "0,0,13,0", "labelColors": "#fff4e1,#fff4e1", "labelBold": true, "labelAlign": "center", "label": "每日任务" }, "child": [{ "type": "Image", "props": { "y": -10, "x": 180, "visible": false, "skin": "images/core/red_dot_hint.png", "name": "imgRetDotHint" } }] }, { "type": "Button", "props": { "y": 10, "x": 274, "strokeColors": "#998a4e,#a86c24", "stateNum": 2, "skin": "images/component/tab_01.png", "selected": false, "labelStroke": 5, "labelSize": 36, "labelPadding": "0,0,13,0", "labelColors": "#fff4e1,#fff4e1", "labelBold": true, "labelAlign": "center", "label": "成就任务" }, "child": [{ "type": "Image", "props": { "y": -10, "x": 180, "visible": false, "skin": "images/core/red_dot_hint.png", "name": "imgRetDotHint" } }] }] }, { "type": "ViewStack", "props": { "y": 341, "width": 750, "var": "viewStackTask", "selectedIndex": 0, "right": 0, "name": "viewStackTask", "left": 0, "height": 738 }, "child": [{ "type": "Image", "props": { "y": 1, "x": 56, "width": 637, "name": "item0", "height": 736 }, "child": [{ "type": "List", "props": { "y": 0, "x": 0, "width": 638, "var": "taskItemList", "spaceY": 15, "repeatY": 1, "repeatX": 1, "name": "taskItemList", "height": 690 }, "child": [{ "type": "Box", "props": { "y": 0, "x": 2, "visible": false, "right": 2, "renderType": "render", "left": 2, "height": 130, "cacheAs": "bitmap" }, "child": [{ "type": "Image", "props": { "y": 10, "x": 6, "skin": "images/quest/item_bg.png" } }, { "type": "Image", "props": { "y": 82, "x": 45, "skin": "images/quest/reward_bg.png" } }, { "type": "Image", "props": { "y": 81, "x": 33, "skin": "images/core/diamond.png", "name": "imgAwardIcon" } }, { "type": "Label", "props": { "y": 28, "x": 35, "width": 350, "text": "完成车辆合成30次 (0/30)", "name": "txtTitle", "fontSize": 32, "color": "#a17338", "bold": true, "align": "left" } }, { "type": "Label", "props": { "y": 85, "x": 79, "width": 100, "text": "100", "name": "txtDiamond", "fontSize": 30, "color": "#fcf4cd", "align": "left" } }, { "type": "Image", "props": { "y": 52, "x": 433, "skin": "images/component/frame_9scale_11.png", "name": "txtGet" }, "child": [{ "type": "Label", "props": { "y": 9, "x": 22, "width": 120, "text": "已领取", "fontSize": 30, "color": "#fff4e1", "bold": true, "align": "center" } }] }, { "type": "Button", "props": { "y": 44, "x": 424, "stateNum": 1, "skin": "images/quest/btn_obtain.png", "name": "btnGet", "labelStrokeColor": "#946430", "labelStroke": 3, "labelSize": 30, "labelColors": "#fff4e1", "labelBold": true, "label": "领取" } }] }] }, { "type": "Label", "props": { "y": 699, "x": -1, "width": 638, "text": "每天00:00时系统自动重置任务", "strokeColor": "#7a572b", "stroke": 2, "height": 24, "fontSize": 24, "color": "#ffffff", "bold": true, "align": "center" } }] }, { "type": "Image", "props": { "y": 1, "x": 56, "width": 637, "name": "item1", "height": 736 }, "child": [{ "type": "List", "props": { "y": 0, "x": 0, "width": 638, "spaceY": 15, "repeatY": 1, "repeatX": 1, "name": "taskItemList", "height": 690 }, "child": [{ "type": "Box", "props": { "y": 0, "x": 2, "visible": false, "right": 2, "renderType": "render", "left": 2, "cacheAs": "bitmap" }, "child": [{ "type": "Image", "props": { "y": 10, "x": 6, "skin": "images/quest/item_bg_1.png" } }, { "type": "Label", "props": { "y": 28, "x": 35, "width": 350, "text": "完成车辆合成30次", "name": "txtTitle", "fontSize": 32, "color": "#a17338", "bold": true, "align": "left" } }, { "type": "Image", "props": { "y": 79, "x": 433, "skin": "images/component/frame_9scale_11.png", "name": "txtGet" }, "child": [{ "type": "Label", "props": { "y": 9, "x": 22, "width": 120, "text": "已领取", "fontSize": 30, "color": "#fff4e1", "bold": true, "align": "center" } }] }, { "type": "Label", "props": { "y": 28, "x": 425, "width": 185, "text": "(0/30)", "name": "txtNum", "height": 32, "fontSize": 32, "color": "#a17338", "bold": true, "align": "center" } }, { "type": "Box", "props": { "y": 81, "x": 33, "name": "reward0" }, "child": [{ "type": "Image", "props": { "y": 1, "x": 12, "skin": "images/quest/reward_bg.png" } }, { "type": "Image", "props": { "skin": "images/core/diamond.png", "name": "imgAwardIcon" } }, { "type": "Label", "props": { "y": 4, "x": 46, "width": 100, "text": "100", "name": "txtDiamond", "fontSize": 30, "color": "#fcf4cd", "align": "left" } }] }, { "type": "Box", "props": { "y": 81, "x": 177, "name": "reward1" }, "child": [{ "type": "Image", "props": { "y": 1, "x": 12, "skin": "images/quest/reward_bg.png" } }, { "type": "Image", "props": { "skin": "images/core/diamond.png", "name": "imgAwardIcon" } }, { "type": "Label", "props": { "y": 4, "x": 46, "width": 100, "text": "100", "name": "txtDiamond", "fontSize": 30, "color": "#fcf4cd", "align": "left" } }] }, { "type": "Button", "props": { "y": 71, "x": 424, "stateNum": 1, "skin": "images/quest/btn_obtain.png", "name": "btnGet", "labelStrokeColor": "#946430", "labelStroke": 3, "labelSize": 30, "labelColors": "#fff4e1", "labelBold": true, "label": "领取" } }] }] }, { "type": "Label", "props": { "y": 699, "x": -1, "width": 638, "text": "每天00:00时系统自动重置任务", "strokeColor": "#7a572b", "stroke": 2, "height": 24, "fontSize": 24, "color": "#ffffff", "bold": true, "align": "center" } }] }, { "type": "Label", "props": { "y": 317, "x": 193, "width": 350, "text": "暂时没有任务", "strokeColor": "#7a572b", "name": "item2", "fontSize": 46, "color": "#d9d9d9", "bold": true, "align": "center" } }] }, { "type": "Button", "props": { "y": 99, "x": 649, "var": "btnExit", "stateNum": 1, "skin": "images/component/frame_close_btn.png", "name": "btnExit" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }] }] };
+        TaskViewUI.uiView = { "type": "View", "props": { "y": 0, "x": 0 }, "child": [{ "type": "View", "props": { "width": 750, "visible": true, "var": "mainView", "name": "mainView", "height": 1334, "centerY": 0, "centerX": 0 }, "child": [{ "type": "View", "props": { "y": 0, "x": 0, "var": "blankView", "top": 0, "right": 0, "name": "blankView", "left": 0, "bottom": 0 } }, { "type": "View", "props": { "y": 124, "x": 0, "width": 750, "name": "coverView", "mouseThrough": false, "mouseEnabled": true, "height": 1050 } }, { "type": "Image", "props": { "y": 103, "x": 19, "width": 713, "skin": "images/component/frame_9calce_01.png", "height": 1013, "sizeGrid": "168,65,62,82" } }, { "type": "Image", "props": { "y": 140, "x": 324, "skin": "images/quest/title.png" } }, { "type": "Image", "props": { "y": 338, "x": 52, "width": 646, "skin": "images/component/frame_9calce_02.png", "height": 745, "sizeGrid": "25,32,32,36" } }, { "type": "View", "props": { "y": 239, "x": 137, "var": "tabGroup" }, "child": [{ "type": "Button", "props": { "y": 10, "x": 0, "strokeColors": "#998a4e,#a86c24", "stateNum": 2, "skin": "images/component/tab_01.png", "selected": true, "labelStroke": 5, "labelSize": 36, "labelPadding": "0,0,13,0", "labelColors": "#fff4e1,#fff4e1", "labelBold": true, "labelAlign": "center", "label": "每日任务" }, "child": [{ "type": "Image", "props": { "y": -10, "x": 180, "visible": false, "skin": "images/core/red_dot_hint.png", "name": "imgRetDotHint" } }] }, { "type": "Button", "props": { "y": 10, "x": 274, "strokeColors": "#998a4e,#a86c24", "stateNum": 2, "skin": "images/component/tab_01.png", "selected": false, "labelStroke": 5, "labelSize": 36, "labelPadding": "0,0,13,0", "labelColors": "#fff4e1,#fff4e1", "labelBold": true, "labelAlign": "center", "label": "成就任务" }, "child": [{ "type": "Image", "props": { "y": -10, "x": 180, "visible": false, "skin": "images/core/red_dot_hint.png", "name": "imgRetDotHint" } }] }] }, { "type": "ViewStack", "props": { "y": 341, "width": 750, "var": "viewStackTask", "selectedIndex": 0, "right": 0, "name": "viewStackTask", "left": 0, "height": 738 }, "child": [{ "type": "Image", "props": { "y": 1, "x": 56, "width": 637, "name": "item0", "height": 736 }, "child": [{ "type": "List", "props": { "y": 0, "x": 0, "width": 638, "var": "taskItemList", "spaceY": 15, "repeatY": 1, "repeatX": 1, "name": "taskItemList", "height": 690 }, "child": [{ "type": "Box", "props": { "y": 0, "x": 2, "visible": false, "right": 2, "renderType": "render", "left": 2, "height": 130, "cacheAs": "bitmap" }, "child": [{ "type": "Image", "props": { "y": 10, "x": 6, "skin": "images/quest/item_bg.png" } }, { "type": "Image", "props": { "y": 82, "x": 45, "skin": "images/quest/reward_bg.png" } }, { "type": "Image", "props": { "y": 81, "x": 33, "skin": "images/core/diamond.png", "name": "imgAwardIcon" } }, { "type": "Label", "props": { "y": 28, "x": 35, "width": 350, "text": "完成车辆合成30次 (0/30)", "name": "txtTitle", "fontSize": 32, "color": "#a17338", "bold": true, "align": "left" } }, { "type": "Label", "props": { "y": 85, "x": 79, "width": 100, "text": "100", "name": "txtDiamond", "fontSize": 30, "color": "#fcf4cd", "align": "left" } }, { "type": "Image", "props": { "y": 52, "x": 433, "skin": "images/component/frame_9scale_11.png", "name": "txtGet" }, "child": [{ "type": "Label", "props": { "y": 9, "x": 22, "width": 120, "text": "已领取", "fontSize": 30, "color": "#fff4e1", "bold": true, "align": "center" } }] }, { "type": "Button", "props": { "y": 44, "x": 424, "stateNum": 1, "skin": "images/quest/btn_obtain.png", "name": "btnGet", "labelStrokeColor": "#946430", "labelStroke": 3, "labelSize": 30, "labelColors": "#fff4e1", "labelBold": true, "label": "领取" } }] }] }, { "type": "Label", "props": { "y": 699, "x": -1, "width": 638, "text": "每天00:00时系统自动重置任务", "strokeColor": "#7a572b", "stroke": 2, "height": 24, "fontSize": 24, "color": "#ffffff", "bold": true, "align": "center" } }] }, { "type": "Image", "props": { "y": 1, "x": 56, "width": 637, "name": "item1", "height": 736 }, "child": [{ "type": "List", "props": { "y": 0, "x": 0, "width": 638, "var": "achiItemList", "spaceY": 15, "repeatY": 1, "repeatX": 1, "height": 690 }, "child": [{ "type": "Box", "props": { "y": 0, "x": 2, "visible": false, "right": 2, "renderType": "render", "left": 2, "cacheAs": "bitmap" }, "child": [{ "type": "Image", "props": { "y": 10, "x": 6, "skin": "images/quest/item_bg_1.png" } }, { "type": "Label", "props": { "y": 28, "x": 35, "width": 350, "text": "完成车辆合成30次", "name": "txtTitle", "fontSize": 32, "color": "#a17338", "bold": true, "align": "left" } }, { "type": "Image", "props": { "y": 79, "x": 433, "skin": "images/component/frame_9scale_11.png", "name": "txtGet" }, "child": [{ "type": "Label", "props": { "y": 9, "x": 22, "width": 120, "text": "已领取", "fontSize": 30, "color": "#fff4e1", "bold": true, "align": "center" } }] }, { "type": "Label", "props": { "y": 28, "x": 425, "width": 185, "text": "(0/30)", "name": "txtNum", "height": 32, "fontSize": 32, "color": "#a17338", "bold": true, "align": "center" } }, { "type": "Image", "props": { "y": 82, "x": 45, "width": 144, "skin": "images/quest/reward_bg.png", "sizeGrid": "15,24,19,26", "height": 40 } }, { "type": "Image", "props": { "y": 81, "x": 33, "skin": "images/core/diamond.png", "name": "imgAwardIcon" } }, { "type": "Label", "props": { "y": 85, "x": 79, "width": 103, "text": "100", "name": "txtDiamond", "height": 30, "fontSize": 30, "color": "#fcf4cd", "align": "left" } }, { "type": "Button", "props": { "y": 71, "x": 424, "stateNum": 1, "skin": "images/quest/btn_obtain.png", "name": "btnGet", "labelStrokeColor": "#946430", "labelStroke": 3, "labelSize": 30, "labelColors": "#fff4e1", "labelBold": true, "label": "领取" } }] }] }, { "type": "Label", "props": { "y": 699, "x": -1, "width": 638, "text": "每天00:00时系统自动重置任务", "strokeColor": "#7a572b", "stroke": 2, "height": 24, "fontSize": 24, "color": "#ffffff", "bold": true, "align": "center" } }] }, { "type": "Label", "props": { "y": 317, "x": 193, "width": 350, "text": "暂时没有任务", "strokeColor": "#7a572b", "name": "item2", "fontSize": 46, "color": "#d9d9d9", "bold": true, "align": "center" } }] }, { "type": "Button", "props": { "y": 99, "x": 649, "var": "btnExit", "stateNum": 1, "skin": "images/component/frame_close_btn.png", "name": "btnExit" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }] }] };
         task.TaskViewUI = TaskViewUI;
     })(task = ui.task || (ui.task = {}));
 })(ui || (ui = {}));
@@ -9452,7 +9493,6 @@ class DaySignView extends ui.daySign.DaySignViewUI {
     //初始化
     init() {
         var that = this;
-        //按钮事件
         if (DaySignView.signData) {
             that.refreshList(DaySignView.signData);
         }
@@ -9493,7 +9533,8 @@ class DaySignView extends ui.daySign.DaySignViewUI {
             that.requestPrize(day, (_res) => {
                 if (_res) {
                     if (_res.code == 1) {
-                        MessageUtils.showMsgTips("领取成功");
+                        that.removeSelf();
+                        MessageUtils.showMsgTips("今天签到奖励领取成功！");
                         MessageUtils.shopMsgByObj(that.btnGet, " +" + DaySignView.signData.prize['day_' + day]["diamond"], EFFECT_TYPE.DIAMOND);
                         const essenceNum = DaySignView.signData.prize['day_' + day]["essence"];
                         if (essenceNum) {
@@ -9508,10 +9549,10 @@ class DaySignView extends ui.daySign.DaySignViewUI {
                         that.refreshList(DaySignView.signData);
                     }
                     else if (_res.code == 2) {
-                        MessageUtils.showMsgTips("今日奖励已领取");
+                        MessageUtils.showMsgTips("今天签到奖励已领取！");
                     }
                     else {
-                        MessageUtils.showMsgTips("奖励领取失败");
+                        MessageUtils.showMsgTips("今天签到奖励领取失败！");
                     }
                 }
             });
@@ -9617,7 +9658,6 @@ class DaySignView extends ui.daySign.DaySignViewUI {
     }
     //拉取签到信息
     requestSignInfo(_callback) {
-        let that = this;
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/sign/info',
@@ -9632,7 +9672,6 @@ class DaySignView extends ui.daySign.DaySignViewUI {
     }
     //拉取奖励
     requestPrize(_itemId, _callback) {
-        let that = this;
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/sign/commit/' + _itemId,
@@ -10638,13 +10677,6 @@ class HallManager extends Laya.EventDispatcher {
     updateIncomePerSec(value) {
         HallManager.Instance.hallData.userIncomePerSec = value;
     }
-    /** 新手引导 */
-    isGuide() {
-        if (userData && userData.isGuide()) {
-            return true;
-        }
-        return false;
-    }
     /** 显示通关奖励礼包界面 */
     showClearanceRewardView(isDouble = false) {
         if (this._hall) {
@@ -10754,6 +10786,24 @@ class HallManager extends Laya.EventDispatcher {
                 };
                 loopFun();
                 TimerManager.Instance.doTimer(1000, 0, loopFun, this);
+            }
+        });
+    }
+    /** 查询是否可以领取的成就任务 */
+    checkIsGetAchievementReward() {
+        HttpManager.Instance.requestAchievementInfo((data) => {
+            let listData = data;
+            let taskInfo = null;
+            for (let index = 0; index < listData.length; index++) {
+                const element = listData[index];
+                //task_status 0为完成  1可领取 2已领取
+                if (element.task_status == 1) {
+                    taskInfo = element;
+                    break;
+                }
+            }
+            if (taskInfo != null) {
+                ViewMgr.Ins.open(ViewConst.AchiRewardView, null, taskInfo);
             }
         });
     }
@@ -11121,7 +11171,7 @@ class HallScene extends ui.hall.HallSceneUI {
             self._levelReward = Laya.Pool.getItemByClass(userData.ANIMATION_POOL_NAME, Laya.Animation);
             self.btnStagePrize.addChild(self._levelReward);
             // 加载动画图集,加载成功后执行回调方法
-            let aniAtlas = "images/effect/levelReward/levelReward.atlas";
+            let aniAtlas = PathConfig.RES_URL + "images/effect/levelReward/levelReward.atlas";
             self._levelReward.loadAtlas(aniAtlas, Handler.create(self, () => {
                 self._levelReward.interval = 77;
                 self._levelReward.play();
@@ -11504,7 +11554,7 @@ class HallScene extends ui.hall.HallSceneUI {
                 //移除高亮提示
                 that.setCarparkLight();
                 if (that.parkMonsterModelSp && that.curMonsterSprite) {
-                    if (that.btnDelete && ObjectUtils.isHit(that.btnDelete) && HallManager.Instance.isGuide() == false) {
+                    if (that.btnDelete && ObjectUtils.isHit(that.btnDelete) && !M.novice.isRunning) {
                         let obtainMoney = that.curMonsterSprite.getSellPrice();
                         that.curMonsterSprite.clearStage();
                         let imgDest = that.btnDelete;
@@ -11566,7 +11616,7 @@ class HallScene extends ui.hall.HallSceneUI {
                                                     this.handlerHeroLevel(heroItem, heroId, index, currHeroLevel);
                                                 }
                                             }
-                                            else if (!heroItem.isRunning() && HallManager.Instance.isGuide() == false) {
+                                            else if (!heroItem.isRunning() && !M.novice.isRunning) {
                                                 //交换
                                                 let isEmpty = heroItem.isEmpty();
                                                 heroItem.setKind(that.curMonsterSprite.monsterId);
@@ -11597,7 +11647,7 @@ class HallScene extends ui.hall.HallSceneUI {
                     that.parkMonsterModelSp.removeSelf();
                     that.btnDelete.skin = "images/hall/huishou_icon_0.png";
                 }
-                else if (that.curMonsterSprite && HallManager.Instance.isGuide() == false) {
+                else if (that.curMonsterSprite && !M.novice.isRunning) {
                     //取消选中状态
                     if (ObjectUtils.isHit(that.curMonsterSprite)) {
                         if (that.curMonsterSprite.isRunning()) {
@@ -11812,7 +11862,7 @@ class HallScene extends ui.hall.HallSceneUI {
     /** 赠送英雄中 */
     handlerGiveMonster() {
         let self = this;
-        if (HallManager.Instance.isGuide()) { //新手关闭赠送
+        if (M.novice.isRunning) { //新手关闭赠送
             return;
         }
         HallManager.Instance.hallData.giveMonsterAllTime = 3 * 60 * 60;
@@ -12358,6 +12408,8 @@ class HallScene extends ui.hall.HallSceneUI {
                 self.setPassStage(HallManager.Instance.hallData.passStage + 1);
             }
             self.setPassSection(curSection);
+            //查询是否有成就任务完成
+            HallManager.Instance.checkIsGetAchievementReward();
             //创建怪物
             self.createMonster(HallManager.Instance.hallData.passStage, HallManager.Instance.hallData.passSection);
         });
@@ -12682,6 +12734,7 @@ class LuckPrizeBoxView extends BaseView {
             }
             this.callback && this.callback();
             this.ui.txt_des.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.40", this.datas[0].num);
+            HttpManager.Instance.requestPrizeCensus(this.datas[0].id);
         }
     }
     addEvents() {
@@ -12697,10 +12750,12 @@ class LuckPrizeBoxView extends BaseView {
     onGetReward() {
         SDKManager.Instance.showVideoAd((_res) => {
             if (_res && _res.isEnded || _res == undefined) {
+                this.onCloseHandler();
                 ViewMgr.Ins.open(ViewConst.LuckPrizeView);
             }
         }, () => {
             userData.toShareAd(() => {
+                this.onCloseHandler();
                 ViewMgr.Ins.open(ViewConst.LuckPrizeView);
             });
         });
@@ -12746,7 +12801,7 @@ class LuckPrizeItemView extends BaseView {
                     this.showEssence(this.datas[0].name, this.datas[0].num);
                     break;
             }
-            HttpManager.Instance.requestPrizeCensus(this.datas[0].id, 1);
+            HttpManager.Instance.requestPrizeCensus(this.datas[0].id);
         }
     }
     addEvents() {
@@ -12760,18 +12815,20 @@ class LuckPrizeItemView extends BaseView {
     showGold(gold) {
         gold = gold * HallManager.Instance.hallData.magnification;
         this.ui.txtItemName.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.20", this.datas[0].name, MathUtils.bytesToSize(gold));
-        LayerManager.getInstance().screenEffectLayer.addChild(new FlyEffect().play("rollingCoin", LayerManager.mouseX, LayerManager.mouseY));
-        EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: M.player.Info.userMoney += gold });
+        let point = PointUtils.localToGlobal(this.ui.imgItem);
+        LayerMgr.Instance.addToLayer(new FlyEffect().play("rollingCoin", point.x, point.y), LAYER_TYPE.SCREEN_EFFECT_LAYER);
+        EventsManager.Instance.event(EventsType.GLOD_CHANGE, { diamond: M.player.Info.userMoney += gold });
     }
     showDiamond(name, diamond) {
         diamond = diamond * HallManager.Instance.hallData.magnification;
-        LanguageManager.Instance.getLanguageText("hallScene.label.txt.20", name, diamond);
-        LayerManager.getInstance().screenEffectLayer.addChild(new FlyEffect().play("diamond", LayerManager.mouseX, LayerManager.mouseY));
+        this.ui.txtItemName.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.20", name, diamond);
+        let point = PointUtils.localToGlobal(this.ui.imgItem);
+        LayerMgr.Instance.addToLayer(new FlyEffect().play("diamond", point.x, point.y), LAYER_TYPE.SCREEN_EFFECT_LAYER);
         HttpManager.Instance.requestDiamondData(); //刷新钻石数量
     }
     showEssence(name, essence) {
         essence = essence * HallManager.Instance.hallData.magnification;
-        LanguageManager.Instance.getLanguageText("hallScene.label.txt.20", name, essence);
+        this.ui.txtItemName.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.20", name, essence);
         HttpManager.Instance.requestEssenceData();
     }
     getGold() {
@@ -12807,13 +12864,13 @@ class LuckPrizeView extends BaseView {
         this.isFreeDrawing = false; //是否正在免费抽奖
         this.prizeItemTable = [
             { id: 1, name: "2倍奖励", num: 2, imgUrl: "images/luckLottery/luck_item_box.png" },
-            { id: 2, name: "大量钻石x888", num: 888, imgUrl: "images/core/diamond_icon_more.png" },
+            { id: 2, name: "大量钻石", num: 888, imgUrl: "images/core/diamond_icon_more.png" },
             { id: 3, name: "少量金币", num: 1, imgUrl: "images/luckLottery/luck_prize_1.png" },
-            { id: 4, name: "大量精华x20", num: 20, imgUrl: "images/luckLottery/luck_prize_2.png" },
+            { id: 4, name: "大量精华", num: 20, imgUrl: "images/luckLottery/luck_prize_2.png" },
             { id: 5, name: "4倍奖励", num: 4, imgUrl: "images/luckLottery/luck_item_box.png" },
-            { id: 6, name: "少量钻石x188", num: 188, imgUrl: "images/luckLottery/luck_prize_4.png" },
+            { id: 6, name: "少量钻石", num: 188, imgUrl: "images/luckLottery/luck_prize_4.png" },
             { id: 7, name: "大量金币", num: 1, imgUrl: "images/core/coin_stack_01.png" },
-            { id: 8, name: "少量精华x10", num: 10, imgUrl: "images/luckLottery/luck_prize_3.png" }
+            { id: 8, name: "少量精华", num: 10, imgUrl: "images/luckLottery/luck_prize_3.png" }
         ]; //奖励物品列表
         this.setResources(["luckLottery"]);
     }
@@ -12886,6 +12943,7 @@ class LuckPrizeView extends BaseView {
                 if (userData) {
                     userData.removeLuckPrizeRedPoint();
                 }
+                this.refreshDiamondText();
             });
         }
         else if (M.player.Info.userDiamond >= that.costDiamond) {
@@ -14202,6 +14260,89 @@ class StrengthenView extends BaseView {
 }
 //# sourceMappingURL=StrengthenView.js.map
 /*
+* 成就奖励领取界面;
+*/
+class AchiRewardView extends BaseView {
+    constructor() {
+        super(LAYER_TYPE.SUB_FRAME_LAYER, ui.task.AchiRewardViewUI, false);
+        this._rewardName = "金币";
+        this._awardNum = 0;
+        this.myParent.maskEnabled = false;
+    }
+    initUI() {
+        super.initUI();
+        this.x = LayerManager.stageDesignWidth;
+        this.y = LayerManager.stageDesignHeight - 100;
+        Laya.Tween.to(this, { x: LayerManager.stageDesignWidth - this.width }, 500, null, Handler.create(this, () => {
+            Laya.Tween.clearTween(this);
+            TimerManager.Instance.doTimer(5000, 1, () => {
+                ViewMgr.Ins.close(ViewConst.AchiRewardView);
+            }, this);
+        }));
+    }
+    initData() {
+        super.initData();
+        this._awardNum = this.datas[0].reward || 0;
+        switch (this.datas[0].reward_type) {
+            case "money":
+                this._rewardName = "金币";
+                this.ui.imgIcon.skin = "images/core/coin_40x40.png";
+                this._awardNum = this.getGold() * this._awardNum;
+                this.ui.txt_num.text = MathUtils.bytesToSize(this._awardNum);
+                break;
+            default:
+                this._rewardName = "钻石";
+                this.ui.imgIcon.skin = "images/core/diamond.png";
+                this.ui.txt_num.text = this._awardNum + "";
+                break;
+        }
+    }
+    addEvents() {
+        super.addEvents();
+        this.on(Laya.Event.CLICK, this, this.onGetReward);
+    }
+    removeEvents() {
+        super.removeEvents();
+        this.off(Laya.Event.CLICK, this, this.onGetReward);
+    }
+    onGetReward() {
+        this.off(Laya.Event.CLICK, this, this.onGetReward);
+        if (this.datas[0].reward_type != "money") {
+            HttpManager.Instance.requestTaskReward(this.datas[0].id, (res) => {
+                if (res) {
+                    if (res.code == 1) {
+                        ViewMgr.Ins.close(ViewConst.AchiRewardView);
+                        MessageUtils.showMsgTips("成就奖励:" + this._rewardName + "x" + this._awardNum);
+                        let point = PointUtils.localToGlobal(this.ui.imgIcon);
+                        LayerMgr.Instance.addToLayer(new FlyEffect().play("diamond", point.x, point.y), LAYER_TYPE.SCREEN_EFFECT_LAYER);
+                    }
+                    else if (res.code === 2) {
+                        ViewMgr.Ins.close(ViewConst.AchiRewardView);
+                        MessageUtils.showMsgTips("成就奖励领取失败！");
+                    }
+                }
+            });
+        }
+        else {
+            ViewMgr.Ins.close(ViewConst.AchiRewardView);
+            MessageUtils.showMsgTips("成就奖励:" + this._rewardName + "x" + this._awardNum);
+            let point = PointUtils.localToGlobal(this.ui.imgIcon);
+            LayerMgr.Instance.addToLayer(new FlyEffect().play("rollingCoin", point.x, point.y), LAYER_TYPE.SCREEN_EFFECT_LAYER);
+            EventsManager.Instance.event(EventsType.GLOD_CHANGE, { diamond: M.player.Info.userMoney += this._awardNum });
+        }
+    }
+    getGold() {
+        let monsterType = userData.isEvolution() ? 2 : 1;
+        let monsterInfo = BattleManager.Instance.getUnLockMonster(monsterType, userData.getCarLevel());
+        if (monsterInfo) {
+            let curPrice = BattleManager.Instance.getMonsterPrice(monsterInfo.buyPrice, userData.queryBuyRecord(monsterInfo.id));
+            return curPrice;
+        }
+        return 0;
+    }
+}
+//# sourceMappingURL=AchiRewardView.js.map
+/*
 * TER0807-任务界面;
 */
 class TaskView extends BaseView {
@@ -14236,14 +14377,16 @@ class TaskView extends BaseView {
             this.requestTaskInfo();
         }
         else { //成就任务
+            HttpManager.Instance.requestAchievementInfo((res) => {
+                this.refreshAchievementList(res);
+            });
         }
     }
     updateTabRetDot(subViewType, isShow) {
         const redDot = this._tabGroup.getButtonByIndex(subViewType).getChildByName("imgRetDotHint");
         redDot && (redDot.visible = isShow);
     }
-    //初始化list
-    //任务
+    /** 每日任务 */
     refreshTaskList(_data) {
         if (_data == null)
             return;
@@ -14314,7 +14457,7 @@ class TaskView extends BaseView {
                         btnGet.offAll(Laya.Event.CLICK);
                         btnGet.on(Laya.Event.CLICK, btnGet, (_item, _btnObj) => {
                             // console.log("领取奖励")
-                            that.requestTaskPrize(_item.id, (_res) => {
+                            HttpManager.Instance.requestTaskReward(_item.id, (_res) => {
                                 if (_res) {
                                     if (_res.code === 1) {
                                         MessageUtils.showMsgTips("奖励领取成功");
@@ -14359,6 +14502,7 @@ class TaskView extends BaseView {
         let self = this;
         let listData = data;
         let redPointNum = 0;
+        //task_status 0为完成  1可领取 2已领取
         listData.sort((pre, next) => {
             if (pre.task_status !== next.task_status) {
                 return next.task_status - pre.task_status;
@@ -14373,10 +14517,10 @@ class TaskView extends BaseView {
             this.ui.viewStackTask.selectedIndex = QuestSubView.EMPTY_QUEST;
             return;
         }
-        self.ui.taskItemList.vScrollBarSkin = '';
-        self.ui.taskItemList.repeatY = 5;
-        self.ui.taskItemList.array = listData;
-        self.ui.taskItemList.renderHandler = new Laya.Handler(self, (cell, index) => {
+        self.ui.achiItemList.vScrollBarSkin = '';
+        self.ui.achiItemList.repeatY = 5;
+        self.ui.achiItemList.array = listData;
+        self.ui.achiItemList.renderHandler = new Laya.Handler(self, (cell, index) => {
             if (index > listData.length)
                 return;
             let item = listData[index];
@@ -14400,17 +14544,21 @@ class TaskView extends BaseView {
             }
             const imgAwardIcon = cell.getChildByName('imgAwardIcon');
             if (imgAwardIcon) {
+                const txtDiamond = cell.getChildByName('txtDiamond');
                 switch (item.reward_type) {
-                    case "essence":
-                        imgAwardIcon.skin = "images/core/essence.png";
+                    case "money":
+                        imgAwardIcon.skin = "images/core/coin_40x40.png";
+                        awardNum = this.getGold() * awardNum;
+                        if (txtDiamond) {
+                            txtDiamond.changeText('' + MathUtils.bytesToSize(awardNum));
+                        }
                         break;
                     default:
                         imgAwardIcon.skin = "images/core/diamond.png";
+                        if (txtDiamond) {
+                            txtDiamond.changeText('' + awardNum);
+                        }
                         break;
-                }
-                const txtDiamond = cell.getChildByName('txtDiamond');
-                if (txtDiamond) {
-                    txtDiamond.changeText('' + awardNum);
                 }
             }
             //领取
@@ -14427,7 +14575,7 @@ class TaskView extends BaseView {
                         btnGet.offAll(Laya.Event.CLICK);
                         btnGet.on(Laya.Event.CLICK, btnGet, (_item, _btnObj) => {
                             // console.log("领取奖励")
-                            self.requestTaskPrize(_item.id, (_res) => {
+                            HttpManager.Instance.requestTaskReward(_item.id, (_res) => {
                                 if (_res) {
                                     if (_res.code === 1) {
                                         MessageUtils.showMsgTips("奖励领取成功");
@@ -14447,7 +14595,9 @@ class TaskView extends BaseView {
                                         Laya.Tween.to(cell, { x: -cell.displayWidth }, 250, Laya.Ease.quadOut, Handler.create(self, () => {
                                             listData.splice(index, 1);
                                             Laya.timer.once(100, self, () => {
-                                                self.requestTaskInfo();
+                                                HttpManager.Instance.requestAchievementInfo((res) => {
+                                                    this.refreshAchievementList(res);
+                                                });
                                             });
                                         }));
                                     }
@@ -14480,19 +14630,14 @@ class TaskView extends BaseView {
             }
         });
     }
-    //拉取奖励
-    requestTaskPrize(_itemId, _callback) {
-        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
-        HttpReqHelper.request({
-            url: 'v1/task/rewards/' + _itemId,
-            success: function (res) {
-                console.log("requestTaskPrize", res);
-                _callback && _callback(res);
-            },
-            fail: function (res) {
-                console.log(res);
-            }
-        });
+    getGold() {
+        let monsterType = userData.isEvolution() ? 2 : 1;
+        let monsterInfo = BattleManager.Instance.getUnLockMonster(monsterType, userData.getCarLevel());
+        if (monsterInfo) {
+            let curPrice = BattleManager.Instance.getMonsterPrice(monsterInfo.buyPrice, userData.queryBuyRecord(monsterInfo.id));
+            return curPrice;
+        }
+        return 0;
     }
     onClickExit() {
         ViewMgr.Ins.close(ViewConst.TaskView);
@@ -15073,7 +15218,7 @@ class Main {
         };
         Laya.init(750, 1334, Laya.WebGL);
         Laya.stage.scaleMode = Laya.Stage.SCALE_NOSCALE;
-        // Laya.URL.basePath = PathConfig.RES_URL;
+        Laya.URL.basePath = PathConfig.RES_URL;
         M.layer.initLayer(Laya.stage, 750, 1334);
         userData = new UserData();
         LayerMgr.Instance.initLayer(Laya.stage, 750, 1334);
@@ -15121,7 +15266,7 @@ class Main {
         });
     }
     beginLoad() {
-        const domain = ""; //PathConfig.RES_URL;
+        const domain = PathConfig.RES_URL;
         Laya.loader.load([
             "loading/start_bg.jpg",
             "loading/loading_bg.jpg",

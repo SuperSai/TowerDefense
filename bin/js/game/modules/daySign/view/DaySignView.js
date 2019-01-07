@@ -29,7 +29,6 @@ class DaySignView extends ui.daySign.DaySignViewUI {
     //初始化
     init() {
         var that = this;
-        //按钮事件
         if (DaySignView.signData) {
             that.refreshList(DaySignView.signData);
         }
@@ -70,7 +69,8 @@ class DaySignView extends ui.daySign.DaySignViewUI {
             that.requestPrize(day, (_res) => {
                 if (_res) {
                     if (_res.code == 1) {
-                        MessageUtils.showMsgTips("领取成功");
+                        that.removeSelf();
+                        MessageUtils.showMsgTips("今天签到奖励领取成功！");
                         MessageUtils.shopMsgByObj(that.btnGet, " +" + DaySignView.signData.prize['day_' + day]["diamond"], EFFECT_TYPE.DIAMOND);
                         const essenceNum = DaySignView.signData.prize['day_' + day]["essence"];
                         if (essenceNum) {
@@ -85,10 +85,10 @@ class DaySignView extends ui.daySign.DaySignViewUI {
                         that.refreshList(DaySignView.signData);
                     }
                     else if (_res.code == 2) {
-                        MessageUtils.showMsgTips("今日奖励已领取");
+                        MessageUtils.showMsgTips("今天签到奖励已领取！");
                     }
                     else {
-                        MessageUtils.showMsgTips("奖励领取失败");
+                        MessageUtils.showMsgTips("今天签到奖励领取失败！");
                     }
                 }
             });
@@ -194,7 +194,6 @@ class DaySignView extends ui.daySign.DaySignViewUI {
     }
     //拉取签到信息
     requestSignInfo(_callback) {
-        let that = this;
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/sign/info',
@@ -209,7 +208,6 @@ class DaySignView extends ui.daySign.DaySignViewUI {
     }
     //拉取奖励
     requestPrize(_itemId, _callback) {
-        let that = this;
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/sign/commit/' + _itemId,

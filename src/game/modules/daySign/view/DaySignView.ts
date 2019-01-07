@@ -41,13 +41,9 @@ class DaySignView extends ui.daySign.DaySignViewUI {
     //初始化
     private init(): void {
         var that = this;
-        //按钮事件
-
-
         if (DaySignView.signData) {
             that.refreshList(DaySignView.signData);
         }
-
         if (Laya.Browser.onMiniGame) {
             that.btnExit.on(Laya.Event.CLICK, that, that.removeSelf);
             that.btnGet.on(Laya.Event.CLICK, that, that.onClickGet);
@@ -84,7 +80,8 @@ class DaySignView extends ui.daySign.DaySignViewUI {
             that.requestPrize(day, (_res) => {
                 if (_res) {
                     if (_res.code == 1) {
-                        MessageUtils.showMsgTips("领取成功");
+                        that.removeSelf();
+                        MessageUtils.showMsgTips("今天签到奖励领取成功！");
                         MessageUtils.shopMsgByObj(that.btnGet, " +" + DaySignView.signData.prize['day_' + day]["diamond"], EFFECT_TYPE.DIAMOND);
                         const essenceNum: number = DaySignView.signData.prize['day_' + day]["essence"];
                         if (essenceNum) {
@@ -98,10 +95,10 @@ class DaySignView extends ui.daySign.DaySignViewUI {
                         userData.removeDailySignRedPoint();
                         that.refreshList(DaySignView.signData);
                     } else if (_res.code == 2) {
-                        MessageUtils.showMsgTips("今日奖励已领取");
+                        MessageUtils.showMsgTips("今天签到奖励已领取！");
 
                     } else {
-                        MessageUtils.showMsgTips("奖励领取失败");
+                        MessageUtils.showMsgTips("今天签到奖励领取失败！");
                     }
                 }
             });
@@ -213,7 +210,6 @@ class DaySignView extends ui.daySign.DaySignViewUI {
 
     //拉取签到信息
     public requestSignInfo(_callback: any): void {
-        let that = this;
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/sign/info',
@@ -228,7 +224,6 @@ class DaySignView extends ui.daySign.DaySignViewUI {
     }
     //拉取奖励
     public requestPrize(_itemId: number, _callback: any): void {
-        let that = this;
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/sign/commit/' + _itemId,
