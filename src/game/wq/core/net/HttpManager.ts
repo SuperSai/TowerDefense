@@ -7,13 +7,13 @@ class HttpManager {
     }
 
     /** 向服务器记录前端日志 */
-    public requestSaveLog(error): void{
+    public requestSaveLog(error): void {
         const HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/tool/log',
-            method:"POST",
-            data:{
-                info:error.stack
+            method: "POST",
+            data: {
+                info: error.stack
             }
         });
     }
@@ -761,6 +761,7 @@ class HttpManager {
 
     /** 分享礼包 */
     public requestShareGift(param: any): void {
+        console.log("@DAVID 点击卡片进入游戏给服务器发送数据:", param);
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: "v1/share/friend",

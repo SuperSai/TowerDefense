@@ -71,864 +71,239 @@ class Token {
     }
 }
 //# sourceMappingURL=Token.js.map
-class NoviceGuide {
-    static getSheetByIndex(index) { return NoviceGuide.dataArr[index]; }
-    static getSheetById(id) { return NoviceGuide.dataObj[id]; }
-    static getSheetByFieldValue(fieldName, value) { const result = []; for (const sheet of NoviceGuide.dataArr) {
-        if (typeof value === 'string') {
-            if (sheet[this._keys[fieldName]].trim() === value) {
-                result.push(sheet);
-            }
-        }
-        else {
-            if (sheet[this._keys[fieldName]] === value) {
-                result.push(sheet);
-            }
-        }
-    } if (result.length === 1) {
-        return result.pop();
-    }
-    else {
-        return result;
-    } }
-    static initData(data) { const sheetLen = data.length; for (let i = 0; i < sheetLen; i++) {
-        NoviceGuide.dataArr[i] = new NoviceGuide();
-        for (const key of Object.keys(this._keys)) {
-            NoviceGuide.dataArr[i][key] = data[i][this._keys[key]];
-        }
-        NoviceGuide.dataObj[data[i][this._keys.id]] = NoviceGuide.dataArr[i];
-    } }
-    get id() { return this.b; }
-    set id(value) { this.b = value; }
-    get groupId() { return this.c; }
-    set groupId(value) { this.c = value; }
-    get stepId() { return this.d; }
-    set stepId(value) { this.d = value; }
-    get completed() { return this.e; }
-    set completed(value) { this.e = value; }
-    get type() { return this.f; }
-    set type(value) { this.f = value; }
-    get activateType() { return this.g; }
-    set activateType(value) { this.g = value; }
-    get activateValue() { return this.h; }
-    set activateValue(value) { this.h = value; }
-    get eventName() { return this.i; }
-    set eventName(value) { this.i = value; }
-    get eventParam() { return this.j; }
-    set eventParam(value) { this.j = value; }
-    get position() { return this.k; }
-    set position(value) { this.k = value; }
-    get interactPosition() { return this.l; }
-    set interactPosition(value) { this.l = value; }
-    get fingerPosition() { return this.m; }
-    set fingerPosition(value) { this.m = value; }
-    get specialInteractArea() { return this.n; }
-    set specialInteractArea(value) { this.n = value; }
-    get script() { return this.o; }
-    set script(value) { this.o = value; }
-} // prettier-ignore
-NoviceGuide.dataArr = [];
-NoviceGuide.dataObj = {};
-NoviceGuide._keys = { id: "b", groupId: "c", stepId: "d", completed: "e", type: "f", activateType: "g", activateValue: "h", eventName: "i", eventParam: "j", position: "k", interactPosition: "l", fingerPosition: "m", specialInteractArea: "n", script: "o" };
-class Sheet {
-    static initSheets(data) { const classInstance = { NoviceGuide }; for (const sheet of data) {
-        const sheetClass = classInstance[sheet.sheetName];
-        if (!sheetClass) {
-            console.error('找不到表{', sheet.sheetName + '}');
-            continue;
-        }
-        sheetClass.initData(sheet.data);
-    } }
-} // prettier-ignore
-//# sourceMappingURL=Sheet.js.map
-/*
-* 强化;
-*/
-class StrengthenManager {
+class ViewMgr {
+    /** 构造函数 */
     constructor() {
-        this.skillArr = [10, 1, 3, 2];
+        this._views = {};
+        this._opens = [];
     }
-    /** 检查是否需要出现强化红点 */
-    checkRedPoint() {
-        let self = this;
-        let value = false;
-        for (let i = 0, len = self.skillArr.length; i < len; i++) {
-            let skillId = self.skillArr[i];
-            let strengthenLevel = userData.querySkillAddition(skillId);
-            let price = SkillManager.Instance.getSkillStrengthenCost(skillId, strengthenLevel + 1);
-            if (M.player.Info.userEssence >= price) {
-                value = true;
-                break;
-            }
+    /**
+   * 面板注册
+   * @param key 面板唯一标识
+   * @param view 面板
+   */
+    register(key, view) {
+        if (view == null) {
+            return;
         }
-        if (value) {
-            EventsManager.Instance.event(EventsType.STRENGTHEN_RED_POINT, "show");
+        if (this._views[key]) {
+            return;
+        }
+        this._views[key] = view;
+    }
+    /**
+     * 面板解除注册
+     * @param key
+     */
+    unregister(key) {
+        if (!this._views[key]) {
+            return;
+        }
+        this._views[key] = null;
+        delete this._views[key];
+    }
+    /**
+     * 开启面板
+     * @param key 面板唯一标识
+     * @param param 参数
+     */
+    open(key, callback = null, ...param) {
+        var view = this.getView(key);
+        if (view == null) {
+            MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.36"));
+            return;
+        }
+        if (view.isShow()) {
+            view.callback = callback;
+            view.initUI();
+            view.open.apply(view, param);
+            view.initData();
+            return view;
+        }
+        if (view.isInit()) {
+            view.addToParent();
+            view.callback = callback;
+            view.initUI();
+            view.addEvents();
+            view.open.apply(view, param);
+            view.initData();
         }
         else {
-            userData.removeStrengthenRedPoint();
+            view.loadResource(function () {
+                view.setVisible(false);
+                view.initUIView();
+                view.addToParent();
+            }.bind(this), function () {
+                view.callback = callback;
+                view.initUI();
+                view.addEvents();
+                view.open.apply(view, param);
+                view.initData();
+                view.setVisible(true);
+            }.bind(this));
         }
+        this._opens.push(key);
+        return view;
+    }
+    /**
+     * 根据唯一标识获取一个UI对象
+     * @param key
+     * @returns {any}
+     */
+    getView(key) {
+        return this._views[key];
+    }
+    /**
+     * 关闭面板
+     * @param key 面板唯一标识
+     * @param param 参数
+     *
+     */
+    close(key, ...param) {
+        if (!this.isShow(key)) {
+            return;
+        }
+        var view = this.getView(key);
+        if (view == null) {
+            return;
+        }
+        var viewIndex = this._opens.indexOf(key);
+        if (viewIndex >= 0) {
+            this._opens.splice(viewIndex, 1);
+        }
+        view.removeFromParent();
+        view.close.apply(view, param);
+    }
+    /**
+     * 检测一个UI是否开启中
+     * @param key
+     * @returns {boolean}
+     */
+    isShow(key) {
+        return this._opens.indexOf(key) != -1;
+    }
+    /** 当前ui打开数量 */
+    currOpenNum() {
+        return this._opens.length;
+    }
+    /** 清空处理 */
+    clear() {
+        this.closeAll();
+        this._views = {};
+    }
+    /** 关闭所有开启中的UI */
+    closeAll() {
+        while (this._opens.length) {
+            this.close(this._opens[0]);
+        }
+    }
+    /**
+     * 销毁一个面板
+     * @param key 唯一标识
+     * @param newView 新面板
+     */
+    destroy(key, newView = null) {
+        var oldView = this.getView(key);
+        if (oldView) {
+            this.unregister(key);
+            oldView.destroy();
+            oldView = null;
+        }
+        this.register(key, newView);
+    }
+    static get Ins() {
+        if (ViewMgr._instance == null) {
+            ViewMgr._instance = new ViewMgr();
+        }
+        return ViewMgr._instance;
+    }
+}
+//# sourceMappingURL=ViewMgr.js.map
+class ViewRegisterMgr {
+    /** 初始化注册界面 */
+    initRegisterView() {
+        ViewMgr.Ins.register(ViewConst.FollowRewardView, new FollowRewardView());
+        ViewMgr.Ins.register(ViewConst.StrengthenView, new StrengthenView());
+        ViewMgr.Ins.register(ViewConst.RewardGoldView, new RewardGoldView());
+        ViewMgr.Ins.register(ViewConst.FriendConcurView, new FriendConcurView());
+        ViewMgr.Ins.register(ViewConst.ShopView, new ShopView());
+        ViewMgr.Ins.register(ViewConst.DiamondBuyView, new DiamondBuyView());
+        ViewMgr.Ins.register(ViewConst.SkillExplainView, new SkillExplainView());
+        ViewMgr.Ins.register(ViewConst.AdditionalRewardView, new AdditionalRewardView());
+        ViewMgr.Ins.register(ViewConst.FreeGetPetView, new FreeGetPetView());
+        ViewMgr.Ins.register(ViewConst.EvolutionView, new EvolutionView());
+        ViewMgr.Ins.register(ViewConst.WelfareView, new WelfareView());
+        ViewMgr.Ins.register(ViewConst.NoticeView, new NoticeView());
+        ViewMgr.Ins.register(ViewConst.RewardGetView, new RewardGetView());
+        ViewMgr.Ins.register(ViewConst.ClearanceRewardView, new ClearanceRewardView());
+        ViewMgr.Ins.register(ViewConst.SkyDropView, new SkyDropView());
+        ViewMgr.Ins.register(ViewConst.LuckPrizeView, new LuckPrizeView());
+        ViewMgr.Ins.register(ViewConst.LuckPrizeItemView, new LuckPrizeItemView());
+        ViewMgr.Ins.register(ViewConst.LuckPrizeBoxView, new LuckPrizeBoxView());
+        ViewMgr.Ins.register(ViewConst.TaskView, new TaskView());
+        ViewMgr.Ins.register(ViewConst.OfflineRewardsView, new OfflineRewardsView());
+        ViewMgr.Ins.register(ViewConst.InvitationView, new InvitationView());
+        ViewMgr.Ins.register(ViewConst.AchiRewardView, new AchiRewardView());
+        ViewMgr.Ins.register(ViewConst.AccelerateTipsView, new AccelerateTipsView());
     }
     static get Instance() {
-        if (StrengthenManager._instance == null) {
-            StrengthenManager._instance = new StrengthenManager();
+        if (!ViewRegisterMgr._instance) {
+            ViewRegisterMgr._instance = new ViewRegisterMgr();
         }
-        return StrengthenManager._instance;
+        return ViewRegisterMgr._instance;
     }
 }
-//# sourceMappingURL=StrengthenManager.js.map
-class MoreViewListItemVO {
-    constructor() {
-        this.avatarUrl = "";
-        this.nickName = "";
-        this.itemNum = 0;
-        this.completeStatus = 0;
-    }
-}
-//# sourceMappingURL=MoreViewListItemVO.js.map
-var MoreQuestCompleteStatus;
-(function (MoreQuestCompleteStatus) {
-    MoreQuestCompleteStatus[MoreQuestCompleteStatus["NOT_YET_PLAY"] = 0] = "NOT_YET_PLAY";
-    MoreQuestCompleteStatus[MoreQuestCompleteStatus["PLAYING"] = 1] = "PLAYING";
-    MoreQuestCompleteStatus[MoreQuestCompleteStatus["COMPLETE_PLAY"] = 2] = "COMPLETE_PLAY";
-    MoreQuestCompleteStatus[MoreQuestCompleteStatus["AWARD_OBTAINED"] = 3] = "AWARD_OBTAINED";
-})(MoreQuestCompleteStatus || (MoreQuestCompleteStatus = {}));
-//# sourceMappingURL=MoreQuestCompleteStatus.js.map
-class MoreEvent {
-}
-// static SUBSCRIBE_STATUS:string = "SUBSCRIBE_STATUS";
-MoreEvent.QUEST_MARKET_QUEST_LIST = "QUEST_MARKET_QUEST_LIST";
-//# sourceMappingURL=MoreEvent.js.map
-/*
-* name;
-*/
-class HallModel {
-    constructor() {
-        /** 游戏关卡 */
-        this.passStage = 1;
-        /** 游戏章节 */
-        this.passSection = 1;
-        /** 最大游戏章节 */
-        this.maxSection = 10;
-        /** 游戏状态 */
-        this.gameStatus = 0;
-        /** 森林之王等级 */
-        this.userKingLevel = 1;
-        /** 当前购买类型 */
-        this.buyMonsterType = 0;
-        /** 最大的怪物数量 */
-        this.parkMonsterCount = 20;
-        /** 启动加速x2 */
-        this.userAcceValue = 1;
-        /** 加速时间 */
-        this.userAcceTime = 0;
-        /** 跑道怪物数量 */
-        this.userRunMonsterCount = 0;
-        /** 跑道怪物数量最大值 */
-        this.userRunMonsterCountMax = 0;
-        /** 每秒收益 */
-        this.userIncomePerSec = 0;
-        /** 额外收益-怪物道满+10% */
-        this.userExtraIncome = 1;
-        /** 视频广告观看次数上限 */
-        this.videoAdMaxTimes = 0;
-        /** 定时赠送精灵 */
-        this.giveMonsterAllTime = 0;
-        /** 赠送怪物的掉落时间 */
-        this.dropTime = 10;
-        /** 当前最新怪物ID-快捷购怪物按钮 */
-        this.curNewMonsterId = 0;
-        /** 本地保存兵营怪物 */
-        this.monsterStoreKey = "car_store_key";
-        /** 怪物列表 */
-        this.monsterArray = [];
-        /** 未领取的关卡奖励 */
-        this.stagePrizeList = [];
-        /** 守卫是否可以升级 */
-        this.isUpdate = false;
-        /** 在线钻石领取时间 */
-        this.offlineTotalTime = 5 * 60 * 1000;
-        /** 轮盘可以免费的剩余时间 */
-        this.freeTime = 0;
-        /** 离下次免费时间 */
-        this.nextFreeTime = 0;
-        /** 转盘倍率 */
-        this.magnification = 1;
-        this.concurGoldDic = new TSDictionary();
-    }
-}
-//# sourceMappingURL=HallModel.js.map
-/*
-* TER0803-新手;
-*/
-class GuideView {
-    constructor(_offsetPos = null) {
-        // private cMask:Laya.Sprite;
-        this.stage = 0; //新手步骤
-        this.guideText = [
-            "点击招募武将～",
-            "移动武将上阵自动战斗",
-            "再点击招募武将～",
-            "同等级的武将可以合成高一级武将",
-            "点击进入商城",
-            "使用元宝直接招募更高级的武将"
-        ]; //指引文字
-        if (_offsetPos) {
-            this.offsetPos = _offsetPos;
-        }
-        else {
-            this.offsetPos = new Laya.Point(0, 0);
-        }
-    }
-    setStage(_stage) {
-        // console.log("stage",_stage)
-        let that = this;
-        if (_stage == 1) {
-            //购买车
-            let rect = new Laya.Rectangle(260, 1240, 220, 110);
-            rect.x += that.offsetPos.x;
-            rect.y += that.offsetPos.y;
-            that.showMask(rect);
-            that.showGuideText(0, rect.x + 10, rect.y - 300);
-        }
-        else if (_stage == 2) {
-            //放车到跑道
-            let rect = new Laya.Rectangle(5, 810, 150, 150);
-            rect.x += that.offsetPos.x;
-            rect.y += that.offsetPos.y;
-            that.showMask(rect);
-            that.showGuideText(1, rect.x + 10, rect.y - 390);
-        }
-        else if (_stage == 3) {
-            //再次购买车
-            let rect = new Laya.Rectangle(260, 1240, 220, 110);
-            rect.x += that.offsetPos.x;
-            rect.y += that.offsetPos.y;
-            that.showMask(rect);
-            that.showGuideText(2, rect.x + 10, rect.y - 300);
-        }
-        else if (_stage == 4) {
-            //合并车
-            let rect = new Laya.Rectangle(5, 810, 290, 150);
-            rect.x += that.offsetPos.x;
-            rect.y += that.offsetPos.y;
-            that.showMask(rect);
-            that.showGuideText(3, rect.x, rect.y - 300);
-        }
-        else if (_stage == 5) {
-            //车店
-            let rect = new Laya.Rectangle(480, 1240, 265, 110);
-            rect.x += that.offsetPos.x;
-            rect.y += that.offsetPos.y;
-            that.showMask(rect);
-            that.showGuideText(4, rect.x - 40, rect.y - 310);
-        }
-        else if (_stage == 6) {
-            //元宝购车
-            let rect = new Laya.Rectangle(295, 606, 98, 80);
-            rect.x += that.offsetPos.x;
-            rect.y += that.offsetPos.y;
-            that.showMask(rect);
-            that.showGuideText(5, rect.x - 50, rect.y - 300);
-        }
-        else {
-            that.hideMask();
-        }
-        that.stage = _stage;
-    }
-    nextStage() {
-        let that = this;
-        that.setStage(that.stage + 1);
-    }
-    getStage() {
-        return this.stage;
-    }
-    //显示遮罩
-    showMask(_maskRect) {
-        let that = this;
-        if (that.mainNode == null) {
-            that.mainNode = new Laya.View();
-            Laya.stage.addChild(that.mainNode);
-            that.mainNode.zOrder = 1001;
-        }
-        else {
-            that.mainNode.removeChildren();
-        }
-        that.bgImg = new Laya.Sprite();
-        // //获取图片资源，绘制到画布
-        // that.bgImg.graphics.drawTexture(Laya.loader.getRes("images/guide_mask.png"),_maskRect.x-2, _maskRect.y-2,  _maskRect.width+4, _maskRect.height+4);
-        // //周边黑色
-        // that.bgImg.graphics.drawRect(0, 0, Laya.stage.width, _maskRect.y, "#000");
-        // that.bgImg.graphics.drawRect(0, _maskRect.y+_maskRect.height, Laya.stage.width, Laya.stage.height, "#000");
-        // that.bgImg.graphics.drawRect(0, _maskRect.y, _maskRect.x, _maskRect.height, "#000");
-        // that.bgImg.graphics.drawRect(_maskRect.x+_maskRect.width, _maskRect.y, Laya.stage.width, _maskRect.height, "#000");
-        // // //合并绘制结果
-        // if (Laya.Browser.onIOS || Laya.Browser.onPC) {
-        //     let canvas = that.bgImg.drawToCanvas(Laya.stage.width, Laya.stage.height,0,0);
-        //     let rankTexture = new Laya.Texture(canvas);
-        //     that.bgImg.graphics.clear();
-        //     that.bgImg.graphics.drawTexture(rankTexture, 0, 0, Laya.stage.width, Laya.stage.height);
-        // }
-        //添加到舞台
-        that.mainNode.addChild(that.bgImg);
-        that.bgImg.alpha = 0.5;
-        that.bgImg.on(Laya.Event.CLICK, that, () => {
-            console.log("GuideView click");
-            // that.nextStage();
-        });
-        //点击屏蔽
-        let maskRect2 = [
-            { x: 0, y: 0, width: Laya.stage.width, height: _maskRect.y },
-            { x: 0, y: _maskRect.y + _maskRect.height, width: Laya.stage.width, height: Laya.stage.height },
-            { x: 0, y: _maskRect.y, width: _maskRect.x, height: _maskRect.height },
-            { x: _maskRect.x + _maskRect.width, y: _maskRect.y, width: Laya.stage.width, height: _maskRect.height },
-        ];
-        for (var index = 0; index < maskRect2.length; index++) {
-            var element = maskRect2[index];
-            if (element) {
-                let maskView = new Laya.View();
-                maskView.pos(element.x, element.y);
-                maskView.size(element.width, element.height);
-                that.bgImg.addChild(maskView);
-                maskView.on(Laya.Event.CLICK, that, () => {
-                    console.log("maskview prevent");
-                });
-                maskView.name = 'maskview_' + index;
-            }
-        }
-        // //创建遮罩对象
-        // this.cMask = new Laya.Sprite();
-        // //画一个圆形的遮罩区域
-        // this.cMask.graphics.drawCircle(80,80,50,"#fff");
-        // //圆形所在的位置坐标
-        // this.cMask.pos(120,50);
-        // this.cMask.alpha = 0.5;
-        // //实现img显示对象的遮罩效果
-        // this.img.mask = this.cMask;
-    }
-    hideMask() {
-        let that = this;
-        if (that.mainNode) {
-            that.mainNode.removeSelf();
-            that.mainNode = null;
-        }
-    }
-    //显示指引文本
-    showGuideText(_guideId, _px, _py) {
-        let that = this;
-        if (that.mainNode) {
-            let content = that.guideText[_guideId];
-            let txtBox = new Laya.Sprite();
-            that.mainNode.addChild(txtBox);
-            txtBox.pos(_px, _py);
-            let txtImg = new Laya.Image("images/guide_bhj.png");
-            txtBox.addChild(txtImg);
-            txtImg.anchorX = 0.2;
-            txtImg.anchorY = 1.0;
-            txtImg.pos(txtImg.width * txtImg.anchorX, txtImg.height * txtImg.anchorY);
-            let timeLine = new Laya.TimeLine();
-            timeLine.addLabel("tl1", 0).to(txtImg, { scaleX: 0.98, scaleY: 0.98 }, 800, Laya.Ease.sineInOut)
-                .addLabel("tl2", 0).to(txtImg, { scaleX: 1.0, scaleY: 1.0 }, 800);
-            timeLine.play(0, true);
-            let txtLabel = new Laya.Label(content);
-            txtImg.addChild(txtLabel);
-            txtLabel.fontSize = 30;
-            txtLabel.color = "#FFFFFF";
-            txtLabel.width = 360;
-            txtLabel.height = 120;
-            // txtLabel.bgColor = "#000"
-            txtLabel.wordWrap = true;
-            txtLabel.valign = "middle";
-            txtLabel.pos(txtImg.width * 0.12, txtImg.height * 0.25);
-            //文本框缩小
-            if (_guideId == 4) {
-                timeLine.pause();
-                txtImg.scaleX = 0.7;
-                txtImg.scaleY = txtImg.scaleX;
-                txtLabel.fontSize /= txtImg.scaleX;
-            }
-            if (_guideId == 0 || _guideId == 2) {
-                let pointSp = new Laya.Image("images/shouzhi.png");
-                txtBox.addChild(pointSp);
-                pointSp.pos(txtImg.width * 0.35, txtImg.height + 20);
-                let timeLine = new Laya.TimeLine();
-                timeLine.addLabel("tl1", 0).to(pointSp, { x: pointSp.x + 30, y: pointSp.y + 30 }, 800)
-                    .addLabel("tl2", 0).to(pointSp, { x: pointSp.x, y: pointSp.y }, 800, Laya.Ease.backInOut);
-                timeLine.play(0, true);
-            }
-            else if (_guideId == 1) {
-                let pointSp = new Laya.Image("images/shouzhi.png");
-                txtBox.addChild(pointSp);
-                pointSp.pos(65, txtImg.height + 150);
-                let timeLine = new Laya.TimeLine();
-                timeLine.addLabel("tl1", 0).to(pointSp, { x: pointSp.x + 120, y: pointSp.y - 220 }, 1000)
-                    .addLabel("tl2", 0).to(pointSp, { x: pointSp.x, y: pointSp.y }, 200);
-                timeLine.play(0, true);
-            }
-            else if (_guideId == 3) {
-                // let arrSp = new Laya.Image("images/bhj3.png");
-                // txtImg.addChild(arrSp);
-                // arrSp.pos(txtImg.width*0.22, txtImg.height +120);
-                // arrSp.alpha = 0.9;
-                let pointSp = new Laya.Image("images/shouzhi.png");
-                txtBox.addChild(pointSp);
-                pointSp.pos(txtImg.width * 0.4, txtImg.height + 60);
-                let timeLine = new Laya.TimeLine();
-                timeLine.addLabel("tl1", 0).to(pointSp, { x: pointSp.x - 120, y: pointSp.y }, 800)
-                    .addLabel("tl2", 0).to(pointSp, { x: pointSp.x, y: pointSp.y }, 800, Laya.Ease.backInOut);
-                timeLine.play(0, true);
-            }
-            else if (_guideId == 4) {
-                let pointSp = new Laya.Image("images/shouzhi.png");
-                txtBox.addChild(pointSp);
-                pointSp.pos(txtImg.width * 0.25, txtImg.height + 70);
-                let timeLine = new Laya.TimeLine();
-                timeLine.addLabel("tl1", 0).to(pointSp, { x: pointSp.x + 30, y: pointSp.y + 30 }, 800)
-                    .addLabel("tl2", 0).to(pointSp, { x: pointSp.x, y: pointSp.y }, 800, Laya.Ease.backInOut);
-                timeLine.play(0, true);
-            }
-            else if (_guideId == 5) {
-                let pointSp = new Laya.Image("images/shouzhi.png");
-                txtBox.addChild(pointSp);
-                pointSp.pos(txtImg.width * 0.2, txtImg.height + 40);
-                let timeLine = new Laya.TimeLine();
-                timeLine.addLabel("tl1", 0).to(pointSp, { x: pointSp.x + 30, y: pointSp.y + 30 }, 800)
-                    .addLabel("tl2", 0).to(pointSp, { x: pointSp.x, y: pointSp.y }, 800, Laya.Ease.backInOut);
-                timeLine.play(0, true);
-            }
-        }
-    }
-    setTouchEnable(_enable = true) {
-        let that = this;
-        if (that.bgImg) {
-            for (var index = 0; index < 4; index++) {
-                var element = that.bgImg.getChildByName('maskview_' + index);
-                if (element) {
-                    element.mouseEnabled = _enable;
-                }
-            }
-        }
-    }
-}
-// module laya  {
-// 	import Sprite = Laya.Sprite;
-// 	import Stage = Laya.Stage;
-// 	import HitArea = Laya.HitArea;
-// 	import WebGL = Laya.WebGL;
-// 	export class Sprite_Guide 
-// 	{
-// 		private red:Sprite;
-// 		private guideContainer:Sprite;
-// 		private tipContainer:Sprite;
-// 		private guideSteps:Array<any> = 
-// 		[
-// 			{ x: 151, y: 575, radius:150, tip:"../../res/guide/help6.png", tipx:200, tipy:250 },
-// 			{ x: 883, y: 620, radius:100, tip:"../../res/guide/help4.png", tipx:730, tipy:380 },
-// 			{ x: 1128, y: 583, radius:110, tip:"../../res/guide/help3.png", tipx:900, tipy:300 }
-// 		];
-// 		private guideStep:number = 0;
-// 		private hitArea:HitArea;
-// 		private interactionArea:Sprite;
-// 		constructor() 
-// 		{
-// 			Laya.init(1285, 727);
-// 			Laya.stage.alignH = Stage.ALIGN_CENTER;
-// 			Laya.stage.alignV = Stage.ALIGN_MIDDLE;
-// 			//绘制一个蓝色方块，不被抠图
-// 			var gameContainer:Sprite = new Sprite();
-// 			gameContainer.loadImage("../../res/guide/crazy_snowball.png");
-// 			Laya.stage.addChild(gameContainer);
-// 			// 引导所在容器
-// 			this.guideContainer = new Sprite();
-// 			// 设置容器为画布缓存
-// 			this.guideContainer.cacheAs = "bitmap";
-// 			Laya.stage.addChild(this.guideContainer);
-// 			gameContainer.on("click", this, this.nextStep);
-// 			//绘制遮罩区，含透明度，可见游戏背景
-// 			var maskArea:Sprite = new Sprite();
-// 			maskArea.alpha = 0.5;
-// 			maskArea.graphics.drawRect(0, 0, Laya.stage.width, Laya.stage.height, "#000000");
-// 			this.guideContainer.addChild(maskArea);
-// 			//绘制一个圆形区域，利用叠加模式，从遮罩区域抠出可交互区
-// 			this.interactionArea = new Sprite();
-// 			//设置叠加模式
-// 			this.interactionArea.blendMode = "destination-out";
-// 			this.guideContainer.addChild(this.interactionArea);
-// 			this.hitArea = new HitArea();
-// 			this.hitArea.hit.drawRect(0, 0, Laya.stage.width, Laya.stage.height, "#000000");
-// 			this.guideContainer.hitArea = this.hitArea;
-// 			this.guideContainer.mouseEnabled = true;
-// 			this.tipContainer = new Sprite();
-// 			Laya.stage.addChild(this.tipContainer);
-// 			this.nextStep();
-// 		}
-// 		private nextStep():void
-// 		{
-// 			if (this.guideStep == this.guideSteps.length)
-// 			{
-// 				Laya.stage.removeChild(this.guideContainer);
-// 				Laya.stage.removeChild(this.tipContainer);
-// 			}
-// 			else
-// 			{
-// 				var step:any = this.guideSteps[this.guideStep++];
-// 				this.hitArea.unHit.clear();
-// 				this.hitArea.unHit.drawCircle(step.x, step.y, step.radius, "#000000");
-// 				this.interactionArea.graphics.clear();
-// 				this.interactionArea.graphics.drawCircle(step.x, step.y, step.radius, "#000000");
-// 				this.tipContainer.graphics.clear();
-// 				this.tipContainer.loadImage(step.tip);
-// 				this.tipContainer.pos(step.tipx, step.tipy);
-// 			}
-// 		}
-// 	}
-// }
-// new laya.Sprite_Guide();
-//# sourceMappingURL=GuideView.js.map
-/*
-* 守卫管理类;
-*/
-class EvolutionManager {
-    constructor() {
-        /** 守卫升级需要的英雄数量 */
-        this.needHeroCount = 3;
-    }
-    /** 获取守卫升级需要的条件信息 */
-    getEvolutionLevelData() {
-        return BattleManager.Instance.getMonsterItem(this.getHeroId());
-    }
-    /** 守卫升级需要的英雄ID */
-    getHeroId() {
-        return userData.isEvolution() ? (1000 + this.getHeroLevel()) : (100 + this.getHeroLevel());
-    }
-    /** 获取守卫升级的英雄需要的等级 */
-    getHeroLevel() {
-        let kingLevel = userData.getKingLevel();
-        return userData.isEvolution() ? (((kingLevel - 30) % 60) + 1) : (((kingLevel - 1) % 30) + 1);
-    }
-    /** 获取守卫升级需要的钻石 */
-    getEvolutionLevelDiamond() {
-        let kingLevel = userData.getKingLevel();
-        let kingVO = GlobleData.getData(GlobleData.KindLevelConfigVO, kingLevel);
-        if (!kingVO)
-            return 0;
-        return MathUtils.parseInt(kingVO.gemxh.toString());
-    }
-    /** 守卫是否可以升级*/
-    getIsEvolutionLevel() {
-        let kingLevel = userData.getKingLevel();
-        if (kingLevel > 10) {
-            return !((M.player.Info.userDiamond < this.getEvolutionLevelDiamond()) || (userData.caculateMonsterCount(this.getHeroId()) < this.needHeroCount));
-        }
-        else {
-            return !(M.player.Info.userDiamond < this.getEvolutionLevelDiamond());
-        }
-    }
-    static get Instance() {
-        if (EvolutionManager._instance == null) {
-            EvolutionManager._instance = new EvolutionManager();
-        }
-        return EvolutionManager._instance;
-    }
-}
-//# sourceMappingURL=EvolutionManager.js.map
-/*
-* name;
-*/
-class ScaleAnimScript {
-    constructor() {
-        this.isMouseDown = false; //按下
-        this.isMouseOut = false; //移除
-    }
-    set owner(value) {
-        this.scaleBox = value;
-        //自定义的脚本会有时序问题，所以在此添加一个延时
-        this.scaleBox.frameOnce(2, this, this.onLoaded);
-    }
-    onLoaded() {
-        this.scaleOrginValue = new Laya.Point(this.scaleBox.scaleX, this.scaleBox.scaleY);
-        // this._originAnchor = new Laya.Point((this.scaleBox.anchorX ? this.scaleBox.anchorX : 0), (this.scaleBox.anchorY ? this.scaleBox.anchorY : 0));
-        this._originPos = new Laya.Point(this.scaleBox.x, this.scaleBox.y);
-        this.scaleBox.on(Laya.Event.MOUSE_DOWN, this, this.mouseDown);
-        this.scaleBox.on(Laya.Event.MOUSE_UP, this, this.mouseUp);
-        this.scaleBox.on(Laya.Event.MOUSE_OUT, this, this.mouseOut);
-        // this.scaleBox.on(Laya.Event.MOUSE_MOVE, this, this.mouseMove);
-    }
-    mouseDown() {
-        this.isMouseDown = true;
-        this.isMouseOut = false;
-        this.scaleSmall();
-    }
-    mouseUp() {
-        if (this.isMouseDown) {
-            this.scaleNormal();
-        }
-        this.isMouseDown = false;
-    }
-    mouseOut() {
-        if (this.isMouseDown) {
-            this.scaleNormal();
-        }
-        this.isMouseDown = false;
-        this.isMouseOut = true;
-    }
-    mouseMove() {
-        if (this.isMouseOut) {
-            if (this.isHit(this.scaleBox)) {
-                this.scaleSmall();
-            }
-            else {
-                this.scaleNormal();
-            }
-        }
-    }
-    scaleSmall() {
-        if (this.scaleBox) {
-            // if (isNaN(this.scaleBox.left) && isNaN(this.scaleBox.right) && isNaN(this.scaleBox.top) &&
-            //     isNaN(this.scaleBox.bottom) && isNaN(this.scaleBox.centerX) && isNaN(this.scaleBox.centerY)) {
-            //     //居中处理
-            //     this.scaleBox.anchorX = 0.5;
-            //     this.scaleBox.anchorY = 0.5;
-            //
-            //     this.scaleBox.pos(this.scaleBox.x + this.scaleBox.width * 0.5, this.scaleBox.y + this.scaleBox.height * 0.5);
-            // }
-            this.scaleBox.scale(this.scaleOrginValue.x * 0.95, this.scaleOrginValue.y * 0.95);
-            this.scaleBox.filters = DisplayUtils.createColorFilter(1);
-        }
-    }
-    scaleNormal() {
-        if (this.scaleBox) {
-            // if (isNaN(this.scaleBox.left) && isNaN(this.scaleBox.right) && isNaN(this.scaleBox.top) &&
-            //     isNaN(this.scaleBox.bottom) && isNaN(this.scaleBox.centerX) && isNaN(this.scaleBox.centerY)) {
-            //     //居中处理
-            //     this.scaleBox.anchorX = this._originAnchor.x;
-            //     this.scaleBox.anchorY = this._originAnchor.y;
-            //     this.scaleBox.pos(this._originPos.x, this._originPos.y);
-            // }
-            this.scaleBox.scale(this.scaleOrginValue.x, this.scaleOrginValue.y);
-            this.scaleBox.filters = [];
-        }
-    }
-    //点击检测
-    isHit(_checkBox, _extW = 0, _extH = 0) {
-        if (_checkBox) {
-            let touchPos = _checkBox.getMousePoint();
-            let touchArea = new Laya.Rectangle(0 - _extW / 2, 0 - _extH / 2, _checkBox.width + _extW, _checkBox.height + _extH);
-            return touchArea.contains(touchPos.x, touchPos.y);
-        }
-        return false;
-    }
-}
-//# sourceMappingURL=ScaleAnimScript.js.map
-class LayerEvent {
-}
-LayerEvent.CHILD_ADDED = "CHILD_ADDED";
-LayerEvent.CHILD_REMOVED = "CHILD_REMOVED";
-LayerEvent.LAYER_ANIMATION_COMPLETE = "LAYER_ANIMATION_COMPLETE";
-//# sourceMappingURL=LayerEvent.js.map
-//# sourceMappingURL=ILayer.js.map
-class KeyValue {
-    constructor(key = null, value = null) {
-        this.key = key;
-        this.value = value;
-    }
-}
-//# sourceMappingURL=KeyValue.js.map
-class CacheObject {
-    constructor(key = "FREEMAN") {
-        this._key = key;
-        this._cache = {};
-        this._waitingCaches = {};
-    }
-    setCacheKey(key) {
-        this._key = key;
-        return this;
-    }
-    startCacheThread(interval = Time.SEC_IN_MILI) {
-        Laya.timer.loop(interval, this, this.__save);
-    }
-    setCache(key, value) {
-        this._waitingCaches[key] = value;
-        Laya.timer.callLater(this, this.__save);
-    }
-    setCacheGroup(cacheObj) {
-        for (const key in cacheObj) {
-            this._waitingCaches[key] = cacheObj[key];
-        }
-        Laya.timer.callLater(this, this.__save);
-    }
-    getCache(key) {
-        if (this._waitingCaches.hasOwnProperty(key)) {
-            return this._waitingCaches[key];
-        }
-        return this._cache[key];
-    }
-    removeCache(key) {
-        delete this._cache[key];
-    }
-    hasCache(key) {
-        if (this._waitingCaches.hasOwnProperty(key)) {
-            return true;
-        }
-        return this._cache.hasOwnProperty(key);
-    }
-    loadCache(success, fail) {
-        const storage = window.localStorage;
-        let b;
-        if (storage) {
-            const jsonStr = storage.getItem(this._key);
-            if (jsonStr) {
-                if (jsonStr) {
-                    const cache = JSON.parse(jsonStr);
-                    if (cache) {
-                        b = true;
-                        this._cache = cache;
-                        success && success.runWith(this);
-                    }
-                }
-            }
-        }
-        if (!b) {
-            fail && fail.run();
-            console.log("@FREEMAN: 缓存数据为空或有异常，缓存：{ " + this._key + " }");
-        }
-    }
-    clearCache() {
-        this._cache = {};
-        this._waitingCaches = {};
-        const storage = window.localStorage;
-        if (storage) {
-            storage.removeItem(this._key);
-            console.log("@FREEMAN: 本地缓存{" + this._key + "}已清除。");
-        }
-    }
-    __save() {
-        if (Object.keys(this._waitingCaches).length) {
-            for (const key in this._waitingCaches) {
-                this._cache[key] = this._waitingCaches[key];
-            }
-            try {
-                const storage = window.localStorage;
-                if (storage) {
-                    storage.setItem(this._key, JSON.stringify(this._cache));
-                }
-            }
-            catch (e) {
-                console.log("@FREEMAN: 缓存数据时出现错误：", e, " cache：", this._cache);
-                MessageUtils.showMsgTips("缓存数据时出现错误!");
-            }
-            this._waitingCaches = {};
-        }
-    }
-}
-//# sourceMappingURL=CacheObject.js.map
-/*
-* name;
-*/
-class CommonManager {
-    constructor() {
-    }
-    static get Instance() {
-        if (!CommonManager._instance) {
-            CommonManager._instance = new CommonManager();
-        }
-        return CommonManager._instance;
-    }
-}
-var DILOG_TYPE;
-(function (DILOG_TYPE) {
-    /** 英雄 */
-    DILOG_TYPE[DILOG_TYPE["PET"] = 0] = "PET";
-    /** 加速 */
-    DILOG_TYPE[DILOG_TYPE["ACC"] = 1] = "ACC";
-})(DILOG_TYPE || (DILOG_TYPE = {}));
-//# sourceMappingURL=CommonManager.js.map
-/*
-* 技能管理类;
-*/
-class SkillManager {
-    constructor() {
-    }
-    /** 获取对应技能强化消耗 */
-    getSkillStrengthenCost(skillId, strengthenLevel) {
-        let dataCfg = GlobleData.getData(GlobleData.SkillStrengthenVO, strengthenLevel);
-        let cost = 0;
-        if (dataCfg) {
-            if (skillId == 1) {
-                cost = MathUtils.parseInt(dataCfg.boss1Mxh);
-            }
-            else if (skillId == 2) {
-                cost = MathUtils.parseInt(dataCfg.boss2Mxh);
-            }
-            else if (skillId == 3) {
-                cost = MathUtils.parseInt(dataCfg.boss3Mxh);
-            }
-            else if (skillId == 10) {
-                cost = MathUtils.parseInt(dataCfg.gold10jc);
-            }
-        }
-        return cost;
-    }
-    /** 获取对应技能强化几率 */
-    getSkillStrengthenProbability(skillId, strengthenLevel = 0) {
-        let dataCfg = GlobleData.getData(GlobleData.SkillConfigVO, skillId);
-        let probability = 0;
-        if (dataCfg) {
-            let qiangHuaSx = MathUtils.parseStringNum(dataCfg.qiangHuaSx);
-            probability = Math.min(MathUtils.parseStringNum(dataCfg.qiangHua) * strengthenLevel, qiangHuaSx);
-        }
-        return probability;
-    }
-    /** 获取对应技能强化等级几率 */
-    getSkillStrengthenLevelProbability(skillId, strengthenLevel = 0) {
-        let dataCfg = GlobleData.getData(GlobleData.SkillConfigVO, skillId);
-        let probability = 0;
-        if (dataCfg) {
-            probability = MathUtils.parseStringNum(dataCfg.triggerPro) + SkillManager.Instance.getSkillStrengthenProbability(skillId, strengthenLevel);
-            probability += 0.0001; //小数偏差
-        }
-        return probability;
-    }
-    static get Instance() {
-        if (SkillManager._instance == null) {
-            SkillManager._instance = new SkillManager();
-        }
-        return SkillManager._instance;
-    }
-}
-//# sourceMappingURL=SkillManager.js.map
-/*
-* name;
-*/
-class BattleModel {
-    constructor() {
-        /** 定时上传数据时间 */
-        this.saveTime = 0;
-        /** 刷新广告时间 */
-        this.refreshAdvTime = 0;
-        /** 活着的怪物数 */
-        this.livingCount = 0;
-        /** 活着的怪物数 */
-        this.livingIndex = 0;
-        /** 暴击加成 */
-        this.kingDoubleAdd = 0;
-        /** 英雄的伤害值 */
-        this.petAttackValue = 0;
-        /** 暴击数值范围 */
-        this.critRateBuff = 0;
-        /** 最大等级 */
-        this.monsterMaxLevel = 30;
-        /** 钻石初始消费价格 */
-        this.monsterBaseDiamondPrice = 36;
-    }
-}
-//# sourceMappingURL=BattleModel.js.map
-class BattleEventsConst {
-}
-/** 战斗通关 */
-BattleEventsConst.BATTLE_CLEARANC = "BATTLE_CLEARANC";
-/** 战斗没有通关 */
-BattleEventsConst.BATTLE_NO_CLEARANC = "BATTLE_NO_CLEARANC";
-//# sourceMappingURL=BattleEventsConst.js.map
+//# sourceMappingURL=ViewRegisterMgr.js.map
+var ViewConst;
+(function (ViewConst) {
+    /** 关注奖励界面 */
+    ViewConst[ViewConst["FollowRewardView"] = 10001] = "FollowRewardView";
+    /** 强化界面 */
+    ViewConst[ViewConst["StrengthenView"] = 10002] = "StrengthenView";
+    /** 金币不足界面 */
+    ViewConst[ViewConst["RewardGoldView"] = 10003] = "RewardGoldView";
+    /** 好友互助界面 */
+    ViewConst[ViewConst["FriendConcurView"] = 10004] = "FriendConcurView";
+    /** 英雄商店界面 */
+    ViewConst[ViewConst["ShopView"] = 10005] = "ShopView";
+    /** 钻石购买英雄界面 */
+    ViewConst[ViewConst["DiamondBuyView"] = 10006] = "DiamondBuyView";
+    /** 技能说明界面 */
+    ViewConst[ViewConst["SkillExplainView"] = 10007] = "SkillExplainView";
+    /** 额外奖励界面 */
+    ViewConst[ViewConst["AdditionalRewardView"] = 10008] = "AdditionalRewardView";
+    /** 获得免费英雄提示框 */
+    ViewConst[ViewConst["FreeGetPetView"] = 10009] = "FreeGetPetView";
+    /** 守卫升级界面 */
+    ViewConst[ViewConst["EvolutionView"] = 10010] = "EvolutionView";
+    /** 福利界面 */
+    ViewConst[ViewConst["WelfareView"] = 10011] = "WelfareView";
+    /** 游戏公告 */
+    ViewConst[ViewConst["NoticeView"] = 10012] = "NoticeView";
+    /** 奖励领取界面 */
+    ViewConst[ViewConst["RewardGetView"] = 10013] = "RewardGetView";
+    /** 通关获得奖励提示框 */
+    ViewConst[ViewConst["ClearanceRewardView"] = 10014] = "ClearanceRewardView";
+    /** 天降惊喜 */
+    ViewConst[ViewConst["SkyDropView"] = 10015] = "SkyDropView";
+    /** 轮盘 */
+    ViewConst[ViewConst["LuckPrizeView"] = 10016] = "LuckPrizeView";
+    /** 幸运转盘奖励界面 */
+    ViewConst[ViewConst["LuckPrizeItemView"] = 10017] = "LuckPrizeItemView";
+    /** 转盘宝箱中奖界面 */
+    ViewConst[ViewConst["LuckPrizeBoxView"] = 10018] = "LuckPrizeBoxView";
+    /** 任务界面 */
+    ViewConst[ViewConst["TaskView"] = 10019] = "TaskView";
+    /** 邀请界面 */
+    ViewConst[ViewConst["InvitationView"] = 10020] = "InvitationView";
+    /** 离线奖励界面 */
+    ViewConst[ViewConst["OfflineRewardsView"] = 10021] = "OfflineRewardsView";
+    /** 成就奖励领取界面 */
+    ViewConst[ViewConst["AchiRewardView"] = 10022] = "AchiRewardView";
+    /** 加速提示界面 */
+    ViewConst[ViewConst["AccelerateTipsView"] = 10023] = "AccelerateTipsView";
+})(ViewConst || (ViewConst = {}));
+//# sourceMappingURL=ViewConst.js.map
 /*
 * 字典;
 */
@@ -2457,45 +1832,6 @@ class DebugUtils {
 }
 DebugUtils._threshold = 3;
 //# sourceMappingURL=DebugUtils.js.map
-/**
- * CSV解析类
- */
-class CSVParser {
-    //用json替换csv,json解析文件
-    static ParseJsonData(infoClass, sourceText) {
-        let self = this;
-        var result = new TSDictionary();
-        sourceText = sourceText.trim();
-        let obj = JSON.parse(sourceText);
-        var keyList = null;
-        var typeList = null;
-        var dataList = null;
-        var itemList = null;
-        keyList = obj.titles;
-        if (obj.data == null)
-            return result; //空表不做处理
-        dataList = obj.data; //数据是从0开始
-        typeList = dataList[0];
-        var i = 0;
-        var dataLen = dataList.length;
-        for (i = 0; i < dataLen; i++) {
-            var record = new infoClass();
-            itemList = dataList[i];
-            self.ParseRecord(keyList, itemList, record);
-            result.Add(parseInt(itemList[0]), record);
-        }
-        sourceText = null;
-        return result;
-    }
-    static ParseRecord(keyList, itemList, record) {
-        let self = this;
-        var n = itemList.length;
-        for (var i = 0; i < n; i++) {
-            record[keyList[i]] = itemList[i];
-        }
-    }
-}
-//# sourceMappingURL=CSVParser.js.map
 /*
 * 动画工具类;
 */
@@ -2601,6 +1937,194 @@ class AlignUtils {
     }
 }
 //# sourceMappingURL=AlignUtils.js.map
+/**
+ * Timer管理类
+ */
+class TimerManager {
+    /**
+     * 构造函数
+     */
+    constructor() {
+        let self = this;
+        self._handlers = new Array();
+        self._delHandlers = new Array();
+        self._currTime = new Date().getTime();
+        self._currFrame = 0;
+        self._count = 0;
+        self._timeScale = 1;
+        Laya.timer.frameLoop(1, self, self.onEnterFrame);
+    }
+    /**
+     * 设置时间参数
+     * @param timeScale
+     */
+    setTimeScale(timeScale) {
+        this._timeScale = timeScale;
+    }
+    /**
+     * 每帧执行函数
+     * @param frameTime
+     */
+    onEnterFrame() {
+        this._currFrame++;
+        this._currTime = new Date().getTime();
+        for (var i = 0; i < this._count; i++) {
+            var handler = this._handlers[i];
+            var t = handler.userFrame ? this._currFrame : this._currTime;
+            if (t >= handler.exeTime) {
+                handler.method.call(handler.handerObj, (this._currTime - handler.dealTime) * this._timeScale);
+                handler.dealTime = this._currTime;
+                handler.exeTime += handler.delay;
+                if (!handler.repeat) {
+                    if (handler.repeatCount > 1) {
+                        handler.repeatCount--;
+                    }
+                    else {
+                        if (handler.complateMethod) {
+                            handler.complateMethod.apply(handler.complateMethodObj);
+                        }
+                        this._delHandlers.push(handler);
+                    }
+                }
+            }
+        }
+        while (this._delHandlers.length) {
+            var handler = this._delHandlers.pop();
+            this.remove(handler.method, handler.handerObj);
+        }
+    }
+    create(useFrame, delay, repeatCount, method, methodObj, complateMethod, complateMethodObj) {
+        //参数监测
+        if (delay < 0 || repeatCount < 0 || method == null) {
+            return;
+        }
+        //先删除相同函数的计时
+        this.remove(method, methodObj);
+        //创建
+        var handler = Laya.Pool.getItemByClass("TimerHandlers", TimerHandlers);
+        handler.userFrame = useFrame;
+        handler.repeat = repeatCount == 0;
+        handler.repeatCount = repeatCount;
+        handler.delay = delay;
+        handler.method = method;
+        handler.handerObj = methodObj;
+        handler.complateMethod = complateMethod;
+        handler.complateMethodObj = complateMethodObj;
+        handler.exeTime = delay + (useFrame ? this._currFrame : this._currTime);
+        handler.dealTime = this._currTime;
+        this._handlers.push(handler);
+        this._count++;
+    }
+    /**
+     *
+     * 定时执行
+     * @param delay 执行间隔:毫秒
+     * @param repeatCount 执行次数, 0为无限次
+     * @param method 执行函数
+     * @param methodObj 执行函数所属对象
+     * @param complateMethod 完成执行函数
+     * @param complateMethodObj 完成执行函数所属对象
+     *
+     */
+    doTimer(delay, repeatCount, method, methodObj, complateMethod = null, complateMethodObj = null) {
+        this.create(false, delay, repeatCount, method, methodObj, complateMethod, complateMethodObj);
+    }
+    /**
+     *
+     * 定时执行
+     * @param delay 执行间隔:帧频
+     * @param repeatCount 执行次数, 0为无限次
+     * @param method 执行函数
+     * @param methodObj 执行函数所属对象
+     * @param complateMethod 完成执行函数
+     * @param complateMethodObj 完成执行函数所属对象
+     *
+     */
+    doFrame(delay, repeatCount, method, methodObj, complateMethod = null, complateMethodObj = null) {
+        this.create(true, delay, repeatCount, method, methodObj, complateMethod, complateMethodObj);
+    }
+    /**
+     * 定时器执行数量
+     * @return
+     *
+     */
+    get count() {
+        return this._count;
+    }
+    /**
+     * 清理
+     * @param method 要移除的函数
+     * @param methodObj 要移除的函数对应的对象
+     */
+    remove(method, methodObj) {
+        for (var i = 0; i < this._count; i++) {
+            var handler = this._handlers[i];
+            if (handler.method == method && handler.handerObj == methodObj) {
+                this._handlers.splice(i, 1);
+                Laya.Pool.recover("TimerHandlers", handler);
+                this._count--;
+                break;
+            }
+        }
+    }
+    /**
+     * 清理
+     * @param methodObj 要移除的函数对应的对象
+     */
+    removeAll(methodObj) {
+        for (var i = 0; i < this._count; i++) {
+            var handler = this._handlers[i];
+            if (handler.handerObj == methodObj) {
+                this._handlers.splice(i, 1);
+                Laya.Pool.recover("TimerHandlers", handler);
+                this._count--;
+                i--;
+            }
+        }
+    }
+    /**
+     * 检测是否已经存在
+     * @param method
+     * @param methodObj
+     *
+     */
+    isExists(method, methodObj) {
+        for (var i = 0; i < this._count; i++) {
+            var handler = this._handlers[i];
+            if (handler.method == method && handler.handerObj == methodObj) {
+                return true;
+            }
+        }
+        return false;
+    }
+    static get Instance() {
+        if (!this._instance) {
+            this._instance = new TimerManager();
+        }
+        return this._instance;
+    }
+}
+//# sourceMappingURL=TimerManager.js.map
+class TimerHandlers {
+    constructor() {
+        /**执行间隔*/
+        this.delay = 0;
+        /**重复执行次数*/
+        this.repeatCount = 0;
+        /**执行时间*/
+        this.exeTime = 0;
+        /**上次的执行时间*/
+        this.dealTime = 0;
+    }
+    /**清理*/
+    clear() {
+        this.method = null;
+        this.handerObj = null;
+        this.complateMethod = null;
+        this.complateMethodObj = null;
+    }
+}
+//# sourceMappingURL=TimerHandlers.js.map
 //数据缓存
 var requestCache = {};
 class HttpRequestHelper {
@@ -3428,6 +2952,7 @@ class HttpManager {
     }
     /** 分享礼包 */
     requestShareGift(param) {
+        console.log("@DAVID 点击卡片进入游戏给服务器发送数据:", param);
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: "v1/share/friend",
@@ -3607,239 +3132,181 @@ class HttpManager {
     }
 }
 //# sourceMappingURL=HttpManager.js.map
-class ViewRegisterMgr {
-    /** 初始化注册界面 */
-    initRegisterView() {
-        ViewMgr.Ins.register(ViewConst.FollowRewardView, new FollowRewardView());
-        ViewMgr.Ins.register(ViewConst.StrengthenView, new StrengthenView());
-        ViewMgr.Ins.register(ViewConst.RewardGoldView, new RewardGoldView());
-        ViewMgr.Ins.register(ViewConst.FriendConcurView, new FriendConcurView());
-        ViewMgr.Ins.register(ViewConst.ShopView, new ShopView());
-        ViewMgr.Ins.register(ViewConst.DiamondBuyView, new DiamondBuyView());
-        ViewMgr.Ins.register(ViewConst.SkillExplainView, new SkillExplainView());
-        ViewMgr.Ins.register(ViewConst.AdditionalRewardView, new AdditionalRewardView());
-        ViewMgr.Ins.register(ViewConst.FreeGetPetView, new FreeGetPetView());
-        ViewMgr.Ins.register(ViewConst.EvolutionView, new EvolutionView());
-        ViewMgr.Ins.register(ViewConst.WelfareView, new WelfareView());
-        ViewMgr.Ins.register(ViewConst.NoticeView, new NoticeView());
-        ViewMgr.Ins.register(ViewConst.RewardGetView, new RewardGetView());
-        ViewMgr.Ins.register(ViewConst.ClearanceRewardView, new ClearanceRewardView());
-        ViewMgr.Ins.register(ViewConst.SkyDropView, new SkyDropView());
-        ViewMgr.Ins.register(ViewConst.LuckPrizeView, new LuckPrizeView());
-        ViewMgr.Ins.register(ViewConst.LuckPrizeItemView, new LuckPrizeItemView());
-        ViewMgr.Ins.register(ViewConst.LuckPrizeBoxView, new LuckPrizeBoxView());
-        ViewMgr.Ins.register(ViewConst.TaskView, new TaskView());
-        ViewMgr.Ins.register(ViewConst.OfflineRewardsView, new OfflineRewardsView());
-        ViewMgr.Ins.register(ViewConst.InvitationView, new InvitationView());
-        ViewMgr.Ins.register(ViewConst.AchiRewardView, new AchiRewardView());
-        ViewMgr.Ins.register(ViewConst.AccelerateTipsView, new AccelerateTipsView());
+/*
+* name;
+*/
+class LanguageManager {
+    constructor() {
+        this._languageMap = new TSDictionary();
+        this._reg = new RegExp("\\{(\\d+)\\}");
+    }
+    /** 加载语言包配置文件 */
+    loadLanguage() {
+        let self = this;
+        Laya.loader.load(PathConfig.Language, Laya.Handler.create(self, () => {
+            self.init(Laya.Loader.getRes(PathConfig.Language));
+        }, null, true), null, Laya.Loader.TEXT);
+    }
+    /**
+     * 初始化数据
+     */
+    init(data) {
+        if (!data) {
+            data = Laya.Loader.getRes(PathConfig.Language);
+        }
+        let self = this;
+        let languageArr = String(data).split("\r\n");
+        if (languageArr.length) {
+            for (var i = 0; i < languageArr.length; i++) {
+                var obj = languageArr[i];
+                if (obj == "#" || obj == "") {
+                    continue;
+                }
+                else {
+                    let strArr = obj.split(":");
+                    if (self._languageMap.ContainsKey(strArr[0])) {
+                        self._languageMap.Remove(strArr[0]);
+                    }
+                    if (strArr.length <= 2) {
+                        self._languageMap.Add(strArr[0], strArr[1]);
+                    }
+                    else {
+                        self._languageMap.Add(strArr[0], strArr.slice(1).join(""));
+                    }
+                }
+            }
+            LanguageManager.isLanguageLoadComplete = true;
+        }
+    }
+    getLanguageMapData() {
+        let self = this;
+        return self._languageMap.getValues();
+    }
+    getLanguageById(key) {
+        let self = this;
+        return self._languageMap.TryGetValue(key);
+    }
+    /**
+     * 设置容器语言
+     * @param {Laya.Node} node
+     */
+    setModuleLanguage(node) {
+        let self = this;
+        if (!node || node && !node.numChildren || !LanguageManager.isOpenLanguage)
+            return;
+        self.SearchAndModifyNodeLanguage(node);
+    }
+    SearchAndModifyNodeLanguage(node) {
+        for (var i = 0; i < node.numChildren; i++) {
+            var child = node.getChildAt(i);
+            if (child instanceof Laya.Node) {
+                this.SearchAndModifyNodeLanguage(child);
+            }
+            if (child instanceof Laya.Label) {
+                if (child.name != "") {
+                    var name = child.name.split("@")[1];
+                    if (name) {
+                        child.text = this.getLanguageById(name);
+                    }
+                }
+            }
+            else if (child instanceof Laya.Button) {
+                if (child.name != "") {
+                    var name = child.name.split("@")[1];
+                    if (name) {
+                        child.label = this.getLanguageById(name);
+                    }
+                }
+            }
+        }
+    }
+    /**
+    * 获取文本内容
+    * @param {string} key
+    * @returns {string}
+    */
+    getLanguageText(key, ...arg) {
+        let self = this;
+        return self.getTranslationWithArray(key, arg);
+    }
+    getTranslationWithArray(key, argsArr) {
+        let self = this;
+        if (self._languageMap.ContainsKey(key)) {
+            return self.replaceStr(self._languageMap.TryGetValue(key), argsArr);
+        }
+    }
+    languageReplace(str, args) {
+        let self = this;
+        return self.replaceStr(str, args);
+    }
+    /**
+     * 根据正则表达式去替换内容
+     */
+    replaceStr(repContent, argsArr) {
+        let self = this;
+        if (argsArr && argsArr.length > 0) {
+            let data = self._reg.exec(repContent);
+            while (data && argsArr.length > 0) {
+                let id = Number(data[1]);
+                let str = String(argsArr[id]);
+                if (id >= 0 && id < argsArr.length) {
+                    var idx = str.indexOf("$");
+                    if (idx > -1) {
+                        str = str.slice(0, idx) + "$" + str.slice(idx);
+                    }
+                    repContent = repContent.replace(self._reg, str);
+                }
+                else {
+                    repContent = repContent.replace(self._reg, "{}");
+                }
+                data = self._reg.exec(repContent);
+            }
+        }
+        return repContent;
     }
     static get Instance() {
-        if (!ViewRegisterMgr._instance) {
-            ViewRegisterMgr._instance = new ViewRegisterMgr();
+        let self = this;
+        if (LanguageManager._instance == null) {
+            LanguageManager._instance = new LanguageManager();
         }
-        return ViewRegisterMgr._instance;
+        return LanguageManager._instance;
     }
 }
-//# sourceMappingURL=ViewRegisterMgr.js.map
-class ViewMgr {
-    /** 构造函数 */
-    constructor() {
-        this._views = {};
-        this._opens = [];
-    }
-    /**
-   * 面板注册
-   * @param key 面板唯一标识
-   * @param view 面板
-   */
-    register(key, view) {
-        if (view == null) {
-            return;
-        }
-        if (this._views[key]) {
-            return;
-        }
-        this._views[key] = view;
-    }
-    /**
-     * 面板解除注册
-     * @param key
-     */
-    unregister(key) {
-        if (!this._views[key]) {
-            return;
-        }
-        this._views[key] = null;
-        delete this._views[key];
-    }
-    /**
-     * 开启面板
-     * @param key 面板唯一标识
-     * @param param 参数
-     */
-    open(key, callback = null, ...param) {
-        var view = this.getView(key);
-        if (view == null) {
-            MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.36"));
-            return;
-        }
-        if (view.isShow()) {
-            view.callback = callback;
-            view.initUI();
-            view.open.apply(view, param);
-            view.initData();
-            return view;
-        }
-        if (view.isInit()) {
-            view.addToParent();
-            view.callback = callback;
-            view.initUI();
-            view.addEvents();
-            view.open.apply(view, param);
-            view.initData();
-        }
-        else {
-            view.loadResource(function () {
-                view.setVisible(false);
-                view.initUIView();
-                view.addToParent();
-            }.bind(this), function () {
-                view.callback = callback;
-                view.initUI();
-                view.addEvents();
-                view.open.apply(view, param);
-                view.initData();
-                view.setVisible(true);
-            }.bind(this));
-        }
-        this._opens.push(key);
-        return view;
-    }
-    /**
-     * 根据唯一标识获取一个UI对象
-     * @param key
-     * @returns {any}
-     */
-    getView(key) {
-        return this._views[key];
-    }
-    /**
-     * 关闭面板
-     * @param key 面板唯一标识
-     * @param param 参数
-     *
-     */
-    close(key, ...param) {
-        if (!this.isShow(key)) {
-            return;
-        }
-        var view = this.getView(key);
-        if (view == null) {
-            return;
-        }
-        var viewIndex = this._opens.indexOf(key);
-        if (viewIndex >= 0) {
-            this._opens.splice(viewIndex, 1);
-        }
-        view.removeFromParent();
-        view.close.apply(view, param);
-    }
-    /**
-     * 检测一个UI是否开启中
-     * @param key
-     * @returns {boolean}
-     */
-    isShow(key) {
-        return this._opens.indexOf(key) != -1;
-    }
-    /** 当前ui打开数量 */
-    currOpenNum() {
-        return this._opens.length;
-    }
-    /** 清空处理 */
-    clear() {
-        this.closeAll();
-        this._views = {};
-    }
-    /** 关闭所有开启中的UI */
-    closeAll() {
-        while (this._opens.length) {
-            this.close(this._opens[0]);
-        }
-    }
-    /**
-     * 销毁一个面板
-     * @param key 唯一标识
-     * @param newView 新面板
-     */
-    destroy(key, newView = null) {
-        var oldView = this.getView(key);
-        if (oldView) {
-            this.unregister(key);
-            oldView.destroy();
-            oldView = null;
-        }
-        this.register(key, newView);
-    }
-    static get Ins() {
-        if (ViewMgr._instance == null) {
-            ViewMgr._instance = new ViewMgr();
-        }
-        return ViewMgr._instance;
-    }
+/** 语言包数据是否加载完毕 */
+LanguageManager.isLanguageLoadComplete = false;
+LanguageManager.isOpenLanguage = true;
+//# sourceMappingURL=LanguageManager.js.map
+/*
+* 事件类型;
+*/
+class EventsType {
 }
-//# sourceMappingURL=ViewMgr.js.map
-var ViewConst;
-(function (ViewConst) {
-    /** 关注奖励界面 */
-    ViewConst[ViewConst["FollowRewardView"] = 10001] = "FollowRewardView";
-    /** 强化界面 */
-    ViewConst[ViewConst["StrengthenView"] = 10002] = "StrengthenView";
-    /** 金币不足界面 */
-    ViewConst[ViewConst["RewardGoldView"] = 10003] = "RewardGoldView";
-    /** 好友互助界面 */
-    ViewConst[ViewConst["FriendConcurView"] = 10004] = "FriendConcurView";
-    /** 英雄商店界面 */
-    ViewConst[ViewConst["ShopView"] = 10005] = "ShopView";
-    /** 钻石购买英雄界面 */
-    ViewConst[ViewConst["DiamondBuyView"] = 10006] = "DiamondBuyView";
-    /** 技能说明界面 */
-    ViewConst[ViewConst["SkillExplainView"] = 10007] = "SkillExplainView";
-    /** 额外奖励界面 */
-    ViewConst[ViewConst["AdditionalRewardView"] = 10008] = "AdditionalRewardView";
-    /** 获得免费英雄提示框 */
-    ViewConst[ViewConst["FreeGetPetView"] = 10009] = "FreeGetPetView";
-    /** 守卫升级界面 */
-    ViewConst[ViewConst["EvolutionView"] = 10010] = "EvolutionView";
-    /** 福利界面 */
-    ViewConst[ViewConst["WelfareView"] = 10011] = "WelfareView";
-    /** 游戏公告 */
-    ViewConst[ViewConst["NoticeView"] = 10012] = "NoticeView";
-    /** 奖励领取界面 */
-    ViewConst[ViewConst["RewardGetView"] = 10013] = "RewardGetView";
-    /** 通关获得奖励提示框 */
-    ViewConst[ViewConst["ClearanceRewardView"] = 10014] = "ClearanceRewardView";
-    /** 天降惊喜 */
-    ViewConst[ViewConst["SkyDropView"] = 10015] = "SkyDropView";
-    /** 轮盘 */
-    ViewConst[ViewConst["LuckPrizeView"] = 10016] = "LuckPrizeView";
-    /** 幸运转盘奖励界面 */
-    ViewConst[ViewConst["LuckPrizeItemView"] = 10017] = "LuckPrizeItemView";
-    /** 转盘宝箱中奖界面 */
-    ViewConst[ViewConst["LuckPrizeBoxView"] = 10018] = "LuckPrizeBoxView";
-    /** 任务界面 */
-    ViewConst[ViewConst["TaskView"] = 10019] = "TaskView";
-    /** 邀请界面 */
-    ViewConst[ViewConst["InvitationView"] = 10020] = "InvitationView";
-    /** 离线奖励界面 */
-    ViewConst[ViewConst["OfflineRewardsView"] = 10021] = "OfflineRewardsView";
-    /** 成就奖励领取界面 */
-    ViewConst[ViewConst["AchiRewardView"] = 10022] = "AchiRewardView";
-    /** 加速提示界面 */
-    ViewConst[ViewConst["AccelerateTipsView"] = 10023] = "AccelerateTipsView";
-})(ViewConst || (ViewConst = {}));
-//# sourceMappingURL=ViewConst.js.map
+EventsType.OFFLINE = "OFFLINE";
+EventsType.SHARE_SWITCH = "SHARE_SWITCH";
+EventsType.GOLD_CHANGE = "GOLD_CHANGE";
+EventsType.DIAMOND_CHANGE = "DIAMOND_CHANGE";
+EventsType.ESSENCE_CHANGE = "ESSENCE_CHANGE";
+EventsType.SHARE_GIFT_RED_POINT = "SHARE_GIFT_RED_POINT";
+EventsType.DAY_SIGN_RED_POINT = "DAY_SIGN_RED_POINT";
+EventsType.STRENGTHEN_RED_POINT = "STRENGTHEN_RED_POINT";
+EventsType.HERO_SHOP_RED_POINT = "HERO_SHOP_RED_POINT";
+EventsType.ACCE_CHANGE = "ACCE_CHANGE";
+EventsType.BACK_GAME = "BACK_GAME"; //重返游戏
+EventsType.TASK_RED_POINT = "TASK_RED_POINT";
+EventsType.LUCK_PRIZED_RED_POINT = "LUCK_PRIZED_RED_POINT";
+EventsType.FOLLOW_RED_POINT = "FOLLOW_RED_POINT";
+EventsType.FRIEND_CONCUR_RED_POINT = "FRIEND_CONCUR_RED_POINT";
+EventsType.EVERY_DAY_INTO_REWARD = "EVERY_DAY_INTO_REWARD";
+EventsType.UPDATE_HALL_DATA = "UPDATE_HALL_DATA";
+/** 好友助力领奖 */
+EventsType.FRIEND_CONCUR_GET_REWARD = "FRIEND_CONCUR_GET_REWARD";
+/** 守卫升级完毕 */
+EventsType.EVOLUTION_LEVEL_COMPLETE = "EVOLUTION_LEVEL_COMPLETE";
+/** 更新货币数据 */
+EventsType.UPDATE_CURRENCY = "UPDATE_CURRENCY";
+/** 更新轮盘 */
+EventsType.UPDATE_LUCK_PRIZE = "UPDATE_LUCK_PRIZE";
+//# sourceMappingURL=EventsType.js.map
 /*
 * 训练时间掉落表;
 */
@@ -3888,6 +3355,903 @@ class BarrierRewardVO {
 class BarrierConfigVO {
 }
 //# sourceMappingURL=BarrierConfigVO.js.map
+/**
+ * CSV解析类
+ */
+class CSVParser {
+    //用json替换csv,json解析文件
+    static ParseJsonData(infoClass, sourceText) {
+        let self = this;
+        var result = new TSDictionary();
+        sourceText = sourceText.trim();
+        let obj = JSON.parse(sourceText);
+        var keyList = null;
+        var typeList = null;
+        var dataList = null;
+        var itemList = null;
+        keyList = obj.titles;
+        if (obj.data == null)
+            return result; //空表不做处理
+        dataList = obj.data; //数据是从0开始
+        typeList = dataList[0];
+        var i = 0;
+        var dataLen = dataList.length;
+        for (i = 0; i < dataLen; i++) {
+            var record = new infoClass();
+            itemList = dataList[i];
+            self.ParseRecord(keyList, itemList, record);
+            result.Add(parseInt(itemList[0]), record);
+        }
+        sourceText = null;
+        return result;
+    }
+    static ParseRecord(keyList, itemList, record) {
+        let self = this;
+        var n = itemList.length;
+        for (var i = 0; i < n; i++) {
+            record[keyList[i]] = itemList[i];
+        }
+    }
+}
+//# sourceMappingURL=CSVParser.js.map
+class NoviceGuide {
+    static getSheetByIndex(index) { return NoviceGuide.dataArr[index]; }
+    static getSheetById(id) { return NoviceGuide.dataObj[id]; }
+    static getSheetByFieldValue(fieldName, value) { const result = []; for (const sheet of NoviceGuide.dataArr) {
+        if (typeof value === 'string') {
+            if (sheet[this._keys[fieldName]].trim() === value) {
+                result.push(sheet);
+            }
+        }
+        else {
+            if (sheet[this._keys[fieldName]] === value) {
+                result.push(sheet);
+            }
+        }
+    } if (result.length === 1) {
+        return result.pop();
+    }
+    else {
+        return result;
+    } }
+    static initData(data) { const sheetLen = data.length; for (let i = 0; i < sheetLen; i++) {
+        NoviceGuide.dataArr[i] = new NoviceGuide();
+        for (const key of Object.keys(this._keys)) {
+            NoviceGuide.dataArr[i][key] = data[i][this._keys[key]];
+        }
+        NoviceGuide.dataObj[data[i][this._keys.id]] = NoviceGuide.dataArr[i];
+    } }
+    get id() { return this.b; }
+    set id(value) { this.b = value; }
+    get groupId() { return this.c; }
+    set groupId(value) { this.c = value; }
+    get stepId() { return this.d; }
+    set stepId(value) { this.d = value; }
+    get completed() { return this.e; }
+    set completed(value) { this.e = value; }
+    get type() { return this.f; }
+    set type(value) { this.f = value; }
+    get activateType() { return this.g; }
+    set activateType(value) { this.g = value; }
+    get activateValue() { return this.h; }
+    set activateValue(value) { this.h = value; }
+    get eventName() { return this.i; }
+    set eventName(value) { this.i = value; }
+    get eventParam() { return this.j; }
+    set eventParam(value) { this.j = value; }
+    get position() { return this.k; }
+    set position(value) { this.k = value; }
+    get interactPosition() { return this.l; }
+    set interactPosition(value) { this.l = value; }
+    get fingerPosition() { return this.m; }
+    set fingerPosition(value) { this.m = value; }
+    get specialInteractArea() { return this.n; }
+    set specialInteractArea(value) { this.n = value; }
+    get script() { return this.o; }
+    set script(value) { this.o = value; }
+} // prettier-ignore
+NoviceGuide.dataArr = [];
+NoviceGuide.dataObj = {};
+NoviceGuide._keys = { id: "b", groupId: "c", stepId: "d", completed: "e", type: "f", activateType: "g", activateValue: "h", eventName: "i", eventParam: "j", position: "k", interactPosition: "l", fingerPosition: "m", specialInteractArea: "n", script: "o" };
+class Sheet {
+    static initSheets(data) { const classInstance = { NoviceGuide }; for (const sheet of data) {
+        const sheetClass = classInstance[sheet.sheetName];
+        if (!sheetClass) {
+            console.error('找不到表{', sheet.sheetName + '}');
+            continue;
+        }
+        sheetClass.initData(sheet.data);
+    } }
+} // prettier-ignore
+//# sourceMappingURL=Sheet.js.map
+/*
+* 强化;
+*/
+class StrengthenManager {
+    constructor() {
+        this.skillArr = [10, 1, 3, 2];
+    }
+    /** 检查是否需要出现强化红点 */
+    checkRedPoint() {
+        let self = this;
+        let value = false;
+        for (let i = 0, len = self.skillArr.length; i < len; i++) {
+            let skillId = self.skillArr[i];
+            let strengthenLevel = userData.querySkillAddition(skillId);
+            let price = SkillManager.Instance.getSkillStrengthenCost(skillId, strengthenLevel + 1);
+            if (M.player.Info.userEssence >= price) {
+                value = true;
+                break;
+            }
+        }
+        if (value) {
+            EventsManager.Instance.event(EventsType.STRENGTHEN_RED_POINT, "show");
+        }
+        else {
+            userData.removeStrengthenRedPoint();
+        }
+    }
+    static get Instance() {
+        if (StrengthenManager._instance == null) {
+            StrengthenManager._instance = new StrengthenManager();
+        }
+        return StrengthenManager._instance;
+    }
+}
+//# sourceMappingURL=StrengthenManager.js.map
+class MoreViewListItemVO {
+    constructor() {
+        this.avatarUrl = "";
+        this.nickName = "";
+        this.itemNum = 0;
+        this.completeStatus = 0;
+    }
+}
+//# sourceMappingURL=MoreViewListItemVO.js.map
+var MoreQuestCompleteStatus;
+(function (MoreQuestCompleteStatus) {
+    MoreQuestCompleteStatus[MoreQuestCompleteStatus["NOT_YET_PLAY"] = 0] = "NOT_YET_PLAY";
+    MoreQuestCompleteStatus[MoreQuestCompleteStatus["PLAYING"] = 1] = "PLAYING";
+    MoreQuestCompleteStatus[MoreQuestCompleteStatus["COMPLETE_PLAY"] = 2] = "COMPLETE_PLAY";
+    MoreQuestCompleteStatus[MoreQuestCompleteStatus["AWARD_OBTAINED"] = 3] = "AWARD_OBTAINED";
+})(MoreQuestCompleteStatus || (MoreQuestCompleteStatus = {}));
+//# sourceMappingURL=MoreQuestCompleteStatus.js.map
+class MoreEvent {
+}
+// static SUBSCRIBE_STATUS:string = "SUBSCRIBE_STATUS";
+MoreEvent.QUEST_MARKET_QUEST_LIST = "QUEST_MARKET_QUEST_LIST";
+//# sourceMappingURL=MoreEvent.js.map
+/*
+* name;
+*/
+class HallModel {
+    constructor() {
+        /** 游戏关卡 */
+        this.passStage = 1;
+        /** 游戏章节 */
+        this.passSection = 1;
+        /** 最大游戏章节 */
+        this.maxSection = 10;
+        /** 游戏状态 */
+        this.gameStatus = 0;
+        /** 森林之王等级 */
+        this.userKingLevel = 1;
+        /** 当前购买类型 */
+        this.buyMonsterType = 0;
+        /** 最大的怪物数量 */
+        this.parkMonsterCount = 20;
+        /** 启动加速x2 */
+        this.userAcceValue = 1;
+        /** 加速时间 */
+        this.userAcceTime = 0;
+        /** 跑道怪物数量 */
+        this.userRunMonsterCount = 0;
+        /** 跑道怪物数量最大值 */
+        this.userRunMonsterCountMax = 0;
+        /** 每秒收益 */
+        this.userIncomePerSec = 0;
+        /** 额外收益-怪物道满+10% */
+        this.userExtraIncome = 1;
+        /** 视频广告观看次数上限 */
+        this.videoAdMaxTimes = 0;
+        /** 定时赠送精灵 */
+        this.giveMonsterAllTime = 0;
+        /** 赠送怪物的掉落时间 */
+        this.dropTime = 10;
+        /** 当前最新怪物ID-快捷购怪物按钮 */
+        this.curNewMonsterId = 0;
+        /** 本地保存兵营怪物 */
+        this.monsterStoreKey = "car_store_key";
+        /** 怪物列表 */
+        this.monsterArray = [];
+        /** 未领取的关卡奖励 */
+        this.stagePrizeList = [];
+        /** 守卫是否可以升级 */
+        this.isUpdate = false;
+        /** 在线钻石领取时间 */
+        this.offlineTotalTime = 5 * 60 * 1000;
+        /** 轮盘可以免费的剩余时间 */
+        this.freeTime = 0;
+        /** 离下次免费时间 */
+        this.nextFreeTime = 0;
+        /** 转盘倍率 */
+        this.magnification = 1;
+        this.concurGoldDic = new TSDictionary();
+    }
+}
+//# sourceMappingURL=HallModel.js.map
+/*
+* TER0803-新手;
+*/
+class GuideView {
+    constructor(_offsetPos = null) {
+        // private cMask:Laya.Sprite;
+        this.stage = 0; //新手步骤
+        this.guideText = [
+            "点击招募武将～",
+            "移动武将上阵自动战斗",
+            "再点击招募武将～",
+            "同等级的武将可以合成高一级武将",
+            "点击进入商城",
+            "使用元宝直接招募更高级的武将"
+        ]; //指引文字
+        if (_offsetPos) {
+            this.offsetPos = _offsetPos;
+        }
+        else {
+            this.offsetPos = new Laya.Point(0, 0);
+        }
+    }
+    setStage(_stage) {
+        // console.log("stage",_stage)
+        let that = this;
+        if (_stage == 1) {
+            //购买车
+            let rect = new Laya.Rectangle(260, 1240, 220, 110);
+            rect.x += that.offsetPos.x;
+            rect.y += that.offsetPos.y;
+            that.showMask(rect);
+            that.showGuideText(0, rect.x + 10, rect.y - 300);
+        }
+        else if (_stage == 2) {
+            //放车到跑道
+            let rect = new Laya.Rectangle(5, 810, 150, 150);
+            rect.x += that.offsetPos.x;
+            rect.y += that.offsetPos.y;
+            that.showMask(rect);
+            that.showGuideText(1, rect.x + 10, rect.y - 390);
+        }
+        else if (_stage == 3) {
+            //再次购买车
+            let rect = new Laya.Rectangle(260, 1240, 220, 110);
+            rect.x += that.offsetPos.x;
+            rect.y += that.offsetPos.y;
+            that.showMask(rect);
+            that.showGuideText(2, rect.x + 10, rect.y - 300);
+        }
+        else if (_stage == 4) {
+            //合并车
+            let rect = new Laya.Rectangle(5, 810, 290, 150);
+            rect.x += that.offsetPos.x;
+            rect.y += that.offsetPos.y;
+            that.showMask(rect);
+            that.showGuideText(3, rect.x, rect.y - 300);
+        }
+        else if (_stage == 5) {
+            //车店
+            let rect = new Laya.Rectangle(480, 1240, 265, 110);
+            rect.x += that.offsetPos.x;
+            rect.y += that.offsetPos.y;
+            that.showMask(rect);
+            that.showGuideText(4, rect.x - 40, rect.y - 310);
+        }
+        else if (_stage == 6) {
+            //元宝购车
+            let rect = new Laya.Rectangle(295, 606, 98, 80);
+            rect.x += that.offsetPos.x;
+            rect.y += that.offsetPos.y;
+            that.showMask(rect);
+            that.showGuideText(5, rect.x - 50, rect.y - 300);
+        }
+        else {
+            that.hideMask();
+        }
+        that.stage = _stage;
+    }
+    nextStage() {
+        let that = this;
+        that.setStage(that.stage + 1);
+    }
+    getStage() {
+        return this.stage;
+    }
+    //显示遮罩
+    showMask(_maskRect) {
+        let that = this;
+        if (that.mainNode == null) {
+            that.mainNode = new Laya.View();
+            Laya.stage.addChild(that.mainNode);
+            that.mainNode.zOrder = 1001;
+        }
+        else {
+            that.mainNode.removeChildren();
+        }
+        that.bgImg = new Laya.Sprite();
+        // //获取图片资源，绘制到画布
+        // that.bgImg.graphics.drawTexture(Laya.loader.getRes("images/guide_mask.png"),_maskRect.x-2, _maskRect.y-2,  _maskRect.width+4, _maskRect.height+4);
+        // //周边黑色
+        // that.bgImg.graphics.drawRect(0, 0, Laya.stage.width, _maskRect.y, "#000");
+        // that.bgImg.graphics.drawRect(0, _maskRect.y+_maskRect.height, Laya.stage.width, Laya.stage.height, "#000");
+        // that.bgImg.graphics.drawRect(0, _maskRect.y, _maskRect.x, _maskRect.height, "#000");
+        // that.bgImg.graphics.drawRect(_maskRect.x+_maskRect.width, _maskRect.y, Laya.stage.width, _maskRect.height, "#000");
+        // // //合并绘制结果
+        // if (Laya.Browser.onIOS || Laya.Browser.onPC) {
+        //     let canvas = that.bgImg.drawToCanvas(Laya.stage.width, Laya.stage.height,0,0);
+        //     let rankTexture = new Laya.Texture(canvas);
+        //     that.bgImg.graphics.clear();
+        //     that.bgImg.graphics.drawTexture(rankTexture, 0, 0, Laya.stage.width, Laya.stage.height);
+        // }
+        //添加到舞台
+        that.mainNode.addChild(that.bgImg);
+        that.bgImg.alpha = 0.5;
+        that.bgImg.on(Laya.Event.CLICK, that, () => {
+            console.log("GuideView click");
+            // that.nextStage();
+        });
+        //点击屏蔽
+        let maskRect2 = [
+            { x: 0, y: 0, width: Laya.stage.width, height: _maskRect.y },
+            { x: 0, y: _maskRect.y + _maskRect.height, width: Laya.stage.width, height: Laya.stage.height },
+            { x: 0, y: _maskRect.y, width: _maskRect.x, height: _maskRect.height },
+            { x: _maskRect.x + _maskRect.width, y: _maskRect.y, width: Laya.stage.width, height: _maskRect.height },
+        ];
+        for (var index = 0; index < maskRect2.length; index++) {
+            var element = maskRect2[index];
+            if (element) {
+                let maskView = new Laya.View();
+                maskView.pos(element.x, element.y);
+                maskView.size(element.width, element.height);
+                that.bgImg.addChild(maskView);
+                maskView.on(Laya.Event.CLICK, that, () => {
+                    console.log("maskview prevent");
+                });
+                maskView.name = 'maskview_' + index;
+            }
+        }
+        // //创建遮罩对象
+        // this.cMask = new Laya.Sprite();
+        // //画一个圆形的遮罩区域
+        // this.cMask.graphics.drawCircle(80,80,50,"#fff");
+        // //圆形所在的位置坐标
+        // this.cMask.pos(120,50);
+        // this.cMask.alpha = 0.5;
+        // //实现img显示对象的遮罩效果
+        // this.img.mask = this.cMask;
+    }
+    hideMask() {
+        let that = this;
+        if (that.mainNode) {
+            that.mainNode.removeSelf();
+            that.mainNode = null;
+        }
+    }
+    //显示指引文本
+    showGuideText(_guideId, _px, _py) {
+        let that = this;
+        if (that.mainNode) {
+            let content = that.guideText[_guideId];
+            let txtBox = new Laya.Sprite();
+            that.mainNode.addChild(txtBox);
+            txtBox.pos(_px, _py);
+            let txtImg = new Laya.Image("images/guide_bhj.png");
+            txtBox.addChild(txtImg);
+            txtImg.anchorX = 0.2;
+            txtImg.anchorY = 1.0;
+            txtImg.pos(txtImg.width * txtImg.anchorX, txtImg.height * txtImg.anchorY);
+            let timeLine = new Laya.TimeLine();
+            timeLine.addLabel("tl1", 0).to(txtImg, { scaleX: 0.98, scaleY: 0.98 }, 800, Laya.Ease.sineInOut)
+                .addLabel("tl2", 0).to(txtImg, { scaleX: 1.0, scaleY: 1.0 }, 800);
+            timeLine.play(0, true);
+            let txtLabel = new Laya.Label(content);
+            txtImg.addChild(txtLabel);
+            txtLabel.fontSize = 30;
+            txtLabel.color = "#FFFFFF";
+            txtLabel.width = 360;
+            txtLabel.height = 120;
+            // txtLabel.bgColor = "#000"
+            txtLabel.wordWrap = true;
+            txtLabel.valign = "middle";
+            txtLabel.pos(txtImg.width * 0.12, txtImg.height * 0.25);
+            //文本框缩小
+            if (_guideId == 4) {
+                timeLine.pause();
+                txtImg.scaleX = 0.7;
+                txtImg.scaleY = txtImg.scaleX;
+                txtLabel.fontSize /= txtImg.scaleX;
+            }
+            if (_guideId == 0 || _guideId == 2) {
+                let pointSp = new Laya.Image("images/shouzhi.png");
+                txtBox.addChild(pointSp);
+                pointSp.pos(txtImg.width * 0.35, txtImg.height + 20);
+                let timeLine = new Laya.TimeLine();
+                timeLine.addLabel("tl1", 0).to(pointSp, { x: pointSp.x + 30, y: pointSp.y + 30 }, 800)
+                    .addLabel("tl2", 0).to(pointSp, { x: pointSp.x, y: pointSp.y }, 800, Laya.Ease.backInOut);
+                timeLine.play(0, true);
+            }
+            else if (_guideId == 1) {
+                let pointSp = new Laya.Image("images/shouzhi.png");
+                txtBox.addChild(pointSp);
+                pointSp.pos(65, txtImg.height + 150);
+                let timeLine = new Laya.TimeLine();
+                timeLine.addLabel("tl1", 0).to(pointSp, { x: pointSp.x + 120, y: pointSp.y - 220 }, 1000)
+                    .addLabel("tl2", 0).to(pointSp, { x: pointSp.x, y: pointSp.y }, 200);
+                timeLine.play(0, true);
+            }
+            else if (_guideId == 3) {
+                // let arrSp = new Laya.Image("images/bhj3.png");
+                // txtImg.addChild(arrSp);
+                // arrSp.pos(txtImg.width*0.22, txtImg.height +120);
+                // arrSp.alpha = 0.9;
+                let pointSp = new Laya.Image("images/shouzhi.png");
+                txtBox.addChild(pointSp);
+                pointSp.pos(txtImg.width * 0.4, txtImg.height + 60);
+                let timeLine = new Laya.TimeLine();
+                timeLine.addLabel("tl1", 0).to(pointSp, { x: pointSp.x - 120, y: pointSp.y }, 800)
+                    .addLabel("tl2", 0).to(pointSp, { x: pointSp.x, y: pointSp.y }, 800, Laya.Ease.backInOut);
+                timeLine.play(0, true);
+            }
+            else if (_guideId == 4) {
+                let pointSp = new Laya.Image("images/shouzhi.png");
+                txtBox.addChild(pointSp);
+                pointSp.pos(txtImg.width * 0.25, txtImg.height + 70);
+                let timeLine = new Laya.TimeLine();
+                timeLine.addLabel("tl1", 0).to(pointSp, { x: pointSp.x + 30, y: pointSp.y + 30 }, 800)
+                    .addLabel("tl2", 0).to(pointSp, { x: pointSp.x, y: pointSp.y }, 800, Laya.Ease.backInOut);
+                timeLine.play(0, true);
+            }
+            else if (_guideId == 5) {
+                let pointSp = new Laya.Image("images/shouzhi.png");
+                txtBox.addChild(pointSp);
+                pointSp.pos(txtImg.width * 0.2, txtImg.height + 40);
+                let timeLine = new Laya.TimeLine();
+                timeLine.addLabel("tl1", 0).to(pointSp, { x: pointSp.x + 30, y: pointSp.y + 30 }, 800)
+                    .addLabel("tl2", 0).to(pointSp, { x: pointSp.x, y: pointSp.y }, 800, Laya.Ease.backInOut);
+                timeLine.play(0, true);
+            }
+        }
+    }
+    setTouchEnable(_enable = true) {
+        let that = this;
+        if (that.bgImg) {
+            for (var index = 0; index < 4; index++) {
+                var element = that.bgImg.getChildByName('maskview_' + index);
+                if (element) {
+                    element.mouseEnabled = _enable;
+                }
+            }
+        }
+    }
+}
+// module laya  {
+// 	import Sprite = Laya.Sprite;
+// 	import Stage = Laya.Stage;
+// 	import HitArea = Laya.HitArea;
+// 	import WebGL = Laya.WebGL;
+// 	export class Sprite_Guide 
+// 	{
+// 		private red:Sprite;
+// 		private guideContainer:Sprite;
+// 		private tipContainer:Sprite;
+// 		private guideSteps:Array<any> = 
+// 		[
+// 			{ x: 151, y: 575, radius:150, tip:"../../res/guide/help6.png", tipx:200, tipy:250 },
+// 			{ x: 883, y: 620, radius:100, tip:"../../res/guide/help4.png", tipx:730, tipy:380 },
+// 			{ x: 1128, y: 583, radius:110, tip:"../../res/guide/help3.png", tipx:900, tipy:300 }
+// 		];
+// 		private guideStep:number = 0;
+// 		private hitArea:HitArea;
+// 		private interactionArea:Sprite;
+// 		constructor() 
+// 		{
+// 			Laya.init(1285, 727);
+// 			Laya.stage.alignH = Stage.ALIGN_CENTER;
+// 			Laya.stage.alignV = Stage.ALIGN_MIDDLE;
+// 			//绘制一个蓝色方块，不被抠图
+// 			var gameContainer:Sprite = new Sprite();
+// 			gameContainer.loadImage("../../res/guide/crazy_snowball.png");
+// 			Laya.stage.addChild(gameContainer);
+// 			// 引导所在容器
+// 			this.guideContainer = new Sprite();
+// 			// 设置容器为画布缓存
+// 			this.guideContainer.cacheAs = "bitmap";
+// 			Laya.stage.addChild(this.guideContainer);
+// 			gameContainer.on("click", this, this.nextStep);
+// 			//绘制遮罩区，含透明度，可见游戏背景
+// 			var maskArea:Sprite = new Sprite();
+// 			maskArea.alpha = 0.5;
+// 			maskArea.graphics.drawRect(0, 0, Laya.stage.width, Laya.stage.height, "#000000");
+// 			this.guideContainer.addChild(maskArea);
+// 			//绘制一个圆形区域，利用叠加模式，从遮罩区域抠出可交互区
+// 			this.interactionArea = new Sprite();
+// 			//设置叠加模式
+// 			this.interactionArea.blendMode = "destination-out";
+// 			this.guideContainer.addChild(this.interactionArea);
+// 			this.hitArea = new HitArea();
+// 			this.hitArea.hit.drawRect(0, 0, Laya.stage.width, Laya.stage.height, "#000000");
+// 			this.guideContainer.hitArea = this.hitArea;
+// 			this.guideContainer.mouseEnabled = true;
+// 			this.tipContainer = new Sprite();
+// 			Laya.stage.addChild(this.tipContainer);
+// 			this.nextStep();
+// 		}
+// 		private nextStep():void
+// 		{
+// 			if (this.guideStep == this.guideSteps.length)
+// 			{
+// 				Laya.stage.removeChild(this.guideContainer);
+// 				Laya.stage.removeChild(this.tipContainer);
+// 			}
+// 			else
+// 			{
+// 				var step:any = this.guideSteps[this.guideStep++];
+// 				this.hitArea.unHit.clear();
+// 				this.hitArea.unHit.drawCircle(step.x, step.y, step.radius, "#000000");
+// 				this.interactionArea.graphics.clear();
+// 				this.interactionArea.graphics.drawCircle(step.x, step.y, step.radius, "#000000");
+// 				this.tipContainer.graphics.clear();
+// 				this.tipContainer.loadImage(step.tip);
+// 				this.tipContainer.pos(step.tipx, step.tipy);
+// 			}
+// 		}
+// 	}
+// }
+// new laya.Sprite_Guide();
+//# sourceMappingURL=GuideView.js.map
+/*
+* 守卫管理类;
+*/
+class EvolutionManager {
+    constructor() {
+        /** 守卫升级需要的英雄数量 */
+        this.needHeroCount = 3;
+    }
+    /** 获取守卫升级需要的条件信息 */
+    getEvolutionLevelData() {
+        return BattleManager.Instance.getMonsterItem(this.getHeroId());
+    }
+    /** 守卫升级需要的英雄ID */
+    getHeroId() {
+        return userData.isEvolution() ? (1000 + this.getHeroLevel()) : (100 + this.getHeroLevel());
+    }
+    /** 获取守卫升级的英雄需要的等级 */
+    getHeroLevel() {
+        let kingLevel = userData.getKingLevel();
+        return userData.isEvolution() ? (((kingLevel - 30) % 60) + 1) : (((kingLevel - 1) % 30) + 1);
+    }
+    /** 获取守卫升级需要的钻石 */
+    getEvolutionLevelDiamond() {
+        let kingLevel = userData.getKingLevel();
+        let kingVO = GlobleData.getData(GlobleData.KindLevelConfigVO, kingLevel);
+        if (!kingVO)
+            return 0;
+        return MathUtils.parseInt(kingVO.gemxh.toString());
+    }
+    /** 守卫是否可以升级*/
+    getIsEvolutionLevel() {
+        let kingLevel = userData.getKingLevel();
+        if (kingLevel > 10) {
+            return !((M.player.Info.userDiamond < this.getEvolutionLevelDiamond()) || (userData.caculateMonsterCount(this.getHeroId()) < this.needHeroCount));
+        }
+        else {
+            return !(M.player.Info.userDiamond < this.getEvolutionLevelDiamond());
+        }
+    }
+    static get Instance() {
+        if (EvolutionManager._instance == null) {
+            EvolutionManager._instance = new EvolutionManager();
+        }
+        return EvolutionManager._instance;
+    }
+}
+//# sourceMappingURL=EvolutionManager.js.map
+/*
+* name;
+*/
+class ScaleAnimScript {
+    constructor() {
+        this.isMouseDown = false; //按下
+        this.isMouseOut = false; //移除
+    }
+    set owner(value) {
+        this.scaleBox = value;
+        //自定义的脚本会有时序问题，所以在此添加一个延时
+        this.scaleBox.frameOnce(2, this, this.onLoaded);
+    }
+    onLoaded() {
+        this.scaleOrginValue = new Laya.Point(this.scaleBox.scaleX, this.scaleBox.scaleY);
+        // this._originAnchor = new Laya.Point((this.scaleBox.anchorX ? this.scaleBox.anchorX : 0), (this.scaleBox.anchorY ? this.scaleBox.anchorY : 0));
+        this._originPos = new Laya.Point(this.scaleBox.x, this.scaleBox.y);
+        this.scaleBox.on(Laya.Event.MOUSE_DOWN, this, this.mouseDown);
+        this.scaleBox.on(Laya.Event.MOUSE_UP, this, this.mouseUp);
+        this.scaleBox.on(Laya.Event.MOUSE_OUT, this, this.mouseOut);
+        // this.scaleBox.on(Laya.Event.MOUSE_MOVE, this, this.mouseMove);
+    }
+    mouseDown() {
+        this.isMouseDown = true;
+        this.isMouseOut = false;
+        this.scaleSmall();
+    }
+    mouseUp() {
+        if (this.isMouseDown) {
+            this.scaleNormal();
+        }
+        this.isMouseDown = false;
+    }
+    mouseOut() {
+        if (this.isMouseDown) {
+            this.scaleNormal();
+        }
+        this.isMouseDown = false;
+        this.isMouseOut = true;
+    }
+    mouseMove() {
+        if (this.isMouseOut) {
+            if (this.isHit(this.scaleBox)) {
+                this.scaleSmall();
+            }
+            else {
+                this.scaleNormal();
+            }
+        }
+    }
+    scaleSmall() {
+        if (this.scaleBox) {
+            // if (isNaN(this.scaleBox.left) && isNaN(this.scaleBox.right) && isNaN(this.scaleBox.top) &&
+            //     isNaN(this.scaleBox.bottom) && isNaN(this.scaleBox.centerX) && isNaN(this.scaleBox.centerY)) {
+            //     //居中处理
+            //     this.scaleBox.anchorX = 0.5;
+            //     this.scaleBox.anchorY = 0.5;
+            //
+            //     this.scaleBox.pos(this.scaleBox.x + this.scaleBox.width * 0.5, this.scaleBox.y + this.scaleBox.height * 0.5);
+            // }
+            this.scaleBox.scale(this.scaleOrginValue.x * 0.95, this.scaleOrginValue.y * 0.95);
+            this.scaleBox.filters = DisplayUtils.createColorFilter(1);
+        }
+    }
+    scaleNormal() {
+        if (this.scaleBox) {
+            // if (isNaN(this.scaleBox.left) && isNaN(this.scaleBox.right) && isNaN(this.scaleBox.top) &&
+            //     isNaN(this.scaleBox.bottom) && isNaN(this.scaleBox.centerX) && isNaN(this.scaleBox.centerY)) {
+            //     //居中处理
+            //     this.scaleBox.anchorX = this._originAnchor.x;
+            //     this.scaleBox.anchorY = this._originAnchor.y;
+            //     this.scaleBox.pos(this._originPos.x, this._originPos.y);
+            // }
+            this.scaleBox.scale(this.scaleOrginValue.x, this.scaleOrginValue.y);
+            this.scaleBox.filters = [];
+        }
+    }
+    //点击检测
+    isHit(_checkBox, _extW = 0, _extH = 0) {
+        if (_checkBox) {
+            let touchPos = _checkBox.getMousePoint();
+            let touchArea = new Laya.Rectangle(0 - _extW / 2, 0 - _extH / 2, _checkBox.width + _extW, _checkBox.height + _extH);
+            return touchArea.contains(touchPos.x, touchPos.y);
+        }
+        return false;
+    }
+}
+//# sourceMappingURL=ScaleAnimScript.js.map
+class LayerEvent {
+}
+LayerEvent.CHILD_ADDED = "CHILD_ADDED";
+LayerEvent.CHILD_REMOVED = "CHILD_REMOVED";
+LayerEvent.LAYER_ANIMATION_COMPLETE = "LAYER_ANIMATION_COMPLETE";
+//# sourceMappingURL=LayerEvent.js.map
+//# sourceMappingURL=ILayer.js.map
+class KeyValue {
+    constructor(key = null, value = null) {
+        this.key = key;
+        this.value = value;
+    }
+}
+//# sourceMappingURL=KeyValue.js.map
+class CacheObject {
+    constructor(key = "FREEMAN") {
+        this._key = key;
+        this._cache = {};
+        this._waitingCaches = {};
+    }
+    setCacheKey(key) {
+        this._key = key;
+        return this;
+    }
+    startCacheThread(interval = Time.SEC_IN_MILI) {
+        Laya.timer.loop(interval, this, this.__save);
+    }
+    setCache(key, value) {
+        this._waitingCaches[key] = value;
+        Laya.timer.callLater(this, this.__save);
+    }
+    setCacheGroup(cacheObj) {
+        for (const key in cacheObj) {
+            this._waitingCaches[key] = cacheObj[key];
+        }
+        Laya.timer.callLater(this, this.__save);
+    }
+    getCache(key) {
+        if (this._waitingCaches.hasOwnProperty(key)) {
+            return this._waitingCaches[key];
+        }
+        return this._cache[key];
+    }
+    removeCache(key) {
+        delete this._cache[key];
+    }
+    hasCache(key) {
+        if (this._waitingCaches.hasOwnProperty(key)) {
+            return true;
+        }
+        return this._cache.hasOwnProperty(key);
+    }
+    loadCache(success, fail) {
+        const storage = window.localStorage;
+        let b;
+        if (storage) {
+            const jsonStr = storage.getItem(this._key);
+            if (jsonStr) {
+                if (jsonStr) {
+                    const cache = JSON.parse(jsonStr);
+                    if (cache) {
+                        b = true;
+                        this._cache = cache;
+                        success && success.runWith(this);
+                    }
+                }
+            }
+        }
+        if (!b) {
+            fail && fail.run();
+            console.log("@FREEMAN: 缓存数据为空或有异常，缓存：{ " + this._key + " }");
+        }
+    }
+    clearCache() {
+        this._cache = {};
+        this._waitingCaches = {};
+        const storage = window.localStorage;
+        if (storage) {
+            storage.removeItem(this._key);
+            console.log("@FREEMAN: 本地缓存{" + this._key + "}已清除。");
+        }
+    }
+    __save() {
+        if (Object.keys(this._waitingCaches).length) {
+            for (const key in this._waitingCaches) {
+                this._cache[key] = this._waitingCaches[key];
+            }
+            try {
+                const storage = window.localStorage;
+                if (storage) {
+                    storage.setItem(this._key, JSON.stringify(this._cache));
+                }
+            }
+            catch (e) {
+                console.log("@FREEMAN: 缓存数据时出现错误：", e, " cache：", this._cache);
+                MessageUtils.showMsgTips("缓存数据时出现错误!");
+            }
+            this._waitingCaches = {};
+        }
+    }
+}
+//# sourceMappingURL=CacheObject.js.map
+/*
+* name;
+*/
+class CommonManager {
+    constructor() {
+    }
+    static get Instance() {
+        if (!CommonManager._instance) {
+            CommonManager._instance = new CommonManager();
+        }
+        return CommonManager._instance;
+    }
+}
+var DILOG_TYPE;
+(function (DILOG_TYPE) {
+    /** 英雄 */
+    DILOG_TYPE[DILOG_TYPE["PET"] = 0] = "PET";
+    /** 加速 */
+    DILOG_TYPE[DILOG_TYPE["ACC"] = 1] = "ACC";
+})(DILOG_TYPE || (DILOG_TYPE = {}));
+//# sourceMappingURL=CommonManager.js.map
+/*
+* 技能管理类;
+*/
+class SkillManager {
+    constructor() {
+    }
+    /** 获取对应技能强化消耗 */
+    getSkillStrengthenCost(skillId, strengthenLevel) {
+        let dataCfg = GlobleData.getData(GlobleData.SkillStrengthenVO, strengthenLevel);
+        let cost = 0;
+        if (dataCfg) {
+            if (skillId == 1) {
+                cost = MathUtils.parseInt(dataCfg.boss1Mxh);
+            }
+            else if (skillId == 2) {
+                cost = MathUtils.parseInt(dataCfg.boss2Mxh);
+            }
+            else if (skillId == 3) {
+                cost = MathUtils.parseInt(dataCfg.boss3Mxh);
+            }
+            else if (skillId == 10) {
+                cost = MathUtils.parseInt(dataCfg.gold10jc);
+            }
+        }
+        return cost;
+    }
+    /** 获取对应技能强化几率 */
+    getSkillStrengthenProbability(skillId, strengthenLevel = 0) {
+        let dataCfg = GlobleData.getData(GlobleData.SkillConfigVO, skillId);
+        let probability = 0;
+        if (dataCfg) {
+            let qiangHuaSx = MathUtils.parseStringNum(dataCfg.qiangHuaSx);
+            probability = Math.min(MathUtils.parseStringNum(dataCfg.qiangHua) * strengthenLevel, qiangHuaSx);
+        }
+        return probability;
+    }
+    /** 获取对应技能强化等级几率 */
+    getSkillStrengthenLevelProbability(skillId, strengthenLevel = 0) {
+        let dataCfg = GlobleData.getData(GlobleData.SkillConfigVO, skillId);
+        let probability = 0;
+        if (dataCfg) {
+            probability = MathUtils.parseStringNum(dataCfg.triggerPro) + SkillManager.Instance.getSkillStrengthenProbability(skillId, strengthenLevel);
+            probability += 0.0001; //小数偏差
+        }
+        return probability;
+    }
+    static get Instance() {
+        if (SkillManager._instance == null) {
+            SkillManager._instance = new SkillManager();
+        }
+        return SkillManager._instance;
+    }
+}
+//# sourceMappingURL=SkillManager.js.map
+/*
+* name;
+*/
+class BattleModel {
+    constructor() {
+        /** 定时上传数据时间 */
+        this.saveTime = 0;
+        /** 刷新广告时间 */
+        this.refreshAdvTime = 0;
+        /** 活着的怪物数 */
+        this.livingCount = 0;
+        /** 活着的怪物数 */
+        this.livingIndex = 0;
+        /** 暴击加成 */
+        this.kingDoubleAdd = 0;
+        /** 英雄的伤害值 */
+        this.petAttackValue = 0;
+        /** 暴击数值范围 */
+        this.critRateBuff = 0;
+        /** 最大等级 */
+        this.monsterMaxLevel = 30;
+        /** 钻石初始消费价格 */
+        this.monsterBaseDiamondPrice = 36;
+    }
+}
+//# sourceMappingURL=BattleModel.js.map
+class BattleEventsConst {
+}
+/** 战斗通关 */
+BattleEventsConst.BATTLE_CLEARANC = "BATTLE_CLEARANC";
+/** 战斗没有通关 */
+BattleEventsConst.BATTLE_NO_CLEARANC = "BATTLE_NO_CLEARANC";
+//# sourceMappingURL=BattleEventsConst.js.map
 class WXSystemInfo {
     constructor() {
         this.SDKVersion = "1.0.0";
@@ -4897,194 +5261,6 @@ CacheKey.PET_LIST = "pet_list"; //参战的宠物列表 @FREEMAN
 CacheKey.SHOP_DATA = "shop_data"; //商店数据 @FREEMAN
 CacheKey.SKILL_DATA = "skill_data"; //技能数据 @FREEMAN
 //# sourceMappingURL=CacheKey.js.map
-/**
- * Timer管理类
- */
-class TimerManager {
-    /**
-     * 构造函数
-     */
-    constructor() {
-        let self = this;
-        self._handlers = new Array();
-        self._delHandlers = new Array();
-        self._currTime = new Date().getTime();
-        self._currFrame = 0;
-        self._count = 0;
-        self._timeScale = 1;
-        Laya.timer.frameLoop(1, self, self.onEnterFrame);
-    }
-    /**
-     * 设置时间参数
-     * @param timeScale
-     */
-    setTimeScale(timeScale) {
-        this._timeScale = timeScale;
-    }
-    /**
-     * 每帧执行函数
-     * @param frameTime
-     */
-    onEnterFrame() {
-        this._currFrame++;
-        this._currTime = new Date().getTime();
-        for (var i = 0; i < this._count; i++) {
-            var handler = this._handlers[i];
-            var t = handler.userFrame ? this._currFrame : this._currTime;
-            if (t >= handler.exeTime) {
-                handler.method.call(handler.handerObj, (this._currTime - handler.dealTime) * this._timeScale);
-                handler.dealTime = this._currTime;
-                handler.exeTime += handler.delay;
-                if (!handler.repeat) {
-                    if (handler.repeatCount > 1) {
-                        handler.repeatCount--;
-                    }
-                    else {
-                        if (handler.complateMethod) {
-                            handler.complateMethod.apply(handler.complateMethodObj);
-                        }
-                        this._delHandlers.push(handler);
-                    }
-                }
-            }
-        }
-        while (this._delHandlers.length) {
-            var handler = this._delHandlers.pop();
-            this.remove(handler.method, handler.handerObj);
-        }
-    }
-    create(useFrame, delay, repeatCount, method, methodObj, complateMethod, complateMethodObj) {
-        //参数监测
-        if (delay < 0 || repeatCount < 0 || method == null) {
-            return;
-        }
-        //先删除相同函数的计时
-        this.remove(method, methodObj);
-        //创建
-        var handler = Laya.Pool.getItemByClass("TimerHandlers", TimerHandlers);
-        handler.userFrame = useFrame;
-        handler.repeat = repeatCount == 0;
-        handler.repeatCount = repeatCount;
-        handler.delay = delay;
-        handler.method = method;
-        handler.handerObj = methodObj;
-        handler.complateMethod = complateMethod;
-        handler.complateMethodObj = complateMethodObj;
-        handler.exeTime = delay + (useFrame ? this._currFrame : this._currTime);
-        handler.dealTime = this._currTime;
-        this._handlers.push(handler);
-        this._count++;
-    }
-    /**
-     *
-     * 定时执行
-     * @param delay 执行间隔:毫秒
-     * @param repeatCount 执行次数, 0为无限次
-     * @param method 执行函数
-     * @param methodObj 执行函数所属对象
-     * @param complateMethod 完成执行函数
-     * @param complateMethodObj 完成执行函数所属对象
-     *
-     */
-    doTimer(delay, repeatCount, method, methodObj, complateMethod = null, complateMethodObj = null) {
-        this.create(false, delay, repeatCount, method, methodObj, complateMethod, complateMethodObj);
-    }
-    /**
-     *
-     * 定时执行
-     * @param delay 执行间隔:帧频
-     * @param repeatCount 执行次数, 0为无限次
-     * @param method 执行函数
-     * @param methodObj 执行函数所属对象
-     * @param complateMethod 完成执行函数
-     * @param complateMethodObj 完成执行函数所属对象
-     *
-     */
-    doFrame(delay, repeatCount, method, methodObj, complateMethod = null, complateMethodObj = null) {
-        this.create(true, delay, repeatCount, method, methodObj, complateMethod, complateMethodObj);
-    }
-    /**
-     * 定时器执行数量
-     * @return
-     *
-     */
-    get count() {
-        return this._count;
-    }
-    /**
-     * 清理
-     * @param method 要移除的函数
-     * @param methodObj 要移除的函数对应的对象
-     */
-    remove(method, methodObj) {
-        for (var i = 0; i < this._count; i++) {
-            var handler = this._handlers[i];
-            if (handler.method == method && handler.handerObj == methodObj) {
-                this._handlers.splice(i, 1);
-                Laya.Pool.recover("TimerHandlers", handler);
-                this._count--;
-                break;
-            }
-        }
-    }
-    /**
-     * 清理
-     * @param methodObj 要移除的函数对应的对象
-     */
-    removeAll(methodObj) {
-        for (var i = 0; i < this._count; i++) {
-            var handler = this._handlers[i];
-            if (handler.handerObj == methodObj) {
-                this._handlers.splice(i, 1);
-                Laya.Pool.recover("TimerHandlers", handler);
-                this._count--;
-                i--;
-            }
-        }
-    }
-    /**
-     * 检测是否已经存在
-     * @param method
-     * @param methodObj
-     *
-     */
-    isExists(method, methodObj) {
-        for (var i = 0; i < this._count; i++) {
-            var handler = this._handlers[i];
-            if (handler.method == method && handler.handerObj == methodObj) {
-                return true;
-            }
-        }
-        return false;
-    }
-    static get Instance() {
-        if (!this._instance) {
-            this._instance = new TimerManager();
-        }
-        return this._instance;
-    }
-}
-//# sourceMappingURL=TimerManager.js.map
-class TimerHandlers {
-    constructor() {
-        /**执行间隔*/
-        this.delay = 0;
-        /**重复执行次数*/
-        this.repeatCount = 0;
-        /**执行时间*/
-        this.exeTime = 0;
-        /**上次的执行时间*/
-        this.dealTime = 0;
-    }
-    /**清理*/
-    clear() {
-        this.method = null;
-        this.handerObj = null;
-        this.complateMethod = null;
-        this.complateMethodObj = null;
-    }
-}
-//# sourceMappingURL=TimerHandlers.js.map
 /*
 * SDK;
 */
@@ -5363,150 +5539,6 @@ class PoolManager {
 }
 //# sourceMappingURL=PoolManager.js.map
 /*
-* name;
-*/
-class LanguageManager {
-    constructor() {
-        this._languageMap = new TSDictionary();
-        this._reg = new RegExp("\\{(\\d+)\\}");
-    }
-    /** 加载语言包配置文件 */
-    loadLanguage() {
-        let self = this;
-        Laya.loader.load(PathConfig.Language, Laya.Handler.create(self, () => {
-            self.init(Laya.Loader.getRes(PathConfig.Language));
-        }, null, true), null, Laya.Loader.TEXT);
-    }
-    /**
-     * 初始化数据
-     */
-    init(data) {
-        if (!data) {
-            data = Laya.Loader.getRes(PathConfig.Language);
-        }
-        let self = this;
-        let languageArr = String(data).split("\r\n");
-        if (languageArr.length) {
-            for (var i = 0; i < languageArr.length; i++) {
-                var obj = languageArr[i];
-                if (obj == "#" || obj == "") {
-                    continue;
-                }
-                else {
-                    let strArr = obj.split(":");
-                    if (self._languageMap.ContainsKey(strArr[0])) {
-                        self._languageMap.Remove(strArr[0]);
-                    }
-                    if (strArr.length <= 2) {
-                        self._languageMap.Add(strArr[0], strArr[1]);
-                    }
-                    else {
-                        self._languageMap.Add(strArr[0], strArr.slice(1).join(""));
-                    }
-                }
-            }
-            LanguageManager.isLanguageLoadComplete = true;
-        }
-    }
-    getLanguageMapData() {
-        let self = this;
-        return self._languageMap.getValues();
-    }
-    getLanguageById(key) {
-        let self = this;
-        return self._languageMap.TryGetValue(key);
-    }
-    /**
-     * 设置容器语言
-     * @param {Laya.Node} node
-     */
-    setModuleLanguage(node) {
-        let self = this;
-        if (!node || node && !node.numChildren || !LanguageManager.isOpenLanguage)
-            return;
-        self.SearchAndModifyNodeLanguage(node);
-    }
-    SearchAndModifyNodeLanguage(node) {
-        for (var i = 0; i < node.numChildren; i++) {
-            var child = node.getChildAt(i);
-            if (child instanceof Laya.Node) {
-                this.SearchAndModifyNodeLanguage(child);
-            }
-            if (child instanceof Laya.Label) {
-                if (child.name != "") {
-                    var name = child.name.split("@")[1];
-                    if (name) {
-                        child.text = this.getLanguageById(name);
-                    }
-                }
-            }
-            else if (child instanceof Laya.Button) {
-                if (child.name != "") {
-                    var name = child.name.split("@")[1];
-                    if (name) {
-                        child.label = this.getLanguageById(name);
-                    }
-                }
-            }
-        }
-    }
-    /**
-    * 获取文本内容
-    * @param {string} key
-    * @returns {string}
-    */
-    getLanguageText(key, ...arg) {
-        let self = this;
-        return self.getTranslationWithArray(key, arg);
-    }
-    getTranslationWithArray(key, argsArr) {
-        let self = this;
-        if (self._languageMap.ContainsKey(key)) {
-            return self.replaceStr(self._languageMap.TryGetValue(key), argsArr);
-        }
-    }
-    languageReplace(str, args) {
-        let self = this;
-        return self.replaceStr(str, args);
-    }
-    /**
-     * 根据正则表达式去替换内容
-     */
-    replaceStr(repContent, argsArr) {
-        let self = this;
-        if (argsArr && argsArr.length > 0) {
-            let data = self._reg.exec(repContent);
-            while (data && argsArr.length > 0) {
-                let id = Number(data[1]);
-                let str = String(argsArr[id]);
-                if (id >= 0 && id < argsArr.length) {
-                    var idx = str.indexOf("$");
-                    if (idx > -1) {
-                        str = str.slice(0, idx) + "$" + str.slice(idx);
-                    }
-                    repContent = repContent.replace(self._reg, str);
-                }
-                else {
-                    repContent = repContent.replace(self._reg, "{}");
-                }
-                data = self._reg.exec(repContent);
-            }
-        }
-        return repContent;
-    }
-    static get Instance() {
-        let self = this;
-        if (LanguageManager._instance == null) {
-            LanguageManager._instance = new LanguageManager();
-        }
-        return LanguageManager._instance;
-    }
-}
-/** 语言包数据是否加载完毕 */
-LanguageManager.isLanguageLoadComplete = false;
-LanguageManager.isOpenLanguage = true;
-//# sourceMappingURL=LanguageManager.js.map
-/*
 * Manager初始化类
 */
 class GameEnterManager {
@@ -5525,37 +5557,6 @@ class GameEnterManager {
     }
 }
 //# sourceMappingURL=GameEnterManager.js.map
-/*
-* 事件类型;
-*/
-class EventsType {
-}
-EventsType.OFFLINE = "OFFLINE";
-EventsType.SHARE_SWITCH = "SHARE_SWITCH";
-EventsType.GOLD_CHANGE = "GOLD_CHANGE";
-EventsType.DIAMOND_CHANGE = "DIAMOND_CHANGE";
-EventsType.ESSENCE_CHANGE = "ESSENCE_CHANGE";
-EventsType.SHARE_GIFT_RED_POINT = "SHARE_GIFT_RED_POINT";
-EventsType.DAY_SIGN_RED_POINT = "DAY_SIGN_RED_POINT";
-EventsType.STRENGTHEN_RED_POINT = "STRENGTHEN_RED_POINT";
-EventsType.HERO_SHOP_RED_POINT = "HERO_SHOP_RED_POINT";
-EventsType.ACCE_CHANGE = "ACCE_CHANGE";
-EventsType.BACK_GAME = "BACK_GAME"; //重返游戏
-EventsType.TASK_RED_POINT = "TASK_RED_POINT";
-EventsType.LUCK_PRIZED_RED_POINT = "LUCK_PRIZED_RED_POINT";
-EventsType.FOLLOW_RED_POINT = "FOLLOW_RED_POINT";
-EventsType.FRIEND_CONCUR_RED_POINT = "FRIEND_CONCUR_RED_POINT";
-EventsType.EVERY_DAY_INTO_REWARD = "EVERY_DAY_INTO_REWARD";
-EventsType.UPDATE_HALL_DATA = "UPDATE_HALL_DATA";
-/** 好友助力领奖 */
-EventsType.FRIEND_CONCUR_GET_REWARD = "FRIEND_CONCUR_GET_REWARD";
-/** 守卫升级完毕 */
-EventsType.EVOLUTION_LEVEL_COMPLETE = "EVOLUTION_LEVEL_COMPLETE";
-/** 更新货币数据 */
-EventsType.UPDATE_CURRENCY = "UPDATE_CURRENCY";
-/** 更新轮盘 */
-EventsType.UPDATE_LUCK_PRIZE = "UPDATE_LUCK_PRIZE";
-//# sourceMappingURL=EventsType.js.map
 class Time {
 }
 /**
@@ -5635,21 +5636,6 @@ class GlobalConfig {
     }
 }
 //# sourceMappingURL=GlobalConfig.js.map
-/*
-* 派发类;
-*/
-class EventsManager extends Laya.EventDispatcher {
-    constructor() {
-        super();
-    }
-    static get Instance() {
-        if (!EventsManager._instance) {
-            EventsManager._instance = new EventsManager();
-        }
-        return EventsManager._instance;
-    }
-}
-//# sourceMappingURL=EventsManager.js.map
 class BuffController extends Laya.EventDispatcher {
     constructor() {
         super(...arguments);
@@ -5886,6 +5872,119 @@ class PlayerManager extends Laya.EventDispatcher {
     }
 }
 //# sourceMappingURL=PlayerManager.js.map
+//# sourceMappingURL=IBaseView.js.map
+/**
+ *  View基类，继承自Laya.Component
+ */
+class BaseView extends Laya.View {
+    /** 构造函数 */
+    constructor($layer, $class, isShowMask = true) {
+        super();
+        this._resources = null;
+        this._myParent = LayerMgr.Instance.getLayerByType($layer);
+        this._isInit = false;
+        this._isShowMask = isShowMask;
+        this._ui = $class;
+    }
+    /** 获取我的父级 */
+    get myParent() {
+        return this._myParent;
+    }
+    /** 添加到父级 */
+    addToParent() {
+        AlignUtils.setToScreenGoldenPos(this);
+        if (this._isShowMask) {
+            this._myParent.maskEnabled = true;
+            this._myParent.addChildWithMaskCall(this, () => {
+                this.removeFromParent();
+                this.close();
+            });
+        }
+        else {
+            this._myParent.maskEnabled = false;
+            this._myParent.addChild(this);
+        }
+    }
+    /** 初始化UI界面 */
+    initUIView() {
+        try {
+            this._ui = new this._ui();
+        }
+        catch (error) {
+        }
+        finally {
+            this.addChild(this._ui);
+            this.size(this.ui.width, this.ui.height);
+        }
+    }
+    /** 从父级移除 */
+    removeFromParent() {
+        DisplayUtils.removeFromParent(this);
+    }
+    /** 对面板进行显示初始化，用于子类继承 */
+    initUI() {
+        this._isInit = true;
+    }
+    /** 对面板数据的初始化，用于子类继承 */
+    initData() {
+        this._isInit = true;
+    }
+    /** 添加监听事件 */
+    addEvents() { }
+    /** 移除监听事件 */
+    removeEvents() { }
+    /** 是否已经初始化 */
+    isInit() {
+        return this._isInit;
+    }
+    /** 面板是否显示 */
+    isShow() {
+        return this.stage != null && this.visible && this._myParent.contains(this);
+    }
+    /** 面板开启执行函数，用于子类继承 */
+    open(...param) {
+        this._datas = param;
+    }
+    /** 设置是否隐藏 */
+    setVisible(value) {
+        this.visible = value;
+    }
+    /** 设置初始加载资源 */
+    setResources(resources) {
+        this._resources = resources;
+    }
+    /** 加载面板所需资源 */
+    loadResource(loadComplete, initComplete) {
+        if (this._resources && this._resources.length > 0) {
+            ResUtils.loadGroup(this._resources, () => {
+                loadComplete && loadComplete();
+                initComplete && initComplete();
+            }, this);
+        }
+        else {
+            loadComplete && loadComplete();
+            initComplete && initComplete();
+        }
+    }
+    /** 面板关闭执行函数，用于子类继承 */
+    close(...param) {
+        this.removeEvents();
+        SDKManager.Instance.closeBannerAd();
+    }
+    /** 销毁 */
+    destroy() {
+        this.removeEvents();
+        this._myParent = null;
+        this._ui.removeSelf();
+        this._ui = null;
+        SDKManager.Instance.closeBannerAd();
+    }
+    get ui() { return this._ui; }
+    set ui(value) { this._ui = value; }
+    get datas() { return this._datas; }
+    set datas(value) { this._datas = value; }
+}
+//# sourceMappingURL=BaseView.js.map
 /*
 * 子弹
 */
@@ -6806,829 +6905,6 @@ var MONSTER_TYPE;
     MONSTER_TYPE[MONSTER_TYPE["BOSS_HERO"] = 5] = "BOSS_HERO";
 })(MONSTER_TYPE || (MONSTER_TYPE = {}));
 //# sourceMappingURL=Monster.js.map
-/**
- * json数据解析类
- */
-class GlobleData extends Laya.EventDispatcher {
-    constructor() {
-        super();
-        /** json数据是否全部解析完毕 */
-        this._hasParasComplete = false;
-        this._needParseCount = 0;
-        this._currParseCount = 0;
-        this._jsonCount = 0;
-    }
-    setup(callback) {
-        let self = this;
-        self._callBack = callback;
-        self._totalStepCsvList = new TSDictionary();
-        GlobleData.AllCacheData = new TSDictionary();
-        self.initModel();
-        self.initStep();
-    }
-    initModel() {
-        let self = this;
-        self._totalStepCsvList.Add(GlobleData.MonsterVO, MonsterVO);
-        self._totalStepCsvList.Add(GlobleData.BarrierRewardVO, BarrierRewardVO);
-        self._totalStepCsvList.Add(GlobleData.BarrierConfigVO, BarrierConfigVO);
-        self._totalStepCsvList.Add(GlobleData.KindLevelConfigVO, KindLevelConfigVO);
-        self._totalStepCsvList.Add(GlobleData.SkillConfigVO, SkillConfigVO);
-        self._totalStepCsvList.Add(GlobleData.SkillStrengthenVO, SkillStrengthenVO);
-        self._totalStepCsvList.Add(GlobleData.TrainDropVO, TrainDropVO);
-        self._totalStepCsvList.Add(GlobleData.ItemVO, ItemVO);
-    }
-    // 解析初始数据表
-    initStep() {
-        let self = this;
-        self._needParseCount = self._totalStepCsvList.GetLenght();
-        self.onEnterFrameLoader();
-    }
-    onEnterFrameLoader() {
-        let self = this;
-        if (self._currParseCount >= self._needParseCount) {
-            TimerManager.Instance.remove(self.onEnterFrameLoader, self);
-            this._hasParasComplete = true;
-            if (self._callBack)
-                self._callBack();
-        }
-        else {
-            //一次解析两个文件
-            self.getCsvFile();
-            // self.getCsvFile();
-        }
-    }
-    /** 开始逐个逐个解析JSON文件 */
-    getCsvFile() {
-        let self = this;
-        if (self._jsonCount < self._needParseCount) {
-            let key = self._totalStepCsvList.getKeyByIndex(self._jsonCount);
-            key = "config/csvJson/" + key;
-            key = key.replace('_', '.');
-            key = PathConfig.RES_URL + key;
-            Laya.loader.load(key, Laya.Handler.create(self, self.onLoaded, [key]), null, Laya.Loader.TEXT, 0, true);
-            self._jsonCount++;
-        }
-    }
-    onLoaded(key) {
-        let self = this;
-        //替换一个看不见的特殊字符
-        let data = Laya.loader.getRes(key);
-        // data = data.replace(/[\ufeff]/, "");
-        try {
-            let data_json = JSON.parse(data);
-            let csvStr = JSON.stringify(data_json);
-            self.starSingleParse(csvStr);
-        }
-        catch (error) {
-            console.log("@David 加载csv出错 key:", key);
-        }
-        finally {
-            this.onEnterFrameLoader();
-        }
-    }
-    starSingleParse(csvStr) {
-        let self = this;
-        let key = self._totalStepCsvList.getKeyByIndex(self._currParseCount);
-        let DataClass = self._totalStepCsvList.getValueByIndex(self._currParseCount);
-        let dic = CSVParser.ParseJsonData(DataClass, csvStr);
-        GlobleData.AllCacheData.Add(key, dic);
-        self._currParseCount++;
-    }
-    /** 获取对应表的指定某条数据 */
-    static getData(type, key) {
-        let dic = GlobleData.AllCacheData.TryGetValue(type);
-        return dic.TryGetValue(key);
-    }
-    /**
-     * 获取对应表的某条数据中指定名字下的数据
-     * @param type 那张表
-     * @param filterType 某一项名字
-     * @param filterValue 值
-     * 例如：parseInt(GlobleVOData.getDataByFilter(GlobleVOData.ServerConfigVO, "id", "MAX_MAP_COUNT")[0].value)
-     */
-    static getDataByFilter(type, filterType, filterValue) {
-        let dic = GlobleData.AllCacheData.TryGetValue(type);
-        let filterd = dic.TryGetListByCondition((bean) => bean[filterType] == filterValue);
-        return filterd;
-    }
-    /** 获取对应表的所有数据 */
-    static getAllValue(type) {
-        let dic = GlobleData.AllCacheData.TryGetValue(type);
-        return dic.getValues();
-    }
-    /**
-     * 查找对应条件的数据
-     */
-    static getDataByCondition(type, value) {
-        let dic = GlobleData.AllCacheData.TryGetValue(type);
-        let arr = dic.TryGetListByCondition(value);
-        return arr;
-    }
-    /** json数据是否全部解析完毕 */
-    get hasParasComplete() {
-        return this._hasParasComplete;
-    }
-    static get Instance() {
-        if (!this._instance) {
-            this._instance = new GlobleData();
-        }
-        return this._instance;
-    }
-}
-/** 怪物表 */
-GlobleData.MonsterVO = "Monster_json";
-/** 关卡奖励表 */
-GlobleData.BarrierRewardVO = "BarrierReward_json";
-/** 关卡配置表 */
-GlobleData.BarrierConfigVO = "BarrierConfig_json";
-/** 森林王等级配置 */
-GlobleData.KindLevelConfigVO = "KindLevelConfig_json";
-/** 技能配置 */
-GlobleData.SkillConfigVO = "SkillConfig_json";
-/** 技能强化配置 */
-GlobleData.SkillStrengthenVO = "SkillStrengthen_json";
-/** 训练时间掉落表 */
-GlobleData.TrainDropVO = "TrainDrop_json";
-/** 物品表 */
-GlobleData.ItemVO = "Item_json";
-//# sourceMappingURL=GlobleData.js.map
-class LayerMgr extends EventDispatcher {
-    constructor() {
-        super(...arguments);
-        this._layerCount = 11;
-        this._layers = [];
-    }
-    initLayer(container, designWidth, designHeight) {
-        const pixelRatio = Laya.Browser.pixelRatio;
-        const clientWidth = Laya.Browser.clientWidth * pixelRatio;
-        const clientHeight = Laya.Browser.clientHeight * pixelRatio;
-        const adaptScaleX = clientWidth / designWidth;
-        const adaptScaleY = clientHeight / designHeight;
-        const adaptScale = Math.min(adaptScaleX, adaptScaleY);
-        const stageWidth = designWidth * adaptScaleX;
-        const stageHeight = designHeight * adaptScaleY;
-        let top = 0;
-        let left = 0;
-        if (adaptScale === adaptScaleX) {
-            top = (stageHeight - designHeight * adaptScale) * 0.5;
-        }
-        else {
-            left = (stageWidth - designWidth * adaptScale) * 0.5;
-        }
-        container.width = stageWidth;
-        container.height = stageHeight;
-        LayerManager.stageDesignWidth = designWidth;
-        LayerManager.stageDesignHeight = designHeight;
-        LayerManager.clientWidth = Laya.Browser.clientWidth;
-        LayerManager.clientHeight = Laya.Browser.clientHeight;
-        LayerManager.adaptScaleX = adaptScaleX;
-        LayerManager.adaptScaleY = adaptScaleY;
-        LayerManager.adaptScale = adaptScale;
-        LayerManager.pixelRatio = pixelRatio;
-        LayerManager.top = top;
-        LayerManager.left = left;
-        LayerManager.clientTop = (top / pixelRatio);
-        LayerManager.clientLeft = (left / pixelRatio);
-        this.createAllLayers();
-        container.addChild(this.getLayerByType(LAYER_TYPE.RENDER_LAYER));
-        container.addChild(this.getLayerByType(LAYER_TYPE.NAV_LAYER));
-        container.addChild(this.getLayerByType(LAYER_TYPE.FRAME_LAYER));
-        container.addChild(this.getLayerByType(LAYER_TYPE.SUB_FRAME_LAYER));
-        container.addChild(this.getLayerByType(LAYER_TYPE.ALERT_LAYER));
-        container.addChild(this.getLayerByType(LAYER_TYPE.SCREEN_EFFECT_LAYER));
-        container.addChild(this.getLayerByType(LAYER_TYPE.ROLL_MSG_LAYER));
-        container.addChild(this.getLayerByType(LAYER_TYPE.GUIDE_LAYER));
-        container.addChild(this.getLayerByType(LAYER_TYPE.SMALL_LOADING_LAYER));
-        container.addChild(this.getLayerByType(LAYER_TYPE.NOTE_LAYER));
-        container.addChild(this.getLayerByType(LAYER_TYPE.DEBUG_LAYER));
-        for (const layer of this._layers) {
-            layer.pos(left, top);
-            layer.scale(adaptScale, adaptScale);
-        }
-    }
-    createAllLayers() {
-        for (let i = 0; i < this._layerCount; i++) {
-            this._layers.push(this.createOnLayer(i));
-        }
-    }
-    createOnLayer(layerType) {
-        let layer = new MaskLayer(layerType);
-        return layer;
-    }
-    addToLayer(display, layerType) {
-        let layer = this.getLayerByType(layerType);
-        layer.maskEnabled = false;
-        layer.addChild(display);
-    }
-    getLayerByType(layerType) {
-        for (let i = 0; i < this._layers.length; i++) {
-            if (this._layers[i].layerId == layerType) {
-                return this._layers[i];
-            }
-        }
-    }
-    static get Instance() {
-        if (LayerMgr._instance == null) {
-            LayerMgr._instance = new LayerMgr();
-        }
-        return LayerMgr._instance;
-    }
-}
-var LAYER_TYPE;
-(function (LAYER_TYPE) {
-    LAYER_TYPE[LAYER_TYPE["RENDER_LAYER"] = 0] = "RENDER_LAYER";
-    LAYER_TYPE[LAYER_TYPE["NAV_LAYER"] = 1] = "NAV_LAYER";
-    LAYER_TYPE[LAYER_TYPE["FRAME_LAYER"] = 2] = "FRAME_LAYER";
-    LAYER_TYPE[LAYER_TYPE["SUB_FRAME_LAYER"] = 3] = "SUB_FRAME_LAYER";
-    LAYER_TYPE[LAYER_TYPE["ALERT_LAYER"] = 4] = "ALERT_LAYER";
-    LAYER_TYPE[LAYER_TYPE["SCREEN_EFFECT_LAYER"] = 5] = "SCREEN_EFFECT_LAYER";
-    LAYER_TYPE[LAYER_TYPE["ROLL_MSG_LAYER"] = 6] = "ROLL_MSG_LAYER";
-    LAYER_TYPE[LAYER_TYPE["GUIDE_LAYER"] = 7] = "GUIDE_LAYER";
-    LAYER_TYPE[LAYER_TYPE["SMALL_LOADING_LAYER"] = 8] = "SMALL_LOADING_LAYER";
-    /** 公告层 */
-    LAYER_TYPE[LAYER_TYPE["NOTE_LAYER"] = 9] = "NOTE_LAYER";
-    LAYER_TYPE[LAYER_TYPE["DEBUG_LAYER"] = 10] = "DEBUG_LAYER";
-})(LAYER_TYPE || (LAYER_TYPE = {}));
-//# sourceMappingURL=LayerMgr.js.map
-//# sourceMappingURL=IBaseView.js.map
-/**
- *  View基类，继承自Laya.Component
- */
-class BaseView extends Laya.View {
-    /** 构造函数 */
-    constructor($layer, $class, isShowMask = true) {
-        super();
-        this._resources = null;
-        this._myParent = LayerMgr.Instance.getLayerByType($layer);
-        this._isInit = false;
-        this._isShowMask = isShowMask;
-        this._ui = $class;
-    }
-    /** 获取我的父级 */
-    get myParent() {
-        return this._myParent;
-    }
-    /** 添加到父级 */
-    addToParent() {
-        AlignUtils.setToScreenGoldenPos(this);
-        if (this._isShowMask) {
-            this._myParent.maskEnabled = true;
-            this._myParent.addChildWithMaskCall(this, () => {
-                this.removeFromParent();
-                this.close();
-            });
-        }
-        else {
-            this._myParent.maskEnabled = false;
-            this._myParent.addChild(this);
-        }
-    }
-    /** 初始化UI界面 */
-    initUIView() {
-        try {
-            this._ui = new this._ui();
-        }
-        catch (error) {
-        }
-        finally {
-            this.addChild(this._ui);
-            this.size(this.ui.width, this.ui.height);
-        }
-    }
-    /** 从父级移除 */
-    removeFromParent() {
-        DisplayUtils.removeFromParent(this);
-    }
-    /** 对面板进行显示初始化，用于子类继承 */
-    initUI() {
-        this._isInit = true;
-    }
-    /** 对面板数据的初始化，用于子类继承 */
-    initData() {
-        this._isInit = true;
-    }
-    /** 添加监听事件 */
-    addEvents() { }
-    /** 移除监听事件 */
-    removeEvents() { }
-    /** 是否已经初始化 */
-    isInit() {
-        return this._isInit;
-    }
-    /** 面板是否显示 */
-    isShow() {
-        return this.stage != null && this.visible && this._myParent.contains(this);
-    }
-    /** 面板开启执行函数，用于子类继承 */
-    open(...param) {
-        this._datas = param;
-    }
-    /** 设置是否隐藏 */
-    setVisible(value) {
-        this.visible = value;
-    }
-    /** 设置初始加载资源 */
-    setResources(resources) {
-        this._resources = resources;
-    }
-    /** 加载面板所需资源 */
-    loadResource(loadComplete, initComplete) {
-        if (this._resources && this._resources.length > 0) {
-            ResUtils.loadGroup(this._resources, () => {
-                loadComplete && loadComplete();
-                initComplete && initComplete();
-            }, this);
-        }
-        else {
-            loadComplete && loadComplete();
-            initComplete && initComplete();
-        }
-    }
-    /** 面板关闭执行函数，用于子类继承 */
-    close(...param) {
-        this.removeEvents();
-        SDKManager.Instance.closeBannerAd();
-    }
-    /** 销毁 */
-    destroy() {
-        this.removeEvents();
-        this._myParent = null;
-        this._ui.removeSelf();
-        this._ui = null;
-        SDKManager.Instance.closeBannerAd();
-    }
-    get ui() { return this._ui; }
-    set ui(value) { this._ui = value; }
-    get datas() { return this._datas; }
-    set datas(value) { this._datas = value; }
-}
-//# sourceMappingURL=BaseView.js.map
-/*
-* 特效工具类;
-*/
-class EffectUtils extends Laya.Sprite {
-    /** 显示训练时间到了的特效 */
-    static showTrainingTimeEffect(parentNode) {
-        let self = this;
-        let img = new Laya.Image("images/hall/gameLastTimeTip.png");
-        M.layer.screenEffectLayer.addChild(img);
-        img.pos(0 - img.width, (LayerManager.stageDesignHeight - 260) / 2);
-        Laya.Tween.to(img, { x: (LayerManager.stageDesignWidth - 260) / 2 }, 250, null, Laya.Handler.create(self, () => {
-            Laya.Tween.clearTween(img);
-            Laya.Tween.to(img, { x: LayerManager.stageDesignWidth + 260 }, 250, null, Laya.Handler.create(self, () => {
-                Laya.Tween.clearTween(img);
-                img.removeSelf();
-                img = null;
-            }, null, true), 850);
-        }, null, true));
-    }
-    /** 对象360°旋转 */
-    static objectRotate(parentNode) {
-        let rotation = 0;
-        if (parentNode.rotation >= 0) {
-            rotation = parentNode.rotation + 360;
-        }
-        return Laya.Tween.to(parentNode, {
-            rotation: rotation,
-            complete: Handler.create(this, this.objectRotate, [parentNode]),
-        }, 1800);
-    }
-    /** 界面缩放再展开 */
-    static viewScaleShow(obj) {
-        obj.anchorX = 0.5;
-        obj.anchorY = 0.5;
-        obj.x = obj.x + obj.width / 2;
-        obj.y = obj.y + obj.height / 2;
-        Laya.Tween.from(obj, { scaleX: 0.8, scaleY: 0.8 }, 300, Laya.Ease.sineIn, Laya.Handler.create(this, () => {
-            Laya.Tween.clearTween(obj);
-        }, null, true));
-    }
-    static playCoinEffect(_parentNode, _imgUrl, _offset = { x: 0, y: 0 }, _callback = null) {
-        //飘金币
-        for (var index = 0; index < 15; index++) {
-            let coinSp = Laya.Pool.getItemByClass("p_coin", Laya.Image);
-            coinSp.mouseEnabled = false;
-            coinSp.mouseThrough = false;
-            coinSp.graphics.clear();
-            coinSp.loadImage(_imgUrl);
-            coinSp.scale(1, 1);
-            coinSp.alpha = 1;
-            coinSp.pivot(coinSp.width / 2, coinSp.height / 2);
-            _parentNode.addChild(coinSp);
-            var randX = Math.random() - 0.5;
-            var randY = Math.random() - 0.5;
-            var cicleX = 10 * Math.cos(index * Math.PI / 7) + 10 * randX;
-            var cicleY = 10 * Math.sin(index * Math.PI / 7) + 10 * randY;
-            coinSp.pos(_parentNode.width / 2 + cicleX + _offset.x, _parentNode.height / 2 + cicleY + _offset.y);
-            var coinPos = { x: (coinSp.x + cicleX * 5), y: (coinSp.y + cicleY * 5) };
-            Laya.Tween.to(coinSp, { x: coinPos.x, y: coinPos.y, scaleX: 0.8, scaleY: 0.8, rotation: (randX + randY) * 360 }, 500, Laya.Ease.expoOut);
-            coinSp.frameOnce(5, this, (_coinSp, _coinPos) => {
-                Laya.Tween.to(_coinSp, { scaleX: 0, scaleY: 0, alpha: 0.2, rotation: (randX + randY) * 360 }, 1000, Laya.Ease.linearNone, Laya.Handler.create(this, (_coinSp) => {
-                    _coinSp.removeSelf();
-                    _callback && _callback();
-                    Laya.Pool.recover("p_coin", _coinSp);
-                    Laya.Tween.clearTween(_coinSp);
-                }, [_coinSp]));
-            }, [coinSp, coinPos]);
-        }
-    }
-    /** 文本上飘特效 */
-    static playTextEffect(_parentNode, _content, _pos = null, _fontColor = "#fff1ba") {
-        //飘文字
-        var coinLabel = ObjectPool.pop(Laya.Label, "LabelColor");
-        coinLabel.text = _content;
-        coinLabel.fontSize = 30;
-        coinLabel.color = _fontColor;
-        coinLabel.anchorX = 0.5;
-        coinLabel.anchorY = 0.5;
-        _parentNode.addChild(coinLabel);
-        if (_pos) {
-            coinLabel.pos(_pos.x, _pos.y);
-        }
-        else {
-            coinLabel.pos(_parentNode.width / 2, -_parentNode.height / 2);
-        }
-        Laya.Tween.to(coinLabel, { x: coinLabel.x, y: (coinLabel.y - 70), alpha: 0 }, 2000, Laya.Ease.cubicInOut, Laya.Handler.create(this, (_coinLabel) => {
-            ObjectPool.push(_coinLabel);
-            _coinLabel.removeSelf();
-            Laya.Tween.clearTween(_coinLabel);
-        }, [coinLabel]));
-    }
-    /** 血量特效 */
-    static playBloodTextEffect(_parentNode, _content, _pos = null, _isDoubleHurt = false) {
-        //飘文字
-        if (Math.random() < 0.6)
-            return;
-        let bloodClip = ObjectPool.pop(Laya.FontClip, "BloodFontClip");
-        bloodClip.mouseEnabled = bloodClip.mouseThrough = false;
-        bloodClip.skin = "images/fontImg/blood_num.png";
-        bloodClip.sheet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWSYZT";
-        bloodClip.alpha = 1;
-        bloodClip.value = _content;
-        bloodClip.zOrder = _parentNode.zOrder + 1;
-        if (_pos) {
-            bloodClip.pos(_pos.x - 40, _pos.y);
-        }
-        else {
-            bloodClip.pos(_parentNode.width / 2, -_parentNode.height / 2);
-        }
-        PointUtils.parentToParent(bloodClip, _parentNode, true);
-        _parentNode.addChild(bloodClip);
-        if (_isDoubleHurt) {
-            bloodClip.skin = "images/fontImg/crit_num.png";
-            //缩放一下
-            let timeLine = new Laya.TimeLine();
-            timeLine.addLabel("tl1", 0).from(bloodClip, { scaleX: 1.5, scaleY: 1.2 }, 200, Laya.Ease.linearNone)
-                .addLabel("tl2", 200).to(bloodClip, { caleX: 1, scaleY: 1, alpha: 0 }, 500, Laya.Ease.cubicInOut);
-            timeLine.on(Laya.Event.COMPLETE, bloodClip, () => {
-                bloodClip.removeSelf();
-                ObjectPool.push(bloodClip);
-                timeLine.destroy();
-                timeLine = null;
-            });
-            timeLine.play(0, false);
-        }
-        else {
-            Laya.Tween.to(bloodClip, { y: (bloodClip.y - 70), alpha: 0 }, 2000, Laya.Ease.cubicInOut, Laya.Handler.create(this, (_bloodClip) => {
-                _bloodClip.removeSelf();
-                ObjectPool.push(_bloodClip);
-                Laya.Tween.clearTween(_bloodClip);
-            }, [bloodClip]));
-        }
-    }
-    /** 图片+文本上飘的特效 */
-    static playImageTextEffect(_parentNode, _imgUrl, _content, _pos = null, _zOrder = 0) {
-        //图片
-        let coinImg = ObjectPool.pop(Laya.Image, "Image", _imgUrl);
-        coinImg.alpha = 1;
-        coinImg.anchorX = 0.5;
-        coinImg.anchorY = 0.5;
-        _parentNode.addChild(coinImg);
-        if (_pos) {
-            coinImg.pos(_pos.x, _pos.y);
-        }
-        else {
-            coinImg.pos(_parentNode.width / 2, -_parentNode.height / 2);
-        }
-        if (_zOrder > 0) {
-            coinImg.zOrder = _zOrder;
-        }
-        //飘文字
-        var coinLabel = ObjectPool.pop(Laya.Label, "LabelEffect");
-        coinLabel.text = _content;
-        coinLabel.fontSize = 30;
-        coinLabel.color = "#552233";
-        coinLabel.anchorY = 0.5;
-        coinImg.addChild(coinLabel);
-        coinLabel.pos(coinImg.width, coinImg.height * 0.5);
-        //动画
-        let timeLine = new Laya.TimeLine();
-        timeLine.addLabel("tl1", 0).from(coinImg, { scaleX: 0, scaleY: 0, y: (coinImg.y + 30) }, 300, Laya.Ease.linearNone)
-            .addLabel("tl2", 500).to(coinImg, { x: coinImg.x, y: (coinImg.y - 50), alpha: 0 }, 1200, Laya.Ease.cubicInOut);
-        timeLine.on(Laya.Event.COMPLETE, coinImg, () => {
-            ObjectPool.push(coinLabel);
-            coinImg.removeChildren();
-            coinImg.removeSelf();
-            ObjectPool.push(coinImg);
-            timeLine.destroy();
-            timeLine = null;
-        });
-        timeLine.play(0, false);
-    }
-    /** 人物自白弹框效果 */
-    static playDialogueEffect(_parentNode, _imgUrl, _content, _pos = null, _zOrder = 0, _isFlipX = false) {
-        //图片
-        let coinImg = ObjectPool.pop(Laya.Image, "Image", _imgUrl);
-        coinImg.alpha = 1;
-        coinImg.anchorX = 0;
-        coinImg.anchorY = 1;
-        _parentNode.addChild(coinImg);
-        if (_pos) {
-            coinImg.pos(_pos.x, _pos.y);
-        }
-        else {
-            coinImg.pos(_parentNode.width / 2, -_parentNode.height / 2);
-        }
-        if (_zOrder > 0) {
-            coinImg.zOrder = _zOrder;
-        }
-        //飘文字
-        var coinLabel = new Laya.Label();
-        coinLabel.text = _content;
-        coinLabel.fontSize = 22;
-        coinLabel.color = "#000000";
-        coinLabel.anchorX = 0.5;
-        coinLabel.anchorY = 0.5;
-        coinLabel.width = 220;
-        coinLabel.height = 100;
-        coinLabel.wordWrap = true;
-        coinLabel.valign = "middle";
-        coinImg.addChild(coinLabel);
-        coinLabel.pos(coinImg.width * 0.5, coinImg.height * 0.46);
-        //镜像
-        if (_isFlipX) {
-            coinImg.scaleX = -1;
-            coinLabel.scaleX = -1;
-        }
-        //动画
-        let timeLine = new Laya.TimeLine();
-        timeLine.addLabel("tl1", 0).from(coinImg, { scaleX: 0, scaleY: 0 }, 300, Laya.Ease.linearNone)
-            .addLabel("tl2", 300).to(coinImg, { alpha: 1 }, 1200, Laya.Ease.linearNone)
-            .addLabel("tl3", 1500).to(coinImg, { alpha: 0 }, 1000, Laya.Ease.cubicInOut);
-        timeLine.on(Laya.Event.COMPLETE, coinImg, () => {
-            ObjectPool.push(coinImg);
-            coinImg.removeSelf();
-            timeLine.destroy();
-            timeLine = null;
-        });
-        timeLine.play(0, false);
-    }
-    /** 金币雨 */
-    static playCoinRainEffect(_imgUrl) {
-        for (var index = 0; index < 5; index++) {
-            Laya.timer.frameOnce(5, this, () => {
-                let coinSp = Laya.Pool.getItemByClass("p_coin_rain", Laya.Image);
-                coinSp.graphics.clear();
-                coinSp.loadImage(_imgUrl);
-                coinSp.pivot(coinSp.width / 2, coinSp.height / 2);
-                LayerManager.getInstance().screenEffectLayer.addChild(coinSp);
-                coinSp.pos(Math.random() * 8 * (LayerManager.stageDesignWidth / 8) + Math.random() * 100, Math.random() * 500 - 300);
-                Laya.Tween.to(coinSp, { x: coinSp.x, y: LayerManager.stageDesignHeight + 300 }, 3000, Laya.Ease.linearNone, Handler.create(this, (_coinSp) => {
-                    _coinSp.removeSelf();
-                    Laya.Pool.recover("p_coin_rain", _coinSp);
-                }, [coinSp]));
-            });
-        }
-    }
-    //宝箱掉落动效
-    static playBoxDropEffect(_effectNode, _callback = null) {
-        let boxAnimation = (target, onEvtFinish) => {
-            let timeLine = new Laya.TimeLine();
-            let nodePos = { x: _effectNode.x, y: _effectNode.y };
-            timeLine.addLabel("tl1", 0).from(target, { y: nodePos.y - 1000 }, 1000, Laya.Ease.cubicIn)
-                .addLabel("tl2", 1100).to(target, { y: nodePos.y - 80 }, 100, Laya.Ease.circOut)
-                .addLabel("tl3", 2100).to(target, { y: nodePos.y }, 500, Laya.Ease.bounceOut);
-            if (onEvtFinish != null) {
-                timeLine.on(Laya.Event.COMPLETE, target, () => {
-                    onEvtFinish();
-                    timeLine.destroy();
-                    timeLine = null;
-                });
-            }
-            timeLine.play(0, false);
-        };
-        boxAnimation(_effectNode, _callback);
-    }
-    //宝箱缩放效果
-    static playBoxScaleEffect(_effectNode, _callback = null) {
-        let boxAnimation = (target, onEvtFinish) => {
-            let timeLine = new Laya.TimeLine();
-            let dtime = 80;
-            timeLine.addLabel("tl1", 0).to(target, { scaleX: 1.5, scaleY: 0.9 }, dtime, Laya.Ease.backInOut)
-                .addLabel("tl2", 100).to(target, { scaleX: 1.1, scaleY: 1.0 }, dtime, Laya.Ease.backInOut)
-                .addLabel("tl3", 200).to(target, { scaleX: 1.3, scaleY: 0.95 }, dtime, Laya.Ease.backInOut)
-                .addLabel("tl4", 300).to(target, { scaleX: 1.0, scaleY: 1.0 }, dtime, Laya.Ease.backInOut);
-            if (onEvtFinish != null) {
-                timeLine.on(Laya.Event.COMPLETE, target, () => {
-                    onEvtFinish();
-                    timeLine.destroy();
-                    timeLine = null;
-                });
-            }
-            timeLine.play(0, false);
-        };
-        boxAnimation(_effectNode, _callback);
-    }
-    //宝箱抖动效果
-    static playBoxShakeEffect(_effectNode, _callback = null) {
-        let boxAnimation = (target, onEvtFinish) => {
-            let timeLine = new Laya.TimeLine();
-            let nodePos = { x: _effectNode.x, y: _effectNode.y };
-            let dtime = 50;
-            timeLine.addLabel("tl1", 0).to(target, { x: nodePos.x + 8, y: nodePos.y + 2 }, dtime, Laya.Ease.bounceInOut)
-                .addLabel("tl2", dtime).to(target, { x: nodePos.x - 8, y: nodePos.y - 1 }, dtime, Laya.Ease.bounceInOut)
-                .addLabel("tl3", 2 * dtime).to(target, { x: nodePos.x + 8, y: nodePos.y + 1 }, dtime, Laya.Ease.bounceInOut)
-                .addLabel("tl4", 3 * dtime).to(target, { x: nodePos.x, y: nodePos.y }, dtime, Laya.Ease.bounceInOut)
-                .addLabel("tl5", 4 * dtime).to(target, { x: nodePos.x, y: nodePos.y }, dtime, Laya.Ease.bounceInOut)
-                .addLabel("hide1", 5 * dtime).to(target, { alpha: 0 }, dtime)
-                .addLabel("show1", 6 * dtime).to(target, { alpha: 100 }, dtime);
-            if (onEvtFinish != null) {
-                timeLine.on(Laya.Event.COMPLETE, target, () => {
-                    onEvtFinish();
-                    timeLine.destroy();
-                    timeLine = null;
-                });
-            }
-            timeLine.play(0, false);
-        };
-        boxAnimation(_effectNode, _callback);
-    }
-    /** 闪烁效果 */
-    static playTwinkleEffect(_effectNode, _callback = null, _loop = false) {
-        let boxAnimation = (target, onEvtFinish) => {
-            let timeLine = new Laya.TimeLine();
-            timeLine.addLabel("hide1", 0).to(target, { alpha: 0 }, 100)
-                .addLabel("show1", 100).to(target, { alpha: 100 }, 100)
-                .addLabel("hide2", 200).to(target, { alpha: 0 }, 100)
-                .addLabel("show2", 300).to(target, { alpha: 100 }, 100);
-            if (onEvtFinish != null) {
-                timeLine.on(Laya.Event.COMPLETE, target, () => {
-                    onEvtFinish();
-                    timeLine.destroy();
-                    timeLine = null;
-                });
-            }
-            timeLine.play(0, _loop);
-        };
-        boxAnimation(_effectNode, _callback);
-    }
-    //加载效果
-    static showWaitEffect(content, useMask) {
-        EffectUtils.stopWaitEffect();
-        let waitNode = new Laya.View();
-        waitNode.name = EffectUtils.waitEffectName;
-        //定时自动移除
-        waitNode.timerOnce(12000, this, EffectUtils.stopWaitEffect);
-        //车
-        let waittingBgSp = new Laya.Image("loading/loading02.png");
-        waittingBgSp.visible = false;
-        waittingBgSp.anchorX = 0.5;
-        waittingBgSp.anchorY = 0.5;
-        waitNode.addChild(waittingBgSp);
-        waitNode.width = Math.max(waitNode.width, waittingBgSp.displayWidth);
-        waitNode.height = Math.max(waitNode.height, waittingBgSp.displayHeight);
-        //圈
-        let waittingSp = new Laya.Image("loading/loading01.png");
-        waittingSp.anchorX = 0.5;
-        waittingSp.anchorY = 0.5;
-        let timeLine = new Laya.TimeLine();
-        timeLine.addLabel("tl1", 0).to(waittingSp, { rotation: 360 }, 800);
-        timeLine.play(0, true);
-        waitNode.addChild(waittingSp);
-        waitNode.width = Math.max(waitNode.width, waittingSp.displayWidth);
-        waitNode.height = Math.max(waitNode.height, waittingSp.displayHeight);
-        //字
-        if (content) {
-            let txtLabel = new Laya.Label(content);
-            txtLabel.fontSize = 32;
-            txtLabel.color = "#FFFFFF";
-            txtLabel.width = 320;
-            txtLabel.height = 80;
-            txtLabel.wordWrap = true;
-            txtLabel.pos(waittingSp.x - txtLabel.width * 0.5, waittingSp.y + waittingSp.height * 0.5);
-            txtLabel.align = "center";
-            txtLabel.valign = "middle";
-            waitNode.addChild(txtLabel);
-        }
-        AlignUtils.setToScreenGoldenPos(waitNode, 0, true);
-        M.layer.smallLoadingLayer.maskAlpha = useMask ? MaskLayer.DEFAULT_MASK_ALPHA : 0;
-        M.layer.smallLoadingLayer.addChild(waitNode);
-    }
-    static stopWaitEffect() {
-        let waittingSp = M.layer.smallLoadingLayer.getChildByName(EffectUtils.waitEffectName);
-        if (waittingSp) {
-            waittingSp.clearTimer(this, EffectUtils.stopWaitEffect);
-            waittingSp.removeSelf();
-        }
-    }
-}
-EffectUtils.waitEffectName = "waitEffect";
-var EFFECT_TYPE;
-(function (EFFECT_TYPE) {
-    /** 金币 */
-    EFFECT_TYPE[EFFECT_TYPE["GOLD"] = 0] = "GOLD";
-    /** 钻石 */
-    EFFECT_TYPE[EFFECT_TYPE["DIAMOND"] = 1] = "DIAMOND";
-    /** 精华 */
-    EFFECT_TYPE[EFFECT_TYPE["ESSENCE"] = 2] = "ESSENCE";
-})(EFFECT_TYPE || (EFFECT_TYPE = {}));
-//# sourceMappingURL=EffectUtils.js.map
-/**
- * 物品飞入特效
- */
-class FlyEffect extends Sprite {
-    constructor() {
-        super();
-        this._animationName = "rollingCoin";
-        this._anims = [];
-    }
-    play(animationName, fromX, fromY, toX = 38, toY = 42) {
-        this._animNum = 0;
-        this._animLen = 7;
-        this._animationName = animationName;
-        this.createAnim(fromX, fromY, toX, toY);
-        Laya.timer.frameLoop(1, this, this.onLoop);
-        return this;
-    }
-    createAnim(fromX, fromY, toX, toY) {
-        this._animNum++;
-        let anim = ObjectPool.pop(Laya.Animation, "FLY_ANIMATION"); // PoolManager.getInstance().get(Laya.Animation, this._animationName);
-        // @ts-ignore
-        // if (!anim.url_loaded) {
-        // @ts-ignore
-        // anim.url_loaded = true;
-        anim.loadAtlas("images/effect/" + this._animationName + ".json");
-        anim.interval = 25;
-        // }
-        const scale = Math.random() * 0.15 + 0.65;
-        anim.pivot(30, 30).pos(fromX + RandomUtils.rangeInt(5, 10), fromY + RandomUtils.rangeInt(5, 10)).scale(scale, scale);
-        anim.play(0, true);
-        anim.alpha = 1;
-        const iX = fromX + Math.random() * (toX - fromX);
-        const iY = fromY + Math.random() * (toY - fromY);
-        const points = [];
-        points.push(new Point(anim.x, anim.y));
-        points.push(new Point(iX, iY));
-        points.push(new Point(toX, toY));
-        // prettier-ignore
-        const path = PathUtils.CreateBezierPoints(points, RandomUtils.rangeInt(25, 40));
-        // @ts-ignore
-        anim.path = path;
-        // @ts-ignore
-        anim.pathLength = path.length - 1;
-        // @ts-ignore
-        anim.pathIndex = 0;
-        this.addChild(anim);
-        this._anims.push(anim);
-        if (this._animNum < this._animLen) {
-            // prettier-ignore
-            Laya.timer.frameOnce(RandomUtils.rangeInt(4, 12), this, this.createAnim, [fromX, fromY, toX, toY]);
-        }
-    }
-    onLoop() {
-        let len = this._anims.length;
-        for (let i = 0; i < len; i++) {
-            const anim = this._anims[i];
-            // @ts-ignore
-            const idx = anim.pathIndex++;
-            // @ts-ignore
-            if (idx === anim.pathLength) {
-                this._anims.splice(i, 1);
-                this.onAnimComplete(anim);
-                i--;
-                len--;
-            }
-            else {
-                // @ts-ignore
-                const point = anim.path[idx];
-                anim.pos(point.x, point.y);
-            }
-        }
-    }
-    onAnimComplete(anim) {
-        if (anim) {
-            anim.stop();
-            anim.removeSelf();
-            ObjectPool.push(anim);
-            // PoolManager.getInstance().return(anim, this._animationName);
-        }
-        if (this.numChildren <= 0) {
-            Laya.timer.clear(this, this.onLoop);
-            this.destroy(true);
-        }
-    }
-}
-//# sourceMappingURL=FlyEffect.js.map
 /*
 * 战斗管理类;
 */
@@ -8894,7 +8170,7 @@ var ui;
                 this.createView(ui.task.TaskViewUI.uiView);
             }
         }
-        TaskViewUI.uiView = { "type": "View", "props": { "y": 0, "x": 0 }, "child": [{ "type": "View", "props": { "width": 750, "visible": true, "var": "mainView", "name": "mainView", "height": 1334, "centerY": 0, "centerX": 0 }, "child": [{ "type": "View", "props": { "y": 0, "x": 0, "var": "blankView", "top": 0, "right": 0, "name": "blankView", "left": 0, "bottom": 0 } }, { "type": "View", "props": { "y": 124, "x": 0, "width": 750, "name": "coverView", "mouseThrough": false, "mouseEnabled": true, "height": 1050 } }, { "type": "Image", "props": { "y": 103, "x": 19, "width": 713, "skin": "images/component/frame_9calce_01.png", "height": 1013, "sizeGrid": "168,65,62,82" } }, { "type": "Image", "props": { "y": 140, "x": 324, "skin": "images/quest/title.png" } }, { "type": "Image", "props": { "y": 338, "x": 52, "width": 646, "skin": "images/component/frame_9calce_02.png", "height": 745, "sizeGrid": "25,32,32,36" } }, { "type": "View", "props": { "y": 239, "x": 137, "var": "tabGroup" }, "child": [{ "type": "Button", "props": { "y": 10, "x": 0, "strokeColors": "#998a4e,#a86c24", "stateNum": 2, "skin": "images/component/tab_01.png", "selected": true, "labelStroke": 5, "labelSize": 36, "labelPadding": "0,0,13,0", "labelColors": "#fff4e1,#fff4e1", "labelBold": true, "labelAlign": "center", "label": "每日任务" }, "child": [{ "type": "Image", "props": { "y": -10, "x": 180, "visible": false, "skin": "images/core/red_dot_hint.png", "name": "imgRetDotHint" } }] }, { "type": "Button", "props": { "y": 10, "x": 274, "strokeColors": "#998a4e,#a86c24", "stateNum": 2, "skin": "images/component/tab_01.png", "selected": false, "labelStroke": 5, "labelSize": 36, "labelPadding": "0,0,13,0", "labelColors": "#fff4e1,#fff4e1", "labelBold": true, "labelAlign": "center", "label": "成就任务" }, "child": [{ "type": "Image", "props": { "y": -10, "x": 180, "visible": false, "skin": "images/core/red_dot_hint.png", "name": "imgRetDotHint" } }] }] }, { "type": "ViewStack", "props": { "y": 341, "width": 750, "var": "viewStackTask", "selectedIndex": 0, "right": 0, "name": "viewStackTask", "left": 0, "height": 738 }, "child": [{ "type": "Image", "props": { "y": 1, "x": 56, "width": 637, "name": "item0", "height": 736 }, "child": [{ "type": "List", "props": { "y": 0, "x": 0, "width": 638, "var": "taskItemList", "spaceY": 1, "repeatY": 1, "repeatX": 1, "name": "taskItemList", "height": 690 }, "child": [{ "type": "Box", "props": { "y": 0, "x": 2, "visible": false, "right": 2, "renderType": "render", "left": 2, "cacheAs": "bitmap" }, "child": [{ "type": "Image", "props": { "y": 10, "x": 6, "skin": "images/quest/item_bg.png" } }, { "type": "Image", "props": { "y": 82, "x": 45, "skin": "images/quest/reward_bg.png" } }, { "type": "Image", "props": { "y": 81, "x": 33, "skin": "images/core/diamond.png", "name": "imgAwardIcon" } }, { "type": "Label", "props": { "y": 28, "x": 35, "width": 350, "text": "完成车辆合成30次 (0/30)", "name": "txtTitle", "fontSize": 32, "color": "#a17338", "bold": true, "align": "left" } }, { "type": "Label", "props": { "y": 85, "x": 79, "width": 100, "text": "100", "name": "txtDiamond", "fontSize": 30, "color": "#fcf4cd", "align": "left" } }, { "type": "Image", "props": { "y": 52, "x": 433, "skin": "images/component/frame_9scale_11.png", "name": "txtGet" }, "child": [{ "type": "Label", "props": { "y": 9, "x": 22, "width": 120, "text": "已领取", "fontSize": 30, "color": "#fff4e1", "bold": true, "align": "center" } }] }, { "type": "Button", "props": { "y": 44, "x": 424, "stateNum": 1, "skin": "images/quest/btn_obtain.png", "name": "btnGet", "labelStrokeColor": "#946430", "labelStroke": 3, "labelSize": 30, "labelColors": "#fff4e1", "labelBold": true, "label": "领取" } }] }] }, { "type": "Label", "props": { "y": 699, "x": -1, "width": 638, "text": "每天00:00时系统自动重置任务", "strokeColor": "#7a572b", "stroke": 2, "height": 24, "fontSize": 24, "color": "#ffffff", "bold": true, "align": "center" } }] }, { "type": "Image", "props": { "y": 1, "x": 56, "width": 637, "name": "item1", "height": 736 }, "child": [{ "type": "List", "props": { "y": 0, "x": 0, "width": 638, "var": "achiItemList", "spaceY": 1, "repeatY": 1, "repeatX": 1, "height": 690 }, "child": [{ "type": "Box", "props": { "y": 0, "x": 2, "visible": false, "right": 2, "renderType": "render", "left": 2, "cacheAs": "bitmap" }, "child": [{ "type": "Image", "props": { "y": 10, "x": 6, "skin": "images/quest/item_bg_1.png" } }, { "type": "Label", "props": { "y": 28, "x": 35, "width": 350, "text": "完成车辆合成30次", "name": "txtTitle", "fontSize": 32, "color": "#a17338", "bold": true, "align": "left" } }, { "type": "Image", "props": { "y": 79, "x": 433, "skin": "images/component/frame_9scale_11.png", "name": "txtGet" }, "child": [{ "type": "Label", "props": { "y": 9, "x": 22, "width": 120, "text": "已领取", "fontSize": 30, "color": "#fff4e1", "bold": true, "align": "center" } }] }, { "type": "Label", "props": { "y": 28, "x": 425, "width": 185, "text": "(0/30)", "name": "txtNum", "height": 32, "fontSize": 32, "color": "#a17338", "bold": true, "align": "center" } }, { "type": "Image", "props": { "y": 82, "x": 45, "width": 144, "skin": "images/quest/reward_bg.png", "sizeGrid": "15,24,19,26", "height": 40 } }, { "type": "Image", "props": { "y": 81, "x": 33, "skin": "images/core/diamond.png", "name": "imgAwardIcon" } }, { "type": "Label", "props": { "y": 85, "x": 79, "width": 103, "text": "100", "name": "txtDiamond", "height": 30, "fontSize": 30, "color": "#fcf4cd", "align": "left" } }, { "type": "Button", "props": { "y": 71, "x": 424, "stateNum": 1, "skin": "images/quest/btn_obtain.png", "name": "btnGet", "labelStrokeColor": "#946430", "labelStroke": 3, "labelSize": 30, "labelColors": "#fff4e1", "labelBold": true, "label": "领取" } }] }] }] }, { "type": "Label", "props": { "y": 317, "x": 193, "width": 350, "text": "暂时没有任务", "strokeColor": "#7a572b", "name": "item2", "fontSize": 46, "color": "#d9d9d9", "bold": true, "align": "center" } }] }, { "type": "Button", "props": { "y": 99, "x": 649, "var": "btnExit", "stateNum": 1, "skin": "images/component/frame_close_btn.png", "name": "btnExit" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }] }] };
+        TaskViewUI.uiView = { "type": "View", "props": { "y": 0, "x": 0 }, "child": [{ "type": "View", "props": { "width": 750, "visible": true, "var": "mainView", "name": "mainView", "height": 1334, "centerY": 0, "centerX": 0 }, "child": [{ "type": "View", "props": { "y": 0, "x": 0, "var": "blankView", "top": 0, "right": 0, "name": "blankView", "left": 0, "bottom": 0 } }, { "type": "View", "props": { "y": 124, "x": 0, "width": 750, "name": "coverView", "mouseThrough": false, "mouseEnabled": true, "height": 1050 } }, { "type": "Image", "props": { "y": 103, "x": 19, "width": 713, "skin": "images/component/frame_9calce_01.png", "height": 1013, "sizeGrid": "168,65,62,82" } }, { "type": "Image", "props": { "y": 140, "x": 324, "skin": "images/quest/title.png" } }, { "type": "Image", "props": { "y": 338, "x": 52, "width": 646, "skin": "images/component/frame_9calce_02.png", "height": 745, "sizeGrid": "25,32,32,36" } }, { "type": "View", "props": { "y": 239, "x": 137, "var": "tabGroup" }, "child": [{ "type": "Button", "props": { "y": 10, "x": 0, "strokeColors": "#998a4e,#a86c24", "stateNum": 2, "skin": "images/component/tab_01.png", "selected": true, "labelStroke": 5, "labelSize": 36, "labelPadding": "0,0,13,0", "labelColors": "#fff4e1,#fff4e1", "labelBold": true, "labelAlign": "center", "label": "每日任务" }, "child": [{ "type": "Image", "props": { "y": -10, "x": 180, "visible": false, "skin": "images/core/red_dot_hint.png", "name": "imgRetDotHint" } }] }, { "type": "Button", "props": { "y": 10, "x": 274, "strokeColors": "#998a4e,#a86c24", "stateNum": 2, "skin": "images/component/tab_01.png", "selected": false, "labelStroke": 5, "labelSize": 36, "labelPadding": "0,0,13,0", "labelColors": "#fff4e1,#fff4e1", "labelBold": true, "labelAlign": "center", "label": "成就任务" }, "child": [{ "type": "Image", "props": { "y": -10, "x": 180, "visible": false, "skin": "images/core/red_dot_hint.png", "name": "imgRetDotHint" } }] }] }, { "type": "ViewStack", "props": { "y": 341, "width": 750, "var": "viewStackTask", "selectedIndex": 0, "right": 0, "name": "viewStackTask", "left": 0, "height": 738 }, "child": [{ "type": "Image", "props": { "y": 1, "x": 56, "width": 637, "name": "item0", "height": 736 }, "child": [{ "type": "List", "props": { "y": 0, "x": 0, "width": 638, "var": "taskItemList", "spaceY": 10, "repeatY": 1, "repeatX": 1, "name": "taskItemList", "height": 690 }, "child": [{ "type": "Box", "props": { "y": 0, "x": 2, "visible": false, "right": 2, "renderType": "render", "left": 2, "cacheAs": "bitmap" }, "child": [{ "type": "Image", "props": { "y": 10, "x": 6, "skin": "images/quest/item_bg.png" } }, { "type": "Image", "props": { "y": 82, "x": 45, "skin": "images/quest/reward_bg.png" } }, { "type": "Image", "props": { "y": 81, "x": 33, "skin": "images/core/diamond.png", "name": "imgAwardIcon" } }, { "type": "Label", "props": { "y": 28, "x": 35, "width": 350, "text": "完成车辆合成30次 (0/30)", "name": "txtTitle", "fontSize": 32, "color": "#a17338", "bold": true, "align": "left" } }, { "type": "Label", "props": { "y": 85, "x": 79, "width": 100, "text": "100", "name": "txtDiamond", "fontSize": 30, "color": "#fcf4cd", "align": "left" } }, { "type": "Image", "props": { "y": 52, "x": 433, "skin": "images/component/frame_9scale_11.png", "name": "txtGet" }, "child": [{ "type": "Label", "props": { "y": 9, "x": 22, "width": 120, "text": "已领取", "fontSize": 30, "color": "#fff4e1", "bold": true, "align": "center" } }] }, { "type": "Button", "props": { "y": 44, "x": 424, "stateNum": 1, "skin": "images/quest/btn_obtain.png", "name": "btnGet", "labelStrokeColor": "#946430", "labelStroke": 3, "labelSize": 30, "labelColors": "#fff4e1", "labelBold": true, "label": "领取" } }] }] }, { "type": "Label", "props": { "y": 699, "x": -1, "width": 638, "text": "每天00:00时系统自动重置任务", "strokeColor": "#7a572b", "stroke": 2, "height": 24, "fontSize": 24, "color": "#ffffff", "bold": true, "align": "center" } }] }, { "type": "Image", "props": { "y": 1, "x": 56, "width": 637, "name": "item1", "height": 736 }, "child": [{ "type": "List", "props": { "y": 0, "x": 0, "width": 638, "var": "achiItemList", "spaceY": 10, "repeatY": 1, "repeatX": 1, "height": 690 }, "child": [{ "type": "Box", "props": { "y": 0, "x": 2, "visible": false, "right": 2, "renderType": "render", "left": 2, "cacheAs": "bitmap" }, "child": [{ "type": "Image", "props": { "y": 10, "x": 6, "skin": "images/quest/item_bg_1.png" } }, { "type": "Label", "props": { "y": 28, "x": 35, "width": 350, "text": "完成车辆合成30次", "name": "txtTitle", "fontSize": 32, "color": "#a17338", "bold": true, "align": "left" } }, { "type": "Image", "props": { "y": 79, "x": 433, "skin": "images/component/frame_9scale_11.png", "name": "txtGet" }, "child": [{ "type": "Label", "props": { "y": 9, "x": 22, "width": 120, "text": "已领取", "fontSize": 30, "color": "#fff4e1", "bold": true, "align": "center" } }] }, { "type": "Label", "props": { "y": 28, "x": 425, "width": 185, "text": "(0/30)", "name": "txtNum", "height": 32, "fontSize": 32, "color": "#a17338", "bold": true, "align": "center" } }, { "type": "Image", "props": { "y": 82, "x": 45, "width": 144, "skin": "images/quest/reward_bg.png", "sizeGrid": "15,24,19,26", "height": 40 } }, { "type": "Image", "props": { "y": 81, "x": 33, "skin": "images/core/diamond.png", "name": "imgAwardIcon" } }, { "type": "Label", "props": { "y": 85, "x": 79, "width": 103, "text": "100", "name": "txtDiamond", "height": 30, "fontSize": 30, "color": "#fcf4cd", "align": "left" } }, { "type": "Button", "props": { "y": 71, "x": 424, "stateNum": 1, "skin": "images/quest/btn_obtain.png", "name": "btnGet", "labelStrokeColor": "#946430", "labelStroke": 3, "labelSize": 30, "labelColors": "#fff4e1", "labelBold": true, "label": "领取" } }] }] }] }, { "type": "Label", "props": { "y": 317, "x": 193, "width": 350, "text": "暂时没有任务", "strokeColor": "#7a572b", "name": "item2", "fontSize": 46, "color": "#d9d9d9", "bold": true, "align": "center" } }] }, { "type": "Button", "props": { "y": 99, "x": 649, "var": "btnExit", "stateNum": 1, "skin": "images/component/frame_close_btn.png", "name": "btnExit" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }] }] };
         task.TaskViewUI = TaskViewUI;
     })(task = ui.task || (ui.task = {}));
 })(ui || (ui = {}));
@@ -9035,155 +8311,6 @@ class Layer extends Laya.Sprite {
     }
 }
 //# sourceMappingURL=Layer.js.map
-class MaskLayer extends Layer {
-    constructor(layerId, $name = null) {
-        super(layerId, $name);
-        this.initMask();
-        this._handlers = [];
-        this._maskEnabled = true;
-        this._useAnimation = true;
-    }
-    set maskEnabled(value) {
-        this._maskEnabled = value;
-        if (value) {
-            if (this.numChildren > 0) {
-                super.addChildAt(this._mask, 0);
-            }
-        }
-        else {
-            this._mask.removeSelf();
-        }
-    }
-    set maskAlpha(value) {
-        this._mask.alpha = value;
-    }
-    set useAnimation(value) {
-        this._useAnimation = value;
-    }
-    get animationComplete() {
-        return this._animationComplete;
-    }
-    /**
-     * 添加的回调只会触发，一般用来关闭已打开的视图窗口
-     * @param caller
-     * @param listener
-     * @param args
-     *
-     * @param maskAlpha
-     */
-    addChildWithMaskCall(caller, listener, args = null, maskAlpha = MaskLayer.DEFAULT_MASK_ALPHA) {
-        this.maskEnabled = true;
-        if (maskAlpha !== MaskLayer.DEFAULT_MASK_ALPHA) {
-            this._mask.alpha = maskAlpha;
-        }
-        this.addChild(caller);
-        this._handlers.push(Laya.Handler.create(caller, listener, args));
-    }
-    addChildWithCustomMask(customMask, caller, listener, args = null) {
-        if (!customMask) {
-            return;
-        }
-        this.maskEnabled = true;
-        this._usingCustomMask = true;
-        this._customMask = customMask;
-        if (this._customMask.parent) {
-            this._customMaskParent = this._customMask.parent;
-            this._customMaskIndex = this._customMask.parent.getChildIndex(this._customMask);
-        }
-        this._mask.alpha = 0;
-        this.addChild(caller);
-        this._handlers.push(Laya.Handler.create(caller, listener, args));
-    }
-    addChild(node) {
-        this.superAddChild(node);
-        if (this._usingCustomMask && this._customMask) {
-            super.addChildAt(this._customMask, 0);
-        }
-        if (this._maskEnabled) {
-            super.addChildAt(this._mask, 0);
-        }
-        this.event(LayerEvent.CHILD_ADDED, this.numChildren);
-        return node;
-    }
-    removeChild(node) {
-        super.removeChild(node);
-        const sp = node;
-        if (sp) {
-            if (sp.layer_tween) {
-                sp.layer_tween.complete();
-                sp.scale(sp.layer_origin_scale.x, sp.layer_origin_scale.y);
-                delete sp.layer_tween;
-            }
-        }
-        if (this.numChildren === 2 && this._usingCustomMask) {
-            if (this._customMask) {
-                if (this._customMaskParent) {
-                    this._customMaskParent.addChildAt(this._customMask, this._customMaskIndex);
-                }
-                this._usingCustomMask = false;
-                this._customMask = null;
-                this._customMaskParent = null;
-                this._customMaskIndex = 0;
-            }
-        }
-        if (this.numChildren === 1 && this.getChildAt(0) === this._mask) {
-            super.removeChild(this._mask);
-            this._animationComplete = false;
-            this._mask.alpha = MaskLayer.DEFAULT_MASK_ALPHA;
-        }
-        this.event(LayerEvent.CHILD_REMOVED, this.numChildren);
-        return node;
-    }
-    initMask() {
-        this._mask = new Laya.Sprite();
-        this._mask.graphics.clear();
-        this._mask.graphics.drawRect(0, 0, LayerManager.stageDesignWidth, LayerManager.stageDesignHeight, Color.BLACK);
-        this._mask.alpha = MaskLayer.DEFAULT_MASK_ALPHA;
-        this._mask.size(LayerManager.stageDesignWidth, LayerManager.stageDesignHeight);
-        this._mask.on(Laya.Event.CLICK, this, this.applyClick);
-    }
-    superAddChild(node, index) {
-        if (this._useAnimation && !this._animationComplete) {
-            const sp = node;
-            if (sp && !sp.layer_tween) {
-                if (!sp.layer_origin_scale) {
-                    sp.layer_origin_scale = new Laya.Point(sp.scaleX, sp.scaleY);
-                }
-                const comp = sp;
-                const size = new Laya.Point();
-                if (comp) {
-                    size.setTo(comp.displayWidth, comp.displayHeight);
-                }
-                else {
-                    const rect = sp.getBounds();
-                    size.setTo(rect.width, rect.height);
-                }
-                sp.layer_tween = Laya.Tween.from(node, { x: sp.x + (size.x >> 1), y: sp.y + (size.y >> 1), scaleX: 0, scaleY: 0 }, 300, Laya.Ease.backInOut, Handler.create(this, () => {
-                    this._animationComplete = true;
-                    this.event(LayerEvent.LAYER_ANIMATION_COMPLETE, this._animationComplete);
-                }));
-            }
-        }
-        this._mask.off(Laya.Event.CLICK, this, this.applyClick);
-        Laya.timer.once(Time.SEC_IN_MILI, this, () => {
-            this._mask.on(Laya.Event.CLICK, this, this.applyClick);
-        });
-        if (index) {
-            super.addChildAt(node, index);
-        }
-        else {
-            super.addChild(node);
-        }
-        return node;
-    }
-    applyClick() {
-        if (this._handlers.length) {
-            this._handlers.pop().run();
-        }
-    }
-}
-MaskLayer.DEFAULT_MASK_ALPHA = 0.7;
-//# sourceMappingURL=MaskLayer.js.map
 /*
 * 奖励物品Item;
 */
@@ -10777,11 +9904,11 @@ class HallManager extends Laya.EventDispatcher {
             let stagePrizeCfg = GlobleData.getData(GlobleData.BarrierRewardVO, lastStage);
             if (stagePrizeCfg) {
                 //发送奖励
-                let bossM = MathUtils.parseStringNum(stagePrizeCfg.bossM);
+                let diamond = MathUtils.parseStringNum(stagePrizeCfg.gem);
+                let essence = MathUtils.parseStringNum(stagePrizeCfg.bossM);
                 let gold = BattleManager.Instance.getBarrierRewardToGold(lastStage, MathUtils.parseStringNum(stagePrizeCfg.gold));
                 gold = isDouble ? gold * 2 : gold;
-                let gem = MathUtils.parseStringNum(stagePrizeCfg.gem);
-                HttpManager.Instance.requestStagePrizeDiamond(lastStage, gem, bossM, (_res) => {
+                HttpManager.Instance.requestStagePrizeDiamond(lastStage, diamond, essence, (_res) => {
                     let stage = _res;
                     if (stage > 0) {
                         ViewMgr.Ins.open(ViewConst.ClearanceRewardView, () => {
@@ -14742,8 +13869,8 @@ class TaskView extends BaseView {
     refreshTaskList(_data) {
         if (_data == null)
             return;
-        let that = this;
-        let listData = _data; // [1,3,5,7,8,10];
+        let self = this;
+        let listData = _data;
         let redPointNum = 0;
         listData.sort((pre, next) => {
             if (pre.task_status !== next.task_status) {
@@ -14759,10 +13886,11 @@ class TaskView extends BaseView {
             this.ui.viewStackTask.selectedIndex = QuestSubView.EMPTY_QUEST;
             return;
         }
-        that.ui.taskItemList.vScrollBarSkin = '';
-        that.ui.taskItemList.repeatY = 5;
-        that.ui.taskItemList.array = listData;
-        that.ui.taskItemList.renderHandler = new Laya.Handler(that, (cell, index) => {
+        self.ui.taskItemList.vScrollBarSkin = '';
+        self.ui.taskItemList.repeatY = 4;
+        self.ui.taskItemList.array = listData;
+        self.ui.taskItemList.refresh();
+        self.ui.taskItemList.renderHandler = new Laya.Handler(self, (cell, index) => {
             if (index > listData.length)
                 return;
             let item = listData[index];
@@ -14824,10 +13952,10 @@ class TaskView extends BaseView {
                                                 userData.removeTaskRedPoint();
                                             }
                                         }
-                                        Laya.Tween.to(cell, { x: -cell.displayWidth }, 250, Laya.Ease.quadOut, Handler.create(that, () => {
+                                        Laya.Tween.to(cell, { x: -cell.displayWidth }, 250, Laya.Ease.quadOut, Handler.create(self, () => {
                                             listData.splice(index, 1);
-                                            Laya.timer.once(100, that, () => {
-                                                that.requestTaskInfo();
+                                            Laya.timer.once(100, self, () => {
+                                                self.requestTaskInfo();
                                             });
                                         }));
                                     }
@@ -14868,8 +13996,9 @@ class TaskView extends BaseView {
             return;
         }
         self.ui.achiItemList.vScrollBarSkin = '';
-        self.ui.achiItemList.repeatY = 5;
+        self.ui.achiItemList.repeatY = 4;
         self.ui.achiItemList.array = listData;
+        self.ui.achiItemList.refresh();
         self.ui.achiItemList.renderHandler = new Laya.Handler(self, (cell, index) => {
             if (index > listData.length)
                 return;
@@ -15077,6 +14206,880 @@ class WelfareView extends BaseView {
     }
 }
 //# sourceMappingURL=WelfareView.js.map
+/**
+ * json数据解析类
+ */
+class GlobleData extends Laya.EventDispatcher {
+    constructor() {
+        super();
+        /** json数据是否全部解析完毕 */
+        this._hasParasComplete = false;
+        this._needParseCount = 0;
+        this._currParseCount = 0;
+        this._jsonCount = 0;
+    }
+    setup(callback) {
+        let self = this;
+        self._callBack = callback;
+        self._totalStepCsvList = new TSDictionary();
+        GlobleData.AllCacheData = new TSDictionary();
+        self.initModel();
+        self.initStep();
+    }
+    initModel() {
+        let self = this;
+        self._totalStepCsvList.Add(GlobleData.MonsterVO, MonsterVO);
+        self._totalStepCsvList.Add(GlobleData.BarrierRewardVO, BarrierRewardVO);
+        self._totalStepCsvList.Add(GlobleData.BarrierConfigVO, BarrierConfigVO);
+        self._totalStepCsvList.Add(GlobleData.KindLevelConfigVO, KindLevelConfigVO);
+        self._totalStepCsvList.Add(GlobleData.SkillConfigVO, SkillConfigVO);
+        self._totalStepCsvList.Add(GlobleData.SkillStrengthenVO, SkillStrengthenVO);
+        self._totalStepCsvList.Add(GlobleData.TrainDropVO, TrainDropVO);
+        self._totalStepCsvList.Add(GlobleData.ItemVO, ItemVO);
+    }
+    // 解析初始数据表
+    initStep() {
+        let self = this;
+        self._needParseCount = self._totalStepCsvList.GetLenght();
+        self.onEnterFrameLoader();
+    }
+    onEnterFrameLoader() {
+        let self = this;
+        if (self._currParseCount >= self._needParseCount) {
+            TimerManager.Instance.remove(self.onEnterFrameLoader, self);
+            this._hasParasComplete = true;
+            if (self._callBack)
+                self._callBack();
+        }
+        else {
+            //一次解析两个文件
+            self.getCsvFile();
+            // self.getCsvFile();
+        }
+    }
+    /** 开始逐个逐个解析JSON文件 */
+    getCsvFile() {
+        let self = this;
+        if (self._jsonCount < self._needParseCount) {
+            let key = self._totalStepCsvList.getKeyByIndex(self._jsonCount);
+            key = "config/csvJson/" + key;
+            key = key.replace('_', '.');
+            key = PathConfig.RES_URL + key;
+            Laya.loader.load(key, Laya.Handler.create(self, self.onLoaded, [key]), null, Laya.Loader.TEXT, 0, true);
+            self._jsonCount++;
+        }
+    }
+    onLoaded(key) {
+        let self = this;
+        //替换一个看不见的特殊字符
+        let data = Laya.loader.getRes(key);
+        // data = data.replace(/[\ufeff]/, "");
+        try {
+            let data_json = JSON.parse(data);
+            let csvStr = JSON.stringify(data_json);
+            self.starSingleParse(csvStr);
+        }
+        catch (error) {
+            console.log("@David 加载csv出错 key:", key);
+        }
+        finally {
+            this.onEnterFrameLoader();
+        }
+    }
+    starSingleParse(csvStr) {
+        let self = this;
+        let key = self._totalStepCsvList.getKeyByIndex(self._currParseCount);
+        let DataClass = self._totalStepCsvList.getValueByIndex(self._currParseCount);
+        let dic = CSVParser.ParseJsonData(DataClass, csvStr);
+        GlobleData.AllCacheData.Add(key, dic);
+        self._currParseCount++;
+    }
+    /** 获取对应表的指定某条数据 */
+    static getData(type, key) {
+        let dic = GlobleData.AllCacheData.TryGetValue(type);
+        return dic.TryGetValue(key);
+    }
+    /**
+     * 获取对应表的某条数据中指定名字下的数据
+     * @param type 那张表
+     * @param filterType 某一项名字
+     * @param filterValue 值
+     * 例如：parseInt(GlobleVOData.getDataByFilter(GlobleVOData.ServerConfigVO, "id", "MAX_MAP_COUNT")[0].value)
+     */
+    static getDataByFilter(type, filterType, filterValue) {
+        let dic = GlobleData.AllCacheData.TryGetValue(type);
+        let filterd = dic.TryGetListByCondition((bean) => bean[filterType] == filterValue);
+        return filterd;
+    }
+    /** 获取对应表的所有数据 */
+    static getAllValue(type) {
+        let dic = GlobleData.AllCacheData.TryGetValue(type);
+        return dic.getValues();
+    }
+    /**
+     * 查找对应条件的数据
+     */
+    static getDataByCondition(type, value) {
+        let dic = GlobleData.AllCacheData.TryGetValue(type);
+        let arr = dic.TryGetListByCondition(value);
+        return arr;
+    }
+    /** json数据是否全部解析完毕 */
+    get hasParasComplete() {
+        return this._hasParasComplete;
+    }
+    static get Instance() {
+        if (!this._instance) {
+            this._instance = new GlobleData();
+        }
+        return this._instance;
+    }
+}
+/** 怪物表 */
+GlobleData.MonsterVO = "Monster_json";
+/** 关卡奖励表 */
+GlobleData.BarrierRewardVO = "BarrierReward_json";
+/** 关卡配置表 */
+GlobleData.BarrierConfigVO = "BarrierConfig_json";
+/** 森林王等级配置 */
+GlobleData.KindLevelConfigVO = "KindLevelConfig_json";
+/** 技能配置 */
+GlobleData.SkillConfigVO = "SkillConfig_json";
+/** 技能强化配置 */
+GlobleData.SkillStrengthenVO = "SkillStrengthen_json";
+/** 训练时间掉落表 */
+GlobleData.TrainDropVO = "TrainDrop_json";
+/** 物品表 */
+GlobleData.ItemVO = "Item_json";
+//# sourceMappingURL=GlobleData.js.map
+/*
+* 派发类;
+*/
+class EventsManager extends Laya.EventDispatcher {
+    constructor() {
+        super();
+    }
+    static get Instance() {
+        if (!EventsManager._instance) {
+            EventsManager._instance = new EventsManager();
+        }
+        return EventsManager._instance;
+    }
+}
+//# sourceMappingURL=EventsManager.js.map
+class MaskLayer extends Layer {
+    constructor(layerId, $name = null) {
+        super(layerId, $name);
+        this.initMask();
+        this._handlers = [];
+        this._maskEnabled = true;
+        this._useAnimation = true;
+    }
+    set maskEnabled(value) {
+        this._maskEnabled = value;
+        if (value) {
+            if (this.numChildren > 0) {
+                super.addChildAt(this._mask, 0);
+            }
+        }
+        else {
+            this._mask.removeSelf();
+        }
+    }
+    set maskAlpha(value) {
+        this._mask.alpha = value;
+    }
+    set useAnimation(value) {
+        this._useAnimation = value;
+    }
+    get animationComplete() {
+        return this._animationComplete;
+    }
+    /**
+     * 添加的回调只会触发，一般用来关闭已打开的视图窗口
+     * @param caller
+     * @param listener
+     * @param args
+     *
+     * @param maskAlpha
+     */
+    addChildWithMaskCall(caller, listener, args = null, maskAlpha = MaskLayer.DEFAULT_MASK_ALPHA) {
+        this.maskEnabled = true;
+        if (maskAlpha !== MaskLayer.DEFAULT_MASK_ALPHA) {
+            this._mask.alpha = maskAlpha;
+        }
+        this.addChild(caller);
+        this._handlers.push(Laya.Handler.create(caller, listener, args));
+    }
+    addChildWithCustomMask(customMask, caller, listener, args = null) {
+        if (!customMask) {
+            return;
+        }
+        this.maskEnabled = true;
+        this._usingCustomMask = true;
+        this._customMask = customMask;
+        if (this._customMask.parent) {
+            this._customMaskParent = this._customMask.parent;
+            this._customMaskIndex = this._customMask.parent.getChildIndex(this._customMask);
+        }
+        this._mask.alpha = 0;
+        this.addChild(caller);
+        this._handlers.push(Laya.Handler.create(caller, listener, args));
+    }
+    addChild(node) {
+        this.superAddChild(node);
+        if (this._usingCustomMask && this._customMask) {
+            super.addChildAt(this._customMask, 0);
+        }
+        if (this._maskEnabled) {
+            super.addChildAt(this._mask, 0);
+        }
+        this.event(LayerEvent.CHILD_ADDED, this.numChildren);
+        return node;
+    }
+    removeChild(node) {
+        super.removeChild(node);
+        const sp = node;
+        if (sp) {
+            if (sp.layer_tween) {
+                sp.layer_tween.complete();
+                sp.scale(sp.layer_origin_scale.x, sp.layer_origin_scale.y);
+                delete sp.layer_tween;
+            }
+        }
+        if (this.numChildren === 2 && this._usingCustomMask) {
+            if (this._customMask) {
+                if (this._customMaskParent) {
+                    this._customMaskParent.addChildAt(this._customMask, this._customMaskIndex);
+                }
+                this._usingCustomMask = false;
+                this._customMask = null;
+                this._customMaskParent = null;
+                this._customMaskIndex = 0;
+            }
+        }
+        if (this.numChildren === 1 && this.getChildAt(0) === this._mask) {
+            super.removeChild(this._mask);
+            this._animationComplete = false;
+            this._mask.alpha = MaskLayer.DEFAULT_MASK_ALPHA;
+        }
+        this.event(LayerEvent.CHILD_REMOVED, this.numChildren);
+        return node;
+    }
+    initMask() {
+        this._mask = new Laya.Sprite();
+        this._mask.graphics.clear();
+        this._mask.graphics.drawRect(0, 0, LayerManager.stageDesignWidth, LayerManager.stageDesignHeight, Color.BLACK);
+        this._mask.alpha = MaskLayer.DEFAULT_MASK_ALPHA;
+        this._mask.size(LayerManager.stageDesignWidth, LayerManager.stageDesignHeight);
+        this._mask.on(Laya.Event.CLICK, this, this.applyClick);
+    }
+    superAddChild(node, index) {
+        if (this._useAnimation && !this._animationComplete) {
+            const sp = node;
+            if (sp && !sp.layer_tween) {
+                if (!sp.layer_origin_scale) {
+                    sp.layer_origin_scale = new Laya.Point(sp.scaleX, sp.scaleY);
+                }
+                const comp = sp;
+                const size = new Laya.Point();
+                if (comp) {
+                    size.setTo(comp.displayWidth, comp.displayHeight);
+                }
+                else {
+                    const rect = sp.getBounds();
+                    size.setTo(rect.width, rect.height);
+                }
+                sp.layer_tween = Laya.Tween.from(node, { x: sp.x + (size.x >> 1), y: sp.y + (size.y >> 1), scaleX: 0, scaleY: 0 }, 300, Laya.Ease.backInOut, Handler.create(this, () => {
+                    this._animationComplete = true;
+                    this.event(LayerEvent.LAYER_ANIMATION_COMPLETE, this._animationComplete);
+                }));
+            }
+        }
+        this._mask.off(Laya.Event.CLICK, this, this.applyClick);
+        Laya.timer.once(Time.SEC_IN_MILI, this, () => {
+            this._mask.on(Laya.Event.CLICK, this, this.applyClick);
+        });
+        if (index) {
+            super.addChildAt(node, index);
+        }
+        else {
+            super.addChild(node);
+        }
+        return node;
+    }
+    applyClick() {
+        if (this._handlers.length) {
+            this._handlers.pop().run();
+        }
+    }
+}
+MaskLayer.DEFAULT_MASK_ALPHA = 0.7;
+//# sourceMappingURL=MaskLayer.js.map
+class LayerMgr extends EventDispatcher {
+    constructor() {
+        super(...arguments);
+        this._layerCount = 11;
+        this._layers = [];
+    }
+    initLayer(container, designWidth, designHeight) {
+        const pixelRatio = Laya.Browser.pixelRatio;
+        const clientWidth = Laya.Browser.clientWidth * pixelRatio;
+        const clientHeight = Laya.Browser.clientHeight * pixelRatio;
+        const adaptScaleX = clientWidth / designWidth;
+        const adaptScaleY = clientHeight / designHeight;
+        const adaptScale = Math.min(adaptScaleX, adaptScaleY);
+        const stageWidth = designWidth * adaptScaleX;
+        const stageHeight = designHeight * adaptScaleY;
+        let top = 0;
+        let left = 0;
+        if (adaptScale === adaptScaleX) {
+            top = (stageHeight - designHeight * adaptScale) * 0.5;
+        }
+        else {
+            left = (stageWidth - designWidth * adaptScale) * 0.5;
+        }
+        container.width = stageWidth;
+        container.height = stageHeight;
+        LayerManager.stageDesignWidth = designWidth;
+        LayerManager.stageDesignHeight = designHeight;
+        LayerManager.clientWidth = Laya.Browser.clientWidth;
+        LayerManager.clientHeight = Laya.Browser.clientHeight;
+        LayerManager.adaptScaleX = adaptScaleX;
+        LayerManager.adaptScaleY = adaptScaleY;
+        LayerManager.adaptScale = adaptScale;
+        LayerManager.pixelRatio = pixelRatio;
+        LayerManager.top = top;
+        LayerManager.left = left;
+        LayerManager.clientTop = (top / pixelRatio);
+        LayerManager.clientLeft = (left / pixelRatio);
+        this.createAllLayers();
+        container.addChild(this.getLayerByType(LAYER_TYPE.RENDER_LAYER));
+        container.addChild(this.getLayerByType(LAYER_TYPE.NAV_LAYER));
+        container.addChild(this.getLayerByType(LAYER_TYPE.FRAME_LAYER));
+        container.addChild(this.getLayerByType(LAYER_TYPE.SUB_FRAME_LAYER));
+        container.addChild(this.getLayerByType(LAYER_TYPE.ALERT_LAYER));
+        container.addChild(this.getLayerByType(LAYER_TYPE.SCREEN_EFFECT_LAYER));
+        container.addChild(this.getLayerByType(LAYER_TYPE.ROLL_MSG_LAYER));
+        container.addChild(this.getLayerByType(LAYER_TYPE.GUIDE_LAYER));
+        container.addChild(this.getLayerByType(LAYER_TYPE.SMALL_LOADING_LAYER));
+        container.addChild(this.getLayerByType(LAYER_TYPE.NOTE_LAYER));
+        container.addChild(this.getLayerByType(LAYER_TYPE.DEBUG_LAYER));
+        for (const layer of this._layers) {
+            layer.pos(left, top);
+            layer.scale(adaptScale, adaptScale);
+        }
+    }
+    createAllLayers() {
+        for (let i = 0; i < this._layerCount; i++) {
+            this._layers.push(this.createOnLayer(i));
+        }
+    }
+    createOnLayer(layerType) {
+        let layer = new MaskLayer(layerType);
+        return layer;
+    }
+    addToLayer(display, layerType) {
+        let layer = this.getLayerByType(layerType);
+        layer.maskEnabled = false;
+        layer.addChild(display);
+    }
+    getLayerByType(layerType) {
+        for (let i = 0; i < this._layers.length; i++) {
+            if (this._layers[i].layerId == layerType) {
+                return this._layers[i];
+            }
+        }
+    }
+    static get Instance() {
+        if (LayerMgr._instance == null) {
+            LayerMgr._instance = new LayerMgr();
+        }
+        return LayerMgr._instance;
+    }
+}
+var LAYER_TYPE;
+(function (LAYER_TYPE) {
+    LAYER_TYPE[LAYER_TYPE["RENDER_LAYER"] = 0] = "RENDER_LAYER";
+    LAYER_TYPE[LAYER_TYPE["NAV_LAYER"] = 1] = "NAV_LAYER";
+    LAYER_TYPE[LAYER_TYPE["FRAME_LAYER"] = 2] = "FRAME_LAYER";
+    LAYER_TYPE[LAYER_TYPE["SUB_FRAME_LAYER"] = 3] = "SUB_FRAME_LAYER";
+    LAYER_TYPE[LAYER_TYPE["ALERT_LAYER"] = 4] = "ALERT_LAYER";
+    LAYER_TYPE[LAYER_TYPE["SCREEN_EFFECT_LAYER"] = 5] = "SCREEN_EFFECT_LAYER";
+    LAYER_TYPE[LAYER_TYPE["ROLL_MSG_LAYER"] = 6] = "ROLL_MSG_LAYER";
+    LAYER_TYPE[LAYER_TYPE["GUIDE_LAYER"] = 7] = "GUIDE_LAYER";
+    LAYER_TYPE[LAYER_TYPE["SMALL_LOADING_LAYER"] = 8] = "SMALL_LOADING_LAYER";
+    /** 公告层 */
+    LAYER_TYPE[LAYER_TYPE["NOTE_LAYER"] = 9] = "NOTE_LAYER";
+    LAYER_TYPE[LAYER_TYPE["DEBUG_LAYER"] = 10] = "DEBUG_LAYER";
+})(LAYER_TYPE || (LAYER_TYPE = {}));
+//# sourceMappingURL=LayerMgr.js.map
+/*
+* 特效工具类;
+*/
+class EffectUtils extends Laya.Sprite {
+    /** 显示训练时间到了的特效 */
+    static showTrainingTimeEffect(parentNode) {
+        let self = this;
+        let img = new Laya.Image("images/hall/gameLastTimeTip.png");
+        M.layer.screenEffectLayer.addChild(img);
+        img.pos(0 - img.width, (LayerManager.stageDesignHeight - 260) / 2);
+        Laya.Tween.to(img, { x: (LayerManager.stageDesignWidth - 260) / 2 }, 250, null, Laya.Handler.create(self, () => {
+            Laya.Tween.clearTween(img);
+            Laya.Tween.to(img, { x: LayerManager.stageDesignWidth + 260 }, 250, null, Laya.Handler.create(self, () => {
+                Laya.Tween.clearTween(img);
+                img.removeSelf();
+                img = null;
+            }, null, true), 850);
+        }, null, true));
+    }
+    /** 对象360°旋转 */
+    static objectRotate(parentNode) {
+        let rotation = 0;
+        if (parentNode.rotation >= 0) {
+            rotation = parentNode.rotation + 360;
+        }
+        return Laya.Tween.to(parentNode, {
+            rotation: rotation,
+            complete: Handler.create(this, this.objectRotate, [parentNode]),
+        }, 1800);
+    }
+    /** 界面缩放再展开 */
+    static viewScaleShow(obj) {
+        obj.anchorX = 0.5;
+        obj.anchorY = 0.5;
+        obj.x = obj.x + obj.width / 2;
+        obj.y = obj.y + obj.height / 2;
+        Laya.Tween.from(obj, { scaleX: 0.8, scaleY: 0.8 }, 300, Laya.Ease.sineIn, Laya.Handler.create(this, () => {
+            Laya.Tween.clearTween(obj);
+        }, null, true));
+    }
+    static playCoinEffect(_parentNode, _imgUrl, _offset = { x: 0, y: 0 }, _callback = null) {
+        //飘金币
+        for (var index = 0; index < 15; index++) {
+            let coinSp = Laya.Pool.getItemByClass("p_coin", Laya.Image);
+            coinSp.mouseEnabled = false;
+            coinSp.mouseThrough = false;
+            coinSp.graphics.clear();
+            coinSp.loadImage(_imgUrl);
+            coinSp.scale(1, 1);
+            coinSp.alpha = 1;
+            coinSp.pivot(coinSp.width / 2, coinSp.height / 2);
+            _parentNode.addChild(coinSp);
+            var randX = Math.random() - 0.5;
+            var randY = Math.random() - 0.5;
+            var cicleX = 10 * Math.cos(index * Math.PI / 7) + 10 * randX;
+            var cicleY = 10 * Math.sin(index * Math.PI / 7) + 10 * randY;
+            coinSp.pos(_parentNode.width / 2 + cicleX + _offset.x, _parentNode.height / 2 + cicleY + _offset.y);
+            var coinPos = { x: (coinSp.x + cicleX * 5), y: (coinSp.y + cicleY * 5) };
+            Laya.Tween.to(coinSp, { x: coinPos.x, y: coinPos.y, scaleX: 0.8, scaleY: 0.8, rotation: (randX + randY) * 360 }, 500, Laya.Ease.expoOut);
+            coinSp.frameOnce(5, this, (_coinSp, _coinPos) => {
+                Laya.Tween.to(_coinSp, { scaleX: 0, scaleY: 0, alpha: 0.2, rotation: (randX + randY) * 360 }, 1000, Laya.Ease.linearNone, Laya.Handler.create(this, (_coinSp) => {
+                    _coinSp.removeSelf();
+                    _callback && _callback();
+                    Laya.Pool.recover("p_coin", _coinSp);
+                    Laya.Tween.clearTween(_coinSp);
+                }, [_coinSp]));
+            }, [coinSp, coinPos]);
+        }
+    }
+    /** 文本上飘特效 */
+    static playTextEffect(_parentNode, _content, _pos = null, _fontColor = "#fff1ba") {
+        //飘文字
+        var coinLabel = ObjectPool.pop(Laya.Label, "LabelColor");
+        coinLabel.text = _content;
+        coinLabel.fontSize = 30;
+        coinLabel.color = _fontColor;
+        coinLabel.anchorX = 0.5;
+        coinLabel.anchorY = 0.5;
+        _parentNode.addChild(coinLabel);
+        if (_pos) {
+            coinLabel.pos(_pos.x, _pos.y);
+        }
+        else {
+            coinLabel.pos(_parentNode.width / 2, -_parentNode.height / 2);
+        }
+        Laya.Tween.to(coinLabel, { x: coinLabel.x, y: (coinLabel.y - 70), alpha: 0 }, 2000, Laya.Ease.cubicInOut, Laya.Handler.create(this, (_coinLabel) => {
+            ObjectPool.push(_coinLabel);
+            _coinLabel.removeSelf();
+            Laya.Tween.clearTween(_coinLabel);
+        }, [coinLabel]));
+    }
+    /** 血量特效 */
+    static playBloodTextEffect(_parentNode, _content, _pos = null, _isDoubleHurt = false) {
+        //飘文字
+        if (Math.random() < 0.6)
+            return;
+        let bloodClip = ObjectPool.pop(Laya.FontClip, "BloodFontClip");
+        bloodClip.mouseEnabled = bloodClip.mouseThrough = false;
+        bloodClip.skin = "images/fontImg/blood_num.png";
+        bloodClip.sheet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWSYZT";
+        bloodClip.alpha = 1;
+        bloodClip.value = _content;
+        bloodClip.zOrder = _parentNode.zOrder + 1;
+        if (_pos) {
+            bloodClip.pos(_pos.x - 40, _pos.y);
+        }
+        else {
+            bloodClip.pos(_parentNode.width / 2, -_parentNode.height / 2);
+        }
+        PointUtils.parentToParent(bloodClip, _parentNode, true);
+        _parentNode.addChild(bloodClip);
+        if (_isDoubleHurt) {
+            bloodClip.skin = "images/fontImg/crit_num.png";
+            //缩放一下
+            let timeLine = new Laya.TimeLine();
+            timeLine.addLabel("tl1", 0).from(bloodClip, { scaleX: 1.5, scaleY: 1.2 }, 200, Laya.Ease.linearNone)
+                .addLabel("tl2", 200).to(bloodClip, { caleX: 1, scaleY: 1, alpha: 0 }, 500, Laya.Ease.cubicInOut);
+            timeLine.on(Laya.Event.COMPLETE, bloodClip, () => {
+                bloodClip.removeSelf();
+                ObjectPool.push(bloodClip);
+                timeLine.destroy();
+                timeLine = null;
+            });
+            timeLine.play(0, false);
+        }
+        else {
+            Laya.Tween.to(bloodClip, { y: (bloodClip.y - 70), alpha: 0 }, 2000, Laya.Ease.cubicInOut, Laya.Handler.create(this, (_bloodClip) => {
+                _bloodClip.removeSelf();
+                ObjectPool.push(_bloodClip);
+                Laya.Tween.clearTween(_bloodClip);
+            }, [bloodClip]));
+        }
+    }
+    /** 图片+文本上飘的特效 */
+    static playImageTextEffect(_parentNode, _imgUrl, _content, _pos = null, _zOrder = 0) {
+        //图片
+        let coinImg = ObjectPool.pop(Laya.Image, "Image", _imgUrl);
+        coinImg.alpha = 1;
+        coinImg.anchorX = 0.5;
+        coinImg.anchorY = 0.5;
+        _parentNode.addChild(coinImg);
+        if (_pos) {
+            coinImg.pos(_pos.x, _pos.y);
+        }
+        else {
+            coinImg.pos(_parentNode.width / 2, -_parentNode.height / 2);
+        }
+        if (_zOrder > 0) {
+            coinImg.zOrder = _zOrder;
+        }
+        //飘文字
+        var coinLabel = ObjectPool.pop(Laya.Label, "LabelEffect");
+        coinLabel.text = _content;
+        coinLabel.fontSize = 30;
+        coinLabel.color = "#552233";
+        coinLabel.anchorY = 0.5;
+        coinImg.addChild(coinLabel);
+        coinLabel.pos(coinImg.width, coinImg.height * 0.5);
+        //动画
+        let timeLine = new Laya.TimeLine();
+        timeLine.addLabel("tl1", 0).from(coinImg, { scaleX: 0, scaleY: 0, y: (coinImg.y + 30) }, 300, Laya.Ease.linearNone)
+            .addLabel("tl2", 500).to(coinImg, { x: coinImg.x, y: (coinImg.y - 50), alpha: 0 }, 1200, Laya.Ease.cubicInOut);
+        timeLine.on(Laya.Event.COMPLETE, coinImg, () => {
+            ObjectPool.push(coinLabel);
+            coinImg.removeChildren();
+            coinImg.removeSelf();
+            ObjectPool.push(coinImg);
+            timeLine.destroy();
+            timeLine = null;
+        });
+        timeLine.play(0, false);
+    }
+    /** 人物自白弹框效果 */
+    static playDialogueEffect(_parentNode, _imgUrl, _content, _pos = null, _zOrder = 0, _isFlipX = false) {
+        //图片
+        let coinImg = ObjectPool.pop(Laya.Image, "Image", _imgUrl);
+        coinImg.alpha = 1;
+        coinImg.anchorX = 0;
+        coinImg.anchorY = 1;
+        _parentNode.addChild(coinImg);
+        if (_pos) {
+            coinImg.pos(_pos.x, _pos.y);
+        }
+        else {
+            coinImg.pos(_parentNode.width / 2, -_parentNode.height / 2);
+        }
+        if (_zOrder > 0) {
+            coinImg.zOrder = _zOrder;
+        }
+        //飘文字
+        var coinLabel = new Laya.Label();
+        coinLabel.text = _content;
+        coinLabel.fontSize = 22;
+        coinLabel.color = "#000000";
+        coinLabel.anchorX = 0.5;
+        coinLabel.anchorY = 0.5;
+        coinLabel.width = 220;
+        coinLabel.height = 100;
+        coinLabel.wordWrap = true;
+        coinLabel.valign = "middle";
+        coinImg.addChild(coinLabel);
+        coinLabel.pos(coinImg.width * 0.5, coinImg.height * 0.46);
+        //镜像
+        if (_isFlipX) {
+            coinImg.scaleX = -1;
+            coinLabel.scaleX = -1;
+        }
+        //动画
+        let timeLine = new Laya.TimeLine();
+        timeLine.addLabel("tl1", 0).from(coinImg, { scaleX: 0, scaleY: 0 }, 300, Laya.Ease.linearNone)
+            .addLabel("tl2", 300).to(coinImg, { alpha: 1 }, 1200, Laya.Ease.linearNone)
+            .addLabel("tl3", 1500).to(coinImg, { alpha: 0 }, 1000, Laya.Ease.cubicInOut);
+        timeLine.on(Laya.Event.COMPLETE, coinImg, () => {
+            ObjectPool.push(coinImg);
+            coinImg.removeSelf();
+            timeLine.destroy();
+            timeLine = null;
+        });
+        timeLine.play(0, false);
+    }
+    /** 金币雨 */
+    static playCoinRainEffect(_imgUrl) {
+        for (var index = 0; index < 5; index++) {
+            Laya.timer.frameOnce(5, this, () => {
+                let coinSp = Laya.Pool.getItemByClass("p_coin_rain", Laya.Image);
+                coinSp.graphics.clear();
+                coinSp.loadImage(_imgUrl);
+                coinSp.pivot(coinSp.width / 2, coinSp.height / 2);
+                LayerManager.getInstance().screenEffectLayer.addChild(coinSp);
+                coinSp.pos(Math.random() * 8 * (LayerManager.stageDesignWidth / 8) + Math.random() * 100, Math.random() * 500 - 300);
+                Laya.Tween.to(coinSp, { x: coinSp.x, y: LayerManager.stageDesignHeight + 300 }, 3000, Laya.Ease.linearNone, Handler.create(this, (_coinSp) => {
+                    _coinSp.removeSelf();
+                    Laya.Pool.recover("p_coin_rain", _coinSp);
+                }, [coinSp]));
+            });
+        }
+    }
+    //宝箱掉落动效
+    static playBoxDropEffect(_effectNode, _callback = null) {
+        let boxAnimation = (target, onEvtFinish) => {
+            let timeLine = new Laya.TimeLine();
+            let nodePos = { x: _effectNode.x, y: _effectNode.y };
+            timeLine.addLabel("tl1", 0).from(target, { y: nodePos.y - 1000 }, 1000, Laya.Ease.cubicIn)
+                .addLabel("tl2", 1100).to(target, { y: nodePos.y - 80 }, 100, Laya.Ease.circOut)
+                .addLabel("tl3", 2100).to(target, { y: nodePos.y }, 500, Laya.Ease.bounceOut);
+            if (onEvtFinish != null) {
+                timeLine.on(Laya.Event.COMPLETE, target, () => {
+                    onEvtFinish();
+                    timeLine.destroy();
+                    timeLine = null;
+                });
+            }
+            timeLine.play(0, false);
+        };
+        boxAnimation(_effectNode, _callback);
+    }
+    //宝箱缩放效果
+    static playBoxScaleEffect(_effectNode, _callback = null) {
+        let boxAnimation = (target, onEvtFinish) => {
+            let timeLine = new Laya.TimeLine();
+            let dtime = 80;
+            timeLine.addLabel("tl1", 0).to(target, { scaleX: 1.5, scaleY: 0.9 }, dtime, Laya.Ease.backInOut)
+                .addLabel("tl2", 100).to(target, { scaleX: 1.1, scaleY: 1.0 }, dtime, Laya.Ease.backInOut)
+                .addLabel("tl3", 200).to(target, { scaleX: 1.3, scaleY: 0.95 }, dtime, Laya.Ease.backInOut)
+                .addLabel("tl4", 300).to(target, { scaleX: 1.0, scaleY: 1.0 }, dtime, Laya.Ease.backInOut);
+            if (onEvtFinish != null) {
+                timeLine.on(Laya.Event.COMPLETE, target, () => {
+                    onEvtFinish();
+                    timeLine.destroy();
+                    timeLine = null;
+                });
+            }
+            timeLine.play(0, false);
+        };
+        boxAnimation(_effectNode, _callback);
+    }
+    //宝箱抖动效果
+    static playBoxShakeEffect(_effectNode, _callback = null) {
+        let boxAnimation = (target, onEvtFinish) => {
+            let timeLine = new Laya.TimeLine();
+            let nodePos = { x: _effectNode.x, y: _effectNode.y };
+            let dtime = 50;
+            timeLine.addLabel("tl1", 0).to(target, { x: nodePos.x + 8, y: nodePos.y + 2 }, dtime, Laya.Ease.bounceInOut)
+                .addLabel("tl2", dtime).to(target, { x: nodePos.x - 8, y: nodePos.y - 1 }, dtime, Laya.Ease.bounceInOut)
+                .addLabel("tl3", 2 * dtime).to(target, { x: nodePos.x + 8, y: nodePos.y + 1 }, dtime, Laya.Ease.bounceInOut)
+                .addLabel("tl4", 3 * dtime).to(target, { x: nodePos.x, y: nodePos.y }, dtime, Laya.Ease.bounceInOut)
+                .addLabel("tl5", 4 * dtime).to(target, { x: nodePos.x, y: nodePos.y }, dtime, Laya.Ease.bounceInOut)
+                .addLabel("hide1", 5 * dtime).to(target, { alpha: 0 }, dtime)
+                .addLabel("show1", 6 * dtime).to(target, { alpha: 100 }, dtime);
+            if (onEvtFinish != null) {
+                timeLine.on(Laya.Event.COMPLETE, target, () => {
+                    onEvtFinish();
+                    timeLine.destroy();
+                    timeLine = null;
+                });
+            }
+            timeLine.play(0, false);
+        };
+        boxAnimation(_effectNode, _callback);
+    }
+    /** 闪烁效果 */
+    static playTwinkleEffect(_effectNode, _callback = null, _loop = false) {
+        let boxAnimation = (target, onEvtFinish) => {
+            let timeLine = new Laya.TimeLine();
+            timeLine.addLabel("hide1", 0).to(target, { alpha: 0 }, 100)
+                .addLabel("show1", 100).to(target, { alpha: 100 }, 100)
+                .addLabel("hide2", 200).to(target, { alpha: 0 }, 100)
+                .addLabel("show2", 300).to(target, { alpha: 100 }, 100);
+            if (onEvtFinish != null) {
+                timeLine.on(Laya.Event.COMPLETE, target, () => {
+                    onEvtFinish();
+                    timeLine.destroy();
+                    timeLine = null;
+                });
+            }
+            timeLine.play(0, _loop);
+        };
+        boxAnimation(_effectNode, _callback);
+    }
+    //加载效果
+    static showWaitEffect(content, useMask) {
+        EffectUtils.stopWaitEffect();
+        let waitNode = new Laya.View();
+        waitNode.name = EffectUtils.waitEffectName;
+        //定时自动移除
+        waitNode.timerOnce(12000, this, EffectUtils.stopWaitEffect);
+        //车
+        let waittingBgSp = new Laya.Image("loading/loading02.png");
+        waittingBgSp.visible = false;
+        waittingBgSp.anchorX = 0.5;
+        waittingBgSp.anchorY = 0.5;
+        waitNode.addChild(waittingBgSp);
+        waitNode.width = Math.max(waitNode.width, waittingBgSp.displayWidth);
+        waitNode.height = Math.max(waitNode.height, waittingBgSp.displayHeight);
+        //圈
+        let waittingSp = new Laya.Image("loading/loading01.png");
+        waittingSp.anchorX = 0.5;
+        waittingSp.anchorY = 0.5;
+        let timeLine = new Laya.TimeLine();
+        timeLine.addLabel("tl1", 0).to(waittingSp, { rotation: 360 }, 800);
+        timeLine.play(0, true);
+        waitNode.addChild(waittingSp);
+        waitNode.width = Math.max(waitNode.width, waittingSp.displayWidth);
+        waitNode.height = Math.max(waitNode.height, waittingSp.displayHeight);
+        //字
+        if (content) {
+            let txtLabel = new Laya.Label(content);
+            txtLabel.fontSize = 32;
+            txtLabel.color = "#FFFFFF";
+            txtLabel.width = 320;
+            txtLabel.height = 80;
+            txtLabel.wordWrap = true;
+            txtLabel.pos(waittingSp.x - txtLabel.width * 0.5, waittingSp.y + waittingSp.height * 0.5);
+            txtLabel.align = "center";
+            txtLabel.valign = "middle";
+            waitNode.addChild(txtLabel);
+        }
+        AlignUtils.setToScreenGoldenPos(waitNode, 0, true);
+        M.layer.smallLoadingLayer.maskAlpha = useMask ? MaskLayer.DEFAULT_MASK_ALPHA : 0;
+        M.layer.smallLoadingLayer.addChild(waitNode);
+    }
+    static stopWaitEffect() {
+        let waittingSp = M.layer.smallLoadingLayer.getChildByName(EffectUtils.waitEffectName);
+        if (waittingSp) {
+            waittingSp.clearTimer(this, EffectUtils.stopWaitEffect);
+            waittingSp.removeSelf();
+        }
+    }
+}
+EffectUtils.waitEffectName = "waitEffect";
+var EFFECT_TYPE;
+(function (EFFECT_TYPE) {
+    /** 金币 */
+    EFFECT_TYPE[EFFECT_TYPE["GOLD"] = 0] = "GOLD";
+    /** 钻石 */
+    EFFECT_TYPE[EFFECT_TYPE["DIAMOND"] = 1] = "DIAMOND";
+    /** 精华 */
+    EFFECT_TYPE[EFFECT_TYPE["ESSENCE"] = 2] = "ESSENCE";
+})(EFFECT_TYPE || (EFFECT_TYPE = {}));
+//# sourceMappingURL=EffectUtils.js.map
+/**
+ * 物品飞入特效
+ */
+class FlyEffect extends Sprite {
+    constructor() {
+        super();
+        this._animationName = "rollingCoin";
+        this._anims = [];
+    }
+    play(animationName, fromX, fromY, toX = 38, toY = 42) {
+        this._animNum = 0;
+        this._animLen = 7;
+        this._animationName = animationName;
+        this.createAnim(fromX, fromY, toX, toY);
+        Laya.timer.frameLoop(1, this, this.onLoop);
+        return this;
+    }
+    createAnim(fromX, fromY, toX, toY) {
+        this._animNum++;
+        let anim = ObjectPool.pop(Laya.Animation, "FLY_ANIMATION"); // PoolManager.getInstance().get(Laya.Animation, this._animationName);
+        // @ts-ignore
+        // if (!anim.url_loaded) {
+        // @ts-ignore
+        // anim.url_loaded = true;
+        anim.loadAtlas("images/effect/" + this._animationName + ".json");
+        anim.interval = 25;
+        // }
+        const scale = Math.random() * 0.15 + 0.65;
+        anim.pivot(30, 30).pos(fromX + RandomUtils.rangeInt(5, 10), fromY + RandomUtils.rangeInt(5, 10)).scale(scale, scale);
+        anim.play(0, true);
+        anim.alpha = 1;
+        const iX = fromX + Math.random() * (toX - fromX);
+        const iY = fromY + Math.random() * (toY - fromY);
+        const points = [];
+        points.push(new Point(anim.x, anim.y));
+        points.push(new Point(iX, iY));
+        points.push(new Point(toX, toY));
+        // prettier-ignore
+        const path = PathUtils.CreateBezierPoints(points, RandomUtils.rangeInt(25, 40));
+        // @ts-ignore
+        anim.path = path;
+        // @ts-ignore
+        anim.pathLength = path.length - 1;
+        // @ts-ignore
+        anim.pathIndex = 0;
+        this.addChild(anim);
+        this._anims.push(anim);
+        if (this._animNum < this._animLen) {
+            // prettier-ignore
+            Laya.timer.frameOnce(RandomUtils.rangeInt(4, 12), this, this.createAnim, [fromX, fromY, toX, toY]);
+        }
+    }
+    onLoop() {
+        let len = this._anims.length;
+        for (let i = 0; i < len; i++) {
+            const anim = this._anims[i];
+            // @ts-ignore
+            const idx = anim.pathIndex++;
+            // @ts-ignore
+            if (idx === anim.pathLength) {
+                this._anims.splice(i, 1);
+                this.onAnimComplete(anim);
+                i--;
+                len--;
+            }
+            else {
+                // @ts-ignore
+                const point = anim.path[idx];
+                anim.pos(point.x, point.y);
+            }
+        }
+    }
+    onAnimComplete(anim) {
+        if (anim) {
+            anim.stop();
+            anim.removeSelf();
+            ObjectPool.push(anim);
+            // PoolManager.getInstance().return(anim, this._animationName);
+        }
+        if (this.numChildren <= 0) {
+            Laya.timer.clear(this, this.onLoop);
+            this.destroy(true);
+        }
+    }
+}
+//# sourceMappingURL=FlyEffect.js.map
 class LoginView extends Laya.Component {
     constructor() {
         super();

@@ -53,8 +53,8 @@ class TaskView extends BaseView {
     /** 每日任务 */
     private refreshTaskList(_data: any) {
         if (_data == null) return;
-        let that = this;
-        let listData: any[] = _data; // [1,3,5,7,8,10];
+        let self = this;
+        let listData: any[] = _data;
         let redPointNum = 0;
         listData.sort((pre, next): number => {
             if (pre.task_status !== next.task_status) {
@@ -70,10 +70,11 @@ class TaskView extends BaseView {
             this.ui.viewStackTask.selectedIndex = QuestSubView.EMPTY_QUEST;
             return;
         }
-        that.ui.taskItemList.vScrollBarSkin = '';
-        that.ui.taskItemList.repeatY = 5;
-        that.ui.taskItemList.array = listData;
-        that.ui.taskItemList.renderHandler = new Laya.Handler(that, (cell: Laya.Box, index: number) => {
+        self.ui.taskItemList.vScrollBarSkin = '';
+        self.ui.taskItemList.repeatY = 4;
+        self.ui.taskItemList.array = listData;
+        self.ui.taskItemList.refresh();
+        self.ui.taskItemList.renderHandler = new Laya.Handler(self, (cell: Laya.Box, index: number) => {
             if (index > listData.length) return;
             let item = listData[index];
             if (!item) return;
@@ -133,10 +134,10 @@ class TaskView extends BaseView {
                                                 userData.removeTaskRedPoint();
                                             }
                                         }
-                                        Laya.Tween.to(cell, { x: -cell.displayWidth }, 250, Laya.Ease.quadOut, Handler.create(that, () => {
+                                        Laya.Tween.to(cell, { x: -cell.displayWidth }, 250, Laya.Ease.quadOut, Handler.create(self, () => {
                                             listData.splice(index, 1);
-                                            Laya.timer.once(100, that, () => {
-                                                that.requestTaskInfo();
+                                            Laya.timer.once(100, self, () => {
+                                                self.requestTaskInfo();
                                             })
                                         }));
                                     } else if (_res.code === 2) {
@@ -175,8 +176,9 @@ class TaskView extends BaseView {
             return;
         }
         self.ui.achiItemList.vScrollBarSkin = '';
-        self.ui.achiItemList.repeatY = 5;
+        self.ui.achiItemList.repeatY = 4;
         self.ui.achiItemList.array = listData;
+        self.ui.achiItemList.refresh();
         self.ui.achiItemList.renderHandler = new Laya.Handler(self, (cell: Laya.Box, index: number) => {
             if (index > listData.length) return;
             let item = listData[index];

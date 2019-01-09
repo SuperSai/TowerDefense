@@ -101,11 +101,11 @@ class HallManager extends Laya.EventDispatcher {
             let stagePrizeCfg: any = GlobleData.getData(GlobleData.BarrierRewardVO, lastStage);
             if (stagePrizeCfg) {
                 //发送奖励
-                let bossM: number = MathUtils.parseStringNum(stagePrizeCfg.bossM);
+                let diamond: number = MathUtils.parseStringNum(stagePrizeCfg.gem);
+                let essence: number = MathUtils.parseStringNum(stagePrizeCfg.bossM);
                 let gold: number = BattleManager.Instance.getBarrierRewardToGold(lastStage, MathUtils.parseStringNum(stagePrizeCfg.gold));
                 gold = isDouble ? gold * 2 : gold;
-                let gem: number = MathUtils.parseStringNum(stagePrizeCfg.gem);
-                HttpManager.Instance.requestStagePrizeDiamond(lastStage, gem, bossM, (_res: any) => {
+                HttpManager.Instance.requestStagePrizeDiamond(lastStage, diamond, essence, (_res: any) => {
                     let stage = _res as number;
                     if (stage > 0) {
                         ViewMgr.Ins.open(ViewConst.ClearanceRewardView, () => {
