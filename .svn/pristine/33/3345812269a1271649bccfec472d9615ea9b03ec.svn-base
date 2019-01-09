@@ -6,38 +6,16 @@ class HttpManager {
 
     }
 
-    /** 向服务器记录前端日志，如果传的是一个错误，则存的是错误堆栈，否则会尝试调用error的toString()，如果error对象没有toString()方法，则直接记录该对象 */
-    public requestSaveLog(error:Error | string): void{
-        if(!error)return;
-        try{
-            let log:string = "";
-            if(typeof error !== "string"){
-                log = error.stack;
-                !log && (log = error.name + ": " + error.message);
-            } else {
-                log = error;
+    /** 向服务器记录前端日志 */
+    public requestSaveLog(error): void {
+        const HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+        HttpReqHelper.request({
+            url: 'v1/tool/log',
+            method: "POST",
+            data: {
+                info: error.stack
             }
-
-            if(log){
-                const HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
-                HttpReqHelper.request({
-                    url: 'v1/tool/log',
-                    method:"POST",
-                    data:{
-                        info:log
-                    }
-                });
-            }
-        } catch (e) {
-            const HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
-            HttpReqHelper.request({
-                url: 'v1/tool/log',
-                method:"POST",
-                data:{
-                    info:e.stack
-                }
-            });
-        }
+        });
     }
 
     public requestSaveNovice(groupId: number): void {
@@ -783,6 +761,7 @@ class HttpManager {
 
     /** 分享礼包 */
     public requestShareGift(param: any): void {
+        console.log("@DAVID 点击卡片进入游戏给服务器发送数据:", param);
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: "v1/share/friend",

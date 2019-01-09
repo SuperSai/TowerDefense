@@ -3137,7 +3137,7 @@ class HttpManager {
 */
 class LanguageManager {
     constructor() {
-        this._languageMap = new TSDictionary();
+        this._map = new Laya.Dictionary();
         this._reg = new RegExp("\\{(\\d+)\\}");
     }
     /** 加载语言包配置文件 */
@@ -3164,27 +3164,22 @@ class LanguageManager {
                 }
                 else {
                     let strArr = obj.split(":");
-                    if (self._languageMap.ContainsKey(strArr[0])) {
-                        self._languageMap.Remove(strArr[0]);
+                    if (self._map.indexOf(strArr[0]) != -1) {
+                        self._map.remove(strArr[0]);
                     }
                     if (strArr.length <= 2) {
-                        self._languageMap.Add(strArr[0], strArr[1]);
+                        self._map.set(strArr[0], strArr[1]);
                     }
                     else {
-                        self._languageMap.Add(strArr[0], strArr.slice(1).join(""));
+                        self._map.set(strArr[0], strArr.slice(1).join(""));
                     }
                 }
             }
             LanguageManager.isLanguageLoadComplete = true;
         }
     }
-    getLanguageMapData() {
-        let self = this;
-        return self._languageMap.getValues();
-    }
     getLanguageById(key) {
-        let self = this;
-        return self._languageMap.TryGetValue(key);
+        return this._map.get(key);
     }
     /**
      * 设置容器语言
@@ -3231,8 +3226,8 @@ class LanguageManager {
     }
     getTranslationWithArray(key, argsArr) {
         let self = this;
-        if (self._languageMap.ContainsKey(key)) {
-            return self.replaceStr(self._languageMap.TryGetValue(key), argsArr);
+        if (self._map.indexOf(key) != -1) {
+            return self.replaceStr(self._map.get(key), argsArr);
         }
     }
     languageReplace(str, args) {
