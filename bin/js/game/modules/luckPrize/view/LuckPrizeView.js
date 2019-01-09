@@ -8,6 +8,7 @@ class LuckPrizeView extends BaseView {
         this.freeTimes = 0; //免费次数
         this.freeTime = 0; //免费时间
         this.nextFreeTime = 0; //离下次免费时间
+        this._isRunning = false;
         this.isFreeDrawing = false; //是否正在免费抽奖
         this.prizeItemTable = [
             { id: 1, name: "2倍奖励", num: 2, imgUrl: "images/luckLottery/luck_item_box.png" },
@@ -66,7 +67,9 @@ class LuckPrizeView extends BaseView {
         });
     }
     onClickExit() {
-        ViewMgr.Ins.close(ViewConst.LuckPrizeView);
+        if (!this._isRunning) {
+            ViewMgr.Ins.close(ViewConst.LuckPrizeView);
+        }
     }
     //开始抽奖
     onStart() {
@@ -87,11 +90,8 @@ class LuckPrizeView extends BaseView {
                 that.freeTimes--;
                 that.freeTime = 0;
                 //移除红点
-                if (userData) {
-                    userData.removeLuckPrizeRedPoint();
-                }
+                userData.removeLuckPrizeRedPoint();
                 this.refreshDiamondText();
-                HallManager.Instance.showLuckPrizeTime();
             });
         }
         else if (M.player.Info.userDiamond >= that.costDiamond) {
@@ -109,7 +109,6 @@ class LuckPrizeView extends BaseView {
                 that.freeTime = 0;
                 //刷新钻石数量
                 HttpManager.Instance.requestDiamondData();
-                HallManager.Instance.showLuckPrizeTime();
             });
         }
         else {
@@ -126,6 +125,7 @@ class LuckPrizeView extends BaseView {
     //转盘
     onRotation(_rotation, _itemId) {
         let that = this;
+        this._isRunning = true;
         let fAdd = 0.2;
         that.ui.imgBg.rotation = that.ui.imgBg.rotation % 360;
         if (that.ui.imgBg.rotation > _rotation) {
@@ -166,6 +166,8 @@ class LuckPrizeView extends BaseView {
                             that.startBtnEnabled(false);
                         }, that.prizeItemTable[_itemId - 1]);
                     }
+                    this._isRunning = false;
+                    HallManager.Instance.showLuckPrizeTime(that.freeTimes);
                 }
             }
             else if (fAdd < 0) {

@@ -61,8 +61,9 @@ class NoviceManager extends EventDispatcher {
             this.nextStep();
         }
         else {
+            LayerMgr.Instance.getLayerByType(LAYER_TYPE.GUIDE_LAYER).off(Laya.Event.CLICK, this, this.onMaskClick);
+            Laya.Tween.clearAll(this.ui.imgFinger);
             NoviceManager.isComplete = true;
-            // ButtonManager.ENABLED = true;
             this.offAll();
             if (this._activateTargets.length) {
                 this.recoverTargets();
@@ -198,6 +199,7 @@ class NoviceManager extends EventDispatcher {
     recoverTargets() {
         while (this._activateTargets.length) {
             const targetObj = this._activateTargets.pop();
+            targetObj.target.off(Laya.Event.CLICK, this, this.onTargetClick);
             PointUtils.parentToParent(targetObj.target, targetObj.parent, true);
             targetObj.parent.addChildAt(targetObj.target, targetObj.childIdx);
         }
@@ -228,10 +230,12 @@ class NoviceManager extends EventDispatcher {
         }
     }
     doDragAnimation(sx, sy, tx, ty) {
-        this.ui.imgFinger.pos(sx, sy);
-        Laya.Tween.to(this.ui.imgFinger, { x: tx, y: ty }, 500, null, Laya.Handler.create(this, () => {
-            Laya.timer.once(500, this, this.doDragAnimation, [sx, sy, tx, ty]);
-        }), 500);
+        if (this.ui) {
+            this.ui.imgFinger.pos(sx, sy);
+            Laya.Tween.to(this.ui.imgFinger, { x: tx, y: ty }, 500, null, Laya.Handler.create(this, () => {
+                Laya.timer.once(500, this, this.doDragAnimation, [sx, sy, tx, ty]);
+            }), 500);
+        }
     }
     activateMaskClick() {
         Laya.timer.once(Time.SEC_IN_MILI * 0.05, this, () => {

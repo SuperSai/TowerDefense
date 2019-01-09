@@ -1,8 +1,8 @@
 {
     "x":0,
     "type":"View",
-    "selectedBox":1,
-    "selecteID":2,
+    "selectedBox":103,
+    "selecteID":104,
     "props":{"y":0,"x":0,"sceneWidth":750,"sceneHeight":1334,"sceneColor":"#000000","sceneBg":"laya/views/ShareGift.jpg"},
     "nodeParent":-1,
     "label":"View",
@@ -186,7 +186,7 @@
                                 {
                                     "x":60,
                                     "type":"List",
-                                    "props":{"y":0,"x":0,"width":638,"var":"taskItemList","spaceY":15,"repeatY":1,"repeatX":1,"name":"taskItemList","height":690},
+                                    "props":{"y":0,"x":0,"width":638,"var":"taskItemList","spaceY":1,"repeatY":1,"repeatX":1,"name":"taskItemList","height":690},
                                     "nodeParent":23,
                                     "label":"List(taskItemList)",
                                     "isOpen":false,
@@ -197,10 +197,10 @@
                                     "child":[
                                         {
                                             "type":"Box",
-                                            "props":{"y":0,"x":2,"visible":false,"right":2,"renderType":"render","left":2,"height":130,"cacheAs":"bitmap"},
+                                            "props":{"y":0,"x":2,"visible":false,"right":2,"renderType":"render","left":2,"cacheAs":"bitmap"},
                                             "nodeParent":47,
                                             "label":"Box",
-                                            "isOpen":true,
+                                            "isOpen":false,
                                             "isDirectory":true,
                                             "isAniNode":false,
                                             "hasChild":true,
@@ -340,7 +340,7 @@
                                 {
                                     "x":60,
                                     "type":"List",
-                                    "props":{"y":0,"x":0,"width":638,"var":"achiItemList","spaceY":15,"repeatY":1,"repeatX":1,"height":690},
+                                    "props":{"y":0,"x":0,"width":638,"var":"achiItemList","spaceY":1,"repeatY":1,"repeatX":1,"height":690},
                                     "nodeParent":103,
                                     "label":"List(achiItemList)",
                                     "isOpen":true,

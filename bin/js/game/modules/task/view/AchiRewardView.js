@@ -3,7 +3,7 @@
 */
 class AchiRewardView extends BaseView {
     constructor() {
-        super(LAYER_TYPE.SUB_FRAME_LAYER, ui.task.AchiRewardViewUI, false);
+        super(LAYER_TYPE.NOTE_LAYER, ui.task.AchiRewardViewUI, false);
         this._rewardName = "金币";
         this._awardNum = 0;
         this.myParent.maskEnabled = false;

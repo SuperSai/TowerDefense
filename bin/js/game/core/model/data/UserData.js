@@ -256,10 +256,16 @@ class UserData {
     }
     //设置车位并保存
     setCarparkSave(_carParkSp, _carParkSp2 = null) {
-        this.parkcarInfoArray[_carParkSp.parkIndex].carId = _carParkSp.monsterId;
-        _carParkSp2 && (this.parkcarInfoArray[_carParkSp2.parkIndex].carId = _carParkSp2.monsterId);
-        this.cache.setCache(CacheKey.PET_LIST, this.parkcarInfoArray);
-        Laya.timer.once(10 * Time.SEC_IN_MILI, this, HttpManager.Instance.requestSaveCarparkData);
+        try {
+            this.parkcarInfoArray[_carParkSp.parkIndex].carId = _carParkSp.monsterId;
+            _carParkSp2 && (this.parkcarInfoArray[_carParkSp2.parkIndex].carId = _carParkSp2.monsterId);
+            this.cache.setCache(CacheKey.PET_LIST, this.parkcarInfoArray);
+            Laya.timer.once(10 * Time.SEC_IN_MILI, this, HttpManager.Instance.requestSaveCarparkData);
+        }
+        catch (e) {
+            console.error("@FREEMAN: 保存英雄列表信息时发生异常：", e);
+            console.error("@FREEMAN: 当前车位列表：", this.parkcarInfoArray, "英雄单位1：", _carParkSp, "英雄单位2：", _carParkSp2);
+        }
     }
     //通关的游戏关卡
     updatePassStage(_value) {
@@ -848,6 +854,7 @@ class UserData {
                     self.showLuckPrizeRedPoint = res.roulette_flag;
                     self.showFollowRedPoint = res.subscribe_flag;
                     self.every_day_into_rewards = res.every_day_into_rewards;
+                    self.showFriendConcurRedPoint = res.friend_help_flag;
                     self.advert = res.advert;
                     self.diamond_acce_num = res.diamond_acce_num;
                     if (EventsManager.Instance) {

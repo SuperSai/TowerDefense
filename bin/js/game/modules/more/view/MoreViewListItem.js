@@ -94,22 +94,32 @@ class MoreViewListItem extends Laya.Component {
     }
     naviToApp() {
         if (platform) {
-            if (M.more.noQuestMarket) {
-                platform.navigateToMiniProgram({
-                    appId: this._vo.appId,
-                    path: this._vo.pageQuery,
-                });
+            if (systemInfo.checkVersion(WXSDKVersion.NAVIGATE_TO_MINI_PROGRAM)) {
+                if (M.more.noQuestMarket) {
+                    platform.navigateToMiniProgram({
+                        appId: this._vo.appId,
+                        path: this._vo.pageQuery,
+                    });
+                }
+                else {
+                    platform.navigateToMiniProgram({
+                        appId: this._vo.appId,
+                        extraData: {
+                            fromQuestMarket: true,
+                            userId: userData.userId,
+                            questId: this._vo.questId
+                        },
+                        envVersion: "develop"
+                    });
+                }
             }
             else {
-                platform.navigateToMiniProgram({
-                    appId: this._vo.appId,
-                    extraData: {
-                        fromQuestMarket: true,
-                        userId: userData.userId,
-                        questId: this._vo.questId
-                    },
-                    envVersion: "develop"
-                });
+                if (Laya.Browser.onMiniGame) {
+                    Laya.Browser.window.wx.showModal({
+                        title: '温馨提示',
+                        content: '您当前微信版本过低，暂时使用该功能，请升级到最新微信版本后重试。'
+                    });
+                }
             }
         }
     }

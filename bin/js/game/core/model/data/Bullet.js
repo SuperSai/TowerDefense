@@ -50,14 +50,16 @@ class Bullet extends Laya.Sprite {
                     effectAni.loadAtlas(aniAtlas, Handler.create(that, () => {
                         //创建动画模板dizziness
                         Laya.Animation.createFrames(AnimationUtils.aniUrls(aniKey, frameCount, aniPath + '/', true), aniPath);
-                        //设置坐标
-                        let aniGraphics = effectAni.frames[1];
-                        if (aniGraphics) {
-                            let aniBounds = aniGraphics.getBounds();
-                            effectAni.pos(effectSp.x + (effectSp.width - aniBounds.width) / 2 + 20, effectSp.y + (effectSp.height - aniBounds.width) / 2 + 40);
+                        if (effectAni && effectAni.frames && effectAni.frames.length) {
+                            //设置坐标
+                            let aniGraphics = effectAni.frames[1];
+                            if (aniGraphics) {
+                                let aniBounds = aniGraphics.getBounds();
+                                effectAni.pos(effectSp.x + (effectSp.width - aniBounds.width) / 2 + 20, effectSp.y + (effectSp.height - aniBounds.width) / 2 + 40);
+                            }
+                            effectAni.interval = aniInterval;
+                            effectAni.play(0, false, aniPath);
                         }
-                        effectAni.interval = aniInterval;
-                        effectAni.play(0, false, aniPath);
                     }));
                     effectAni.timerOnce(aniInterval * frameCount, that, () => {
                         effectAni.removeSelf();

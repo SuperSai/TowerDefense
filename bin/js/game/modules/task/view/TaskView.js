@@ -242,6 +242,7 @@ class TaskView extends BaseView {
                             HttpManager.Instance.requestTaskReward(_item.id, (res) => {
                                 if (res) {
                                     if (res.code == 1) {
+                                        ViewMgr.Ins.close(ViewConst.AchiRewardView);
                                         MessageUtils.showMsgTips("奖励领取成功");
                                         if (item.reward_type == "money") {
                                             MessageUtils.shopMsgByObj(btnGet, "+" + MathUtils.bytesToSize(awardNum), EFFECT_TYPE.GOLD);

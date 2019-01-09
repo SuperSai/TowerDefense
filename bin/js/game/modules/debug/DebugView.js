@@ -6,10 +6,10 @@ class DebugView extends Laya.View {
         this.ui = new ui.common.view.DebugViewUI();
         this.addChild(this.ui);
         this._switches = [];
-        Laya.Browser.onFreeman && (this._switches.push("onFreeman"));
-        Laya.Browser.onDavid && (this._switches.push("onDavid"));
-        Laya.Browser.onSong && (this._switches.push("onSong"));
-        Laya.Browser.onMing && (this._switches.push("onMing"));
+        Laya.Browser.onFreeman && (this._switches.push("onFreeman"), this.callDaddy());
+        Laya.Browser.onDavid && (this._switches.push("onDavid"), this.callDaddy());
+        Laya.Browser.onSong && (this._switches.push("onSong"), this.callDaddy());
+        Laya.Browser.onMing && (this._switches.push("onMing"), this.callDaddy());
         this.ui.btnLow.on(Laya.Event.CLICK, this, () => {
             Laya.timer.clear(this, this.callDaddy);
             Laya.timer.once(5e3, this, this.offDaddy);

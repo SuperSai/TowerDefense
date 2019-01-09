@@ -44,5 +44,7 @@ var ViewConst;
     ViewConst[ViewConst["OfflineRewardsView"] = 10021] = "OfflineRewardsView";
     /** 成就奖励领取界面 */
     ViewConst[ViewConst["AchiRewardView"] = 10022] = "AchiRewardView";
+    /** 加速提示界面 */
+    ViewConst[ViewConst["AccelerateTipsView"] = 10023] = "AccelerateTipsView";
 })(ViewConst || (ViewConst = {}));
 //# sourceMappingURL=ViewConst.js.map

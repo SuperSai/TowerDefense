@@ -24,6 +24,11 @@ R FB3CB231 Monster.json
 R 015B0E33 SkillConfig.json
 R 20D2D94D SkillStrengthen.json
 R ED329E37 TrainDrop.json
+D images/accelerate
+R B0FEE9B9 acc_bg.png
+P 3FD736A6 acc_down_bg.png
+P 7A2ED119 acc_light.png
+P 6931263C acc_title.png
 D images/buff
 P 7DDD1283 buff_1.png
 P 4F7C6A50 buff_2.png
@@ -83,7 +88,7 @@ P AC393376 diamond_icon.png
 P 1ECAC6D4 diamond_icon_more.png
 P A1C17549 essence.png
 P 8721B77E essence_icon.png
-P DFA8EC49 fenxiang_icon.png
+P 177E7319 fenxiang_icon.png
 P F5420F53 game_exp_pro_head.png
 P 75C5FEE8 light_01.png
 P A675715C red_dot_hint.png
@@ -92,7 +97,7 @@ P AB43462D shop_free_video.png
 P 44AD5EFC skill_01.png
 P 3FFBBA5D skill_02.png
 P 6774641D skill_03.png
-P D9CBAE0E video_icon.png
+P DA1D541D video_icon.png
 D images/dailySign
 P 8780C372 desc_7days.png
 P 517726FA icon_day_1.png
@@ -134,7 +139,8 @@ D images/hall
 P 3035E761 acce_effect.png
 P 5131035C accelerate_icon.png
 R 3845688E bg.jpg
-P 1DD00065 box_001.png
+P A221DB80 box_001.png
+P AF0F36F6 box_002.png
 P 790D2F5B btn_welfare_icon.png
 P 5DBDE8A3 common_bg_light.png
 P 5AA8293B daojishi_di.png
@@ -204,13 +210,13 @@ P 2EC610C7 luck_prize_3.png
 P A2A3D336 luck_prize_4.png
 R 89D4FC83 luck_title.png
 D images/more
-P 9EFD6C26 app_icon_bselsfk.png
-P AF07C705 app_icon_cgmm.jpg
-P 66949905 app_icon_gslyl.png
-P 15264F9C app_icon_hlnc.gif
-P B518D310 app_icon_jdld2.jpg
-P 581270C8 app_icon_qmaxc.png
-P AF1FAEC0 app_icon_ycy.png
+R 9EFD6C26 app_icon_bselsfk.png
+R AF07C705 app_icon_cgmm.jpg
+R 66949905 app_icon_gslyl.png
+R 15264F9C app_icon_hlnc.gif
+R B518D310 app_icon_jdld2.jpg
+R 581270C8 app_icon_qmaxc.png
+R AF1FAEC0 app_icon_ycy.png
 P 5EEB70E2 custom_service.png
 R BBF02B37 item_bg.png
 P 97EA1162 sound_closed.png

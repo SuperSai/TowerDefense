@@ -44,8 +44,6 @@ class DiamondBuyView extends BaseView {
         if (PlayerManager.Instance.Info.userDiamond >= carPriceInt) {
             HttpManager.Instance.requestDiamondBuyOrder(carPriceInt, (_res) => {
                 if (_res) {
-                    if (BattleManager.Instance.createPet(self.datas[2].id) == null)
-                        return;
                     HttpManager.Instance.requestDiamondBuy(_res.order_id, (_res) => {
                         MessageUtils.showMsgTips("购买成功");
                         HttpManager.Instance.requestDiamondData();
@@ -55,6 +53,8 @@ class DiamondBuyView extends BaseView {
                                 break;
                             case DILOG_TYPE.ACC: //钻石加速次数加1
                                 userData.diamondAcceTimes(true);
+                                if (HallManager.Instance.hall)
+                                    HallManager.Instance.hall.playAcceEffectView();
                                 break;
                         }
                     });

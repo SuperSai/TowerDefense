@@ -6,34 +6,22 @@ class MessageUtils {
     }
     /**
      * 纯文本飘字 -- 屏幕中间提示
-     * @param {string} content
-     * @memberof MessageUtils
      */
     static showMsgTips(content) {
         let self = this;
         let msg = ObjectPool.pop(MessageTips, "MessageTips");
         msg.init(content);
-        self._msgs.push(msg);
         msg.visible = content == "" ? false : true;
         msg.zOrder = 999;
         AlignUtils.setToScreenGoldenPos(msg);
         LayerMgr.Instance.addToLayer(msg, LAYER_TYPE.ROLL_MSG_LAYER);
-        if (self._msgs.length > 0) {
-            let time = self._msgTime * 250;
-            Laya.Tween.to(msg, { x: msg.x, y: msg.y - 100, alpha: 0 }, 4000, Laya.Ease.cubicInOut, Laya.Handler.create(self, ($msg) => {
-                Laya.Tween.clearTween($msg);
-                DisplayUtils.removeFromArray($msg, self._msgs);
-                $msg.zOrder = 1;
-                ObjectPool.push($msg);
-                $msg.removeSelf();
-                $msg.alpha = 1;
-                if (self._msgs.length <= 0) {
-                    self._msgs = [];
-                    self._msgTime = 0;
-                }
-            }, [msg]), time);
-            self._msgTime++;
-        }
+        Laya.Tween.to(msg, { x: msg.x, y: msg.y - 100, alpha: 0 }, 4000, Laya.Ease.cubicInOut, Laya.Handler.create(self, ($msg) => {
+            Laya.Tween.clearTween($msg);
+            $msg.zOrder = 1;
+            ObjectPool.push($msg);
+            $msg.removeSelf();
+            $msg.alpha = 1;
+        }, [msg]));
     }
     /**
      * 根据对象位置来提示
@@ -95,6 +83,4 @@ class MessageUtils {
         }
     }
 }
-MessageUtils._msgTime = 0;
-MessageUtils._msgs = [];
 //# sourceMappingURL=MessageUtils.js.map

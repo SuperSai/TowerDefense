@@ -43,4 +43,6 @@ enum ViewConst {
     OfflineRewardsView,
     /** 成就奖励领取界面 */
     AchiRewardView,
+    /** 加速提示界面 */
+    AccelerateTipsView,
 }

@@ -4,6 +4,8 @@
 class EvolutionView extends BaseView {
     constructor() {
         super(LAYER_TYPE.FRAME_LAYER, ui.evolution.EvolutionViewUI);
+        this._diamond = 0;
+        this._needDiamond = 0;
     }
     //初始化
     initUI() {
@@ -33,10 +35,10 @@ class EvolutionView extends BaseView {
             }
         });
     }
-    //设置强化数据
     refreshBoxUI() {
         let self = this;
         let kingLevel = userData.getKingLevel();
+        console.log("@David 守卫等级：", kingLevel);
         let kingVO = GlobleData.getData(GlobleData.KindLevelConfigVO, kingLevel);
         //界面初始化
         if (kingVO) {
@@ -53,14 +55,9 @@ class EvolutionView extends BaseView {
             let currHeroCount = userData.caculateMonsterCount(EvolutionManager.Instance.getHeroId());
             let needHeroCount = 3;
             //需要钻石
-            let diamond = M.player.Info.userDiamond;
-            let needDiamond = MathUtils.parseInt(kingVO.gemxh.toString());
-            if (kingLevel > 10) {
-                self.ui.btnUpdate.disabled = (diamond < needDiamond) || (currHeroCount < needHeroCount);
-            }
-            else {
-                self.ui.btnUpdate.disabled = diamond < needDiamond;
-            }
+            self._diamond = M.player.Info.userDiamond;
+            self._needDiamond = MathUtils.parseInt(kingVO.gemxh.toString());
+            self.ui.btnUpdate.disabled = !EvolutionManager.Instance.getIsEvolutionLevel();
             self.ui.txtKingLevel.text = kingLevel + "";
             self.ui.txtAtk.text = MathUtils.bytesToSize(atk);
             self.ui.txtAtkAdd.text = MathUtils.numToPercent(atkAdd);
@@ -70,7 +67,7 @@ class EvolutionView extends BaseView {
             self.ui.heroBox.visible = isShow;
             self.ui.txtItemName.text = heroName;
             self.ui.txtNeedItem.text = Math.min(currHeroCount, needHeroCount) + '/' + needHeroCount;
-            self.ui.txtNeedDiamond.text = Math.min(diamond, needDiamond) + '/' + needDiamond;
+            self.ui.txtNeedDiamond.text = Math.min(self._diamond, self._needDiamond) + '/' + self._needDiamond;
             if (isShow) {
                 self.ui.diamondBox.pos(32, 558);
             }
@@ -78,33 +75,45 @@ class EvolutionView extends BaseView {
                 self.ui.diamondBox.pos(32, 507);
             }
             self.ui.nameHbox.refresh();
-            self.ui.btnUpdate.on(Laya.Event.CLICK, self, () => {
-                if (diamond >= needDiamond) {
-                    if (GlobalConfig.DEBUG) {
-                        this.evolutionLevelComplete(kingLevel + 1, M.player.Info.userDiamond - needDiamond);
+        }
+    }
+    addEvents() {
+        super.addEvents();
+        this.ui.btnUpdate.on(Laya.Event.CLICK, this, this.onEvolutionLevel);
+    }
+    removeEvents() {
+        super.removeEvents();
+        this.ui.btnUpdate.off(Laya.Event.CLICK, this, this.onEvolutionLevel);
+    }
+    onEvolutionLevel() {
+        if (this._diamond >= this._needDiamond) {
+            if (GlobalConfig.DEBUG) {
+                this.evolutionLevelComplete(userData.getKingLevel() + 1, M.player.Info.userDiamond - this._needDiamond);
+            }
+            else {
+                HttpManager.Instance.requestUpdateKingLevel(EvolutionView.kingEvolutionType, userData.getKingLevel(), this._needDiamond, (_res) => {
+                    if (_res && _res.type) {
+                        this.evolutionLevelComplete(userData.getKingLevel() + 1, _res.diamond);
                     }
-                    else {
-                        HttpManager.Instance.requestUpdateKingLevel(EvolutionView.kingEvolutionType, kingLevel, needDiamond, (_res) => {
-                            if (_res && _res.type) {
-                                this.evolutionLevelComplete(kingLevel + 1, _res.diamond);
-                            }
-                        });
-                    }
-                }
-                else {
-                    MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.04"));
-                }
-            });
+                });
+            }
+        }
+        else {
+            MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.04"));
         }
     }
     evolutionLevelComplete(kingLevel, diamond) {
         let self = this;
         MessageUtils.showMsgTips("升级成功");
         HallManager.Instance.hallData.isUpdate = false;
+        if (HallManager.Instance.hall && kingLevel > HallManager.Instance.hallData.userKingLevel) {
+            HallManager.Instance.hall.setKingLevel(kingLevel);
+        }
         if (diamond > 0)
             EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: M.player.Info.userDiamond = diamond });
         EventsManager.Instance.event(EventsType.EVOLUTION_LEVEL_COMPLETE, kingLevel);
         self.refreshBoxUI();
+        self.ui.btnUpdate.disabled = !EvolutionManager.Instance.getIsEvolutionLevel();
     }
     close(...param) {
         super.close(param);

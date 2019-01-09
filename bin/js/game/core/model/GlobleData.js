@@ -33,7 +33,6 @@ class GlobleData extends Laya.EventDispatcher {
     initStep() {
         let self = this;
         self._needParseCount = self._totalStepCsvList.GetLenght();
-        // TimerManager.Instance.doFrame(0, 0, self.onEnterFrameLoader, self);
         self.onEnterFrameLoader();
     }
     onEnterFrameLoader() {
@@ -58,7 +57,7 @@ class GlobleData extends Laya.EventDispatcher {
             key = "config/csvJson/" + key;
             key = key.replace('_', '.');
             key = PathConfig.RES_URL + key;
-            Laya.loader.load(key, Laya.Handler.create(self, self.onLoaded, [key]), null, Laya.Loader.TEXT);
+            Laya.loader.load(key, Laya.Handler.create(self, self.onLoaded, [key]), null, Laya.Loader.TEXT, 0, true);
             self._jsonCount++;
         }
     }
@@ -67,10 +66,17 @@ class GlobleData extends Laya.EventDispatcher {
         //替换一个看不见的特殊字符
         let data = Laya.loader.getRes(key);
         // data = data.replace(/[\ufeff]/, "");
-        let data_json = JSON.parse(data);
-        let csvStr = JSON.stringify(data_json);
-        self.starSingleParse(csvStr);
-        this.onEnterFrameLoader();
+        try {
+            let data_json = JSON.parse(data);
+            let csvStr = JSON.stringify(data_json);
+            self.starSingleParse(csvStr);
+        }
+        catch (error) {
+            console.log("@David 加载csv出错 key:", key);
+        }
+        finally {
+            this.onEnterFrameLoader();
+        }
     }
     starSingleParse(csvStr) {
         let self = this;

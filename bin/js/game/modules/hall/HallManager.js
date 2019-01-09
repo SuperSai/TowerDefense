@@ -76,7 +76,6 @@ class HallManager extends Laya.EventDispatcher {
     }
     /** 更新精华碎片数 */
     updateEssence(value) {
-        let that = this;
         PlayerManager.Instance.Info.userEssence = value;
         //本地保存
         userData.setEssence(PlayerManager.Instance.Info.userEssence);
@@ -152,7 +151,7 @@ class HallManager extends Laya.EventDispatcher {
             HallManager.Instance.hall.refreshShortcutCreateBtn();
         }
         else {
-            if (PlayerManager.Instance.Info.dayGetGoldCount > 0) {
+            if (userData.getAdTimes(12) > 0 && PlayerManager.Instance.Info.dayGetGoldCount > 0) {
                 ViewMgr.Ins.open(ViewConst.RewardGoldView);
             }
             else {
@@ -162,7 +161,7 @@ class HallManager extends Laya.EventDispatcher {
         }
     }
     /** 轮盘免费抽奖倒计时 */
-    showLuckPrizeTime() {
+    showLuckPrizeTime($freeTime = -1) {
         this.hall.txt_prizeTime.text = "大转盘";
         HttpManager.Instance.requestPrizeInfo((res) => {
             if (!res)
@@ -171,7 +170,7 @@ class HallManager extends Laya.EventDispatcher {
             console.log("@David 轮盘免费抽奖倒计时:免费次数：", freeTimes);
             this._model.freeTime = MathUtils.parseInt(res.remain_time); //免费时间
             this._model.nextFreeTime = MathUtils.parseInt(res.next_free); //离下次免费时间
-            if (freeTimes > 0) {
+            if (freeTimes > 0 && $freeTime == -1) {
                 this.hall.txt_prizeTime.text = "免费抽奖";
             }
             else {

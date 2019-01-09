@@ -438,6 +438,7 @@ class MonsterSprite extends Laya.Sprite {
         }
         bloodBar.value = self.curBlood / self.maxBlood;
         bloodBar.visible = self.curBlood < self.maxBlood;
+        bloodBar.zOrder = this.zOrder + 1;
         let isDeath = self.curBlood <= 0;
         if (self._isDeath == false && isDeath) {
             //死亡状态切换

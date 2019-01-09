@@ -55,8 +55,10 @@ class SkyDropView extends BaseView {
         }
     }
     onVideoBtnClick() {
-        SDKManager.Instance.showVideoAd(() => {
-            this.success();
+        SDKManager.Instance.showVideoAd((res) => {
+            if (res && res.isEnded || res === undefined) {
+                this.success();
+            }
         }, () => {
             MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.15"));
         }, false);

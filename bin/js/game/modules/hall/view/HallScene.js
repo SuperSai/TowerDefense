@@ -129,12 +129,18 @@ class HallScene extends ui.hall.HallSceneUI {
         self.initCarUI();
         self.initCarparkList();
         //投诉建议
-        if (self.btnFeedback) {
-            const rect = LayerManager.getRealStageRect(self.btnFeedback);
-            platform.createFeedbackButton({
-                x: rect.x, y: rect.y,
-                width: rect.width, height: rect.height
-            });
+        if (systemInfo.checkVersion(WXSDKVersion.CREATE_FEEDBACK_BUTTON)) {
+            if (self.btnFeedback) {
+                const rect = LayerManager.getRealStageRect(self.btnFeedback);
+                platform.createFeedbackButton({
+                    x: rect.x, y: rect.y,
+                    width: rect.width, height: rect.height
+                });
+            }
+        }
+        else {
+            self.btnMore.pos(self.btnFeedback.x, self.btnFeedback.y);
+            self.btnFeedback.destroy();
         }
         //启动游戏出怪
         const startCreateMonster = function () {
@@ -187,7 +193,21 @@ class HallScene extends ui.hall.HallSceneUI {
                 self.showSurpassView();
                 if (userData) {
                     const remainingTime = userData.cache.getCache(CacheKey.ACCELERATE_SEC_REMAINING);
-                    remainingTime && self.playAcceEffectView(remainingTime, false);
+                    if (remainingTime > 0) {
+                        self.playAcceEffectView(remainingTime, false);
+                    }
+                    else {
+                        this.imgAccIcon.visible = true;
+                        if (userData.getAdTimes(10) > 0) {
+                            this.imgAccIcon.skin = "images/core/video_icon.png";
+                        }
+                        else if (userData.getShareTimes(10) > 0) {
+                            this.imgAccIcon.skin = "images/core/fenxiang_icon.png";
+                        }
+                        else {
+                            this.imgAccIcon.visible = false;
+                        }
+                    }
                 }
                 //先到后台拉取未领取的奖励
                 HttpManager.Instance.requestStagePrizeData((_prizeList) => {
@@ -265,7 +285,7 @@ class HallScene extends ui.hall.HallSceneUI {
         self.btn_block.on(Laya.Event.CLICK, self, self.onClickMiniProgram);
         self.btn_eliminate.on(Laya.Event.CLICK, self, self.onClickMiniProgram);
         self.btn_arrow.on(Laya.Event.CLICK, self, self.onClickMenuHandler);
-        self.btn_concur.on(Laya.Event.CLICK, self, self.onClickConcur); //好友互助 
+        self.btn_concur.on(Laya.Event.CLICK, self, self.onClickConcur); //好友互助
         self.btn_ranking.on(Laya.Event.CLICK, self, self.onRanking); //排行榜
         self.btn_sign.on(Laya.Event.CLICK, self, self.showDaySignView); //签到
         self.btn_follow.on(Laya.Event.CLICK, self, self.onClickFollow); //关注
@@ -463,11 +483,8 @@ class HallScene extends ui.hall.HallSceneUI {
         }
     }
     /** 守卫升级完毕 */
-    onEvolutionLevelComplete(kingLevel) {
+    onEvolutionLevelComplete() {
         let self = this;
-        if (kingLevel > HallManager.Instance.hallData.userKingLevel) {
-            self.setKingLevel(kingLevel);
-        }
         self.playKingUpdateEffect();
         Laya.SoundManager.playSound("musics/kingUpdate.mp3");
         self.checkKingIsUpdate();
@@ -485,16 +502,14 @@ class HallScene extends ui.hall.HallSceneUI {
         that.refreshShortcutCreateBtn();
         //奖励三个高级精灵
         let prizeMonsterArray = [1001, 1001, 1001];
-        let count = 0;
         if (that.carparkList) {
-            for (var index = 0; index < HallManager.Instance.hallData.parkMonsterCount; index++) {
+            for (let index = 0; index < HallManager.Instance.hallData.parkMonsterCount; index++) {
                 var element = that.carparkList.getCell(index);
                 if (element) {
                     let carParkSp = element.getChildByName("car");
                     if (carParkSp && carParkSp.monsterId > 0) {
-                        if (count < 3) {
-                            carParkSp.setKind(prizeMonsterArray[count]);
-                            count++;
+                        if (index < 3) {
+                            carParkSp.setKind(prizeMonsterArray[index]);
                         }
                         else {
                             carParkSp.clearStage();
@@ -561,7 +576,8 @@ class HallScene extends ui.hall.HallSceneUI {
     }
     /** 钻石购买加速 */
     onDiamondBuyAcce() {
-        ViewMgr.Ins.open(ViewConst.DiamondBuyView, null, DILOG_TYPE.ACC, 60);
+        let diamond = 60;
+        ViewMgr.Ins.open(ViewConst.DiamondBuyView, null, DILOG_TYPE.ACC, diamond);
     }
     onShowCarport() {
         ViewMgr.Ins.open(ViewConst.ShopView);
@@ -1094,7 +1110,7 @@ class HallScene extends ui.hall.HallSceneUI {
     /** 检查守护是否可以升级 */
     checkKingIsUpdate() {
         let self = this;
-        self.kingUpdateImg.visible = HallManager.Instance.getKingIsUpgrade();
+        self.kingUpdateImg.visible = EvolutionManager.Instance.getIsEvolutionLevel();
     }
     //显示通关结果(_isManual:手动调用)
     showPassStageResult(_stage, _callback = null, _isManual = false) {
@@ -1167,20 +1183,30 @@ class HallScene extends ui.hall.HallSceneUI {
     }
     //跳转小程序
     onMiniProgram() {
-        platform.navigateToMiniProgram({
-            // appId: 'wx10e1554b604d7568',
-            appId: userData.miniCode(),
-            path: userData.miniPagePath(),
-            // extraData: {
-            //     box: '1'
-            // },
-            // envVersion: 'develop',
-            success(res) {
-                console.log("mini跳转成功", res);
+        if (systemInfo.checkVersion(WXSDKVersion.NAVIGATE_TO_MINI_PROGRAM)) {
+            platform.navigateToMiniProgram({
+                // appId: 'wx10e1554b604d7568',
+                appId: userData.miniCode(),
+                path: userData.miniPagePath(),
+                // extraData: {
+                //     box: '1'
+                // },
+                // envVersion: 'develop',
+                success(res) {
+                    console.log("mini跳转成功", res);
+                }
+            });
+            //小程序跳转次数统计
+            HttpManager.Instance.requestShareAdFinish("minipro_" + userData.miniCode());
+        }
+        else {
+            if (Laya.Browser.onMiniGame) {
+                Laya.Browser.window.wx.showModal({
+                    title: '温馨提示',
+                    content: '您当前微信版本过低，暂时使用该功能，请升级到最新微信版本后重试。'
+                });
             }
-        });
-        //小程序跳转次数统计
-        HttpManager.Instance.requestShareAdFinish("minipro_" + userData.miniCode());
+        }
     }
     //怪物储存箱
     onCarStore() {
@@ -1248,29 +1274,21 @@ class HallScene extends ui.hall.HallSceneUI {
         return 0;
     }
     //显示加速效果
-    playAcceEffectView(_acceTime = 90, _isEffect = true) {
+    playAcceEffectView(acceTime = 120, isEffect = true) {
         let that = this;
         if (HallManager.Instance.hallData.userAcceTime > 1) {
-            HallManager.Instance.hallData.userAcceTime += _acceTime;
+            HallManager.Instance.hallData.userAcceTime += acceTime;
             return;
         }
-        HallManager.Instance.hallData.userAcceTime += _acceTime;
-        if (that.acceEffectView) {
-            if (_isEffect) {
-                that.acceEffectView.visible = true;
-                if (that.ani2) {
-                    that.ani2.play(0, false);
-                }
-                Laya.timer.frameOnce(90, that, () => {
-                    that.acceEffectView.visible = false;
-                });
-            }
-            //加速开始
-            that.setCarAcce(2);
-            that.refreshAcceTime();
-            Laya.timer.loop(1000, that, that.refreshAcceTime);
-            Laya.SoundManager.playSound("musics/accecar.mp3");
+        HallManager.Instance.hallData.userAcceTime += acceTime;
+        if (isEffect) {
+            ViewMgr.Ins.open(ViewConst.AccelerateTipsView);
         }
+        //加速开始
+        that.setCarAcce(2);
+        that.refreshAcceTime();
+        Laya.timer.loop(1000, that, that.refreshAcceTime);
+        Laya.SoundManager.playSound("musics/accecar.mp3");
     }
     refreshAcceTime() {
         let that = this;
@@ -1278,6 +1296,7 @@ class HallScene extends ui.hall.HallSceneUI {
         if (that.btnAcce) {
             let imgAcce = that.btnAcce.getChildByName("imgAcce");
             if (imgAcce) {
+                this.imgAccIcon.visible = false;
                 imgAcce.visible = true;
                 let txtAcceTime = imgAcce.getChildByName("txtAcceTime");
                 if (txtAcceTime) {
@@ -1302,6 +1321,16 @@ class HallScene extends ui.hall.HallSceneUI {
                     imgAcce.visible = false;
                 }
                 that.btnAcce.mouseEnabled = true;
+                this.imgAccIcon.visible = true;
+                if (userData.getAdTimes(10) > 0) {
+                    this.imgAccIcon.skin = "images/core/video_icon.png";
+                }
+                else if (userData.getShareTimes(10) > 0) {
+                    this.imgAccIcon.skin = "images/core/fenxiang_icon.png";
+                }
+                else {
+                    this.imgAccIcon.visible = false;
+                }
             }
             userData.cache.removeCache(CacheKey.ACCELERATE_SEC_REMAINING);
             return;
@@ -1561,10 +1590,10 @@ class HallScene extends ui.hall.HallSceneUI {
             else {
                 curSection = 1;
                 self.setPassStage(HallManager.Instance.hallData.passStage + 1);
-                //查询是否有成就任务完成
-                HallManager.Instance.checkIsGetAchievementReward();
             }
             self.setPassSection(curSection);
+            //查询是否有成就任务完成
+            HallManager.Instance.checkIsGetAchievementReward();
             //创建怪物
             self.createMonster(HallManager.Instance.hallData.passStage, HallManager.Instance.hallData.passSection);
         });

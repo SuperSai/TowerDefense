@@ -74,7 +74,7 @@ class HttpRequestHelper {
             // console.log("httpToken:", _token);
         }, false);
         var header = ["Content-Type", "application/x-www-form-urlencoded;charset=utf-8", "token", token];
-        if (_params.method == 'Post') {
+        if (_params.method.toUpperCase() == 'POST') {
             // var header = ["Content-Type", "application/x-www-form-urlencoded", "token", token];
             // console.log("header---", header)
             hr.send(that.baseUrl + _params.url, _params.data, 'POST', 'jsonp', header);

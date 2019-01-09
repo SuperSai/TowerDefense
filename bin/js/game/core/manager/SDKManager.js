@@ -37,7 +37,7 @@ class SDKManager {
     /** 显示banner广告 */
     showBannerAd() {
         let self = this;
-        if (self._isForbidBannerAd || !systemInfo.canUseVersion("2.0.4")) {
+        if (!systemInfo.checkVersion("2.0.4")) {
             return;
         }
         self.createBanner();
@@ -46,7 +46,7 @@ class SDKManager {
     /** 关闭banner广告 */
     closeBannerAd() {
         let self = this;
-        if (!systemInfo.canUseVersion("2.0.4"))
+        if (!systemInfo.checkVersion("2.0.4"))
             return;
         self._isForbidBannerAd = true;
         self.createBanner(false);
@@ -158,15 +158,25 @@ class SDKManager {
      * @memberof SDKManager
      */
     navigateToMiniProgram(appId) {
-        platform.navigateToMiniProgram({
-            appId: appId,
-            path: userData.miniPagePath(),
-            success(res) {
-                console.log("小程序跳转成功", res);
+        if (systemInfo.checkVersion(WXSDKVersion.NAVIGATE_TO_MINI_PROGRAM)) {
+            platform.navigateToMiniProgram({
+                appId: appId,
+                path: userData.miniPagePath(),
+                success(res) {
+                    console.log("小程序跳转成功", res);
+                }
+            });
+            //小程序跳转次数统计
+            HttpManager.Instance.requestShareAdFinish("minipro_" + appId);
+        }
+        else {
+            if (Laya.Browser.onMiniGame) {
+                Laya.Browser.window.wx.showModal({
+                    title: '温馨提示',
+                    content: '您当前微信版本过低，暂时使用该功能，请升级到最新微信版本后重试。'
+                });
             }
-        });
-        //小程序跳转次数统计
-        HttpManager.Instance.requestShareAdFinish("minipro_" + appId);
+        }
     }
     /** 处理分享类型 */
     handlerShareType(data) {

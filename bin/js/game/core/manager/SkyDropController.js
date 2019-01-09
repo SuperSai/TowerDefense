@@ -8,7 +8,7 @@ class SkyDropController extends Laya.EventDispatcher {
     init(parent) {
         this._container = parent;
         this._container.mouseThrough = true;
-        this._package = new Laya.Image("images/hall/box_001.png");
+        this._package = new Laya.Image("images/hall/box_002.png");
         this._package.pivot(34, 42);
         this._awardType = -1;
         // this.dropPackage(1);

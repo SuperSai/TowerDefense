@@ -15,7 +15,7 @@ class Main {
         };
         Laya.init(750, 1334, Laya.WebGL);
         Laya.stage.scaleMode = Laya.Stage.SCALE_NOSCALE;
-        Laya.URL.basePath = PathConfig.RES_URL;
+        // Laya.URL.basePath = PathConfig.RES_URL;
         M.layer.initLayer(Laya.stage, 750, 1334);
         userData = new UserData();
         LayerMgr.Instance.initLayer(Laya.stage, 750, 1334);

@@ -25,6 +25,7 @@ class ViewRegisterMgr {
         ViewMgr.Ins.register(ViewConst.OfflineRewardsView, new OfflineRewardsView());
         ViewMgr.Ins.register(ViewConst.InvitationView, new InvitationView());
         ViewMgr.Ins.register(ViewConst.AchiRewardView, new AchiRewardView());
+        ViewMgr.Ins.register(ViewConst.AccelerateTipsView, new AccelerateTipsView());
     }
 
     private static _instance: ViewRegisterMgr;
