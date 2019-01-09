@@ -576,7 +576,7 @@ class HallScene extends ui.hall.HallSceneUI {
     }
     /** 钻石购买加速 */
     onDiamondBuyAcce() {
-        let diamond = 60;
+        let diamond = userData.isEvolution() ? 30 : 60;
         ViewMgr.Ins.open(ViewConst.DiamondBuyView, null, DILOG_TYPE.ACC, diamond);
     }
     onShowCarport() {

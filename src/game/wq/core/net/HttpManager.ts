@@ -3,19 +3,22 @@
 */
 class HttpManager {
     constructor() {
+
     }
+
     /** 向服务器记录前端日志 */
-    requestSaveLog(error) {
+    public requestSaveLog(error): void{
         const HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/tool/log',
-            method: "POST",
-            data: {
-                info: error.stack
+            method:"POST",
+            data:{
+                info:error.stack
             }
         });
     }
-    requestSaveNovice(groupId) {
+
+    public requestSaveNovice(groupId: number): void {
         if (userData.cache.hasCache(CacheKey.NOVICE_GROUP_ID)) {
             const cacheGroupId = userData.cache.getCache(CacheKey.NOVICE_GROUP_ID);
             if (cacheGroupId === groupId) {
@@ -23,6 +26,7 @@ class HttpManager {
                 return;
             }
         }
+
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/novice/' + groupId,
@@ -35,8 +39,9 @@ class HttpManager {
         });
         userData.cache.setCache(CacheKey.NOVICE_GROUP_ID, groupId);
     }
+
     /** 请求通关奖励 */
-    requestStagePrizeDiamond(_stage, _diamond, _essence, _callback) {
+    public requestStagePrizeDiamond(_stage: number, _diamond: number, _essence: number, _callback: any): void {
         let that = this;
         let dataString = 'stage=' + _stage + '&diamond=' + _diamond + '&essence=' + _essence;
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
@@ -53,8 +58,9 @@ class HttpManager {
             }
         });
     }
+
     /** 请求奖励未领取的关卡 */
-    requestStagePrizeData(_callback = null) {
+    public requestStagePrizeData(_callback: any = null): void {
         var that = this;
         var HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
@@ -68,8 +74,9 @@ class HttpManager {
             }
         });
     }
+
     /** 钻石购怪物 */
-    requestDiamondBuy(_order_id, _callback) {
+    public requestDiamondBuy(_order_id: number, _callback: any): void {
         console.log("钻石购怪物", _order_id);
         let that = this;
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
@@ -84,8 +91,9 @@ class HttpManager {
             }
         });
     }
+
     /** 请求等级奖励钻石 */
-    requestLevelPrizeDiamond(_level, _diamond, _callback) {
+    public requestLevelPrizeDiamond(_level: number, _diamond: number, _callback: any): void {
         let that = this;
         let dataString = 'level=' + _level + '&diamond=' + _diamond;
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
@@ -102,10 +110,11 @@ class HttpManager {
             }
         });
     }
+
     /** 钻石购怪物下单 */
-    requestDiamondBuyOrder(diamond, callback, type = 0) {
+    public requestDiamondBuyOrder(diamond: number, callback: any, type: number = 0): void {
         console.log("钻石购怪物订单", diamond);
-        let strKind = 'buy_car';
+        let strKind: string = 'buy_car';
         if (type == 1) {
             strKind = 'diamond_acce';
         }
@@ -122,8 +131,10 @@ class HttpManager {
             }
         });
     }
+
+
     /** 请求钻石升级 */
-    requestUpdateKingLevel(_id, _level, _price, _callback = null) {
+    public requestUpdateKingLevel(_id: number, _level: number, _price: number, _callback: any = null): void {
         let that = this;
         let dataString = 'type=' + _id + '&value=' + _level + '&price=' + _price + '&unit=' + "diamond";
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
@@ -140,8 +151,9 @@ class HttpManager {
             }
         });
     }
+
     /** 每日任务 */
-    requestDailyTaskData(_taskId) {
+    public requestDailyTaskData(_taskId: number): void {
         let that = this;
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
@@ -154,8 +166,9 @@ class HttpManager {
             }
         });
     }
+
     /** 新老版本清理回调 */
-    requestVersionClear(_callback) {
+    public requestVersionClear(_callback: any): void {
         let that = this;
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
@@ -169,8 +182,9 @@ class HttpManager {
             }
         });
     }
+
     /** 新老版本更新检测（防止老数据覆盖） */
-    requestVersionCheck(_callback) {
+    public requestVersionCheck(_callback: any): void {
         let that = this;
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
@@ -188,8 +202,9 @@ class HttpManager {
             }
         });
     }
+
     /** 分享广告完成 */
-    requestShareAdFinish(_kind, shareId = 0) {
+    public requestShareAdFinish(_kind: string, shareId: number = 0): void {
         let dataString = 'type=' + _kind + '&share_id=' + shareId;
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
@@ -204,8 +219,9 @@ class HttpManager {
             }
         });
     }
+
     /** 分享完成 */
-    requestShareFinish(_shareId, _encryptedData = '', _iv = '', _callback = null) {
+    public requestShareFinish(_shareId: number, _encryptedData: string = '', _iv: string = '', _callback: any = null): void {
         let that = this;
         let dataString = 'share_id=' + _shareId + '&encryptedData=' + _encryptedData + '&iv=' + _iv;
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
@@ -222,8 +238,9 @@ class HttpManager {
             }
         });
     }
+
     /** 获取分享主题 */
-    requestShareSubject(type, _callback) {
+    public requestShareSubject(type: string, _callback: any): void {
         let that = this;
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
@@ -237,14 +254,16 @@ class HttpManager {
             }
         });
     }
+
     //查询离线奖励
-    requestOfflinePrizeData() {
+    public requestOfflinePrizeData(): void {
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/login',
             success: res => {
                 let offlineTimeSpan = MathUtils.parseInt(res.time); //离线时长
                 // let login_time = MathUtils.parseInt(res.login_time); //登录当前服务器时间
+
                 if (offlineTimeSpan > 10 * Time.MIN) {
                     M.event.event(EventsType.OFFLINE, offlineTimeSpan);
                     this.requestNotifyServerPrize();
@@ -272,14 +291,16 @@ class HttpManager {
                 //         EventsManager.Instance.event(EventsType.OFFLINE, true);
                 //     }
                 // }
+
             },
             fail: function (res) {
                 console.log(res);
             }
         });
     }
+
     /** 通知服务器已领取离线收益 */
-    requestNotifyServerPrize() {
+    public requestNotifyServerPrize(): void {
         let that = this;
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
@@ -292,8 +313,9 @@ class HttpManager {
             }
         });
     }
+
     /** 技能强化 */
-    requestSkillAddtionData(_callback) {
+    public requestSkillAddtionData(_callback: any): void {
         let that = this;
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
@@ -313,8 +335,9 @@ class HttpManager {
             }
         });
     }
+
     /** 英雄商店数据 */
-    requestCarshopData(_callback) {
+    public requestCarshopData(_callback: any): void {
         let that = this;
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
@@ -334,8 +357,9 @@ class HttpManager {
             }
         });
     }
+
     /** 用户精华碎片 */
-    requestEssenceData() {
+    public requestEssenceData(): void {
         let that = this;
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
@@ -353,8 +377,9 @@ class HttpManager {
             }
         });
     }
+
     /** 用户钻石 */
-    requestDiamondData() {
+    public requestDiamondData(): void {
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/userinfo/get_diamond',
@@ -372,8 +397,9 @@ class HttpManager {
             }
         });
     }
+
     /** 坑位数据 */
-    requestCarparkData(_callback) {
+    public requestCarparkData(_callback: any): void {
         let that = this;
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
@@ -398,9 +424,11 @@ class HttpManager {
                 MessageUtils.showMsgTips("@FREEMAN: 获取英雄列表时发生网络异常，请检查网络！");
             }
         });
+
     }
+
     /** 分享/广告可点击次数(广告->ad; 分享免费得车->free_car; 买车金币不足得金币->no_money; 加速->acce;) */
-    requestShareAdTimes() {
+    public requestShareAdTimes(): void {
         let that = this;
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
@@ -413,8 +441,9 @@ class HttpManager {
             }
         });
     }
+
     /** 用户信息金币 */
-    requestUserinfoData(_callback) {
+    public requestUserinfoData(_callback: any): void {
         let that = this;
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
@@ -422,13 +451,18 @@ class HttpManager {
             success: function (res) {
                 console.log("requestUserinfoData:", res);
                 if (res) {
-                    const group = {};
+
+                    const group: any = {};
                     group[CacheKey.USER_ID] = userData.userId = res.id;
+
                     userData.setMoney(MathUtils.parseStringNum(res.money));
                     userData.setDiamond(MathUtils.parseStringNum(res.diamond));
+
                     group[CacheKey.LEVEL] = userData.level = MathUtils.parseInt(res.level);
                     // group[CacheKey.EXP] = userData.exp = MathUtils.parseStringNum(res.exp);
+
                     group[CacheKey.MAX_SYNTHESIS_LEVEL] = userData.carLevel = MathUtils.parseInt(res.car_level);
+
                     if (res.essence) {
                         userData.setEssence(MathUtils.parseInt(res.essence));
                     }
@@ -444,11 +478,11 @@ class HttpManager {
                     if (res.tutorial) {
                         group[CacheKey.NOVICE_GROUP_ID] = M.novice.currGroupId = parseInt(res.tutorial);
                     }
+
                     userData.cache.setCacheGroup(group);
                     EventsManager.Instance.event(EventsType.UPDATE_HALL_DATA);
                     _callback && _callback(res);
-                }
-                else {
+                } else {
                     that.requestUserinfoData(_callback);
                 }
             },
@@ -460,8 +494,9 @@ class HttpManager {
             }
         });
     }
+
     /** 提交用户名称位置等信息 */
-    requestSaveWxUserinfoData(_nickName, _avatarUrl, _city, _gender) {
+    public requestSaveWxUserinfoData(_nickName: string, _avatarUrl: string, _city: string, _gender: number): void {
         let that = this;
         let dataString = 'nickName=' + _nickName + '&avatarUrl=' + _avatarUrl + '&city=' + _city + '&gender=' + _gender;
         console.log("requestSaveWxUserinfoData:", dataString);
@@ -478,8 +513,9 @@ class HttpManager {
             }
         });
     }
+
     /** 强化数据 */
-    requestSaveSkillAdditionData(forceRightNow = false) {
+    public requestSaveSkillAdditionData(forceRightNow: boolean = false): void {
         let dataJson = JSON.stringify(userData.skillAdditionArray);
         //非法数据过滤
         if (dataJson == null || dataJson.length < 1 || userData.skillAdditionArray.length < 1) {
@@ -489,6 +525,7 @@ class HttpManager {
             console.log("@FREEMAN: 技能强化数据距上次上传时未有变化，无需再次上传");
             return;
         }
+
         let dataString = 'info=' + dataJson;
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
@@ -503,21 +540,23 @@ class HttpManager {
             }
         });
     }
+
     /** 用户基础数据 */
-    requestSaveUserinfoData(forceRightNow = false) {
+    public requestSaveUserinfoData(forceRightNow: boolean = false): void {
         const data = {
             money: M.player.Info.userMoney,
             car_level: userData.getCarLevel(),
             stage: userData.getPassStage(),
             king_level: userData.getKingLevel()
         };
+
         if (!forceRightNow) {
-            const notUpload = ["car_level", "stage", "king_level"].every((key) => {
+            const notUpload: boolean = ["car_level", "stage", "king_level"].every((key) => {
                 return data[key] === userData.lastHeartBeatQueryObj[key];
             });
-            if (notUpload)
-                return;
+            if (notUpload) return;
         }
+
         userData.cache.setCache(CacheKey.LAST_HEART_BEAT_TIME, new Date().getTime());
         userData.lastHeartBeatQueryObj = data;
         const dataString = StringUtils.toUrlQueryString(data);
@@ -540,8 +579,9 @@ class HttpManager {
             }
         });
     }
+
     /** 保存坑位数据 */
-    requestSaveCarparkData(forceRightNow = false) {
+    public requestSaveCarparkData(forceRightNow: boolean = false): void {
         let dataJson = JSON.stringify(userData.parkcarInfoArray);
         //非法数据过滤
         if (dataJson == null || dataJson.length < 1 || userData.parkcarInfoArray.length < 1) {
@@ -551,6 +591,7 @@ class HttpManager {
             console.log("@FREEMAN: 参战宠物列表距上次上传时未有变化，无需再次上传");
             return;
         }
+
         userData.carparkJsonRecord = dataJson;
         let dataString = 'info=' + dataJson;
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
@@ -566,8 +607,9 @@ class HttpManager {
             }
         });
     }
+
     /** 保存英雄商店数据 */
-    requestSaveCarshopData(forceRightNow = false) {
+    public requestSaveCarshopData(forceRightNow: boolean = false): void {
         let dataJson = JSON.stringify(userData.carBuyRecordArray);
         //非法数据过滤
         if (dataJson == null || dataJson.length < 1 || userData.carBuyRecordArray.length < 1) {
@@ -577,7 +619,9 @@ class HttpManager {
             console.log("@FREEMAN: 商店购买数据距上次上传时未有变化，无需再次上传");
             return;
         }
+
         userData.carshopJsonRecord = dataJson;
+
         let dataString = 'info=' + dataJson;
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
@@ -592,8 +636,9 @@ class HttpManager {
             }
         });
     }
+
     /** 分享标志 */
-    requestShareFlag(callback) {
+    public requestShareFlag(callback?: Function): void {
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/share/flag',
@@ -610,8 +655,9 @@ class HttpManager {
             }
         });
     }
+
     /** 随机钻石奖励请求 */
-    requestShowRandomRewardDiamond(callback) {
+    public requestShowRandomRewardDiamond(callback: Function): void {
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/activity/rand/diamond',
@@ -623,8 +669,9 @@ class HttpManager {
             }
         });
     }
+
     /** 随机钻石奖励请求 */
-    requestRandomRewardDiamond(diamond, callback) {
+    public requestRandomRewardDiamond(diamond: number, callback: Function): void {
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/activity/rand/diamond/reward/' + diamond,
@@ -636,8 +683,9 @@ class HttpManager {
             }
         });
     }
+
     /** 领取在线奖励 */
-    requestGetOffLineReward(callback) {
+    public requestGetOffLineReward(callback: Function): void {
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/activity/online/reward',
@@ -649,8 +697,9 @@ class HttpManager {
             }
         });
     }
+
     /** 好友互助奖励领取 */
-    requestReward(itemId, callback) {
+    public requestReward(itemId: number, callback: any): void {
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/activity/help/reward/' + itemId,
@@ -662,8 +711,9 @@ class HttpManager {
             }
         });
     }
+
     /** 请求好友互助列表 */
-    requestFriendConcurList(callback) {
+    public requestFriendConcurList(callback: any): void {
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/activity/help/list',
@@ -675,8 +725,9 @@ class HttpManager {
             }
         });
     }
+
     /** 请求是否获取通关奖励 */
-    requestClearanceReward(uid, group_id, stage, callback) {
+    public requestClearanceReward(uid: string, group_id: string, stage: number, callback: any): void {
         console.log("@David 请求是否获取通关奖励 uid:", uid, " -- group_id:", group_id, " -- stage:", stage);
         let dataString = 'uid=' + uid + '&group_id=' + group_id + '&stage=' + stage;
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
@@ -693,8 +744,9 @@ class HttpManager {
             }
         });
     }
+
     /** 请求好友互助 */
-    requestFriendConcur(userId) {
+    public requestFriendConcur(userId: any): void {
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: "v1/activity/help/click/" + userId,
@@ -706,8 +758,9 @@ class HttpManager {
             }
         });
     }
+
     /** 分享礼包 */
-    requestShareGift(param) {
+    public requestShareGift(param: any): void {
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: "v1/share/friend",
@@ -725,8 +778,9 @@ class HttpManager {
             }
         });
     }
+
     /** 公众号 */
-    requestPublicAddress(param) {
+    public requestPublicAddress(param: any): void {
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: "v1/subscription/attention",
@@ -743,8 +797,9 @@ class HttpManager {
             }
         });
     }
+
     /** 请求技能强化 */
-    requestSkillStrengthen(id, level, price, coinType, callback = null) {
+    public requestSkillStrengthen(id: number, level: number, price: number, coinType: number, callback: any = null): void {
         let dataString = 'type=' + id + '&value=' + level + '&price=' + price + '&unit=' + "essence";
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
@@ -759,8 +814,9 @@ class HttpManager {
             }
         });
     }
+
     /** 领取福利奖励 */
-    requestWelfareReward(callback) {
+    public requestWelfareReward(callback: any): void {
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/activity/into/reward',
@@ -772,16 +828,16 @@ class HttpManager {
             }
         });
     }
+
     /** 游戏公告 */
-    requestAnnouncement() {
+    public requestAnnouncement(): void {
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/announcement',
             success: function (res) {
                 if (res.result) {
                     ViewMgr.Ins.open(ViewConst.NoticeView, null, res.content);
-                }
-                else {
+                } else {
                     console.log("@David 显示游戏公告错误!!!!!!!!!!!!");
                 }
             },
@@ -790,8 +846,9 @@ class HttpManager {
             }
         });
     }
+
     /** 获取抽奖信息 */
-    requestPrizeInfo(callback) {
+    public requestPrizeInfo(callback: any): void {
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v2/activity/get/roulette',
@@ -804,8 +861,9 @@ class HttpManager {
             }
         });
     }
+
     /** 转盘信息统计 */
-    requestPrizeCensus(itemId) {
+    public requestPrizeCensus(itemId: number): void {
         let dataString = 'prizeId=' + itemId;
         console.log("requestPrizeCensus:", dataString);
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
@@ -821,8 +879,9 @@ class HttpManager {
             }
         });
     }
+
     /** 转盘抽奖 */
-    requestDrawPrize(_itemId, _callback) {
+    public requestDrawPrize(_itemId: number, _callback: any): void {
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v2/activity/roulette/' + _itemId,
@@ -836,8 +895,9 @@ class HttpManager {
             }
         });
     }
+
     /** 邀请好友数据信息 */
-    requestShareInfo(callback) {
+    public requestShareInfo(callback?: any): void {
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/share/friend_num',
@@ -850,8 +910,9 @@ class HttpManager {
             }
         });
     }
+
     //拉取成就任务信息
-    requestAchievementInfo(callback) {
+    public requestAchievementInfo(callback?: any): void {
         let that = this;
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
@@ -865,8 +926,9 @@ class HttpManager {
             }
         });
     }
+
     /** 拉取任务奖励 */
-    requestTaskReward(itemId, callback, type) {
+    public requestTaskReward(itemId: number, callback: any, type: number): void {
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v2/task/rewards/' + itemId + "?type=" + type,
@@ -879,11 +941,12 @@ class HttpManager {
             }
         });
     }
-    static get Instance() {
+
+    private static _instance: HttpManager;
+    public static get Instance(): HttpManager {
         if (HttpManager._instance == null) {
             HttpManager._instance = new HttpManager();
         }
         return HttpManager._instance;
     }
 }
-//# sourceMappingURL=HttpManager.js.map

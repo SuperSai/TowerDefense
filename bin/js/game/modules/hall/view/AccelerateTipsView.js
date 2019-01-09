@@ -14,7 +14,7 @@ class AccelerateTipsView extends BaseView {
             this.ui.spMountGuard.setKind(bossId);
             this.ui.spMountGuard.scaleX = -1;
         }
-        this.timerOnce(8000, this, () => {
+        this.timerOnce(6000, this, () => {
             ViewMgr.Ins.close(ViewConst.AccelerateTipsView);
         });
     }

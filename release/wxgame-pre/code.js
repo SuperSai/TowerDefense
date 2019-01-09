@@ -2724,6 +2724,17 @@ class HttpRequestHelper {
 class HttpManager {
     constructor() {
     }
+    /** 向服务器记录前端日志 */
+    requestSaveLog(error) {
+        const HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+        HttpReqHelper.request({
+            url: 'v1/tool/log',
+            method: "POST",
+            data: {
+                info: error.stack
+            }
+        });
+    }
     requestSaveNovice(groupId) {
         if (userData.cache.hasCache(CacheKey.NOVICE_GROUP_ID)) {
             const cacheGroupId = userData.cache.getCache(CacheKey.NOVICE_GROUP_ID);
@@ -8587,7 +8598,7 @@ var ui;
                 this.createView(ui.hall.AccelerateTipsViewUI.uiView);
             }
         }
-        AccelerateTipsViewUI.uiView = { "type": "View", "props": { "width": 750, "height": 430 }, "child": [{ "type": "Box", "props": { "y": 0, "x": 0, "width": 750, "height": 430 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "skin": "images/accelerate/acc_bg.png" } }, { "type": "Image", "props": { "y": 77, "x": 436, "skin": "images/accelerate/acc_title.png" } }, { "type": "Image", "props": { "y": -4, "x": -29, "skin": "images/accelerate/acc_light.png" } }, { "type": "Label", "props": { "y": 185, "x": 429, "width": 232, "text": "全场英雄攻击速度加倍！\\n技能触发几率翻倍！\\n获取金币收益更快！", "strokeColor": "#a3760a", "stroke": 2, "leading": 5, "height": 92, "fontSize": 20, "color": "#f3f3cf", "bold": true, "align": "center" } }, { "type": "Image", "props": { "y": 300, "x": 56, "skin": "images/accelerate/acc_down_bg.png" } }, { "type": "Sprite", "props": { "y": 237, "x": 156, "width": 32, "var": "spMountGuard", "runtime": "MonsterSprite", "height": 32 } }] }] };
+        AccelerateTipsViewUI.uiView = { "type": "View", "props": { "width": 750, "height": 430 }, "child": [{ "type": "Box", "props": { "y": 0, "x": 0, "width": 750, "height": 430 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "skin": "images/accelerate/acc_bg.png" } }, { "type": "Image", "props": { "y": 77, "x": 436, "skin": "images/accelerate/acc_title.png" } }, { "type": "Image", "props": { "y": -4, "x": -29, "skin": "images/accelerate/acc_light.png" } }, { "type": "Label", "props": { "y": 185, "x": 429, "width": 232, "text": "全场英雄攻击速度加倍！\\n技能触发几率翻倍！\\n获取金币收益更快！", "strokeColor": "#a3760a", "stroke": 2, "leading": 5, "height": 92, "fontSize": 20, "color": "#f3f3cf", "bold": true, "align": "center" } }, { "type": "Image", "props": { "y": 300, "x": 56, "skin": "images/accelerate/acc_down_bg.png" } }, { "type": "Sprite", "props": { "y": 250, "x": 174, "width": 32, "var": "spMountGuard", "runtime": "MonsterSprite", "height": 32 } }] }] };
         hall.AccelerateTipsViewUI = AccelerateTipsViewUI;
     })(hall = ui.hall || (ui.hall = {}));
 })(ui || (ui = {}));
@@ -10931,7 +10942,7 @@ class AccelerateTipsView extends BaseView {
             this.ui.spMountGuard.setKind(bossId);
             this.ui.spMountGuard.scaleX = -1;
         }
-        this.timerOnce(8000, this, () => {
+        this.timerOnce(6000, this, () => {
             ViewMgr.Ins.close(ViewConst.AccelerateTipsView);
         });
     }
@@ -11515,7 +11526,7 @@ class HallScene extends ui.hall.HallSceneUI {
     }
     /** 钻石购买加速 */
     onDiamondBuyAcce() {
-        let diamond = 60;
+        let diamond = userData.isEvolution() ? 30 : 60;
         ViewMgr.Ins.open(ViewConst.DiamondBuyView, null, DILOG_TYPE.ACC, diamond);
     }
     onShowCarport() {

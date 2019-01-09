@@ -6,6 +6,18 @@ class HttpManager {
 
     }
 
+    /** 向服务器记录前端日志 */
+    public requestSaveLog(error): void{
+        const HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+        HttpReqHelper.request({
+            url: 'v1/tool/log',
+            method:"POST",
+            data:{
+                info:error.stack
+            }
+        });
+    }
+
     public requestSaveNovice(groupId: number): void {
         if (userData.cache.hasCache(CacheKey.NOVICE_GROUP_ID)) {
             const cacheGroupId = userData.cache.getCache(CacheKey.NOVICE_GROUP_ID);
