@@ -25,7 +25,7 @@ R 015B0E33 SkillConfig.json
 R 20D2D94D SkillStrengthen.json
 R ED329E37 TrainDrop.json
 D images/accelerate
-R B0FEE9B9 acc_bg.png
+R 0B66A110 acc_bg.png
 P 3FD736A6 acc_down_bg.png
 P 7A2ED119 acc_light.png
 P 6931263C acc_title.png
@@ -197,12 +197,16 @@ P 75B83E5F levelHero_level_icon.png
 P CE6B89CF levelHero_name_bg.png
 P 411A7C2E levelHero_titel.png
 D images/luckLottery
+P 412D802B luck_1.png
+P B2E023E2 luck_2.png
+P DCE18CE6 luck_4.png
 P 043405C4 luck_go.png
 R 9D3A5DA7 luck_huanpan.png
 R E0670AD6 luck_huanpan_light.png
 P 27A69212 luck_item_box.png
 R 3ACAA4E1 luck_item_title.png
 R 28742DAD luck_item_title_2.png
+P 92A7675D luck_label_bg.png
 P F8378FE5 luck_price_bg.png
 P D6DA3465 luck_prize_1.png
 P 01A9DB95 luck_prize_2.png

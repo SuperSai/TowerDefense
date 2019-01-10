@@ -11,7 +11,6 @@ class SkyDropController extends Laya.EventDispatcher {
         this._package = new Laya.Image("images/hall/box_002.png");
         this._package.pivot(34, 42);
         this._awardType = -1;
-        // this.dropPackage(1);
         Laya.timer.once(5 * 1000, this, this.requestSkyDropPackage);
     }
     dropPackage(awardType) {
@@ -49,7 +48,7 @@ class SkyDropController extends Laya.EventDispatcher {
     onPackageClick() {
         if (this._awardType < 100) {
             const sheet = SkyDropSheet.getSheetById(this._awardType);
-            ViewMgr.Ins.open(ViewConst.SkyDropView, null, sheet);
+            sheet && ViewMgr.Ins.open(ViewConst.SkyDropView, null, sheet);
         }
         else {
             if (!this._skyDropObtainFrame) {
@@ -61,33 +60,38 @@ class SkyDropController extends Laya.EventDispatcher {
     }
     activatePackageAward() {
         const sheet = SkyDropSheet.getSheetById(this._awardType);
-        BuffController.getInstance().addBuffFromSkyDrop(sheet);
+        if (sheet) {
+            BuffController.getInstance().addBuffFromSkyDrop(sheet);
+            BuffTipsView.Create(sheet);
+        }
         this.retrievePackage();
-        BuffTipsView.Create(sheet);
     }
     requestSkyDropPackage() {
-        let that = this;
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/skyDropPackage/status',
-            success: function (res) {
-                const bool = res.isShowPackage;
-                if (bool) {
-                    that.dropPackage(res.type);
+            success: res => {
+                if (res.isShowPackage) {
+                    if (MathUtils.within(res.type, 0, 3)) {
+                        this.dropPackage(res.type);
+                    }
+                    else {
+                        M.http.requestSaveLog("@FREEMAN: 请求天降礼包数据，礼包类型错误，res.type:" + res.type);
+                    }
                 }
                 else {
                     const timeSpan = res.nextPackageTimeSpan;
                     if (timeSpan > 0) {
-                        Laya.timer.once(timeSpan * 1000, that, that.requestSkyDropPackage);
+                        Laya.timer.once(timeSpan * Time.SEC_IN_MILI, this, this.requestSkyDropPackage);
                     }
                     else {
-                        Laya.timer.clear(that, that.requestSkyDropPackage);
+                        Laya.timer.clear(this, this.requestSkyDropPackage);
                     }
                 }
-                console.log("@FREEMAN: 请求天降礼包数据:", res);
+                console.log("@FREEMAN: 请求天降礼包数据成功:", res);
             },
-            fail: (res) => {
-                console.log("@FREEMAN: getSkyDropPackage: fail =>", res);
+            fail: res => {
+                console.log("@FREEMAN: 请求天降礼包数据失败:", res);
             }
         });
     }

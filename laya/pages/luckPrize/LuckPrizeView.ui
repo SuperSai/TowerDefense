@@ -1,8 +1,8 @@
 {
     "x":0,
     "type":"View",
-    "selectedBox":1,
-    "selecteID":62,
+    "selectedBox":62,
+    "selecteID":89,
     "props":{"y":0,"x":0,"width":750,"sceneColor":"#000000","name":"rolledTIme","height":902},
     "nodeParent":-1,
     "label":"View(rolledTIme)",
@@ -193,14 +193,27 @@
                 },
                 {
                     "x":30,
-                    "type":"Label",
-                    "props":{"y":856,"x":200,"width":350,"var":"txt_des","text":"当前倍率：1倍","fontSize":32,"color":"#a17338","bold":true,"align":"center"},
+                    "type":"Image",
+                    "props":{"y":842,"x":215,"skin":"images/luckLottery/luck_label_bg.png"},
                     "nodeParent":62,
-                    "label":"Label(txt_des)",
+                    "label":"Image",
                     "isDirectory":false,
                     "isAniNode":true,
                     "hasChild":false,
-                    "compId":87,
+                    "compId":88,
+                    "child":[
+                        ]
+                },
+                {
+                    "x":30,
+                    "type":"Image",
+                    "props":{"y":855,"x":250,"var":"imgLabel","skin":"images/luckLottery/luck_1.png"},
+                    "nodeParent":62,
+                    "label":"Image(imgLabel)",
+                    "isDirectory":false,
+                    "isAniNode":true,
+                    "hasChild":false,
+                    "compId":89,
                     "child":[
                         ]
                 }],

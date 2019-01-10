@@ -36,7 +36,7 @@ class LuckPrizeView extends BaseView {
         //移除红点
         userData.removeLuckPrizeRedPoint();
         self.showMyDiamond(PlayerManager.Instance.Info.userDiamond);
-        this.ui.txt_des.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.41", HallManager.Instance.hallData.magnification);
+        this.ui.imgLabel.skin = "images/luckLottery/luck_" + HallManager.Instance.hallData.magnification + ".png";
     }
 
     public addEvents(): void {
@@ -161,12 +161,12 @@ class LuckPrizeView extends BaseView {
                     //显示奖励物品
                     if (_itemId != 1 && _itemId != 5) {
                         ViewMgr.Ins.open(ViewConst.LuckPrizeItemView, () => {
-                            this.ui.txt_des.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.41", HallManager.Instance.hallData.magnification);
+                            this.ui.imgLabel.skin = "images/luckLottery/luck_" + HallManager.Instance.hallData.magnification + ".png";
                             that.startBtnEnabled(false);
                         }, that.prizeItemTable[_itemId - 1]);
                     } else {
                         ViewMgr.Ins.open(ViewConst.LuckPrizeBoxView, () => {
-                            this.ui.txt_des.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.41", HallManager.Instance.hallData.magnification);
+                            this.ui.imgLabel.skin = "images/luckLottery/luck_" + HallManager.Instance.hallData.magnification + ".png";
                             that.startBtnEnabled(false);
                         }, that.prizeItemTable[_itemId - 1]);
                     }

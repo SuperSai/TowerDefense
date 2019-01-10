@@ -1590,6 +1590,47 @@ class MessageUtils {
 * 数值工具类;
 */
 class MathUtils {
+    /** 生成随机浮点数，随机数范围包含min值，但不包含max值 */
+    static range(min, max) {
+        return Math.random() * (max - min) + min;
+    }
+    /** 生成随机整数，随机整数范围包含min值和max值 */
+    static rangeInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1) + min);
+    }
+    static trueOrFalse() {
+        return Math.random() >= 0.5;
+    }
+    /** 判断num是否在某个区间（min, max），include不传参数的话，默认是含前含后，如需对前后包含情况做定义，请传include参数 */
+    static within(num, min, max, include) {
+        if (!include) {
+            include = { min: true, max: true };
+        }
+        if (include.min === undefined) {
+            include.min = true;
+        }
+        if (include.max === undefined) {
+            include.max = true;
+        }
+        let biggerThanMin = false;
+        if (include.min) {
+            biggerThanMin = num >= min;
+        }
+        else {
+            biggerThanMin = num > min;
+        }
+        if (biggerThanMin) {
+            if (include.max) {
+                return num <= max;
+            }
+            else {
+                return num < max;
+            }
+        }
+        else {
+            return biggerThanMin;
+        }
+    }
     //计算两点角度
     static calulatePointAnagle(_startX, _startY, _endX, _endY) {
         //除数不能为0
@@ -2248,16 +2289,40 @@ class HttpRequestHelper {
 class HttpManager {
     constructor() {
     }
-    /** 向服务器记录前端日志 */
+    /** 向服务器记录前端日志，如果传的是一个错误，则存的是错误堆栈，否则会尝试调用error的toString()，如果error对象没有toString()方法，则直接记录该对象 */
     requestSaveLog(error) {
-        const HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
-        HttpReqHelper.request({
-            url: 'v1/tool/log',
-            method: "POST",
-            data: {
-                info: error.stack
+        if (!error)
+            return;
+        try {
+            let log = "";
+            if (typeof error !== "string") {
+                log = error.stack;
+                !log && (log = error.name + ": " + error.message);
             }
-        });
+            else {
+                log = error;
+            }
+            if (log) {
+                const HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+                HttpReqHelper.request({
+                    url: 'v1/tool/log',
+                    method: "POST",
+                    data: {
+                        info: log
+                    }
+                });
+            }
+        }
+        catch (e) {
+            const HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+            HttpReqHelper.request({
+                url: 'v1/tool/log',
+                method: "POST",
+                data: {
+                    info: e.stack
+                }
+            });
+        }
     }
     requestSaveNovice(groupId) {
         if (userData.cache.hasCache(CacheKey.NOVICE_GROUP_ID)) {
@@ -2952,7 +3017,6 @@ class HttpManager {
     }
     /** 分享礼包 */
     requestShareGift(param) {
-        console.log("@DAVID 点击卡片进入游戏给服务器发送数据:", param);
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: "v1/share/friend",
@@ -7411,9 +7475,16 @@ class BattleManager extends Laya.EventDispatcher {
             }
             else if (barrier.id) {
                 let stageId = barrier.id; //关卡
-                stageId = stageId.substr(0, stageId.indexOf('_')); //取出关卡id
-                if (stageId == barrierSectionId) {
-                    barrierArr.push(barrier);
+                try {
+                    if (stageId.indexOf('_') != -1) {
+                        stageId = stageId.substr(0, stageId.indexOf('_')); //取出关卡id
+                        if (stageId == barrierSectionId) {
+                            barrierArr.push(barrier);
+                        }
+                    }
+                }
+                catch (error) {
+                    HttpManager.Instance.requestSaveLog(error);
                 }
             }
         }
@@ -7869,7 +7940,7 @@ var ui;
                 this.createView(ui.hall.AccelerateTipsViewUI.uiView);
             }
         }
-        AccelerateTipsViewUI.uiView = { "type": "View", "props": { "width": 750, "height": 430 }, "child": [{ "type": "Box", "props": { "y": 0, "x": 0, "width": 750, "height": 430 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "skin": "images/accelerate/acc_bg.png" } }, { "type": "Image", "props": { "y": 77, "x": 436, "skin": "images/accelerate/acc_title.png" } }, { "type": "Image", "props": { "y": -4, "x": -29, "skin": "images/accelerate/acc_light.png" } }, { "type": "Label", "props": { "y": 185, "x": 429, "width": 232, "text": "全场英雄攻击速度加倍！\\n技能触发几率翻倍！\\n获取金币收益更快！", "strokeColor": "#a3760a", "stroke": 2, "leading": 5, "height": 92, "fontSize": 20, "color": "#f3f3cf", "bold": true, "align": "center" } }, { "type": "Image", "props": { "y": 300, "x": 56, "skin": "images/accelerate/acc_down_bg.png" } }, { "type": "Sprite", "props": { "y": 250, "x": 174, "width": 32, "var": "spMountGuard", "runtime": "MonsterSprite", "height": 32 } }] }] };
+        AccelerateTipsViewUI.uiView = { "type": "View", "props": { "width": 750, "height": 420 }, "child": [{ "type": "Box", "props": { "y": 0, "x": 0, "width": 750, "height": 420 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "skin": "images/accelerate/acc_bg.png" } }, { "type": "Image", "props": { "y": 60, "x": 436, "skin": "images/accelerate/acc_title.png" } }, { "type": "Image", "props": { "y": -4, "x": -29, "skin": "images/accelerate/acc_light.png" } }, { "type": "Label", "props": { "y": 165, "x": 390, "width": 319, "text": "全场英雄攻击速度加倍！\\n技能触发几率翻倍！\\n获取金币收益更快！", "strokeColor": "#a3760a", "stroke": 2, "leading": 10, "height": 110, "fontSize": 26, "color": "#f3f3cf", "bold": true, "align": "center" } }, { "type": "Image", "props": { "y": 300, "x": 56, "skin": "images/accelerate/acc_down_bg.png" } }, { "type": "Sprite", "props": { "y": 250, "x": 174, "width": 32, "var": "spMountGuard", "runtime": "MonsterSprite", "height": 32 } }] }] };
         hall.AccelerateTipsViewUI = AccelerateTipsViewUI;
     })(hall = ui.hall || (ui.hall = {}));
 })(ui || (ui = {}));
@@ -7988,7 +8059,7 @@ var ui;
                 this.createView(ui.luckPrize.LuckPrizeViewUI.uiView);
             }
         }
-        LuckPrizeViewUI.uiView = { "type": "View", "props": { "y": 0, "x": 0, "width": 750, "name": "rolledTIme", "height": 902 }, "child": [{ "type": "View", "props": { "y": 0, "x": 0, "width": 750, "var": "mainView", "name": "mainView", "height": 902 }, "child": [{ "type": "Image", "props": { "y": 532, "x": 371, "var": "imgBg", "skin": "images/luckLottery/luck_huanpan.png", "rotation": 0, "name": "imgBg", "anchorY": 0.5, "anchorX": 0.5 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "skin": "images/luckLottery/luck_huanpan_light.png", "name": "imgEffect1" }, "compId": 68 }] }, { "type": "Image", "props": { "y": -71, "x": 37, "skin": "images/luckLottery/luck_title.png" } }, { "type": "Button", "props": { "y": -2, "x": 634, "var": "btnExit", "stateNum": 1, "skin": "images/component/frame_close_btn.png", "name": "btnExit" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }, { "type": "Button", "props": { "y": 394, "x": 263, "var": "btnStart", "stateNum": 1, "skin": "images/luckLottery/luck_go.png", "name": "btnStart" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }, { "type": "Image", "props": { "y": 161, "x": 83, "skin": "images/core/diamond.png", "name": "imgDiamond", "anchorY": 0.5, "anchorX": 0.5 }, "child": [{ "type": "Label", "props": { "y": 6, "x": 41, "var": "txtDiamond", "text": "120", "strokeColor": "#000000", "stroke": 2, "name": "txtDiamond", "fontSize": 28, "color": "#f4d80d", "bold": true, "align": "left" } }] }] }, { "type": "Box", "props": { "y": 130, "x": 267 }, "child": [{ "type": "Image", "props": { "skin": "images/luckLottery/luck_price_bg.png" } }, { "type": "Image", "props": { "y": 15, "x": 21, "skin": "images/core/diamond.png" } }, { "type": "Label", "props": { "y": 19, "x": 70, "var": "txt_diamond", "text": "0", "fontSize": 30, "color": "#ffffff", "bold": true } }] }, { "type": "Label", "props": { "y": 856, "x": 200, "width": 350, "var": "txt_des", "text": "当前倍率：1倍", "fontSize": 32, "color": "#a17338", "bold": true, "align": "center" } }] }], "animations": [{ "nodes": [{ "target": 68, "keyframes": { "alpha": [{ "value": 1, "tweenMethod": "linearNone", "tween": true, "target": 68, "key": "alpha", "index": 0 }, { "value": 0, "tweenMethod": "linearNone", "tween": true, "target": 68, "key": "alpha", "index": 10 }, { "value": 1, "tweenMethod": "linearNone", "tween": true, "target": 68, "key": "alpha", "index": 20 }] } }], "name": "ani1", "id": 1, "frameRate": 24, "action": 2 }] };
+        LuckPrizeViewUI.uiView = { "type": "View", "props": { "y": 0, "x": 0, "width": 750, "name": "rolledTIme", "height": 902 }, "child": [{ "type": "View", "props": { "y": 0, "x": 0, "width": 750, "var": "mainView", "name": "mainView", "height": 902 }, "child": [{ "type": "Image", "props": { "y": 532, "x": 371, "var": "imgBg", "skin": "images/luckLottery/luck_huanpan.png", "rotation": 0, "name": "imgBg", "anchorY": 0.5, "anchorX": 0.5 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "skin": "images/luckLottery/luck_huanpan_light.png", "name": "imgEffect1" }, "compId": 68 }] }, { "type": "Image", "props": { "y": -71, "x": 37, "skin": "images/luckLottery/luck_title.png" } }, { "type": "Button", "props": { "y": -2, "x": 634, "var": "btnExit", "stateNum": 1, "skin": "images/component/frame_close_btn.png", "name": "btnExit" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }, { "type": "Button", "props": { "y": 394, "x": 263, "var": "btnStart", "stateNum": 1, "skin": "images/luckLottery/luck_go.png", "name": "btnStart" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }, { "type": "Image", "props": { "y": 161, "x": 83, "skin": "images/core/diamond.png", "name": "imgDiamond", "anchorY": 0.5, "anchorX": 0.5 }, "child": [{ "type": "Label", "props": { "y": 6, "x": 41, "var": "txtDiamond", "text": "120", "strokeColor": "#000000", "stroke": 2, "name": "txtDiamond", "fontSize": 28, "color": "#f4d80d", "bold": true, "align": "left" } }] }] }, { "type": "Box", "props": { "y": 130, "x": 267 }, "child": [{ "type": "Image", "props": { "skin": "images/luckLottery/luck_price_bg.png" } }, { "type": "Image", "props": { "y": 15, "x": 21, "skin": "images/core/diamond.png" } }, { "type": "Label", "props": { "y": 19, "x": 70, "var": "txt_diamond", "text": "0", "fontSize": 30, "color": "#ffffff", "bold": true } }] }, { "type": "Image", "props": { "y": 842, "x": 215, "skin": "images/luckLottery/luck_label_bg.png" } }, { "type": "Image", "props": { "y": 855, "x": 250, "var": "imgLabel", "skin": "images/luckLottery/luck_1.png" } }] }], "animations": [{ "nodes": [{ "target": 68, "keyframes": { "alpha": [{ "value": 1, "tweenMethod": "linearNone", "tween": true, "target": 68, "key": "alpha", "index": 0 }, { "value": 0, "tweenMethod": "linearNone", "tween": true, "target": 68, "key": "alpha", "index": 10 }, { "value": 1, "tweenMethod": "linearNone", "tween": true, "target": 68, "key": "alpha", "index": 20 }] } }], "name": "ani1", "id": 1, "frameRate": 24, "action": 2 }] };
         luckPrize.LuckPrizeViewUI = LuckPrizeViewUI;
     })(luckPrize = ui.luckPrize || (ui.luckPrize = {}));
 })(ui || (ui = {}));
@@ -12141,7 +12212,7 @@ class LuckPrizeView extends BaseView {
         //移除红点
         userData.removeLuckPrizeRedPoint();
         self.showMyDiamond(PlayerManager.Instance.Info.userDiamond);
-        this.ui.txt_des.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.41", HallManager.Instance.hallData.magnification);
+        this.ui.imgLabel.skin = "images/luckLottery/luck_" + HallManager.Instance.hallData.magnification + ".png";
     }
     addEvents() {
         super.addEvents();
@@ -12265,13 +12336,13 @@ class LuckPrizeView extends BaseView {
                     //显示奖励物品
                     if (_itemId != 1 && _itemId != 5) {
                         ViewMgr.Ins.open(ViewConst.LuckPrizeItemView, () => {
-                            this.ui.txt_des.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.41", HallManager.Instance.hallData.magnification);
+                            this.ui.imgLabel.skin = "images/luckLottery/luck_" + HallManager.Instance.hallData.magnification + ".png";
                             that.startBtnEnabled(false);
                         }, that.prizeItemTable[_itemId - 1]);
                     }
                     else {
                         ViewMgr.Ins.open(ViewConst.LuckPrizeBoxView, () => {
-                            this.ui.txt_des.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.41", HallManager.Instance.hallData.magnification);
+                            this.ui.imgLabel.skin = "images/luckLottery/luck_" + HallManager.Instance.hallData.magnification + ".png";
                             that.startBtnEnabled(false);
                         }, that.prizeItemTable[_itemId - 1]);
                     }
@@ -14266,16 +14337,15 @@ class GlobleData extends Laya.EventDispatcher {
     }
     onLoaded(key) {
         let self = this;
-        //替换一个看不见的特殊字符
         let data = Laya.loader.getRes(key);
-        // data = data.replace(/[\ufeff]/, "");
         try {
             let data_json = JSON.parse(data);
             let csvStr = JSON.stringify(data_json);
             self.starSingleParse(csvStr);
         }
         catch (error) {
-            console.log("@David 加载csv出错 key:", key);
+            HttpManager.Instance.requestSaveLog(error);
+            self._jsonCount--;
         }
         finally {
             this.onEnterFrameLoader();
@@ -15428,7 +15498,6 @@ class SkyDropController extends Laya.EventDispatcher {
         this._package = new Laya.Image("images/hall/box_002.png");
         this._package.pivot(34, 42);
         this._awardType = -1;
-        // this.dropPackage(1);
         Laya.timer.once(5 * 1000, this, this.requestSkyDropPackage);
     }
     dropPackage(awardType) {
@@ -15466,7 +15535,7 @@ class SkyDropController extends Laya.EventDispatcher {
     onPackageClick() {
         if (this._awardType < 100) {
             const sheet = SkyDropSheet.getSheetById(this._awardType);
-            ViewMgr.Ins.open(ViewConst.SkyDropView, null, sheet);
+            sheet && ViewMgr.Ins.open(ViewConst.SkyDropView, null, sheet);
         }
         else {
             if (!this._skyDropObtainFrame) {
@@ -15478,33 +15547,38 @@ class SkyDropController extends Laya.EventDispatcher {
     }
     activatePackageAward() {
         const sheet = SkyDropSheet.getSheetById(this._awardType);
-        BuffController.getInstance().addBuffFromSkyDrop(sheet);
+        if (sheet) {
+            BuffController.getInstance().addBuffFromSkyDrop(sheet);
+            BuffTipsView.Create(sheet);
+        }
         this.retrievePackage();
-        BuffTipsView.Create(sheet);
     }
     requestSkyDropPackage() {
-        let that = this;
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/skyDropPackage/status',
-            success: function (res) {
-                const bool = res.isShowPackage;
-                if (bool) {
-                    that.dropPackage(res.type);
+            success: res => {
+                if (res.isShowPackage) {
+                    if (MathUtils.within(res.type, 0, 3)) {
+                        this.dropPackage(res.type);
+                    }
+                    else {
+                        M.http.requestSaveLog("@FREEMAN: 请求天降礼包数据，礼包类型错误，res.type:" + res.type);
+                    }
                 }
                 else {
                     const timeSpan = res.nextPackageTimeSpan;
                     if (timeSpan > 0) {
-                        Laya.timer.once(timeSpan * 1000, that, that.requestSkyDropPackage);
+                        Laya.timer.once(timeSpan * Time.SEC_IN_MILI, this, this.requestSkyDropPackage);
                     }
                     else {
-                        Laya.timer.clear(that, that.requestSkyDropPackage);
+                        Laya.timer.clear(this, this.requestSkyDropPackage);
                     }
                 }
-                console.log("@FREEMAN: 请求天降礼包数据:", res);
+                console.log("@FREEMAN: 请求天降礼包数据成功:", res);
             },
-            fail: (res) => {
-                console.log("@FREEMAN: getSkyDropPackage: fail =>", res);
+            fail: res => {
+                console.log("@FREEMAN: 请求天降礼包数据失败:", res);
             }
         });
     }

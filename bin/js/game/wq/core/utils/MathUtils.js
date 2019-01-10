@@ -2,6 +2,47 @@
 * 数值工具类;
 */
 class MathUtils {
+    /** 生成随机浮点数，随机数范围包含min值，但不包含max值 */
+    static range(min, max) {
+        return Math.random() * (max - min) + min;
+    }
+    /** 生成随机整数，随机整数范围包含min值和max值 */
+    static rangeInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1) + min);
+    }
+    static trueOrFalse() {
+        return Math.random() >= 0.5;
+    }
+    /** 判断num是否在某个区间（min, max），include不传参数的话，默认是含前含后，如需对前后包含情况做定义，请传include参数 */
+    static within(num, min, max, include) {
+        if (!include) {
+            include = { min: true, max: true };
+        }
+        if (include.min === undefined) {
+            include.min = true;
+        }
+        if (include.max === undefined) {
+            include.max = true;
+        }
+        let biggerThanMin = false;
+        if (include.min) {
+            biggerThanMin = num >= min;
+        }
+        else {
+            biggerThanMin = num > min;
+        }
+        if (biggerThanMin) {
+            if (include.max) {
+                return num <= max;
+            }
+            else {
+                return num < max;
+            }
+        }
+        else {
+            return biggerThanMin;
+        }
+    }
     //计算两点角度
     static calulatePointAnagle(_startX, _startY, _endX, _endY) {
         //除数不能为0

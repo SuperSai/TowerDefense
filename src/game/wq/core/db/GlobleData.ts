@@ -86,15 +86,14 @@ class GlobleData extends Laya.EventDispatcher {
 
     private onLoaded(key: string): void {
         let self = this;
-        //替换一个看不见的特殊字符
         let data = Laya.loader.getRes(key);
-        // data = data.replace(/[\ufeff]/, "");
         try {
             let data_json: any = JSON.parse(data);
             let csvStr: string = JSON.stringify(data_json);
             self.starSingleParse(csvStr);
         } catch (error) {
-            console.log("@David 加载csv出错 key:", key);
+            HttpManager.Instance.requestSaveLog(error);
+            self._jsonCount--;
         } finally {
             this.onEnterFrameLoader();
         }
