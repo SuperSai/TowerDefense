@@ -429,7 +429,6 @@ class HallScene extends ui.hall.HallSceneUI {
     }
     //离线收益
     onOffLineRevenue(offlineTimeSpan) {
-        let that = this;
         if (userData) {
             //离线超过10分钟才算奖励
             if (offlineTimeSpan > 10 * Time.MIN && HallManager.Instance.hallData.passStage > 1 && !M.novice.isRunning) {

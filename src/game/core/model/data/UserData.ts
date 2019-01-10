@@ -116,9 +116,6 @@ class UserData {
                 that.carBuyRecordArray.push({ carId: mLevel, buyTimes: 1, diamondBuyTimes: 0 });
             }
         }
-
-
-
         this.cache.setCache(CacheKey.SHOP_DATA, this.carBuyRecordArray);
         Laya.timer.once(10 * Time.SEC_IN_MILI, this, HttpManager.Instance.requestSaveCarshopData);
     }

@@ -1,8 +1,8 @@
 {
     "x":0,
     "type":"View",
-    "selectedBox":29,
-    "selecteID":31,
+    "selectedBox":2,
+    "selecteID":46,
     "props":{"width":723,"sceneColor":"#000000","height":1017},
     "nodeParent":-1,
     "label":"View",
@@ -79,17 +79,16 @@
                 {
                     "x":30,
                     "type":"List",
-                    "props":{"y":392,"x":36,"width":640,"var":"shareItemList","spaceY":15,"repeatY":1,"repeatX":1,"height":578},
+                    "props":{"y":392,"x":36,"width":640,"var":"shareItemList","spaceY":15,"repeatY":1,"repeatX":1,"height":541},
                     "nodeParent":2,
                     "label":"List(shareItemList)",
-                    "isOpen":true,
+                    "isOpen":false,
                     "isDirectory":true,
                     "isAniNode":true,
                     "hasChild":true,
                     "compId":28,
                     "child":[
                         {
-                            "x":45,
                             "type":"Box",
                             "props":{"y":5,"x":15,"width":609,"visible":false,"renderType":"render","height":138,"cacheAs":"bitmap"},
                             "nodeParent":28,
@@ -101,7 +100,6 @@
                             "compId":29,
                             "child":[
                                 {
-                                    "x":60,
                                     "type":"Image",
                                     "props":{"y":0,"x":-3,"skin":"images/invitation/item_bg.png"},
                                     "nodeParent":29,
@@ -114,7 +112,6 @@
                                         ]
                                 },
                                 {
-                                    "x":60,
                                     "type":"Image",
                                     "props":{"y":80,"x":142,"skin":"images/invitation/reward_bg.png"},
                                     "nodeParent":29,
@@ -129,7 +126,6 @@
                                     "$HIDDEN":false
                                 },
                                 {
-                                    "x":60,
                                     "type":"Image",
                                     "props":{"y":23,"x":19,"skin":"images/invitation/empty_friend_icon.png","name":"imgHead"},
                                     "nodeParent":29,
@@ -142,7 +138,6 @@
                                         ]
                                 },
                                 {
-                                    "x":60,
                                     "type":"Image",
                                     "props":{"y":78,"x":126,"skin":"images/invitation/diamond.png","name":"imgAwardIcon"},
                                     "nodeParent":29,
@@ -154,7 +149,6 @@
                                     "compId":33,
                                     "child":[
                                         {
-                                            "x":75,
                                             "type":"Label",
                                             "props":{"y":5,"x":45,"width":83,"text":"200","name":"txtAward","height":30,"fontSize":30,"color":"#fcf4cd","align":"left"},
                                             "nodeParent":33,
@@ -168,7 +162,6 @@
                                         }]
                                 },
                                 {
-                                    "x":60,
                                     "type":"Label",
                                     "props":{"y":33,"x":127,"width":272,"text":"第1个好友","name":"txtTitle","height":30,"fontSize":26,"color":"#a17338","bold":true,"align":"left"},
                                     "nodeParent":29,
@@ -181,7 +174,6 @@
                                         ]
                                 },
                                 {
-                                    "x":60,
                                     "type":"Label",
                                     "props":{"y":83,"x":257,"width":220,"visible":false,"text":"额外奖励200","name":"txtExtra","fontSize":30,"color":"#cf0000","align":"left"},
                                     "nodeParent":29,
@@ -195,7 +187,6 @@
                                     "$HIDDEN":true
                                 },
                                 {
-                                    "x":60,
                                     "type":"Image",
                                     "props":{"y":45,"x":421,"skin":"images/component/frame_9scale_11.png","name":"txtGet"},
                                     "nodeParent":29,
@@ -222,7 +213,6 @@
                                     "$HIDDEN":false
                                 },
                                 {
-                                    "x":60,
                                     "type":"Button",
                                     "props":{"y":42,"x":415,"stateNum":"1","skin":"images/invitation/btn_obtain.png","name":"btnGet","labelStrokeColor":"#946430","labelStroke":3,"labelSize":30,"labelColors":"#fff4e1","labelBold":true,"label":"领取"},
                                     "nodeParent":29,
@@ -249,7 +239,6 @@
                                     "$HIDDEN":false
                                 },
                                 {
-                                    "x":60,
                                     "type":"Button",
                                     "props":{"y":42,"x":415,"stateNum":"1","skin":"images/invitation/invite_btn.png","name":"btnInvite","labelStrokeColor":"#306294","labelStroke":3,"labelSize":30,"labelColors":"#fff4e1","labelBold":true,"label":"邀请"},
                                     "nodeParent":29,
@@ -290,6 +279,19 @@
                             "child":[
                                 ]
                         }]
+                },
+                {
+                    "x":30,
+                    "type":"Label",
+                    "props":{"y":945,"x":42,"width":638,"text":"邀请刚进入游戏的好友才有奖励领取哟~","strokeColor":"#7a572b","stroke":2,"height":24,"fontSize":24,"color":"#ffffff","bold":true,"align":"center"},
+                    "nodeParent":2,
+                    "label":"Label",
+                    "isDirectory":false,
+                    "isAniNode":true,
+                    "hasChild":false,
+                    "compId":46,
+                    "child":[
+                        ]
                 }],
             "$HIDDEN":false
         }],

@@ -436,7 +436,6 @@ class HallScene extends ui.hall.HallSceneUI {
 
   //离线收益
   private onOffLineRevenue(offlineTimeSpan: number): void {
-    let that = this;
     if (userData) {
       //离线超过10分钟才算奖励
       if (offlineTimeSpan > 10 * Time.MIN && HallManager.Instance.hallData.passStage > 1 && !M.novice.isRunning) {
@@ -554,7 +553,7 @@ class HallScene extends ui.hall.HallSceneUI {
               monsterSp.setBornDelayFun(that, 1200 * k, () => {
                 that.roadView.addChild(monsterSp);
                 monsterSp.setKind(mId);
-                monsterSp.pos(that.imgBorn.x, that.imgBorn.y + that.imgBorn.height / 2);\
+                monsterSp.pos(that.imgBorn.x, that.imgBorn.y + that.imgBorn.height / 2);
                 monsterSp.playMoveAction();
                 monsterSp.setDropMoney(mMoney); //收集金币
                 monsterSp.setDropMoneyFun((dropMoney: number) => {

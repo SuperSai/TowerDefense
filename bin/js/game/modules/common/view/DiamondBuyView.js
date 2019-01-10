@@ -49,6 +49,11 @@ class DiamondBuyView extends BaseView {
                         HttpManager.Instance.requestDiamondData();
                         switch (self.datas[0]) {
                             case DILOG_TYPE.PET: //刷新消费记录
+                                let carParkSp = BattleManager.Instance.createPet(self.datas[2].id);
+                                if (carParkSp == null) {
+                                    if (HallManager.Instance.hall)
+                                        HallManager.Instance.hall.saveCarStore(self.datas[2].id);
+                                }
                                 userData.refreshBuyRecord(self.datas[2].id, true);
                                 break;
                             case DILOG_TYPE.ACC: //钻石加速次数加1
