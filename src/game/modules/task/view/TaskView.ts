@@ -37,7 +37,9 @@ class TaskView extends BaseView {
         const index: number = this._tabGroup.selectedIndex;
         this.ui.viewStackTask.selectedIndex = index;
         if (index == QuestSubView.DAILY_QUEST) {//每日任务
-            this.requestTaskInfo();
+            M.http.requestTaskInfo(Laya.Handler.create(this, (list)=>{
+                this.refreshTaskList(list);
+            }))
         } else {//成就任务
             HttpManager.Instance.requestAchievementInfo((res) => {
                 this.refreshAchievementList(res);
@@ -134,11 +136,14 @@ class TaskView extends BaseView {
                                                 userData.removeTaskRedPoint();
                                             }
                                         }
-                                        Laya.Tween.to(cell, { x: -cell.displayWidth }, 250, Laya.Ease.quadOut, Handler.create(self, () => {
+
+                                        Laya.Tween.to(cell, { x: -cell.displayWidth }, 200, Laya.Ease.quadOut, Handler.create(self, () => {
                                             listData.splice(index, 1);
-                                            Laya.timer.once(100, self, () => {
-                                                self.requestTaskInfo();
-                                            })
+
+                                            M.http.requestTaskInfo(Laya.Handler.create(this, (list)=>{
+                                                this.refreshTaskList(list);
+                                            }))
+
                                         }));
                                     } else if (_res.code === 2) {
                                         MessageUtils.showMsgTips("领取失败！");
@@ -247,7 +252,7 @@ class TaskView extends BaseView {
                                         if (item.reward_type == "money") {
                                             MessageUtils.shopMsgByObj(btnGet, "+" + MathUtils.bytesToSize(awardNum), EFFECT_TYPE.GOLD);
                                             LayerMgr.Instance.addToLayer(new FlyEffect().play("rollingCoin", LayerManager.mouseX, LayerManager.mouseY), LAYER_TYPE.SCREEN_EFFECT_LAYER);
-                                            EventsManager.Instance.event(EventsType.GOLD_CHANGE, { diamond: M.player.Info.userMoney += awardNum });
+                                            EventsManager.Instance.event(EventsType.GOLD_CHANGE, { money: M.player.Info.userMoney += awardNum });
                                         } else {
                                             MessageUtils.shopMsgByObj(btnGet, "+" + awardNum, EFFECT_TYPE.DIAMOND);
                                             LayerMgr.Instance.addToLayer(new FlyEffect().play("diamond", LayerManager.mouseX, LayerManager.mouseY), LAYER_TYPE.SCREEN_EFFECT_LAYER);
@@ -280,22 +285,6 @@ class TaskView extends BaseView {
                 } else {
                     btnGet.disabled = true;
                 }
-            }
-        });
-    }
-
-    //拉取任务信息
-    private requestTaskInfo(): void {
-        let that = this;
-        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
-        HttpReqHelper.request({
-            url: 'v1/task/info',
-            success: function (res) {
-                console.log("@FREEMAN: requestTaskInfo =>", res);
-                that.refreshTaskList(res);
-            },
-            fail: function (res) {
-                console.log(res);
             }
         });
     }

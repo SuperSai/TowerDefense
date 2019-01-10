@@ -959,69 +959,6 @@ class StringUtils {
         }
         return result;
     }
-    /** 使用separator字符，连接多个字符串 */
-    static joinString(separator, ...args) {
-        if (!separator) {
-            separator = "";
-        }
-        return args.join(separator);
-    }
-    static iteratorToString(iterator, tab = 0) {
-        if (!iterator)
-            return "@FREEMAN ERROR: iterator undefined at StringUtils.iteratorToString()";
-        const tabStr = StringUtils.repeatString(" ", tab);
-        if (typeof iterator === "object") {
-            let brackets = ["{", "}"];
-            let array = false;
-            if (iterator instanceof Array) {
-                brackets = ["[", "]"];
-                array = true;
-            }
-            let result = brackets[0] + "\r\n";
-            for (const key in iterator) {
-                if (typeof iterator[key] === "object") {
-                    if (array) {
-                        result += tabStr + "  " + StringUtils.iteratorToString(iterator[key], tab + 2);
-                    }
-                    else {
-                        result += tabStr + "  " + String(key) + " : " + StringUtils.iteratorToString(iterator[key], tab + 2);
-                    }
-                }
-                else if (typeof iterator[key] === "function") {
-                }
-                else {
-                    const value = typeof iterator[key] === "string" ? "\"" + String(iterator[key]) + "\"" : String(iterator[key]);
-                    if (array) {
-                        result += tabStr + "  " + value + ",\r\n";
-                    }
-                    else {
-                        result += tabStr + "  " + String(key) + " : " + value + ",\r\n";
-                    }
-                }
-            }
-            if (result.lastIndexOf(",\r\n") === result.length - 3) {
-                result = result.substr(0, result.length - 3) + "\r\n";
-            }
-            if (tab === 0) {
-                result += tabStr + brackets[1];
-            }
-            else {
-                result += tabStr + brackets[1] + ",\r\n";
-            }
-            return result;
-        }
-        if (typeof iterator === "function") {
-            return "@FREEMAN ERROR: iterator is a \"Function\" at StringUtils.iteratorToString()";
-        }
-        return String(iterator);
-    }
-    static repeatString(str, num = 0) {
-        let result = "";
-        while (num-- > 0) {
-            result += str;
-        }
-        return result;
-    }
 }
 //# sourceMappingURL=StringUtils.js.map
 class ResUtils {
@@ -1653,9 +1590,6 @@ class MessageUtils {
 * 数值工具类;
 */
 class MathUtils {
-    static trueOrFalse() {
-        return Math.random() >= 0.5;
-    }
     /** 生成随机浮点数，随机数范围包含min值，但不包含max值 */
     static range(min, max) {
         return Math.random() * (max - min) + min;
@@ -1663,6 +1597,9 @@ class MathUtils {
     /** 生成随机整数，随机整数范围包含min值和max值 */
     static rangeInt(min, max) {
         return Math.floor(Math.random() * (max - min + 1) + min);
+    }
+    static trueOrFalse() {
+        return Math.random() >= 0.5;
     }
     /** 判断num是否在某个区间（min, max），include不传参数的话，默认是含前含后，如需对前后包含情况做定义，请传include参数 */
     static within(num, min, max, include) {
@@ -2881,8 +2818,7 @@ class HttpManager {
             money: M.player.Info.userMoney,
             car_level: userData.getCarLevel(),
             stage: userData.getPassStage(),
-            king_level: userData.getKingLevel(),
-            synthesis_num: userData.statistics.synthesisNum
+            king_level: userData.getKingLevel()
         };
         if (!forceRightNow) {
             const notUpload = ["car_level", "stage", "king_level"].every((key) => {
@@ -2897,7 +2833,7 @@ class HttpManager {
         console.log("@FREEMAN: 请求心跳保存数据：", data);
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
-            url: 'v2/userinfo/post',
+            url: 'v1/userinfo/post',
             method: 'Post',
             data: dataString,
             success: function (res) {
@@ -2912,7 +2848,6 @@ class HttpManager {
                 console.log("@FREEMAN: 请求心跳保存数据：", res);
             }
         });
-        userData.statistics.synthesisNum = 0;
     }
     /** 保存坑位数据 */
     requestSaveCarparkData(forceRightNow = false) {
@@ -3223,21 +3158,6 @@ class HttpManager {
                 console.log(res);
             }
         });
-    }
-    //拉取任务信息
-    requestTaskInfo(handler) {
-        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
-        HttpReqHelper.request({
-            url: 'v1/task/info',
-            success: res => {
-                console.log("@FREEMAN: 拉取每日任务列表成功：", res);
-                handler && handler.runWith([res]);
-            },
-            fail: res => {
-                console.error("@FREEMAN: 拉取每日任务列表失败：", res);
-            }
-        });
-        userData.statistics.synthesisNum = 0;
     }
     //拉取成就任务信息
     requestAchievementInfo(callback) {
@@ -4427,15 +4347,6 @@ class WXSDKVersion {
 WXSDKVersion.NAVIGATE_TO_MINI_PROGRAM = "2.2.0";
 WXSDKVersion.CREATE_FEEDBACK_BUTTON = "2.1.2";
 //# sourceMappingURL=WXSDKVersion.js.map
-class UserStatistics {
-    constructor() {
-        this.synthesisNum = 0;
-        this.history = {
-            synthesisNum: 0
-        };
-    }
-}
-//# sourceMappingURL=UserStatistics.js.map
 class UserData {
     constructor() {
         /** 合成次数 */
@@ -4489,7 +4400,6 @@ class UserData {
         this.skillStrengthenJsonRecord = ''; //防止提交相同数据给服务器
         this.lastHeartBeatQueryObj = {}; //防止提交相同心跳数据给服务器
         this.menuRedPointCount = 0;
-        this.statistics = new UserStatistics();
         //初始化车位
         for (let index = 0; index < 20; index++) {
             this.parkcarInfoArray[index] = { id: index, carId: 0 };
@@ -4702,10 +4612,6 @@ class UserData {
             Laya.timer.once(10 * Time.SEC_IN_MILI, this, HttpManager.Instance.requestSaveCarparkData);
         }
         catch (e) {
-            M.http.requestSaveLog(e
-                + "\r\n当前车位列表：" + StringUtils.iteratorToString(this.parkcarInfoArray)
-                + "\r\n英雄单位1：" + StringUtils.iteratorToString(_carParkSp)
-                + "\r\n英雄单位2：" + StringUtils.iteratorToString(_carParkSp2));
             console.error("@FREEMAN: 保存英雄列表信息时发生异常：", e);
             console.error("@FREEMAN: 当前车位列表：", this.parkcarInfoArray, "英雄单位1：", _carParkSp, "英雄单位2：", _carParkSp2);
         }
@@ -4934,10 +4840,10 @@ class UserData {
             return;
         }
         if (_upload) {
-            M.http.requestSaveUserinfoData(forceRightNow);
-            saveOptions && saveOptions.petList && M.http.requestSaveCarparkData(forceRightNow);
-            saveOptions && saveOptions.petShop && M.http.requestSaveCarshopData(forceRightNow);
-            saveOptions && saveOptions.skill && M.http.requestSaveSkillAdditionData(forceRightNow);
+            HttpManager.Instance.requestSaveUserinfoData(forceRightNow);
+            saveOptions && saveOptions.petList && HttpManager.Instance.requestSaveCarparkData(forceRightNow);
+            saveOptions && saveOptions.petShop && HttpManager.Instance.requestSaveCarshopData(forceRightNow);
+            saveOptions && saveOptions.skill && HttpManager.Instance.requestSaveSkillAdditionData(forceRightNow);
         }
     }
     //取出本地数据
@@ -11082,7 +10988,6 @@ class HallScene extends ui.hall.HallSceneUI {
     handlerHeroLevel(heroItem, heroId, index, currHeroLevel) {
         let self = this;
         let nextCardId = heroId + 1;
-        userData.statistics.synthesisNum++;
         userData.synthesisCount++;
         //随机奖励
         if (userData.synthesisCount % 48 == 0) {
@@ -11138,7 +11043,7 @@ class HallScene extends ui.hall.HallSceneUI {
         //本地保存
         userData.setCarparkSave(heroItem, self.curMonsterSprite);
         //任务统计
-        // HttpManager.Instance.requestDailyTaskData(1);
+        HttpManager.Instance.requestDailyTaskData(1);
         //检查守卫是否可以升级
         self.checkKingIsUpdate();
         self.curMonsterSprite = null;
@@ -12243,7 +12148,7 @@ class LuckPrizeItemView extends BaseView {
         this.ui.txtItemName.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.20", this.datas[0].name, MathUtils.bytesToSize(gold));
         let point = PointUtils.localToGlobal(this.ui.imgItem);
         LayerMgr.Instance.addToLayer(new FlyEffect().play("rollingCoin", point.x, point.y), LAYER_TYPE.SCREEN_EFFECT_LAYER);
-        EventsManager.Instance.event(EventsType.GOLD_CHANGE, { money: M.player.Info.userMoney += gold });
+        EventsManager.Instance.event(EventsType.GOLD_CHANGE, { diamond: M.player.Info.userMoney += gold });
     }
     showDiamond(name, diamond) {
         diamond = diamond * HallManager.Instance.hallData.magnification;
@@ -13959,7 +13864,6 @@ class AchiRewardView extends BaseView {
                         MessageUtils.showMsgTips("成就奖励:" + this._rewardName + "x" + this._awardNum);
                         let point = PointUtils.localToGlobal(this.ui.imgIcon);
                         LayerMgr.Instance.addToLayer(new FlyEffect().play("diamond", point.x, point.y), LAYER_TYPE.SCREEN_EFFECT_LAYER);
-                        EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: M.player.Info.userDiamond += this._awardNum });
                     }
                     else if (res.code === 2) {
                         ViewMgr.Ins.close(ViewConst.AchiRewardView);
@@ -13973,7 +13877,7 @@ class AchiRewardView extends BaseView {
             MessageUtils.showMsgTips("成就奖励:" + this._rewardName + "x" + MathUtils.bytesToSize(this._awardNum));
             let point = PointUtils.localToGlobal(this.ui.imgIcon);
             LayerMgr.Instance.addToLayer(new FlyEffect().play("rollingCoin", point.x, point.y), LAYER_TYPE.SCREEN_EFFECT_LAYER);
-            EventsManager.Instance.event(EventsType.GOLD_CHANGE, { money: M.player.Info.userMoney += this._awardNum });
+            EventsManager.Instance.event(EventsType.GOLD_CHANGE, { diamond: M.player.Info.userMoney += this._awardNum });
         }
     }
     getGold() {
@@ -14019,9 +13923,7 @@ class TaskView extends BaseView {
         const index = this._tabGroup.selectedIndex;
         this.ui.viewStackTask.selectedIndex = index;
         if (index == QuestSubView.DAILY_QUEST) { //每日任务
-            M.http.requestTaskInfo(Laya.Handler.create(this, (list) => {
-                this.refreshTaskList(list);
-            }));
+            this.requestTaskInfo();
         }
         else { //成就任务
             HttpManager.Instance.requestAchievementInfo((res) => {
@@ -14120,11 +14022,11 @@ class TaskView extends BaseView {
                                                 userData.removeTaskRedPoint();
                                             }
                                         }
-                                        Laya.Tween.to(cell, { x: -cell.displayWidth }, 200, Laya.Ease.quadOut, Handler.create(self, () => {
+                                        Laya.Tween.to(cell, { x: -cell.displayWidth }, 250, Laya.Ease.quadOut, Handler.create(self, () => {
                                             listData.splice(index, 1);
-                                            M.http.requestTaskInfo(Laya.Handler.create(this, (list) => {
-                                                this.refreshTaskList(list);
-                                            }));
+                                            Laya.timer.once(100, self, () => {
+                                                self.requestTaskInfo();
+                                            });
                                         }));
                                     }
                                     else if (_res.code === 2) {
@@ -14240,7 +14142,7 @@ class TaskView extends BaseView {
                                         if (item.reward_type == "money") {
                                             MessageUtils.shopMsgByObj(btnGet, "+" + MathUtils.bytesToSize(awardNum), EFFECT_TYPE.GOLD);
                                             LayerMgr.Instance.addToLayer(new FlyEffect().play("rollingCoin", LayerManager.mouseX, LayerManager.mouseY), LAYER_TYPE.SCREEN_EFFECT_LAYER);
-                                            EventsManager.Instance.event(EventsType.GOLD_CHANGE, { money: M.player.Info.userMoney += awardNum });
+                                            EventsManager.Instance.event(EventsType.GOLD_CHANGE, { diamond: M.player.Info.userMoney += awardNum });
                                         }
                                         else {
                                             MessageUtils.shopMsgByObj(btnGet, "+" + awardNum, EFFECT_TYPE.DIAMOND);
@@ -14276,6 +14178,21 @@ class TaskView extends BaseView {
                 else {
                     btnGet.disabled = true;
                 }
+            }
+        });
+    }
+    //拉取任务信息
+    requestTaskInfo() {
+        let that = this;
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+        HttpReqHelper.request({
+            url: 'v1/task/info',
+            success: function (res) {
+                console.log("@FREEMAN: requestTaskInfo =>", res);
+                that.refreshTaskList(res);
+            },
+            fail: function (res) {
+                console.log(res);
             }
         });
     }

@@ -51,6 +51,7 @@ class UserData {
         this.skillStrengthenJsonRecord = ''; //防止提交相同数据给服务器
         this.lastHeartBeatQueryObj = {}; //防止提交相同心跳数据给服务器
         this.menuRedPointCount = 0;
+        this.statistics = new UserStatistics();
         //初始化车位
         for (let index = 0; index < 20; index++) {
             this.parkcarInfoArray[index] = { id: index, carId: 0 };
@@ -263,6 +264,10 @@ class UserData {
             Laya.timer.once(10 * Time.SEC_IN_MILI, this, HttpManager.Instance.requestSaveCarparkData);
         }
         catch (e) {
+            M.http.requestSaveLog(e
+                + "\r\n当前车位列表：" + StringUtils.iteratorToString(this.parkcarInfoArray)
+                + "\r\n英雄单位1：" + StringUtils.iteratorToString(_carParkSp)
+                + "\r\n英雄单位2：" + StringUtils.iteratorToString(_carParkSp2));
             console.error("@FREEMAN: 保存英雄列表信息时发生异常：", e);
             console.error("@FREEMAN: 当前车位列表：", this.parkcarInfoArray, "英雄单位1：", _carParkSp, "英雄单位2：", _carParkSp2);
         }
@@ -491,10 +496,10 @@ class UserData {
             return;
         }
         if (_upload) {
-            HttpManager.Instance.requestSaveUserinfoData(forceRightNow);
-            saveOptions && saveOptions.petList && HttpManager.Instance.requestSaveCarparkData(forceRightNow);
-            saveOptions && saveOptions.petShop && HttpManager.Instance.requestSaveCarshopData(forceRightNow);
-            saveOptions && saveOptions.skill && HttpManager.Instance.requestSaveSkillAdditionData(forceRightNow);
+            M.http.requestSaveUserinfoData(forceRightNow);
+            saveOptions && saveOptions.petList && M.http.requestSaveCarparkData(forceRightNow);
+            saveOptions && saveOptions.petShop && M.http.requestSaveCarshopData(forceRightNow);
+            saveOptions && saveOptions.skill && M.http.requestSaveSkillAdditionData(forceRightNow);
         }
     }
     //取出本地数据

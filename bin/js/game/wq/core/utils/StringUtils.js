@@ -266,5 +266,68 @@ class StringUtils {
         }
         return result;
     }
+    /** 使用separator字符，连接多个字符串 */
+    static joinString(separator, ...args) {
+        if (!separator) {
+            separator = "";
+        }
+        return args.join(separator);
+    }
+    static iteratorToString(iterator, tab = 0) {
+        if (!iterator)
+            return "@FREEMAN ERROR: iterator undefined at StringUtils.iteratorToString()";
+        const tabStr = StringUtils.repeatString(" ", tab);
+        if (typeof iterator === "object") {
+            let brackets = ["{", "}"];
+            let array = false;
+            if (iterator instanceof Array) {
+                brackets = ["[", "]"];
+                array = true;
+            }
+            let result = brackets[0] + "\r\n";
+            for (const key in iterator) {
+                if (typeof iterator[key] === "object") {
+                    if (array) {
+                        result += tabStr + "  " + StringUtils.iteratorToString(iterator[key], tab + 2);
+                    }
+                    else {
+                        result += tabStr + "  " + String(key) + " : " + StringUtils.iteratorToString(iterator[key], tab + 2);
+                    }
+                }
+                else if (typeof iterator[key] === "function") {
+                }
+                else {
+                    const value = typeof iterator[key] === "string" ? "\"" + String(iterator[key]) + "\"" : String(iterator[key]);
+                    if (array) {
+                        result += tabStr + "  " + value + ",\r\n";
+                    }
+                    else {
+                        result += tabStr + "  " + String(key) + " : " + value + ",\r\n";
+                    }
+                }
+            }
+            if (result.lastIndexOf(",\r\n") === result.length - 3) {
+                result = result.substr(0, result.length - 3) + "\r\n";
+            }
+            if (tab === 0) {
+                result += tabStr + brackets[1];
+            }
+            else {
+                result += tabStr + brackets[1] + ",\r\n";
+            }
+            return result;
+        }
+        if (typeof iterator === "function") {
+            return "@FREEMAN ERROR: iterator is a \"Function\" at StringUtils.iteratorToString()";
+        }
+        return String(iterator);
+    }
+    static repeatString(str, num = 0) {
+        let result = "";
+        while (num-- > 0) {
+            result += str;
+        }
+        return result;
+    }
 }
 //# sourceMappingURL=StringUtils.js.map

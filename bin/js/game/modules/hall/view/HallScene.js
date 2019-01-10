@@ -840,6 +840,7 @@ class HallScene extends ui.hall.HallSceneUI {
     handlerHeroLevel(heroItem, heroId, index, currHeroLevel) {
         let self = this;
         let nextCardId = heroId + 1;
+        userData.statistics.synthesisNum++;
         userData.synthesisCount++;
         //随机奖励
         if (userData.synthesisCount % 48 == 0) {
@@ -895,7 +896,7 @@ class HallScene extends ui.hall.HallSceneUI {
         //本地保存
         userData.setCarparkSave(heroItem, self.curMonsterSprite);
         //任务统计
-        HttpManager.Instance.requestDailyTaskData(1);
+        // HttpManager.Instance.requestDailyTaskData(1);
         //检查守卫是否可以升级
         self.checkKingIsUpdate();
         self.curMonsterSprite = null;

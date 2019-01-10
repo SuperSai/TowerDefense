@@ -54,7 +54,7 @@ class LuckPrizeItemView extends BaseView {
         this.ui.txtItemName.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.20", this.datas[0].name, MathUtils.bytesToSize(gold));
         let point: Laya.Point = PointUtils.localToGlobal(this.ui.imgItem);
         LayerMgr.Instance.addToLayer(new FlyEffect().play("rollingCoin", point.x, point.y), LAYER_TYPE.SCREEN_EFFECT_LAYER);
-        EventsManager.Instance.event(EventsType.GOLD_CHANGE, { diamond: M.player.Info.userMoney += gold });
+        EventsManager.Instance.event(EventsType.GOLD_CHANGE, { money: M.player.Info.userMoney += gold });
     }
 
     private showDiamond(name: string, diamond: number): void {

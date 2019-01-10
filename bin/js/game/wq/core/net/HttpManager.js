@@ -533,7 +533,8 @@ class HttpManager {
             money: M.player.Info.userMoney,
             car_level: userData.getCarLevel(),
             stage: userData.getPassStage(),
-            king_level: userData.getKingLevel()
+            king_level: userData.getKingLevel(),
+            synthesis_num: userData.statistics.synthesisNum
         };
         if (!forceRightNow) {
             const notUpload = ["car_level", "stage", "king_level"].every((key) => {
@@ -548,7 +549,7 @@ class HttpManager {
         console.log("@FREEMAN: 请求心跳保存数据：", data);
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
-            url: 'v1/userinfo/post',
+            url: 'v2/userinfo/post',
             method: 'Post',
             data: dataString,
             success: function (res) {
@@ -563,6 +564,7 @@ class HttpManager {
                 console.log("@FREEMAN: 请求心跳保存数据：", res);
             }
         });
+        userData.statistics.synthesisNum = 0;
     }
     /** 保存坑位数据 */
     requestSaveCarparkData(forceRightNow = false) {
@@ -873,6 +875,21 @@ class HttpManager {
                 console.log(res);
             }
         });
+    }
+    //拉取任务信息
+    requestTaskInfo(handler) {
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+        HttpReqHelper.request({
+            url: 'v1/task/info',
+            success: res => {
+                console.log("@FREEMAN: 拉取每日任务列表成功：", res);
+                handler && handler.runWith([res]);
+            },
+            fail: res => {
+                console.error("@FREEMAN: 拉取每日任务列表失败：", res);
+            }
+        });
+        userData.statistics.synthesisNum = 0;
     }
     //拉取成就任务信息
     requestAchievementInfo(callback) {
