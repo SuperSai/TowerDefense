@@ -14,19 +14,6 @@ class LuckPrizeBoxView extends BaseView {
         super.initData();
         this._tween = EffectUtils.objectRotate(this.ui.imgLight);
         if (this.datas[0]) {
-            switch (this.datas[0].id) {
-                case 1://2倍奖励
-                    if (HallManager.Instance.hallData.magnification < 2) {
-                        HallManager.Instance.hallData.magnification = 2;
-                    }
-                    break;
-                case 5://4倍奖励
-                    if (HallManager.Instance.hallData.magnification < 4) {
-                        HallManager.Instance.hallData.magnification = 4;
-                    }
-                    break;
-            }
-            this.callback && this.callback();
             this.ui.txt_des.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.40", this.datas[0].num);
             HttpManager.Instance.requestPrizeCensus(this.datas[0].id);
         }
@@ -47,15 +34,37 @@ class LuckPrizeBoxView extends BaseView {
     private onGetReward(): void {
         SDKManager.Instance.showVideoAd((_res: any) => {
             if (_res && _res.isEnded || _res == undefined) {
-                this.onCloseHandler();
-                ViewMgr.Ins.open(ViewConst.LuckPrizeView);
+                this.updateMagnification();
+            } else {
+                userData.toShareAd(() => {
+                    this.updateMagnification();
+                });
             }
         }, () => {
             userData.toShareAd(() => {
-                this.onCloseHandler();
-                ViewMgr.Ins.open(ViewConst.LuckPrizeView);
+                this.updateMagnification();
             });
         });
+    }
+
+    /** 更新倍率 */
+    private updateMagnification(): void {
+        if (this.datas[0]) {
+            switch (this.datas[0].id) {
+                case 1://2倍奖励
+                    if (HallManager.Instance.hallData.magnification < 2) {
+                        HallManager.Instance.hallData.magnification = 2;
+                    }
+                    break;
+                case 5://4倍奖励
+                    if (HallManager.Instance.hallData.magnification < 4) {
+                        HallManager.Instance.hallData.magnification = 4;
+                    }
+                    break;
+            }
+            this.callback && this.callback();
+            this.onCloseHandler();
+        }
     }
 
     private onCloseHandler(): void {

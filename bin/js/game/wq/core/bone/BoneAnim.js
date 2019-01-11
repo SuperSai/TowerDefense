@@ -9,15 +9,22 @@ class BoneAnim extends Laya.Sprite {
         this._isLoop = isLoop;
         this.mAniPath = "images/effect/bone/" + boneName + ".sk";
         this.mFactory = new Laya.Templet();
-        this.mFactory.on(Laya.Event.COMPLETE, this, this.parseComplete);
-        this.mFactory.on(Laya.Event.ERROR, this, this.onError);
+        this.addEvents();
         this.mFactory.loadAni(this.mAniPath);
     }
+    addEvents() {
+        this.mFactory.on(Laya.Event.COMPLETE, this, this.parseComplete);
+        this.mFactory.on(Laya.Event.ERROR, this, this.onError);
+    }
+    removeEvents() {
+        this.mFactory.off(Laya.Event.COMPLETE, this, this.parseComplete);
+        this.mFactory.off(Laya.Event.ERROR, this, this.onError);
+        this.mArmature.off(Laya.Event.STOPPED, this, this.completeHandler);
+    }
     onError() {
-        console.log("error");
+        HttpManager.Instance.requestSaveLog("@David 龙骨动画路径：" + this.mAniPath + " - 创建失败！");
     }
     parseComplete() {
-        console.log("@David 龙骨动画加载完毕");
         //创建模式为1，可以启用换装
         this.mArmature = this.mFactory.buildArmature(1);
         this.addChild(this.mArmature);
@@ -25,12 +32,8 @@ class BoneAnim extends Laya.Sprite {
         this.play();
     }
     completeHandler() {
-        console.log("@David 龙骨动画播放");
         if (this.mArmature && !this._isLoop) {
-            this.mArmature.stop();
-            this.mArmature = null;
-            this.removeChildren();
-            this.removeSelf();
+            this.destroy();
         }
     }
     play() {
@@ -40,10 +43,15 @@ class BoneAnim extends Laya.Sprite {
         }
         this.mArmature.play(this.mCurrIndex, this._isLoop);
     }
-    removeBoneAnim() {
+    destroy() {
         if (this.mArmature) {
-            this.mArmature.stop();
-            this.mArmature = null;
+            this.mArmature.stop(); //停止龙骨动画播放
+            this.removeEvents();
+            this.mArmature.removeSelf(); //从显示列表移除龙骨动画本身
+            this.mArmature.removeChildren(); //从显示列表移除龙骨动画子对象
+            this.mArmature.destroy(true); //从显存销毁龙骨动画及其子对象
+            this.mFactory.destroy(); //释放动画模板类下的纹理数据
+            this.mFactory.releaseResource(true); //释放龙骨资源
             this.removeChildren();
             this.removeSelf();
         }

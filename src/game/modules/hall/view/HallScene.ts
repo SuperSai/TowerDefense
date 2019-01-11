@@ -1300,7 +1300,9 @@ class HallScene extends ui.hall.HallSceneUI {
     }
     HallManager.Instance.hallData.userAcceTime += acceTime;
     if (isEffect) {
-      ViewMgr.Ins.open(ViewConst.AccelerateTipsView);
+      let bone: BoneAnim = userData.isEvolution() ? new BoneAnim("anger_2") : new BoneAnim("anger_1");
+      AlignUtils.setToScreenGoldenPos(bone);
+      LayerMgr.Instance.addToLayer(bone, LAYER_TYPE.SCREEN_EFFECT_LAYER);
     }
     //加速开始
     that.setCarAcce(2);

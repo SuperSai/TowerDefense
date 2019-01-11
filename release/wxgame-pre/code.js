@@ -11504,7 +11504,9 @@ class HallScene extends ui.hall.HallSceneUI {
         }
         HallManager.Instance.hallData.userAcceTime += acceTime;
         if (isEffect) {
-            ViewMgr.Ins.open(ViewConst.AccelerateTipsView);
+            let bone = userData.isEvolution() ? new BoneAnim("anger_2") : new BoneAnim("anger_1");
+            AlignUtils.setToScreenGoldenPos(bone);
+            LayerMgr.Instance.addToLayer(bone, LAYER_TYPE.SCREEN_EFFECT_LAYER);
         }
         //加速开始
         that.setCarAcce(2);
@@ -12126,19 +12128,6 @@ class LuckPrizeBoxView extends BaseView {
         super.initData();
         this._tween = EffectUtils.objectRotate(this.ui.imgLight);
         if (this.datas[0]) {
-            switch (this.datas[0].id) {
-                case 1: //2倍奖励
-                    if (HallManager.Instance.hallData.magnification < 2) {
-                        HallManager.Instance.hallData.magnification = 2;
-                    }
-                    break;
-                case 5: //4倍奖励
-                    if (HallManager.Instance.hallData.magnification < 4) {
-                        HallManager.Instance.hallData.magnification = 4;
-                    }
-                    break;
-            }
-            this.callback && this.callback();
             this.ui.txt_des.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.40", this.datas[0].num);
             HttpManager.Instance.requestPrizeCensus(this.datas[0].id);
         }
@@ -12156,15 +12145,37 @@ class LuckPrizeBoxView extends BaseView {
     onGetReward() {
         SDKManager.Instance.showVideoAd((_res) => {
             if (_res && _res.isEnded || _res == undefined) {
-                this.onCloseHandler();
-                ViewMgr.Ins.open(ViewConst.LuckPrizeView);
+                this.updateMagnification();
+            }
+            else {
+                userData.toShareAd(() => {
+                    this.updateMagnification();
+                });
             }
         }, () => {
             userData.toShareAd(() => {
-                this.onCloseHandler();
-                ViewMgr.Ins.open(ViewConst.LuckPrizeView);
+                this.updateMagnification();
             });
         });
+    }
+    /** 更新倍率 */
+    updateMagnification() {
+        if (this.datas[0]) {
+            switch (this.datas[0].id) {
+                case 1: //2倍奖励
+                    if (HallManager.Instance.hallData.magnification < 2) {
+                        HallManager.Instance.hallData.magnification = 2;
+                    }
+                    break;
+                case 5: //4倍奖励
+                    if (HallManager.Instance.hallData.magnification < 4) {
+                        HallManager.Instance.hallData.magnification = 4;
+                    }
+                    break;
+            }
+            this.callback && this.callback();
+            this.onCloseHandler();
+        }
     }
     onCloseHandler() {
         ViewMgr.Ins.close(ViewConst.LuckPrizeBoxView);
@@ -14344,15 +14355,22 @@ class BoneAnim extends Laya.Sprite {
         this._isLoop = isLoop;
         this.mAniPath = "images/effect/bone/" + boneName + ".sk";
         this.mFactory = new Laya.Templet();
-        this.mFactory.on(Laya.Event.COMPLETE, this, this.parseComplete);
-        this.mFactory.on(Laya.Event.ERROR, this, this.onError);
+        this.addEvents();
         this.mFactory.loadAni(this.mAniPath);
     }
+    addEvents() {
+        this.mFactory.on(Laya.Event.COMPLETE, this, this.parseComplete);
+        this.mFactory.on(Laya.Event.ERROR, this, this.onError);
+    }
+    removeEvents() {
+        this.mFactory.off(Laya.Event.COMPLETE, this, this.parseComplete);
+        this.mFactory.off(Laya.Event.ERROR, this, this.onError);
+        this.mArmature.off(Laya.Event.STOPPED, this, this.completeHandler);
+    }
     onError() {
-        console.log("error");
+        HttpManager.Instance.requestSaveLog("@David 龙骨动画路径：" + this.mAniPath + " - 创建失败！");
     }
     parseComplete() {
-        console.log("@David 龙骨动画加载完毕");
         //创建模式为1，可以启用换装
         this.mArmature = this.mFactory.buildArmature(1);
         this.addChild(this.mArmature);
@@ -14360,12 +14378,8 @@ class BoneAnim extends Laya.Sprite {
         this.play();
     }
     completeHandler() {
-        console.log("@David 龙骨动画播放");
         if (this.mArmature && !this._isLoop) {
-            this.mArmature.stop();
-            this.mArmature = null;
-            this.removeChildren();
-            this.removeSelf();
+            this.destroy();
         }
     }
     play() {
@@ -14375,10 +14389,15 @@ class BoneAnim extends Laya.Sprite {
         }
         this.mArmature.play(this.mCurrIndex, this._isLoop);
     }
-    removeBoneAnim() {
+    destroy() {
         if (this.mArmature) {
-            this.mArmature.stop();
-            this.mArmature = null;
+            this.mArmature.stop(); //停止龙骨动画播放
+            this.removeEvents();
+            this.mArmature.removeSelf(); //从显示列表移除龙骨动画本身
+            this.mArmature.removeChildren(); //从显示列表移除龙骨动画子对象
+            this.mArmature.destroy(true); //从显存销毁龙骨动画及其子对象
+            this.mFactory.destroy(); //释放动画模板类下的纹理数据
+            this.mFactory.releaseResource(true); //释放龙骨资源
             this.removeChildren();
             this.removeSelf();
         }
