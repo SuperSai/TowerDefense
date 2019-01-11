@@ -34,13 +34,13 @@ class SkyDropView extends BaseView {
     }
     addEvents() {
         super.addEvents();
-        this.ui.imgCloseBtn.on(Laya.Event.CLICK, this, this.onCloseHandler);
+        this.ui.btnClose.on(Laya.Event.CLICK, this, this.onCloseHandler);
         this.ui.btnHelp.on(Laya.Event.CLICK, this, this.onHelpBtnClick);
         this.ui.btnVideo.on(Laya.Event.CLICK, this, this.onVideoBtnClick);
     }
     removeEvents() {
         super.removeEvents();
-        this.ui.imgCloseBtn.off(Laya.Event.CLICK, this, this.onCloseHandler);
+        this.ui.btnClose.off(Laya.Event.CLICK, this, this.onCloseHandler);
         this.ui.btnHelp.off(Laya.Event.CLICK, this, this.onHelpBtnClick);
         this.ui.btnVideo.off(Laya.Event.CLICK, this, this.onVideoBtnClick);
     }

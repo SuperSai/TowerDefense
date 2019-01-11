@@ -13,8 +13,6 @@ class SkyDropController extends Laya.EventDispatcher {
     private _package: Laya.Image;
     private _awardType: number;
 
-    private _skyDropObtainFrame: SkyDropObtainView;
-
     public init(parent: Laya.View): void {
         this._container = parent;
         this._container.mouseThrough = true;
@@ -67,12 +65,6 @@ class SkyDropController extends Laya.EventDispatcher {
         if (this._awardType < 100) {
             const sheet = SkyDropSheet.getSheetById(this._awardType);
             sheet && ViewMgr.Ins.open(ViewConst.SkyDropView, null, sheet);
-        } else {
-            if (!this._skyDropObtainFrame) {
-                this._skyDropObtainFrame = new SkyDropObtainView();
-                this._skyDropObtainFrame.renew("images/core/diamond_icon.png", LanguageManager.Instance.getLanguageText("hallScene.label.txt.10", Math.round(Math.random() * 30)));
-            }
-            this._container.addChild(this._skyDropObtainFrame);
         }
     }
 
@@ -94,7 +86,7 @@ class SkyDropController extends Laya.EventDispatcher {
                     if(MathUtils.within(res.type, 0, 3)){
                         this.dropPackage(res.type);
                     } else {
-                        M.http.requestSaveLog("@FREEMAN: 请求天降礼包数据，礼包类型错误，res.type:" + res.type);
+                        M.http.requestSaveLog("@FREEMAN ERROR: 请求天降礼包数据，礼包类型错误，res.type:" + res.type);
                     }
                 } else {
                     const timeSpan: number = res.nextPackageTimeSpan;
@@ -169,22 +161,5 @@ class SkyDropSheet {
             }
         }
         return null;
-    }
-}
-
-class SkyDropObtainView extends SkyDropView {
-    protected init(): void {
-        this.ui = new ui.common.view.SkyDropObtainViewUI();
-        this.addChild(this.ui);
-
-        this.ui.imgCloseBtn.on(Laya.Event.CLICK, this, this.removeSelf);
-        this.ui.btnHelp.on(Laya.Event.CLICK, this, this.onHelpBtnClick);
-        this.ui.btnVideo.on(Laya.Event.CLICK, this, this.onVideoBtnClick);
-    }
-
-    // @ts-ignore
-    public renew(iconStr: string, desc: string): void {
-        this.ui.imgIcon.skin = iconStr;
-        this.ui.lblDesc.text = desc;
     }
 }

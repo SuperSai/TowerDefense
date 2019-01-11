@@ -65,9 +65,9 @@ class ShopView extends BaseView {
         let monsterType: number = userData.isEvolution() ? 2 : 1;
         let heroesData = BattleManager.Instance.getAllMonsterByType(monsterType);
         self.ui.heroList.vScrollBarSkin = '';
-        self.ui.heroList.repeatY = heroesData.length;
+        self.ui.heroList.repeatY = 5;
         self.ui.heroList.array = heroesData;
-        // if (self.isScroll) self.heroList.visible = false;
+        self.ui.heroList.optimizeScrollRect = true;
         let firstLockId: number = 0; //第一个被锁项目
         let shareFreeCarId: number = 0;//免费得车Id
         let shareFreeCarCfg = BattleManager.Instance.getPreMonster(monsterType * 100 + userData.getCarLevel(), -1);
@@ -78,18 +78,8 @@ class ShopView extends BaseView {
         let count: number = 1;
         let moveY: number = 50;
         self.ui.heroList.renderHandler = new Laya.Handler(self, (cell: Laya.Box, index: number) => {
+            if(cell.pivotX || cell.pivotY)cell.pivot(0,0);
             if (index > self.ui.heroList.array.length) return;
-            // if (index >= curBuyIndex && self.isScroll) {
-            //     if (!self.heroList.visible) self.heroList.visible = true;
-            //     moveY = index < 4 ? 150 : 50;
-            //     Laya.Tween.from(cell, { y: cell.y + moveY * (count + 1) }, 100 * count, null, Laya.Handler.create(self, () => {
-            //         Laya.Tween.clearTween(cell);
-            //         if (count >= (curBuyIndex + 3)) {
-            //             self.isScroll = false;
-            //         }
-            //     }));
-            //     count++;
-            // }
             let carInfo = self.ui.heroList.array[index];
             if (carInfo) {
                 let monsterType: number = BattleManager.Instance.getType(carInfo.id);
@@ -191,7 +181,7 @@ class ShopView extends BaseView {
                     }
                 }
                 //钻石购买
-                if (carInfo.unLockId < 1000 && userData.getCarLevel() < carInfo.unLockId && firstLockId < 1) {
+                if (carInfo.unLockId < 1000 && userData.getCarLevel() < (carInfo.unLockId - 2) && firstLockId < 1) {
                     firstLockId = carInfo.unLockId;
                 }
                 let btnDiamondBuy = cell.getChildByName('btnDiamondBuy') as Laya.Button;

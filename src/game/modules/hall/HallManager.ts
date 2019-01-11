@@ -177,7 +177,6 @@ class HallManager extends Laya.EventDispatcher {
         HttpManager.Instance.requestPrizeInfo((res: any) => {
             if (!res) return;
             let freeTimes = MathUtils.parseInt(res.free_num);//免费次数
-            console.log("@David 轮盘免费抽奖倒计时:免费次数：", freeTimes);
             this._model.freeTime = MathUtils.parseInt(res.remain_time);//免费时间
             this._model.nextFreeTime = MathUtils.parseInt(res.next_free);//离下次免费时间
             if (freeTimes > 0 && $freeTime == -1) {

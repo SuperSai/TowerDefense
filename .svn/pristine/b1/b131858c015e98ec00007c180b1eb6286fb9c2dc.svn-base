@@ -1,0 +1,165 @@
+class SkyDropController extends Laya.EventDispatcher {
+
+    private static _instance: SkyDropController;
+
+    public static getInstance(): SkyDropController {
+        if (!this._instance) {
+            this._instance = new SkyDropController();
+        }
+        return this._instance;
+    }
+
+    private _container: Laya.View;
+    private _package: Laya.Image;
+    private _awardType: number;
+
+    public init(parent: Laya.View): void {
+        this._container = parent;
+        this._container.mouseThrough = true;
+        this._package = new Laya.Image("images/hall/box_002.png");
+        this._package.pivot(34, 42);
+        this._awardType = -1;
+        Laya.timer.once(5 * 1000, this, this.requestSkyDropPackage);
+    }
+
+    public dropPackage(awardType: number): void {
+        this._awardType = awardType;
+        this._package.pos(153, -80);
+        if (this._container) {
+            this._container.addChild(this._package);
+            this.dropTween();
+        }
+    }
+
+    public retrievePackage(): void {
+        this._awardType = -1;
+        this._package.removeSelf();
+        Laya.Tween.clearTween(this._package);
+    }
+
+    public get packageOnScreen(): boolean {
+        return Boolean(this._package.parent);
+    }
+
+    private dropTween(): void {
+        if (this._package) {
+            Laya.Tween.to(this._package, { y: 430 }, 800, Laya.Ease.quadIn, Handler.create(this, this.onDropTweenComplete))
+        }
+    }
+
+    private onDropTweenComplete() {
+        this._package.on(Laya.Event.CLICK, this, this.onPackageClick);
+        Laya.Tween.clearTween(this._package);
+        this.bouncingUp();
+    }
+
+    private bouncingDown(): void {
+        Laya.Tween.to(this._package, { scaleX: 1.1, scaleY: 0.85, y: 430 }, 400, Laya.Ease.quadIn, Handler.create(this, this.bouncingUp))
+    }
+
+    private bouncingUp(): void {
+        Laya.Tween.to(this._package, { scaleX: 0.9, scaleY: 1.1, y: 400 }, 400, Laya.Ease.quadOut, Handler.create(this, this.bouncingDown))
+    }
+
+    private onPackageClick(): void {
+        if (this._awardType < 100) {
+            const sheet = SkyDropSheet.getSheetById(this._awardType);
+            sheet && ViewMgr.Ins.open(ViewConst.SkyDropView, null, sheet);
+        }
+    }
+
+    public activatePackageAward(): void {
+        const sheet = SkyDropSheet.getSheetById(this._awardType);
+        if(sheet){
+            BuffController.getInstance().addBuffFromSkyDrop(sheet);
+            BuffTipsView.Create(sheet);
+        }
+        this.retrievePackage();
+    }
+
+    public requestSkyDropPackage(): void {
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+        HttpReqHelper.request({
+            url: 'v1/skyDropPackage/status',
+            success: res => {
+                if (res.isShowPackage) {
+                    if(MathUtils.within(res.type, 0, 3)){
+                        this.dropPackage(res.type);
+                    } else {
+                        M.http.requestSaveLog("@FREEMAN ERROR: 请求天降礼包数据，礼包类型错误，res.type:" + res.type);
+                    }
+                } else {
+                    const timeSpan: number = res.nextPackageTimeSpan;
+                    if (timeSpan > 0) {
+                        Laya.timer.once(timeSpan * Time.SEC_IN_MILI, this, this.requestSkyDropPackage);
+                    } else {
+                        Laya.timer.clear(this, this.requestSkyDropPackage);
+                    }
+                }
+                console.log("@FREEMAN: 请求天降礼包数据成功:", res);
+            },
+            fail: res => {
+                console.log("@FREEMAN: 请求天降礼包数据失败:", res);
+            }
+        });
+    }
+
+    public postSkyDropPackage(): void {
+        let that = this;
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+        HttpReqHelper.request({
+            url: 'v1/skyDropPackage/open/' + this._awardType,
+            success: ({ legal }) => {
+                if (legal) {
+                    that.activatePackageAward();
+                    Laya.timer.once(10 * 1000, that, that.requestSkyDropPackage);
+                } else {
+                    console.log("@FREEMAN: postSkyDropPackage:", "领取时间无效，您暂时无法领取天降惊喜礼包！");
+                }
+                console.log("@FREEMAN: postSkyDropPackage: legal =>", legal);
+            },
+            fail: (res) => {
+                console.log("@FREEMAN: postSkyDropPackage: fail =>", res);
+            }
+        });
+    }
+}
+
+class SkyDropSheet {
+    /** 攻击速度按百分比增加 */
+    public static ATTACK_SPEED_INCREASE: number = 0;
+    /** 攻击力按百分比增加 */
+    public static ATTACK_VALUE_INCREASE: number = 1;
+    /** 暴击率按百分比增加 */
+    public static CRIT_RATE_INCREASE: number = 2;
+    /** 金币获得按百分比增加 */
+    public static COIN_OBTAIN_INCREASE: number = 3;
+
+    public id: number;
+
+    public num: number;
+
+    public duration: number;
+
+    constructor(id: number, num: number, duration: number) {
+        this.id = id;
+        this.num = num;
+        this.duration = duration;
+    }
+
+    public static sheets: SkyDropSheet[] = [
+        new SkyDropSheet(0, 0.5, 60 * 1000),
+        new SkyDropSheet(1, 1, 30 * 1000),
+        new SkyDropSheet(2, 0.5, 30 * 1000),
+        new SkyDropSheet(3, 1, 120 * 1000),
+    ];
+
+    public static getSheetById(id: number): SkyDropSheet {
+        for (const sheet of this.sheets) {
+            if (sheet.id === id) {
+                return sheet;
+            }
+        }
+        return null;
+    }
+}

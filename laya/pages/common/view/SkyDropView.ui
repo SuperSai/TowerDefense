@@ -1,8 +1,8 @@
 {
     "x":0,
     "type":"View",
-    "selectedBox":1,
-    "selecteID":24,
+    "selectedBox":24,
+    "selecteID":3,
     "props":{"width":717,"sceneWidth":750,"sceneHeight":1334,"sceneColor":"#000000","sceneBg":"laya/views/SkyDropFrame.JPG","height":634},
     "nodeParent":-1,
     "label":"View",
@@ -18,13 +18,14 @@
             "props":{"y":0,"x":0,"width":717,"height":634},
             "nodeParent":1,
             "label":"Box",
-            "isOpen":null,
+            "isOpen":true,
             "isDirectory":true,
             "isAniNode":true,
             "hasChild":true,
             "compId":24,
             "child":[
                 {
+                    "x":30,
                     "type":"Image",
                     "props":{"y":69,"width":716,"skin":"images/component/frame_9calce_01.png","height":565},
                     "nodeParent":24,
@@ -38,18 +39,20 @@
                     "$HIDDEN":false
                 },
                 {
-                    "type":"Image",
-                    "props":{"y":65,"x":632,"var":"imgCloseBtn","skin":"images/component/frame_close_btn.png"},
+                    "x":30,
+                    "type":"Button",
+                    "props":{"y":65,"x":632,"var":"btnClose","stateNum":"1","skin":"images/component/frame_close_btn.png"},
                     "nodeParent":24,
-                    "label":"Image(imgCloseBtn)",
+                    "label":"Button(btnClose)",
                     "isDirectory":false,
                     "isAniNode":true,
                     "hasChild":false,
-                    "compId":3,
+                    "compId":27,
                     "child":[
                         ]
                 },
                 {
+                    "x":30,
                     "type":"Image",
                     "props":{"x":63,"skin":"images/skyDrop/title.png"},
                     "nodeParent":24,
@@ -63,32 +66,63 @@
                     "$HIDDEN":false
                 },
                 {
+                    "x":30,
                     "type":"Button",
                     "props":{"y":468,"x":76,"var":"btnHelp","stateNum":"1","skin":"images/component/blue_btn.png","labelStrokeColor":"#306294","labelStroke":4,"labelSize":32,"labelColors":"#FFFFFF","labelBold":true,"label":"求助"},
                     "nodeParent":24,
                     "label":"Button(btnHelp)",
-                    "isDirectory":false,
+                    "isOpen":true,
+                    "isDirectory":true,
                     "isAniNode":true,
-                    "hasChild":false,
+                    "hasChild":true,
                     "compId":20,
                     "child":[
-                        ],
+                        {
+                            "x":45,
+                            "type":"Script",
+                            "source":"laya/pages/ScaleAnimScript.script",
+                            "props":{},
+                            "nodeParent":20,
+                            "label":"ScaleAnimScript",
+                            "isDirectory":false,
+                            "isAniNode":true,
+                            "hasChild":false,
+                            "compId":25,
+                            "child":[
+                                ]
+                        }],
                     "$HIDDEN":false
                 },
                 {
+                    "x":30,
                     "type":"Button",
                     "props":{"y":468,"x":405,"width":240,"var":"btnVideo","stateNum":"1","skin":"images/component/normal_btn.png","sizeGrid":"40,77,43,84","labelStrokeColor":"#946430","labelStroke":4,"labelSize":32,"labelColors":"#FFFFFF","labelBold":true,"label":"领取","height":100},
                     "nodeParent":24,
                     "label":"Button(btnVideo)",
-                    "isDirectory":false,
+                    "isOpen":true,
+                    "isDirectory":true,
                     "isAniNode":true,
-                    "hasChild":false,
+                    "hasChild":true,
                     "compId":21,
                     "child":[
-                        ],
+                        {
+                            "x":45,
+                            "type":"Script",
+                            "source":"laya/pages/ScaleAnimScript.script",
+                            "props":{},
+                            "nodeParent":21,
+                            "label":"ScaleAnimScript",
+                            "isDirectory":false,
+                            "isAniNode":true,
+                            "hasChild":false,
+                            "compId":26,
+                            "child":[
+                                ]
+                        }],
                     "$HIDDEN":false
                 },
                 {
+                    "x":30,
                     "type":"HBox",
                     "props":{"y":401,"x":358,"var":"hbox2","anchorY":0.5,"anchorX":0.5,"align":"middle"},
                     "nodeParent":24,
@@ -138,6 +172,7 @@
                         }]
                 },
                 {
+                    "x":30,
                     "type":"HBox",
                     "props":{"y":314,"x":358,"var":"hbox1","anchorY":0.5,"anchorX":0.5,"align":"middle"},
                     "nodeParent":24,

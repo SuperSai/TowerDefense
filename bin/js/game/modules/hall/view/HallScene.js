@@ -1,6 +1,7 @@
 /*
 * 大厅主场景
 */
+var ShopViewUI = ui.shop.ShopViewUI;
 class HallScene extends ui.hall.HallSceneUI {
     constructor() {
         super();
@@ -22,7 +23,8 @@ class HallScene extends ui.hall.HallSceneUI {
     static Create(_parentNode) {
         let resList = [
             { url: "res/atlas/images/skill.atlas", type: Laya.Loader.ATLAS },
-            { url: "res/atlas/images/fontImg.atlas", type: Laya.Loader.ATLAS }
+            { url: "res/atlas/images/fontImg.atlas", type: Laya.Loader.ATLAS },
+            { url: "res/atlas/images/shop.atlas", type: Laya.Loader.ATLAS }
         ];
         Laya.loader.load(resList, Handler.create(null, () => {
             EffectUtils.stopWaitEffect();
@@ -272,7 +274,7 @@ class HallScene extends ui.hall.HallSceneUI {
     }
     addEvents() {
         let self = this;
-        self.btnPower.on(Laya.Event.CLICK, self, self.onPowerAcce);
+        // self.btnPower.on(Laya.Event.CLICK, self, self.onPowerAcce);
         self.btnShop.on(Laya.Event.CLICK, self, self.onShowCarport);
         self.btnCarStore.on(Laya.Event.CLICK, self, self.onCarStore);
         self.btnEvolution.on(Laya.Event.CLICK, self, self.onEvolution);
@@ -583,19 +585,19 @@ class HallScene extends ui.hall.HallSceneUI {
     }
     //能量加速
     onPowerAcce() {
-        let that = this;
-        that.progressBarPower.value += 0.06;
-        if (that.progressBarPower.value >= 1) {
-            that.progressBarPower.value = 1;
-            that.btnPower.disabled = true;
-            that.btnPower.frameOnce(10, that, () => {
-                that.playAcceEffectView(10);
-                //加速次数统计
-                HttpManager.Instance.requestShareAdFinish("manual_acce");
-            });
-            EffectUtils.playCoinEffect(that.imgPowerCar, "images/core/coin_40x40.png");
-        }
-        that.btnPower.timerLoop(100, that, that.powerAcceTime);
+        // let that = this;
+        // that.progressBarPower.value += 0.06;
+        // if (that.progressBarPower.value >= 1) {
+        //   that.progressBarPower.value = 1;
+        //   that.btnPower.disabled = true;
+        //   that.btnPower.frameOnce(10, that, () => {
+        //     that.playAcceEffectView(10);
+        //     //加速次数统计
+        //     HttpManager.Instance.requestShareAdFinish("manual_acce");
+        //   });
+        //   EffectUtils.playCoinEffect(that.imgPowerCar, "images/core/coin_40x40.png");
+        // }
+        // that.btnPower.timerLoop(100, that, that.powerAcceTime);
     }
     powerAcceChangeHandler(_per) {
         let that = this;

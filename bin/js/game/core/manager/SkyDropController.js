@@ -50,13 +50,6 @@ class SkyDropController extends Laya.EventDispatcher {
             const sheet = SkyDropSheet.getSheetById(this._awardType);
             sheet && ViewMgr.Ins.open(ViewConst.SkyDropView, null, sheet);
         }
-        else {
-            if (!this._skyDropObtainFrame) {
-                this._skyDropObtainFrame = new SkyDropObtainView();
-                this._skyDropObtainFrame.renew("images/core/diamond_icon.png", LanguageManager.Instance.getLanguageText("hallScene.label.txt.10", Math.round(Math.random() * 30)));
-            }
-            this._container.addChild(this._skyDropObtainFrame);
-        }
     }
     activatePackageAward() {
         const sheet = SkyDropSheet.getSheetById(this._awardType);
@@ -76,7 +69,7 @@ class SkyDropController extends Laya.EventDispatcher {
                         this.dropPackage(res.type);
                     }
                     else {
-                        M.http.requestSaveLog("@FREEMAN: 请求天降礼包数据，礼包类型错误，res.type:" + res.type);
+                        M.http.requestSaveLog("@FREEMAN ERROR: 请求天降礼包数据，礼包类型错误，res.type:" + res.type);
                     }
                 }
                 else {
@@ -145,18 +138,4 @@ SkyDropSheet.sheets = [
     new SkyDropSheet(2, 0.5, 30 * 1000),
     new SkyDropSheet(3, 1, 120 * 1000),
 ];
-class SkyDropObtainView extends SkyDropView {
-    init() {
-        this.ui = new ui.common.view.SkyDropObtainViewUI();
-        this.addChild(this.ui);
-        this.ui.imgCloseBtn.on(Laya.Event.CLICK, this, this.removeSelf);
-        this.ui.btnHelp.on(Laya.Event.CLICK, this, this.onHelpBtnClick);
-        this.ui.btnVideo.on(Laya.Event.CLICK, this, this.onVideoBtnClick);
-    }
-    // @ts-ignore
-    renew(iconStr, desc) {
-        this.ui.imgIcon.skin = iconStr;
-        this.ui.lblDesc.text = desc;
-    }
-}
 //# sourceMappingURL=SkyDropController.js.map

@@ -2,7 +2,7 @@
     "x":0,
     "type":"View",
     "selectedBox":19,
-    "selecteID":14,
+    "selecteID":13,
     "props":{"width":600,"sceneColor":"#000000","height":400},
     "nodeParent":-1,
     "label":"View",
@@ -109,7 +109,7 @@
                 {
                     "x":30,
                     "type":"Label",
-                    "props":{"y":445,"x":89,"width":578,"var":"txtItemName","text":"先知球x1","strokeColor":"#946430","stroke":2,"height":50,"fontSize":50,"color":"#ffebbc","bold":true,"align":"center"},
+                    "props":{"y":445,"x":89,"width":578,"var":"txtItemName","text":"先知球x1","strokeColor":"#946430","stroke":2,"overflow":"visible","height":50,"fontSize":40,"color":"#ffebbc","bold":true,"align":"center"},
                     "nodeParent":19,
                     "label":"Label(txtItemName)",
                     "isDirectory":false,

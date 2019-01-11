@@ -93,7 +93,10 @@ class StrengthenView extends BaseView {
                                     if (_res && _res.type) {
                                         userData.refreshSkillAddition(_btnInfo.skillId);
                                         that.refreshBoxUI(_btnInfo.skillId);
-                                        MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.18"));
+                                        let bone = new BoneAnim("qhcg");
+                                        AlignUtils.setToScreenGoldenPos(bone);
+                                        LayerMgr.Instance.addToLayer(bone, LAYER_TYPE.SCREEN_EFFECT_LAYER);
+                                        // MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.18"));
                                         StrengthenManager.Instance.checkRedPoint();
                                         if (_res.hasOwnProperty("essence")) {
                                             userData.setEssence(MathUtils.parseInt(_res.essence));

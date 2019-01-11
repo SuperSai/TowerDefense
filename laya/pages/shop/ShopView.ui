@@ -1,8 +1,8 @@
 {
     "x":0,
     "type":"View",
-    "selectedBox":106,
-    "selecteID":379,
+    "selectedBox":134,
+    "selecteID":135,
     "props":{"y":0,"x":0,"width":726,"sceneColor":"#000000","height":1030},
     "nodeParent":-1,
     "label":"View",
@@ -192,7 +192,7 @@
                                 {
                                     "x":60,
                                     "type":"Box",
-                                    "props":{"y":190,"x":110,"width":620,"renderType":"render","height":150},
+                                    "props":{"width":620,"renderType":"render","height":150},
                                     "nodeParent":134,
                                     "label":"Box",
                                     "isOpen":true,

@@ -32,7 +32,6 @@ class LuckPrizeView extends BaseView {
         //移除红点
         userData.removeLuckPrizeRedPoint();
         self.showMyDiamond(PlayerManager.Instance.Info.userDiamond);
-        this.ui.imgLabel.skin = "images/luckLottery/luck_" + HallManager.Instance.hallData.magnification + ".png";
     }
     addEvents() {
         super.addEvents();
@@ -57,6 +56,7 @@ class LuckPrizeView extends BaseView {
                 this.freeTime = MathUtils.parseInt(_res.remain_time);
                 this.nextFreeTime = MathUtils.parseInt(_res.next_free);
                 HallManager.Instance.hallData.magnification = MathUtils.parseInt(_res.reward_x);
+                this.ui.imgLabel.skin = "images/luckLottery/luck_" + HallManager.Instance.hallData.magnification + ".png";
             }
             this.costDiamond = MathUtils.parseInt(_res.roulette_price);
             //免费次数已用完

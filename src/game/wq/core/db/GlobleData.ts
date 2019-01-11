@@ -60,7 +60,6 @@ class GlobleData extends Laya.EventDispatcher {
     private onEnterFrameLoader(): void {
         let self = this;
         if (self._currParseCount >= self._needParseCount) {
-            TimerManager.Instance.remove(self.onEnterFrameLoader, self);
             this._hasParasComplete = true;
             if (self._callBack) self._callBack();
         }
@@ -92,7 +91,9 @@ class GlobleData extends Laya.EventDispatcher {
             let csvStr: string = JSON.stringify(data_json);
             self.starSingleParse(csvStr);
         } catch (error) {
-            HttpManager.Instance.requestSaveLog(error);
+            HttpManager.Instance.requestSaveLog(error
+                + "\r\n key:" + key
+                + "\r\n 数据:" + data);
             self._jsonCount--;
         } finally {
             this.onEnterFrameLoader();

@@ -509,16 +509,11 @@ class BattleManager extends Laya.EventDispatcher {
             }
             else if (barrier.id) {
                 let stageId = barrier.id; //关卡
-                try {
-                    if (stageId.indexOf('_') != -1) {
-                        stageId = stageId.substr(0, stageId.indexOf('_')); //取出关卡id
-                        if (stageId == barrierSectionId) {
-                            barrierArr.push(barrier);
-                        }
+                if (stageId.indexOf('_') != -1) {
+                    stageId = stageId.substr(0, stageId.indexOf('_')); //取出关卡id
+                    if (stageId == barrierSectionId) {
+                        barrierArr.push(barrier);
                     }
-                }
-                catch (error) {
-                    HttpManager.Instance.requestSaveLog(error);
                 }
             }
         }
