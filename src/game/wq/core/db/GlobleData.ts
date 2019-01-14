@@ -87,13 +87,19 @@ class GlobleData extends Laya.EventDispatcher {
         let self = this;
         let data = Laya.loader.getRes(key);
         try {
-            let data_json: any = JSON.parse(data);
-            let csvStr: string = JSON.stringify(data_json);
-            self.starSingleParse(csvStr);
+            if (data) {
+                let data_json: any = JSON.parse(data);
+                let csvStr: string = JSON.stringify(data_json);
+                self.starSingleParse(csvStr);
+            }
         } catch (error) {
             HttpManager.Instance.requestSaveLog(error
                 + "\r\n key:" + key
                 + "\r\n 数据:" + data);
+            M.sdk.showToast({
+                title: '网络异常，正在重新加载',
+                duration: 4500
+            });
             self._jsonCount--;
         } finally {
             this.onEnterFrameLoader();

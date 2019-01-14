@@ -67,7 +67,7 @@ class MainLoadingView extends Laya.Sprite {
             { url: "res/atlas/images/core.atlas", type: Laya.Loader.ATLAS },
             { url: "res/atlas/images/novice.atlas", type: Laya.Loader.ATLAS },
             { url: "res/atlas/images/hall.atlas", type: Laya.Loader.ATLAS },
-            { url: "images/bg.jpg", type: Laya.Loader.IMAGE }
+            { url: "images/hall/bg.jpg", type: Laya.Loader.IMAGE }
         ]);
         this._loadAssets(resList);
     }

@@ -549,11 +549,11 @@ class HallScene extends ui.hall.HallSceneUI {
         let mEnterTime: number = <number>stageSectionCfg["mEnterTime" + i];
         let mNum: number = <number>stageSectionCfg["mNum" + i];
         if (mId > 0) {
-          Laya.timer.once(mEnterTime * 1400, that, () => {
+          Laya.timer.once(mEnterTime * 1800, that, () => {
             if (HallManager.Instance.hallData.gameStatus < 1 || HallManager.Instance.hallData.monsterArray.length > 10) return;
             for (let k: number = 0; k < mNum; k++) {
               let monsterSp: MonsterSprite = new MonsterSprite();
-              monsterSp.setBornDelayFun(that, 1200 * k, () => {
+              monsterSp.setBornDelayFun(that, 1400 * k, () => {
                 that.roadView.addChild(monsterSp);
                 monsterSp.setKind(mId);
                 monsterSp.pos(that.imgBorn.x, that.imgBorn.y + that.imgBorn.height / 2);
@@ -1300,7 +1300,7 @@ class HallScene extends ui.hall.HallSceneUI {
     }
     HallManager.Instance.hallData.userAcceTime += acceTime;
     if (isEffect) {
-      let bone: BoneAnim = userData.isEvolution() ? new BoneAnim("anger_2") : new BoneAnim("anger_1");
+      let bone: BoneAnim = new BoneAnim("anger");
       AlignUtils.setToScreenGoldenPos(bone);
       LayerMgr.Instance.addToLayer(bone, LAYER_TYPE.SCREEN_EFFECT_LAYER);
     }
@@ -1719,7 +1719,7 @@ class HallScene extends ui.hall.HallSceneUI {
     if (userData.offlineRewardCount > 0) {
       if (self._diamondTime > 0) {
         self.txt_diamondTime.text = TimeUtil.S2H(self._diamondTime, ":", false);
-        TimerManager.Instance.doTimer(1000, 0, self.onUpdateTime, self);
+        this.timerLoop(1000, self, self.onUpdateTime);
       } else if (self._diamondTime <= 0) {
         self.txt_diamondTime.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.28");
       }
@@ -1734,7 +1734,7 @@ class HallScene extends ui.hall.HallSceneUI {
       self._diamondTime -= 1000;
       self.txt_diamondTime.text = TimeUtil.S2H(self._diamondTime, ":", false);
     } else {
-      TimerManager.Instance.remove(self.onUpdateTime, self);
+      this.clearTimer(self, self.onUpdateTime);
       self.txt_diamondTime.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.28");
     }
   }

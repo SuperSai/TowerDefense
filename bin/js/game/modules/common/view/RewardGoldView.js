@@ -19,7 +19,7 @@ class RewardGoldView extends BaseView {
         let monsterInfo = BattleManager.Instance.getUnLockMonster(monsterType, monsterLevel);
         if (monsterInfo) {
             let curPrice = BattleManager.Instance.getMonsterPrice(monsterInfo.buyPrice, userData.queryBuyRecord(monsterInfo.id));
-            self._money = curPrice * 0.8;
+            self._money = curPrice * 5;
         }
         self.ui.txt_gold.text = MathUtils.bytesToSize(self._money);
     }

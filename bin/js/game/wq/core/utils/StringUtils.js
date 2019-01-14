@@ -277,28 +277,39 @@ class StringUtils {
         if (!iterator)
             return "@FREEMAN ERROR: iterator undefined at StringUtils.iteratorToString()";
         const tabStr = StringUtils.repeatString(" ", tab);
+        const tabIncreaseSize = 2;
         if (typeof iterator === "object") {
             let brackets = ["{", "}"];
-            let array = false;
+            let isArrayIterator = false;
             if (iterator instanceof Array) {
                 brackets = ["[", "]"];
-                array = true;
+                isArrayIterator = true;
             }
             let result = brackets[0] + "\r\n";
             for (const key in iterator) {
                 if (typeof iterator[key] === "object") {
-                    if (array) {
-                        result += tabStr + "  " + StringUtils.iteratorToString(iterator[key], tab + 2);
+                    if (tab < 5 * tabIncreaseSize) { // 大于5层的嵌套不再展开
+                        if (isArrayIterator) {
+                            result += tabStr + "  " + StringUtils.iteratorToString(iterator[key], tab + tabIncreaseSize);
+                        }
+                        else {
+                            result += tabStr + "  " + String(key) + " : " + StringUtils.iteratorToString(iterator[key], tab + tabIncreaseSize);
+                        }
                     }
                     else {
-                        result += tabStr + "  " + String(key) + " : " + StringUtils.iteratorToString(iterator[key], tab + 2);
+                        if (isArrayIterator) {
+                            result += tabStr + "  " + String(iterator[key]) + ",\r\n";
+                        }
+                        else {
+                            result += tabStr + "  " + String(key) + " : " + String(iterator[key]) + ",\r\n";
+                        }
                     }
                 }
                 else if (typeof iterator[key] === "function") {
                 }
                 else {
                     const value = typeof iterator[key] === "string" ? "\"" + String(iterator[key]) + "\"" : String(iterator[key]);
-                    if (array) {
+                    if (isArrayIterator) {
                         result += tabStr + "  " + value + ",\r\n";
                     }
                     else {
@@ -306,8 +317,8 @@ class StringUtils {
                     }
                 }
             }
-            if (result.lastIndexOf(",\r\n") === result.length - 3) {
-                result = result.substr(0, result.length - 3) + "\r\n";
+            if (result.lastIndexOf(",\r\n") === result.length - tabIncreaseSize - 1) {
+                result = result.substr(0, result.length - tabIncreaseSize - 1) + "\r\n";
             }
             if (tab === 0) {
                 result += tabStr + brackets[1];

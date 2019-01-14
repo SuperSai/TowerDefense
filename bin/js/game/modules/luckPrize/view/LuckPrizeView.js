@@ -75,41 +75,11 @@ class LuckPrizeView extends BaseView {
     onStart() {
         let that = this;
         that.startBtnEnabled(true);
-        if (that.freeTimes > 0) {
-            //免费抽奖
-            HttpManager.Instance.requestDrawPrize(0, (_res) => {
-                if (!_res || _res.id == null) {
-                    console.log("无法正常抽奖free");
-                    that.startBtnEnabled(false);
-                    return;
-                }
-                that.isFreeDrawing = true;
-                let itemId = _res.id;
-                let rotation = (8 - itemId) * 360 / 8 + 360 / 16;
-                that.onRotation(360 * 7 + rotation, itemId);
-                that.freeTimes--;
-                that.freeTime = 0;
-                //移除红点
-                userData.removeLuckPrizeRedPoint();
-                this.refreshDiamondText();
-            });
+        if (that.freeTimes > 0) { //免费抽奖
+            this.handlerFreeLottery();
         }
-        else if (M.player.Info.userDiamond >= that.costDiamond) {
-            //钻石抽奖
-            HttpManager.Instance.requestDrawPrize(1, (_res) => {
-                if (!_res || _res.id == null) {
-                    console.log("无法正常抽奖diamond");
-                    that.startBtnEnabled(false);
-                    return;
-                }
-                let itemId = _res.id;
-                let rotation = (8 - itemId) * 360 / 8 + 360 / 16;
-                that.onRotation(360 * 7 + rotation, itemId);
-                that.freeTimes--;
-                that.freeTime = 0;
-                //刷新钻石数量
-                HttpManager.Instance.requestDiamondData();
-            });
+        else if (M.player.Info.userDiamond >= that.costDiamond) { //钻石抽奖
+            this.handlerDiamondLottery();
         }
         else {
             MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.04"));
@@ -164,6 +134,7 @@ class LuckPrizeView extends BaseView {
                         ViewMgr.Ins.open(ViewConst.LuckPrizeBoxView, () => {
                             this.ui.imgLabel.skin = "images/luckLottery/luck_" + HallManager.Instance.hallData.magnification + ".png";
                             that.startBtnEnabled(false);
+                            this.handlerFreeLottery();
                         }, that.prizeItemTable[_itemId - 1]);
                     }
                     this._isRunning = false;
@@ -194,6 +165,42 @@ class LuckPrizeView extends BaseView {
     showMyDiamond(value) {
         let self = this;
         self.ui.txt_diamond.text = value + "";
+    }
+    /** 免费抽奖 */
+    handlerFreeLottery() {
+        HttpManager.Instance.requestDrawPrize(0, (_res) => {
+            if (!_res || _res.id == null) {
+                console.log("无法正常抽奖free");
+                this.startBtnEnabled(false);
+                return;
+            }
+            this.isFreeDrawing = true;
+            let itemId = _res.id;
+            let rotation = (8 - itemId) * 360 / 8 + 360 / 16;
+            this.onRotation(360 * 7 + rotation, itemId);
+            this.freeTimes--;
+            this.freeTime = 0;
+            //移除红点
+            userData.removeLuckPrizeRedPoint();
+            this.refreshDiamondText();
+        });
+    }
+    /** 钻石抽奖 */
+    handlerDiamondLottery() {
+        HttpManager.Instance.requestDrawPrize(1, (_res) => {
+            if (!_res || _res.id == null) {
+                console.log("无法正常抽奖diamond");
+                this.startBtnEnabled(false);
+                return;
+            }
+            let itemId = _res.id;
+            let rotation = (8 - itemId) * 360 / 8 + 360 / 16;
+            this.onRotation(360 * 7 + rotation, itemId);
+            this.freeTimes--;
+            this.freeTime = 0;
+            //刷新钻石数量
+            HttpManager.Instance.requestDiamondData();
+        });
     }
     refreshDiamondText() {
         let self = this;

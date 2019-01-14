@@ -63,13 +63,13 @@ class HallManager extends Laya.EventDispatcher {
 
     /** 获取森林王是否可以升级 */
     public getKingIsUpgrade(): boolean {
-        let self = this;
         if (!HallManager.Instance.hallData.isUpdate) {
             let kingLevel: number = userData.getKingLevel();
             let kingVO: KindLevelConfigVO = GlobleData.getData(GlobleData.KindLevelConfigVO, kingLevel);
+            if (!kingVO) return false;
             //需要钻石
             let diamond: number = M.player.Info.userDiamond;
-            let needDiamond: number = MathUtils.parseInt(kingVO.gemxh.toString());
+            let needDiamond: number = MathUtils.parseInt(kingVO.gemxh + "");
             let itemNum: number = userData.caculateMonsterCount(EvolutionManager.Instance.getHeroId());
             let needItemNum: number = 3;
             if (kingLevel > 10) {

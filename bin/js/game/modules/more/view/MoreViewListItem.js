@@ -27,7 +27,7 @@ class MoreViewListItem extends Laya.Component {
                 if (i <= this._vo.questAwards.length) {
                     awardItems[i].visible = true;
                     const icon = awardItems[i].getChildByName("imgAwardIcon");
-                    icon && (icon.skin = GlobleData.getData(GlobleData.ItemVO, this._vo.questAwards[i].awardId).smallIcon);
+                    icon && (icon.skin = "images/core/" + GlobleData.getData(GlobleData.ItemVO, this._vo.questAwards[i].awardId).smallIcon + ".png");
                     const label = awardItems[i].getChildByName("lblAwardNum");
                     label && label.changeText(MathUtils.bytesToSize(this._vo.questAwards[i].awardNum));
                 }

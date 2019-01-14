@@ -1,8 +1,8 @@
 {
     "x":0,
     "type":"View",
-    "selectedBox":11,
-    "selecteID":3,
+    "selectedBox":1,
+    "selecteID":11,
     "props":{"width":608,"sceneWidth":750,"sceneHeight":1334,"sceneColor":"#000000","sceneBg":"laya/views/luckPrize/LuckPrizeBoxView.jpg","height":721},
     "nodeParent":-1,
     "label":"View",
@@ -67,7 +67,7 @@
                 {
                     "x":30,
                     "type":"Button",
-                    "props":{"y":597,"x":140,"var":"btn_get","stateNum":"1","skin":"images/component/yellow_btn.png","labelStrokeColor":"#946430","labelStroke":2,"labelSize":50,"labelColors":"#ffffff,#ffffff,#ffffff,#ffffff","labelBold":true,"label":"领取"},
+                    "props":{"y":597,"x":140,"var":"btn_get","stateNum":"1","skin":"images/component/yellow_btn.png","labelStrokeColor":"#946430","labelStroke":2,"labelSize":35,"labelColors":"#ffffff,#ffffff,#ffffff,#ffffff","labelBold":true,"label":"看视频免费抽1次"},
                     "nodeParent":11,
                     "label":"Button(btn_get)",
                     "isDirectory":false,

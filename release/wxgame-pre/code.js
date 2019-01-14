@@ -970,28 +970,39 @@ class StringUtils {
         if (!iterator)
             return "@FREEMAN ERROR: iterator undefined at StringUtils.iteratorToString()";
         const tabStr = StringUtils.repeatString(" ", tab);
+        const tabIncreaseSize = 2;
         if (typeof iterator === "object") {
             let brackets = ["{", "}"];
-            let array = false;
+            let isArrayIterator = false;
             if (iterator instanceof Array) {
                 brackets = ["[", "]"];
-                array = true;
+                isArrayIterator = true;
             }
             let result = brackets[0] + "\r\n";
             for (const key in iterator) {
                 if (typeof iterator[key] === "object") {
-                    if (array) {
-                        result += tabStr + "  " + StringUtils.iteratorToString(iterator[key], tab + 2);
+                    if (tab < 5 * tabIncreaseSize) { // 大于5层的嵌套不再展开
+                        if (isArrayIterator) {
+                            result += tabStr + "  " + StringUtils.iteratorToString(iterator[key], tab + tabIncreaseSize);
+                        }
+                        else {
+                            result += tabStr + "  " + String(key) + " : " + StringUtils.iteratorToString(iterator[key], tab + tabIncreaseSize);
+                        }
                     }
                     else {
-                        result += tabStr + "  " + String(key) + " : " + StringUtils.iteratorToString(iterator[key], tab + 2);
+                        if (isArrayIterator) {
+                            result += tabStr + "  " + String(iterator[key]) + ",\r\n";
+                        }
+                        else {
+                            result += tabStr + "  " + String(key) + " : " + String(iterator[key]) + ",\r\n";
+                        }
                     }
                 }
                 else if (typeof iterator[key] === "function") {
                 }
                 else {
                     const value = typeof iterator[key] === "string" ? "\"" + String(iterator[key]) + "\"" : String(iterator[key]);
-                    if (array) {
+                    if (isArrayIterator) {
                         result += tabStr + "  " + value + ",\r\n";
                     }
                     else {
@@ -999,8 +1010,8 @@ class StringUtils {
                     }
                 }
             }
-            if (result.lastIndexOf(",\r\n") === result.length - 3) {
-                result = result.substr(0, result.length - 3) + "\r\n";
+            if (result.lastIndexOf(",\r\n") === result.length - tabIncreaseSize - 1) {
+                result = result.substr(0, result.length - tabIncreaseSize - 1) + "\r\n";
             }
             if (tab === 0) {
                 result += tabStr + brackets[1];
@@ -8003,7 +8014,7 @@ var ui;
                 this.createView(ui.luckPrize.LuckPrizeBoxViewUI.uiView);
             }
         }
-        LuckPrizeBoxViewUI.uiView = { "type": "View", "props": { "width": 608, "height": 721 }, "child": [{ "type": "Box", "props": { "y": 0, "x": 0, "width": 630, "height": 721 }, "child": [{ "type": "Image", "props": { "y": 355, "x": 300, "width": 600, "var": "imgLight", "skin": "images/hall/common_bg_light.png", "height": 600, "anchorY": 0.5, "anchorX": 0.5 } }, { "type": "Image", "props": { "skin": "images/luckLottery/luck_item_title_2.png" } }, { "type": "Image", "props": { "y": 263, "x": 225, "skin": "images/component/frame_9calce_03.png", "scaleY": 1.2, "scaleX": 1.2, "sizeGrid": "26,31,23,28" } }, { "type": "Button", "props": { "y": 597, "x": 140, "var": "btn_get", "stateNum": 1, "skin": "images/component/yellow_btn.png", "labelStrokeColor": "#946430", "labelStroke": 2, "labelSize": 50, "labelColors": "#ffffff,#ffffff,#ffffff,#ffffff", "labelBold": true, "label": "领取" } }, { "type": "Image", "props": { "y": 295, "x": 252, "skin": "images/luckLottery/luck_item_box.png" } }, { "type": "Label", "props": { "y": 483, "x": 219, "text": "中大奖啦", "strokeColor": "#946430", "stroke": 2, "fontSize": 45, "color": "#ffebbc", "bold": true, "align": "center" } }, { "type": "Label", "props": { "y": 533, "x": 131, "var": "txt_des", "text": "下次转盘2倍奖励", "strokeColor": "#946430", "stroke": 2, "fontSize": 45, "color": "#ffebbc", "bold": true, "align": "center" } }, { "type": "Button", "props": { "y": 0, "x": 536, "var": "btnExit", "stateNum": 1, "skin": "images/component/frame_close_btn.png" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }] }] };
+        LuckPrizeBoxViewUI.uiView = { "type": "View", "props": { "width": 608, "height": 721 }, "child": [{ "type": "Box", "props": { "y": 0, "x": 0, "width": 630, "height": 721 }, "child": [{ "type": "Image", "props": { "y": 355, "x": 300, "width": 600, "var": "imgLight", "skin": "images/hall/common_bg_light.png", "height": 600, "anchorY": 0.5, "anchorX": 0.5 } }, { "type": "Image", "props": { "skin": "images/luckLottery/luck_item_title_2.png" } }, { "type": "Image", "props": { "y": 263, "x": 225, "skin": "images/component/frame_9calce_03.png", "scaleY": 1.2, "scaleX": 1.2, "sizeGrid": "26,31,23,28" } }, { "type": "Button", "props": { "y": 597, "x": 140, "var": "btn_get", "stateNum": 1, "skin": "images/component/yellow_btn.png", "labelStrokeColor": "#946430", "labelStroke": 2, "labelSize": 35, "labelColors": "#ffffff,#ffffff,#ffffff,#ffffff", "labelBold": true, "label": "看视频免费抽1次" } }, { "type": "Image", "props": { "y": 295, "x": 252, "skin": "images/luckLottery/luck_item_box.png" } }, { "type": "Label", "props": { "y": 483, "x": 219, "text": "中大奖啦", "strokeColor": "#946430", "stroke": 2, "fontSize": 45, "color": "#ffebbc", "bold": true, "align": "center" } }, { "type": "Label", "props": { "y": 533, "x": 131, "var": "txt_des", "text": "下次转盘2倍奖励", "strokeColor": "#946430", "stroke": 2, "fontSize": 45, "color": "#ffebbc", "bold": true, "align": "center" } }, { "type": "Button", "props": { "y": 0, "x": 536, "var": "btnExit", "stateNum": 1, "skin": "images/component/frame_close_btn.png" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }] }] };
         luckPrize.LuckPrizeBoxViewUI = LuckPrizeBoxViewUI;
     })(luckPrize = ui.luckPrize || (ui.luckPrize = {}));
 })(ui || (ui = {}));
@@ -8742,7 +8753,7 @@ class RewardGoldView extends BaseView {
         let monsterInfo = BattleManager.Instance.getUnLockMonster(monsterType, monsterLevel);
         if (monsterInfo) {
             let curPrice = BattleManager.Instance.getMonsterPrice(monsterInfo.buyPrice, userData.queryBuyRecord(monsterInfo.id));
-            self._money = curPrice * 0.8;
+            self._money = curPrice * 5;
         }
         self.ui.txt_gold.text = MathUtils.bytesToSize(self._money);
     }
@@ -9691,9 +9702,15 @@ class NoviceManager extends EventDispatcher {
     }
     init(groupId) {
         this._currGroupId = groupId || this._currGroupId || 1;
-        this._finalGroupId =
-            NoviceGuide.dataArr[NoviceGuide.dataArr.length - 1].groupId;
-        this._activateTargets = [];
+        try {
+            this._finalGroupId =
+                NoviceGuide.dataArr[NoviceGuide.dataArr.length - 1].groupId;
+            this._activateTargets = [];
+        }
+        catch (e) {
+            console.error("@FREEMAN: 新手引导模块初始化完成节点发成错误：", e);
+            this._finalGroupId = 1;
+        }
     }
     get isComplete() {
         return this._currGroupId > this._finalGroupId;
@@ -9712,145 +9729,143 @@ class NoviceManager extends EventDispatcher {
     }
     start(container) {
         NoviceManager.isComplete = this.isComplete;
-        if (NoviceManager.isComplete) {
-            return;
+        if (!NoviceManager.isComplete) {
+            if (container) {
+                this._container = container;
+            }
+            else {
+                this._container = LayerMgr.Instance.getLayerByType(LAYER_TYPE.GUIDE_LAYER);
+            }
+            this._currStepId = 0;
+            this._currGroupSheets = [].concat(NoviceGuide.getSheetByFieldValue("groupId", this._currGroupId));
+            this.ui = new ui.guide.NoviceViewUI();
+            this.ui.mouseEnabled = true;
+            this.ui.mouseThrough = true;
+            this.ui.viewStackNovice.selectedIndex = NoviceType.NONE;
+            this.ui.visible = false;
+            this.ui.btnReturnNovice1.on(Laya.Event.CLICK, this, this.__onCompleteNovice);
+            this.ui.btnReturnNovice2.on(Laya.Event.CLICK, this, this.__onCompleteNovice);
+            this._container.addChild(this.ui);
+            Laya.timer.frameOnce(10, this, this.nextStep);
         }
-        if (container) {
-            this._container = container;
-        }
-        else {
-            this._container = LayerMgr.Instance.getLayerByType(LAYER_TYPE.GUIDE_LAYER);
-        }
-        this._currStepId = 0;
-        this._currGroupSheets = [].concat(NoviceGuide.getSheetByFieldValue("groupId", this._currGroupId));
-        this.ui = new ui.guide.NoviceViewUI();
-        this.ui.mouseEnabled = true;
-        this.ui.mouseThrough = true;
-        this.ui.viewStackNovice.selectedIndex = NoviceType.NONE;
-        this.ui.visible = false;
-        this.ui.btnReturnNovice1.on(Laya.Event.CLICK, this, this.onCompleteNovice);
-        this.ui.btnReturnNovice2.on(Laya.Event.CLICK, this, this.onCompleteNovice);
-        this._container.addChild(this.ui);
-        Laya.timer.frameOnce(10, this, this.nextStep);
-    }
-    onCompleteNovice() {
-        M.novice.complete();
     }
     nextGroup() {
-        this._currGroupId++;
-        this.saveGroupId(this._currGroupId);
-        if (!this.isComplete) {
-            this._currGroupSheets = [].concat(NoviceGuide.getSheetByFieldValue("groupId", this._currGroupId));
-            this._currStepId = 0;
-            this.nextStep();
-        }
-        else {
-            LayerMgr.Instance.getLayerByType(LAYER_TYPE.GUIDE_LAYER).off(Laya.Event.CLICK, this, this.onMaskClick);
-            Laya.Tween.clearAll(this.ui.imgFinger);
-            NoviceManager.isComplete = true;
-            this.offAll();
-            if (this._activateTargets.length) {
-                this.recoverTargets();
+        if (!NoviceManager.isComplete) {
+            this._currGroupId++;
+            this.saveGroupId(this._currGroupId);
+            if (!this.isComplete) {
+                this._currGroupSheets = [].concat(NoviceGuide.getSheetByFieldValue("groupId", this._currGroupId));
+                this._currStepId = 0;
+                this.nextStep();
             }
-            this._currGroupSheets.length = 0;
-            this._currGroupSheets = null;
-            this._currSheet = null;
-            this.ui.destroy();
-            this.ui = null;
+            else {
+                this.complete();
+            }
         }
     }
     nextStep() {
-        Laya.Tween.clearAll(this.ui.imgFinger);
-        this.ui.visible = true;
-        this.ui.viewInteract.visible = false;
-        this._currStepId++;
-        if (this._currGroupSheets &&
-            this._currStepId <= this._currGroupSheets.length) {
-            const sheet = this._currGroupSheets[this._currStepId - 1];
-            this._currSheet = sheet;
-            if (sheet.activateType !== 0) {
-                this._currStepId = 0;
-                this.ui.removeSelf();
-                this.sendWaitingEvent();
-                return;
-            }
-            if (!this.ui.parent) {
-                this._container.addChild(this.ui);
-            }
-            if (sheet.completed === 1) {
-                // UserModel.novice.saveGroupId(this._currGroupId + 1);
-                this.saveGroupId(this._currGroupId + 1);
-            }
-            this._currStepType = sheet.type;
-            const position = StringUtils.splitStringToPoint(sheet.position);
-            if (this._currStepType === NoviceType.DEFAULT) {
-                // 剧情对话
-                LayerMgr.Instance.getLayerByType(LAYER_TYPE.GUIDE_LAYER).maskEnabled = true;
-                this.ui.viewStackNovice.selectedIndex = NoviceType.DEFAULT - 1;
-                this.updateDisplay(sheet, position.x, position.y);
-                this.activateMaskClick();
-            }
-            else if (this._currStepType === NoviceType.CLICK) {
-                // 点击指引
-                LayerMgr.Instance.getLayerByType(LAYER_TYPE.GUIDE_LAYER).maskEnabled = false;
-                this.ui.mouseEnabled = true;
-                this.ui.viewStackNovice.selectedIndex = NoviceType.CLICK - 1;
-                this.ui.viewStackNovice.mouseEnabled = true;
-                this.updateDisplay(sheet, position.x, position.y);
-                // 手指位置更新，手指位置注册点是图片左上角，坐标系的零点是点击区域的中间
-                if (sheet.fingerPosition) {
-                    const fingerPos = StringUtils.splitStringToPoint(sheet.fingerPosition);
-                    this.ui.imgFinger.pos(fingerPos.x, fingerPos.y);
+        if (!NoviceManager.isComplete) {
+            Laya.Tween.clearAll(this.ui.imgFinger);
+            this.ui.visible = true;
+            this.ui.viewInteract.visible = false;
+            this._currStepId++;
+            if (this._currGroupSheets &&
+                this._currStepId <= this._currGroupSheets.length) {
+                const sheet = this._currGroupSheets[this._currStepId - 1];
+                this._currSheet = sheet;
+                if (sheet.activateType !== 0) {
+                    this._currStepId = 0;
+                    this.ui.removeSelf();
+                    this.sendWaitingEvent();
+                    return;
+                }
+                if (!this.ui.parent) {
+                    this._container.addChild(this.ui);
+                }
+                if (sheet.completed === 1) {
+                    this.saveGroupId(this._currGroupId + 1);
+                }
+                this._currStepType = sheet.type;
+                const position = StringUtils.splitStringToPoint(sheet.position);
+                if (this._currStepType === NoviceType.DEFAULT) {
+                    // 剧情对话
+                    LayerMgr.Instance.getLayerByType(LAYER_TYPE.GUIDE_LAYER).maskEnabled = true;
+                    this.ui.viewStackNovice.selectedIndex = NoviceType.DEFAULT - 1;
+                    this.updateDisplay(sheet, position.x, position.y);
+                    this.activateMaskClick();
+                }
+                else if (this._currStepType === NoviceType.CLICK) {
+                    // 点击指引
+                    LayerMgr.Instance.getLayerByType(LAYER_TYPE.GUIDE_LAYER).maskEnabled = false;
+                    this.ui.mouseEnabled = true;
+                    this.ui.viewStackNovice.selectedIndex = NoviceType.CLICK - 1;
+                    this.ui.viewStackNovice.mouseEnabled = true;
+                    this.updateDisplay(sheet, position.x, position.y);
+                    // 手指位置更新，手指位置注册点是图片左上角，坐标系的零点是点击区域的中间
+                    if (sheet.fingerPosition) {
+                        const fingerPos = StringUtils.splitStringToPoint(sheet.fingerPosition);
+                        this.ui.imgFinger.pos(fingerPos.x, fingerPos.y);
+                    }
+                    else {
+                        this.ui.imgFinger.pos(30, 30);
+                    }
+                    this.manuallyEventOut();
+                }
+                else if (this._currStepType === NoviceType.DRAG) {
+                    // 拖拽指引
+                    LayerMgr.Instance.getLayerByType(LAYER_TYPE.GUIDE_LAYER).maskEnabled = false;
+                    this.ui.viewStackNovice.selectedIndex = NoviceType.CLICK - 1;
+                    this.ui.viewStackNovice.mouseEnabled = false;
+                    this.ui.viewInteract.visible = true;
+                    this.updateDisplay(sheet, position.x, position.y);
+                    this.updateSpecialInteractArea(sheet);
+                    if (sheet.fingerPosition) {
+                        const points = StringUtils.splitStringToKV(sheet.fingerPosition);
+                        this.doDragAnimation(parseInt(points[0].key), parseInt(points[0].value), parseInt(points[1].key), parseInt(points[1].value));
+                    }
+                    this.manuallyEventOut();
                 }
                 else {
-                    this.ui.imgFinger.pos(30, 30);
+                    console.log("指引类型未实现！");
                 }
-                this.manuallyEventOut();
-            }
-            else if (this._currStepType === NoviceType.DRAG) {
-                // 拖拽指引
-                LayerMgr.Instance.getLayerByType(LAYER_TYPE.GUIDE_LAYER).maskEnabled = false;
-                this.ui.viewStackNovice.selectedIndex = NoviceType.CLICK - 1;
-                this.ui.viewStackNovice.mouseEnabled = false;
-                this.ui.viewInteract.visible = true;
-                this.updateDisplay(sheet, position.x, position.y);
-                this.updateSpecialInteractArea(sheet);
-                if (sheet.fingerPosition) {
-                    const points = StringUtils.splitStringToKV(sheet.fingerPosition);
-                    this.doDragAnimation(parseInt(points[0].key), parseInt(points[0].value), parseInt(points[1].key), parseInt(points[1].value));
-                }
-                this.manuallyEventOut();
             }
             else {
-                console.log("指引类型未实现！");
+                this.nextGroup();
             }
-        }
-        else {
-            this.nextGroup();
         }
     }
     manuallyEventOut() {
-        if (this._currSheet) {
+        if (!NoviceManager.isComplete && this._currSheet) {
             Laya.timer.once(Time.SEC_IN_MILI * 0.05, this, () => {
                 this.event(NoviceEvent.ACTIVATE_TARGET, this._currSheet.eventParam);
             });
         }
     }
     sendWaitingEvent() {
-        if (this._currSheet) {
+        if (!NoviceManager.isComplete && this._currSheet) {
             Laya.timer.once(Time.SEC_IN_MILI * 0.05, this, () => {
                 this.event(NoviceEvent.WAITING, { type: this._currSheet.activateType, value: this._currSheet.activateValue });
             });
         }
     }
     complete() {
-        if (!this.isComplete) {
-            this._currGroupId = 999;
-            this.nextStep();
+        if (!NoviceManager.isComplete) {
+            NoviceManager.isComplete = true;
+            this.saveGroupId(this._currGroupId = 999);
+            LayerMgr.Instance.getLayerByType(LAYER_TYPE.GUIDE_LAYER).off(Laya.Event.CLICK, this, this.onMaskClick);
+            if (this.ui) {
+                this.ui.btnReturnNovice1.off(Laya.Event.CLICK, this, this.__onCompleteNovice);
+                this.ui.btnReturnNovice2.off(Laya.Event.CLICK, this, this.__onCompleteNovice);
+                this.ui && Laya.Tween.clearAll(this.ui.imgFinger);
+                this.ui.destroy();
+            }
+            this.offAll();
+            this.recoverTargets();
+            this._currGroupSheets && (this._currGroupSheets.length = 0);
         }
     }
     activateTargets(targetObjs) {
-        if (targetObjs) {
+        if (!NoviceManager.isComplete && targetObjs) {
             for (const targetObj of targetObjs) {
                 const childIdx = targetObj.parent.getChildIndex(targetObj.target);
                 targetObj.childIdx = childIdx;
@@ -9862,26 +9877,33 @@ class NoviceManager extends EventDispatcher {
     }
     // prettier-ignore
     activateClickTarget(target, targetName, parent, subTargets) {
-        this.activateTargets(subTargets);
-        const childIdx = parent.getChildIndex(target);
-        target.on(Laya.Event.CLICK, this, this.onTargetClick, [target, targetName, parent, childIdx, subTargets]);
-        PointUtils.parentToParent(target, this.ui.viewClickTargetContainer, true);
-        this.ui.viewClickTargetContainer.addChild(target);
-        this._activateTargets.push({ target, parent, childIdx });
+        if (!NoviceManager.isComplete) {
+            this.activateTargets(subTargets);
+            const childIdx = parent.getChildIndex(target);
+            target.on(Laya.Event.CLICK, this, this.onTargetClick, [target, targetName, parent, childIdx, subTargets]);
+            PointUtils.parentToParent(target, this.ui.viewClickTargetContainer, true);
+            this.ui.viewClickTargetContainer.addChild(target);
+            this._activateTargets.push({ target, parent, childIdx });
+        }
+    }
+    __onCompleteNovice() {
+        this.complete();
     }
     // prettier-ignore
     onTargetClick(target, targetName, parent, childIdx, subTargets) {
-        if (!this._currSheet || !this._currSheet.eventParam)
-            return;
-        if (targetName === this._currSheet.eventParam) {
-            LayerMgr.Instance.getLayerByType(LAYER_TYPE.GUIDE_LAYER).maskEnabled = true;
-            target.off(Laya.Event.CLICK, this, this.onTargetClick);
-            this.recoverTargets();
-            this.nextStep();
+        if (!NoviceManager.isComplete) {
+            if (!this._currSheet || !this._currSheet.eventParam)
+                return;
+            if (targetName === this._currSheet.eventParam) {
+                LayerMgr.Instance.getLayerByType(LAYER_TYPE.GUIDE_LAYER).maskEnabled = true;
+                target.off(Laya.Event.CLICK, this, this.onTargetClick);
+                this.recoverTargets();
+                this.nextStep();
+            }
         }
     }
     recoverTargets() {
-        while (this._activateTargets.length) {
+        while (this._activateTargets && this._activateTargets.length) {
             const targetObj = this._activateTargets.pop();
             targetObj.target.off(Laya.Event.CLICK, this, this.onTargetClick);
             PointUtils.parentToParent(targetObj.target, targetObj.parent, true);
@@ -9889,23 +9911,25 @@ class NoviceManager extends EventDispatcher {
         }
     }
     updateDisplay(sheet, sx, sy) {
-        // 对话位置，注册点是角色的左上角
-        this.ui.imgDialogCharacter.pos(sx, sy);
-        this.ui.imgClickCharacter.pos(sx, sy);
-        // 对话文本
-        this.ui.lblDialogScript.text = sheet.script;
-        this.ui.lblClickScript.text = sheet.script;
-        // 蒙板抠图位置更新
-        if (sheet.interactPosition) {
-            const maskPos = StringUtils.splitStringToPoint(sheet.interactPosition);
-            this.ui.viewInteractArea.pos(maskPos.x, maskPos.y);
-        }
-        else {
-            this.ui.viewInteractArea.pos(0, 0);
+        if (!NoviceManager.isComplete) {
+            // 对话位置，注册点是角色的左上角
+            this.ui.imgDialogCharacter.pos(sx, sy);
+            this.ui.imgClickCharacter.pos(sx, sy);
+            // 对话文本
+            this.ui.lblDialogScript.text = sheet.script;
+            this.ui.lblClickScript.text = sheet.script;
+            // 蒙板抠图位置更新
+            if (sheet.interactPosition) {
+                const maskPos = StringUtils.splitStringToPoint(sheet.interactPosition);
+                this.ui.viewInteractArea.pos(maskPos.x, maskPos.y);
+            }
+            else {
+                this.ui.viewInteractArea.pos(0, 0);
+            }
         }
     }
     updateSpecialInteractArea(sheet) {
-        if (sheet && sheet.specialInteractArea) {
+        if (!NoviceManager.isComplete && sheet && sheet.specialInteractArea) {
             const rect = StringUtils.splitStringToArr(sheet.specialInteractArea);
             this.ui.imgTop.pos(0, 0).size(LayerManager.stageDesignWidth, parseInt(rect[1]));
             this.ui.imgRight.pos(parseInt(rect[0]) + parseInt(rect[2]), parseInt(rect[1])).size((LayerManager.stageDesignWidth - (parseInt(rect[0]) + parseInt(rect[2]))), parseInt(rect[3]));
@@ -9914,7 +9938,7 @@ class NoviceManager extends EventDispatcher {
         }
     }
     doDragAnimation(sx, sy, tx, ty) {
-        if (this.ui) {
+        if (!NoviceManager.isComplete) {
             this.ui.imgFinger.pos(sx, sy);
             Laya.Tween.to(this.ui.imgFinger, { x: tx, y: ty }, 500, null, Laya.Handler.create(this, () => {
                 Laya.timer.once(500, this, this.doDragAnimation, [sx, sy, tx, ty]);
@@ -9934,7 +9958,7 @@ class NoviceManager extends EventDispatcher {
         }
     }
     saveGroupId(groupId) {
-        if (this._saveFunc) {
+        if (this._saveFunc && groupId !== undefined) {
             this._saveFunc(groupId);
         }
     }
@@ -10026,13 +10050,14 @@ class HallManager extends Laya.EventDispatcher {
     }
     /** 获取森林王是否可以升级 */
     getKingIsUpgrade() {
-        let self = this;
         if (!HallManager.Instance.hallData.isUpdate) {
             let kingLevel = userData.getKingLevel();
             let kingVO = GlobleData.getData(GlobleData.KindLevelConfigVO, kingLevel);
+            if (!kingVO)
+                return false;
             //需要钻石
             let diamond = M.player.Info.userDiamond;
-            let needDiamond = MathUtils.parseInt(kingVO.gemxh.toString());
+            let needDiamond = MathUtils.parseInt(kingVO.gemxh + "");
             let itemNum = userData.caculateMonsterCount(EvolutionManager.Instance.getHeroId());
             let needItemNum = 3;
             if (kingLevel > 10) {
@@ -10773,12 +10798,12 @@ class HallScene extends ui.hall.HallSceneUI {
                 let mEnterTime = stageSectionCfg["mEnterTime" + i];
                 let mNum = stageSectionCfg["mNum" + i];
                 if (mId > 0) {
-                    Laya.timer.once(mEnterTime * 1400, that, () => {
+                    Laya.timer.once(mEnterTime * 1800, that, () => {
                         if (HallManager.Instance.hallData.gameStatus < 1 || HallManager.Instance.hallData.monsterArray.length > 10)
                             return;
                         for (let k = 0; k < mNum; k++) {
                             let monsterSp = new MonsterSprite();
-                            monsterSp.setBornDelayFun(that, 1200 * k, () => {
+                            monsterSp.setBornDelayFun(that, 1400 * k, () => {
                                 that.roadView.addChild(monsterSp);
                                 monsterSp.setKind(mId);
                                 monsterSp.pos(that.imgBorn.x, that.imgBorn.y + that.imgBorn.height / 2);
@@ -11520,7 +11545,7 @@ class HallScene extends ui.hall.HallSceneUI {
         }
         HallManager.Instance.hallData.userAcceTime += acceTime;
         if (isEffect) {
-            let bone = userData.isEvolution() ? new BoneAnim("anger_2") : new BoneAnim("anger_1");
+            let bone = new BoneAnim("anger");
             AlignUtils.setToScreenGoldenPos(bone);
             LayerMgr.Instance.addToLayer(bone, LAYER_TYPE.SCREEN_EFFECT_LAYER);
         }
@@ -11922,7 +11947,7 @@ class HallScene extends ui.hall.HallSceneUI {
         if (userData.offlineRewardCount > 0) {
             if (self._diamondTime > 0) {
                 self.txt_diamondTime.text = TimeUtil.S2H(self._diamondTime, ":", false);
-                TimerManager.Instance.doTimer(1000, 0, self.onUpdateTime, self);
+                this.timerLoop(1000, self, self.onUpdateTime);
             }
             else if (self._diamondTime <= 0) {
                 self.txt_diamondTime.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.28");
@@ -11939,7 +11964,7 @@ class HallScene extends ui.hall.HallSceneUI {
             self.txt_diamondTime.text = TimeUtil.S2H(self._diamondTime, ":", false);
         }
         else {
-            TimerManager.Instance.remove(self.onUpdateTime, self);
+            this.clearTimer(self, self.onUpdateTime);
             self.txt_diamondTime.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.28");
         }
     }
@@ -12361,41 +12386,11 @@ class LuckPrizeView extends BaseView {
     onStart() {
         let that = this;
         that.startBtnEnabled(true);
-        if (that.freeTimes > 0) {
-            //免费抽奖
-            HttpManager.Instance.requestDrawPrize(0, (_res) => {
-                if (!_res || _res.id == null) {
-                    console.log("无法正常抽奖free");
-                    that.startBtnEnabled(false);
-                    return;
-                }
-                that.isFreeDrawing = true;
-                let itemId = _res.id;
-                let rotation = (8 - itemId) * 360 / 8 + 360 / 16;
-                that.onRotation(360 * 7 + rotation, itemId);
-                that.freeTimes--;
-                that.freeTime = 0;
-                //移除红点
-                userData.removeLuckPrizeRedPoint();
-                this.refreshDiamondText();
-            });
+        if (that.freeTimes > 0) { //免费抽奖
+            this.handlerFreeLottery();
         }
-        else if (M.player.Info.userDiamond >= that.costDiamond) {
-            //钻石抽奖
-            HttpManager.Instance.requestDrawPrize(1, (_res) => {
-                if (!_res || _res.id == null) {
-                    console.log("无法正常抽奖diamond");
-                    that.startBtnEnabled(false);
-                    return;
-                }
-                let itemId = _res.id;
-                let rotation = (8 - itemId) * 360 / 8 + 360 / 16;
-                that.onRotation(360 * 7 + rotation, itemId);
-                that.freeTimes--;
-                that.freeTime = 0;
-                //刷新钻石数量
-                HttpManager.Instance.requestDiamondData();
-            });
+        else if (M.player.Info.userDiamond >= that.costDiamond) { //钻石抽奖
+            this.handlerDiamondLottery();
         }
         else {
             MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.04"));
@@ -12450,6 +12445,7 @@ class LuckPrizeView extends BaseView {
                         ViewMgr.Ins.open(ViewConst.LuckPrizeBoxView, () => {
                             this.ui.imgLabel.skin = "images/luckLottery/luck_" + HallManager.Instance.hallData.magnification + ".png";
                             that.startBtnEnabled(false);
+                            this.handlerFreeLottery();
                         }, that.prizeItemTable[_itemId - 1]);
                     }
                     this._isRunning = false;
@@ -12480,6 +12476,42 @@ class LuckPrizeView extends BaseView {
     showMyDiamond(value) {
         let self = this;
         self.ui.txt_diamond.text = value + "";
+    }
+    /** 免费抽奖 */
+    handlerFreeLottery() {
+        HttpManager.Instance.requestDrawPrize(0, (_res) => {
+            if (!_res || _res.id == null) {
+                console.log("无法正常抽奖free");
+                this.startBtnEnabled(false);
+                return;
+            }
+            this.isFreeDrawing = true;
+            let itemId = _res.id;
+            let rotation = (8 - itemId) * 360 / 8 + 360 / 16;
+            this.onRotation(360 * 7 + rotation, itemId);
+            this.freeTimes--;
+            this.freeTime = 0;
+            //移除红点
+            userData.removeLuckPrizeRedPoint();
+            this.refreshDiamondText();
+        });
+    }
+    /** 钻石抽奖 */
+    handlerDiamondLottery() {
+        HttpManager.Instance.requestDrawPrize(1, (_res) => {
+            if (!_res || _res.id == null) {
+                console.log("无法正常抽奖diamond");
+                this.startBtnEnabled(false);
+                return;
+            }
+            let itemId = _res.id;
+            let rotation = (8 - itemId) * 360 / 8 + 360 / 16;
+            this.onRotation(360 * 7 + rotation, itemId);
+            this.freeTimes--;
+            this.freeTime = 0;
+            //刷新钻石数量
+            HttpManager.Instance.requestDiamondData();
+        });
     }
     refreshDiamondText() {
         let self = this;
@@ -12765,7 +12797,7 @@ class MoreViewListItem extends Laya.Component {
                 if (i <= this._vo.questAwards.length) {
                     awardItems[i].visible = true;
                     const icon = awardItems[i].getChildByName("imgAwardIcon");
-                    icon && (icon.skin = GlobleData.getData(GlobleData.ItemVO, this._vo.questAwards[i].awardId).smallIcon);
+                    icon && (icon.skin = "images/core/" + GlobleData.getData(GlobleData.ItemVO, this._vo.questAwards[i].awardId).smallIcon + ".png");
                     const label = awardItems[i].getChildByName("lblAwardNum");
                     label && label.changeText(MathUtils.bytesToSize(this._vo.questAwards[i].awardNum));
                 }
@@ -14485,14 +14517,20 @@ class GlobleData extends Laya.EventDispatcher {
         let self = this;
         let data = Laya.loader.getRes(key);
         try {
-            let data_json = JSON.parse(data);
-            let csvStr = JSON.stringify(data_json);
-            self.starSingleParse(csvStr);
+            if (data) {
+                let data_json = JSON.parse(data);
+                let csvStr = JSON.stringify(data_json);
+                self.starSingleParse(csvStr);
+            }
         }
         catch (error) {
             HttpManager.Instance.requestSaveLog(error
                 + "\r\n key:" + key
                 + "\r\n 数据:" + data);
+            M.sdk.showToast({
+                title: '网络异常，正在重新加载',
+                duration: 4500
+            });
             self._jsonCount--;
         }
         finally {
@@ -15384,7 +15422,7 @@ class MainLoadingView extends Laya.Sprite {
             { url: "res/atlas/images/core.atlas", type: Laya.Loader.ATLAS },
             { url: "res/atlas/images/novice.atlas", type: Laya.Loader.ATLAS },
             { url: "res/atlas/images/hall.atlas", type: Laya.Loader.ATLAS },
-            { url: "images/bg.jpg", type: Laya.Loader.IMAGE }
+            { url: "images/hall/bg.jpg", type: Laya.Loader.IMAGE }
         ]);
         this._loadAssets(resList);
     }
