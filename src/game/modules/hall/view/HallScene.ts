@@ -1617,10 +1617,10 @@ class HallScene extends ui.hall.HallSceneUI {
       } else {
         curSection = 1;
         self.setPassStage(HallManager.Instance.hallData.passStage + 1);
+        //查询是否有成就任务完成
+        HallManager.Instance.checkIsGetAchievementReward();
       }
       self.setPassSection(curSection);
-      //查询是否有成就任务完成
-      HallManager.Instance.checkIsGetAchievementReward();
       //创建怪物
       self.createMonster(HallManager.Instance.hallData.passStage, HallManager.Instance.hallData.passSection);
     });

@@ -60,28 +60,27 @@ class AchiRewardView extends BaseView {
 
     private onGetReward(): void {
         this.off(Laya.Event.CLICK, this, this.onGetReward);
-        if (this.datas[0].reward_type != "money") {
-            HttpManager.Instance.requestTaskReward(this.datas[0].id, (res) => {
-                if (res) {
-                    if (res.code == 1) {
-                        ViewMgr.Ins.close(ViewConst.AchiRewardView);
+        HttpManager.Instance.requestTaskReward(this.datas[0].id, (res) => {
+            if (res) {
+                if (res.code == 1) {
+                    ViewMgr.Ins.close(ViewConst.AchiRewardView);
+                    if (this.datas[0].reward_type != "money") {
                         MessageUtils.showMsgTips("成就奖励:" + this._rewardName + "x" + this._awardNum);
                         let point: Laya.Point = PointUtils.localToGlobal(this.ui.imgIcon);
                         LayerMgr.Instance.addToLayer(new FlyEffect().play("diamond", point.x, point.y), LAYER_TYPE.SCREEN_EFFECT_LAYER);
                         EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: M.player.Info.userDiamond += this._awardNum });
-                    } else if (res.code === 2) {
-                        ViewMgr.Ins.close(ViewConst.AchiRewardView);
-                        MessageUtils.showMsgTips("成就奖励领取失败！");
+                    } else {
+                        MessageUtils.showMsgTips("成就奖励:" + this._rewardName + "x" + MathUtils.bytesToSize(this._awardNum));
+                        let point: Laya.Point = PointUtils.localToGlobal(this.ui.imgIcon);
+                        LayerMgr.Instance.addToLayer(new FlyEffect().play("rollingCoin", point.x, point.y), LAYER_TYPE.SCREEN_EFFECT_LAYER);
+                        EventsManager.Instance.event(EventsType.GOLD_CHANGE, { money: M.player.Info.userMoney += this._awardNum });
                     }
+                } else if (res.code === 2) {
+                    ViewMgr.Ins.close(ViewConst.AchiRewardView);
+                    MessageUtils.showMsgTips("成就奖励领取失败！");
                 }
-            }, 2)
-        } else {
-            ViewMgr.Ins.close(ViewConst.AchiRewardView);
-            MessageUtils.showMsgTips("成就奖励:" + this._rewardName + "x" + MathUtils.bytesToSize(this._awardNum));
-            let point: Laya.Point = PointUtils.localToGlobal(this.ui.imgIcon);
-            LayerMgr.Instance.addToLayer(new FlyEffect().play("rollingCoin", point.x, point.y), LAYER_TYPE.SCREEN_EFFECT_LAYER);
-            EventsManager.Instance.event(EventsType.GOLD_CHANGE, { money: M.player.Info.userMoney += this._awardNum });
-        }
+            }
+        }, 2)
     }
 
     private getGold(): number {

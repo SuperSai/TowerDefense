@@ -203,6 +203,8 @@ class HallManager extends Laya.EventDispatcher {
     checkIsGetAchievementReward() {
         HttpManager.Instance.requestAchievementInfo((data) => {
             let listData = data;
+            if (!listData || listData.length < 1)
+                return;
             let taskInfo = null;
             for (let index = 0; index < listData.length; index++) {
                 const element = listData[index];
