@@ -8,6 +8,7 @@ class ManagerShortcuts {
         this.hall = HallManager.Instance;
         this.http = HttpManager.Instance;
         this.event = EventsManager.Instance;
+        this.sdk = SDKManager.Instance;
     }
 }
 //# sourceMappingURL=ManagerShortcuts.js.map

@@ -60,12 +60,7 @@ class MainLoadingView extends Laya.Sprite {
             }
         });
     }
-    // private _time:number = 0;
     loadRemoteRes() {
-        // if(this._time == 0){
-        //     this._time++;
-        //     return;
-        // }
         let resList = BattleManager.Instance.getStartLoadPetData();
         resList = resList.concat([
             { url: "res/atlas/images/component.atlas", type: Laya.Loader.ATLAS },
@@ -74,10 +69,27 @@ class MainLoadingView extends Laya.Sprite {
             { url: "res/atlas/images/hall.atlas", type: Laya.Loader.ATLAS },
             { url: "images/bg.jpg", type: Laya.Loader.IMAGE }
         ]);
-        if (resList.length) {
-            console.log("@David 预加载英雄资源，数量：" + resList.length);
-            Laya.loader.load(resList, Handler.create(this, () => {
-                this.startGame();
+        this._loadAssets(resList);
+    }
+    _loadAssets(assets) {
+        if (assets.length) {
+            Laya.loader.load(assets, Handler.create(this, () => {
+                for (let i = 0; i < assets.length; i++) {
+                    if (Laya.loader.getRes(assets[i].url)) {
+                        assets.splice(i, 1);
+                        i--;
+                    }
+                }
+                if (assets.length) {
+                    M.sdk.showToast({
+                        title: '网络异常，正在重新加载',
+                        duration: 4500
+                    });
+                    this._loadAssets(assets);
+                }
+                else {
+                    this.startGame();
+                }
             }), Handler.create(this, (percentage) => {
                 this.updateLoadingProgress(percentage * 100);
             }, null, false));

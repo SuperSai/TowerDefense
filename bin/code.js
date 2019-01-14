@@ -5450,6 +5450,20 @@ class SDKManager {
             }
         });
     }
+    showToast(param) {
+        if (Laya.Browser.onMiniGame) {
+            param && (param.icon || (param.icon = "none"));
+            Laya.Browser.window.wx.showToast(param);
+        }
+        else {
+            console.log("@FREEMAN: wx.showToast(param), param:", param);
+        }
+    }
+    hideToast() {
+        if (Laya.Browser.onMiniGame) {
+            Laya.Browser.window.wx.hideToast();
+        }
+    }
     /** 显示banner广告 */
     showBannerAd() {
         let self = this;
@@ -7746,7 +7760,7 @@ var ui;
                     this.createView(ui.common.view.SkyDropViewUI.uiView);
                 }
             }
-            SkyDropViewUI.uiView = { "type": "View", "props": { "width": 717, "height": 634 }, "child": [{ "type": "Box", "props": { "y": 0, "x": 0, "width": 717, "height": 634 }, "child": [{ "type": "Image", "props": { "y": 69, "width": 716, "skin": "images/component/frame_9calce_01.png", "height": 565, "sizeGrid": "168,65,62,82" } }, { "type": "Button", "props": { "y": 65, "x": 632, "var": "btnClose", "stateNum": 1, "skin": "images/component/frame_close_btn.png" } }, { "type": "Image", "props": { "x": 63, "skin": "images/skyDrop/title.png" } }, { "type": "Button", "props": { "y": 468, "x": 76, "var": "btnHelp", "stateNum": 1, "skin": "images/component/blue_btn.png", "labelStrokeColor": "#306294", "labelStroke": 4, "labelSize": 32, "labelColors": "#FFFFFF", "labelBold": true, "label": "求助" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }, { "type": "Button", "props": { "y": 468, "x": 405, "width": 240, "var": "btnVideo", "stateNum": 1, "skin": "images/component/normal_btn.png", "sizeGrid": "40,77,43,84", "labelStrokeColor": "#946430", "labelStroke": 4, "labelSize": 32, "labelColors": "#FFFFFF", "labelBold": true, "label": "领取", "height": 100 }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }, { "type": "HBox", "props": { "y": 401, "x": 358, "var": "hbox2", "anchorY": 0.5, "anchorX": 0.5, "align": "middle" }, "child": [{ "type": "Label", "props": { "y": 2, "x": 196, "text": "秒", "fontSize": 40, "font": "SimHei", "color": "#884a00", "bold": true } }, { "type": "Label", "props": { "text": "持续", "fontSize": 40, "font": "SimHei", "color": "#884a00", "bold": true } }, { "type": "Label", "props": { "y": 0, "x": 81.5625, "width": 68.578125, "var": "lblDuration", "text": "180", "height": 44, "fontSize": 44, "font": "SimHei", "color": "#eb6626", "bold": true, "align": "center" } }] }, { "type": "HBox", "props": { "y": 314, "x": 358, "var": "hbox1", "anchorY": 0.5, "anchorX": 0.5, "align": "middle" }, "child": [{ "type": "Label", "props": { "var": "lblDesc", "text": "英雄攻击力增加", "fontSize": 40, "font": "SimHei", "color": "#884a00", "bold": true, "align": "right" } }, { "type": "Label", "props": { "y": 3, "x": 294, "var": "lblNum", "text": "50%", "fontSize": 44, "font": "SimHei", "color": "#eb6626", "bold": true } }] }] }] };
+            SkyDropViewUI.uiView = { "type": "View", "props": { "width": 717, "height": 634 }, "child": [{ "type": "Box", "props": { "y": 0, "x": 0, "width": 717, "height": 634 }, "child": [{ "type": "Image", "props": { "y": 69, "width": 716, "skin": "images/component/frame_9calce_01.png", "height": 565, "sizeGrid": "168,65,62,82" } }, { "type": "Button", "props": { "y": 65, "x": 632, "var": "btnClose", "stateNum": 1, "skin": "images/component/frame_close_btn.png" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }, { "type": "Image", "props": { "x": 63, "skin": "images/skyDrop/title.png" } }, { "type": "Button", "props": { "y": 468, "x": 76, "var": "btnHelp", "stateNum": 1, "skin": "images/component/blue_btn.png", "labelStrokeColor": "#306294", "labelStroke": 4, "labelSize": 32, "labelColors": "#FFFFFF", "labelBold": true, "label": "求助" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }, { "type": "Button", "props": { "y": 468, "x": 405, "width": 240, "var": "btnVideo", "stateNum": 1, "skin": "images/component/normal_btn.png", "sizeGrid": "40,77,43,84", "labelStrokeColor": "#946430", "labelStroke": 4, "labelSize": 32, "labelColors": "#FFFFFF", "labelBold": true, "label": "领取", "height": 100 }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }, { "type": "HBox", "props": { "y": 401, "x": 358, "var": "hbox2", "anchorY": 0.5, "anchorX": 0.5, "align": "middle" }, "child": [{ "type": "Label", "props": { "y": 2, "x": 196, "text": "秒", "fontSize": 40, "font": "SimHei", "color": "#884a00", "bold": true } }, { "type": "Label", "props": { "text": "持续", "fontSize": 40, "font": "SimHei", "color": "#884a00", "bold": true } }, { "type": "Label", "props": { "y": 0, "x": 81.5625, "width": 68.578125, "var": "lblDuration", "text": "180", "height": 44, "fontSize": 44, "font": "SimHei", "color": "#eb6626", "bold": true, "align": "center" } }] }, { "type": "HBox", "props": { "y": 314, "x": 358, "var": "hbox1", "anchorY": 0.5, "anchorX": 0.5, "align": "middle" }, "child": [{ "type": "Label", "props": { "var": "lblDesc", "text": "英雄攻击力增加", "fontSize": 40, "font": "SimHei", "color": "#884a00", "bold": true, "align": "right" } }, { "type": "Label", "props": { "y": 3, "x": 294, "var": "lblNum", "text": "50%", "fontSize": 44, "font": "SimHei", "color": "#eb6626", "bold": true } }] }] }] };
             view.SkyDropViewUI = SkyDropViewUI;
         })(view = common.view || (common.view = {}));
     })(common = ui.common || (ui.common = {}));
@@ -15363,12 +15377,7 @@ class MainLoadingView extends Laya.Sprite {
             }
         });
     }
-    // private _time:number = 0;
     loadRemoteRes() {
-        // if(this._time == 0){
-        //     this._time++;
-        //     return;
-        // }
         let resList = BattleManager.Instance.getStartLoadPetData();
         resList = resList.concat([
             { url: "res/atlas/images/component.atlas", type: Laya.Loader.ATLAS },
@@ -15377,10 +15386,27 @@ class MainLoadingView extends Laya.Sprite {
             { url: "res/atlas/images/hall.atlas", type: Laya.Loader.ATLAS },
             { url: "images/bg.jpg", type: Laya.Loader.IMAGE }
         ]);
-        if (resList.length) {
-            console.log("@David 预加载英雄资源，数量：" + resList.length);
-            Laya.loader.load(resList, Handler.create(this, () => {
-                this.startGame();
+        this._loadAssets(resList);
+    }
+    _loadAssets(assets) {
+        if (assets.length) {
+            Laya.loader.load(assets, Handler.create(this, () => {
+                for (let i = 0; i < assets.length; i++) {
+                    if (Laya.loader.getRes(assets[i].url)) {
+                        assets.splice(i, 1);
+                        i--;
+                    }
+                }
+                if (assets.length) {
+                    M.sdk.showToast({
+                        title: '网络异常，正在重新加载',
+                        duration: 4500
+                    });
+                    this._loadAssets(assets);
+                }
+                else {
+                    this.startGame();
+                }
             }), Handler.create(this, (percentage) => {
                 this.updateLoadingProgress(percentage * 100);
             }, null, false));
@@ -15542,6 +15568,7 @@ class ManagerShortcuts {
         this.hall = HallManager.Instance;
         this.http = HttpManager.Instance;
         this.event = EventsManager.Instance;
+        this.sdk = SDKManager.Instance;
     }
 }
 //# sourceMappingURL=ManagerShortcuts.js.map
@@ -15801,7 +15828,7 @@ class Main {
             M.layer.renderLayer.addChild(this._loginView);
         }
         else {
-            Laya.ResourceVersion.enable("version.json", Handler.create(null, this.beginLoad), Laya.ResourceVersion.FILENAME_VERSION);
+            Laya.ResourceVersion.enable("version.json", Handler.create(this, this.beginLoad), Laya.ResourceVersion.FILENAME_VERSION);
         }
     }
     onLoginSubmit({ account, pwd }) {
@@ -15815,7 +15842,7 @@ class Main {
                 console.log("@FREEMAN: 请求帐号密码登录:", { account, pwd }, res);
                 M.player.account = account;
                 M.player.token = res.token;
-                Laya.ResourceVersion.enable("version.json", Handler.create(null, this.beginLoad), Laya.ResourceVersion.FILENAME_VERSION);
+                Laya.ResourceVersion.enable("version.json", Handler.create(this, this.beginLoad), Laya.ResourceVersion.FILENAME_VERSION);
             },
             fail: ({ error_code, msg }) => {
                 console.log("@FREEMAN: 帐号或密码错误:", { error_code, msg });
@@ -15826,7 +15853,7 @@ class Main {
     }
     beginLoad() {
         const domain = PathConfig.RES_URL;
-        Laya.loader.load([
+        const assets = [
             "loading/start_bg.jpg",
             "loading/loading_bg.jpg",
             "loading/bar.png",
@@ -15835,10 +15862,30 @@ class Main {
             domain + "loading/start_btn.png",
             domain + "config/language.txt",
             domain + "sheets/sheet.json",
-        ], Handler.create(this, () => {
-            EffectUtils.stopWaitEffect();
-            M.layer.renderLayer.addChild(new MainLoadingView());
-            Laya.URL.basePath = domain;
+        ];
+        this._loadAssets(assets, domain);
+    }
+    _loadAssets(assets, domain) {
+        Laya.loader.load(assets, Handler.create(this, () => {
+            for (let i = 0; i < assets.length; i++) {
+                if (Laya.loader.getRes(assets[i])) {
+                    assets.splice(i, 1);
+                    i--;
+                }
+            }
+            if (assets.length) {
+                M.sdk.showToast({
+                    title: '网络异常，正在重新加载',
+                    duration: 4500
+                });
+                this._loadAssets(assets, domain);
+            }
+            else {
+                M.sdk.hideToast();
+                EffectUtils.stopWaitEffect();
+                M.layer.renderLayer.addChild(new MainLoadingView());
+                Laya.URL.basePath = domain;
+            }
         }));
     }
 }

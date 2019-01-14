@@ -39,7 +39,7 @@ class Main {
             M.layer.renderLayer.addChild(this._loginView);
         }
         else {
-            Laya.ResourceVersion.enable("version.json", Handler.create(null, this.beginLoad), Laya.ResourceVersion.FILENAME_VERSION);
+            Laya.ResourceVersion.enable("version.json", Handler.create(this, this.beginLoad), Laya.ResourceVersion.FILENAME_VERSION);
         }
     }
     onLoginSubmit({ account, pwd }) {
@@ -53,7 +53,7 @@ class Main {
                 console.log("@FREEMAN: 请求帐号密码登录:", { account, pwd }, res);
                 M.player.account = account;
                 M.player.token = res.token;
-                Laya.ResourceVersion.enable("version.json", Handler.create(null, this.beginLoad), Laya.ResourceVersion.FILENAME_VERSION);
+                Laya.ResourceVersion.enable("version.json", Handler.create(this, this.beginLoad), Laya.ResourceVersion.FILENAME_VERSION);
             },
             fail: ({ error_code, msg }) => {
                 console.log("@FREEMAN: 帐号或密码错误:", { error_code, msg });
@@ -64,7 +64,7 @@ class Main {
     }
     beginLoad() {
         const domain = PathConfig.RES_URL;
-        Laya.loader.load([
+        const assets = [
             "loading/start_bg.jpg",
             "loading/loading_bg.jpg",
             "loading/bar.png",
@@ -73,10 +73,30 @@ class Main {
             domain + "loading/start_btn.png",
             domain + "config/language.txt",
             domain + "sheets/sheet.json",
-        ], Handler.create(this, () => {
-            EffectUtils.stopWaitEffect();
-            M.layer.renderLayer.addChild(new MainLoadingView());
-            Laya.URL.basePath = domain;
+        ];
+        this._loadAssets(assets, domain);
+    }
+    _loadAssets(assets, domain) {
+        Laya.loader.load(assets, Handler.create(this, () => {
+            for (let i = 0; i < assets.length; i++) {
+                if (Laya.loader.getRes(assets[i])) {
+                    assets.splice(i, 1);
+                    i--;
+                }
+            }
+            if (assets.length) {
+                M.sdk.showToast({
+                    title: '网络异常，正在重新加载',
+                    duration: 4500
+                });
+                this._loadAssets(assets, domain);
+            }
+            else {
+                M.sdk.hideToast();
+                EffectUtils.stopWaitEffect();
+                M.layer.renderLayer.addChild(new MainLoadingView());
+                Laya.URL.basePath = domain;
+            }
         }));
     }
 }

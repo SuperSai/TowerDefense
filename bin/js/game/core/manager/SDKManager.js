@@ -34,6 +34,20 @@ class SDKManager {
             }
         });
     }
+    showToast(param) {
+        if (Laya.Browser.onMiniGame) {
+            param && (param.icon || (param.icon = "none"));
+            Laya.Browser.window.wx.showToast(param);
+        }
+        else {
+            console.log("@FREEMAN: wx.showToast(param), param:", param);
+        }
+    }
+    hideToast() {
+        if (Laya.Browser.onMiniGame) {
+            Laya.Browser.window.wx.hideToast();
+        }
+    }
     /** 显示banner广告 */
     showBannerAd() {
         let self = this;
