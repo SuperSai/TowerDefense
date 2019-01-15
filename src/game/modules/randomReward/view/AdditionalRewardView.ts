@@ -3,18 +3,9 @@
 */
 class AdditionalRewardView extends BaseView {
 
-    private _tween: Laya.Tween;
-
     constructor() {
         super(LAYER_TYPE.SUB_FRAME_LAYER, ui.randomReward.AdditionalRewardViewUI);
         this.setResources(["randomReward"]);
-    }
-
-    //初始化
-    public initUI(): void {
-        super.initUI();
-        let self = this;
-        self._tween = EffectUtils.objectRotate(self.ui.imgLight);
     }
 
     public initData(): void {
@@ -51,9 +42,6 @@ class AdditionalRewardView extends BaseView {
     }
 
     private removeView(): void {
-        let self = this;
-        self._tween && (Laya.Tween.clear(self._tween));
-        self._tween = null;
         ViewMgr.Ins.close(ViewConst.AdditionalRewardView);
     }
 }

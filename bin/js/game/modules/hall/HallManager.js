@@ -2,6 +2,11 @@
 * 大厅管理类
 */
 class HallManager extends Laya.EventDispatcher {
+    constructor() {
+        super(...arguments);
+        /** 是否超过10秒后点击视频 */
+        this._isClickVideo = true;
+    }
     setup() {
         let self = this;
         self._model = new HallModel();
@@ -219,6 +224,16 @@ class HallManager extends Laya.EventDispatcher {
                 ViewMgr.Ins.open(ViewConst.AchiRewardView, null, taskInfo);
             }
         });
+    }
+    isClickVideoTime() {
+        if (this._isClickVideo) {
+            this._isClickVideo = false;
+            this.hall.timerOnce(10000, this, () => {
+                this._isClickVideo = true;
+            });
+            return true;
+        }
+        return false;
     }
     set hallData(value) { this._model = value; }
     /** 大厅中的数据 */

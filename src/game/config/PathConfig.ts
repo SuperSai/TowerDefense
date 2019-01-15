@@ -3,9 +3,9 @@
 */
 class PathConfig {
 
-    public static AppUrl: string = "https://pokemon.vuggame.com/api/";
+    public static AppUrl: string = "https://yamdev.xiaoduogame.cn/api/";
     public static AppResUrl: string = "https://miniapp.vuggame.com/pokemon_vuggame_com_single/";
-    public static RES_URL: string = PathConfig.AppResUrl + "v2/";
+    public static RES_URL: string = PathConfig.AppResUrl + "v3/";
     public static Language: string = PathConfig.RES_URL + "config/language.txt";
     public static MonsterUrl: string = PathConfig.RES_URL + "anim/{0}.atlas";
     public static GameResUrl: string = "images/skill/{0}.png";

@@ -1,8 +1,8 @@
 {
     "x":0,
     "type":"View",
-    "selectedBox":37,
-    "selecteID":11,
+    "selectedBox":1,
+    "selecteID":427,
     "referenceLines":null,
     "props":{"y":0,"x":0,"width":750,"sceneColor":"#000000","sceneBg":"laya/views/Game.JPG","height":1334},
     "nodeParent":-1,
@@ -474,6 +474,32 @@
                 },
                 {
                     "x":30,
+                    "type":"Button",
+                    "props":{"y":1269,"x":654,"width":84,"visible":false,"var":"btnMiniProgram","stateNum":"1","skin":"images/hall/miniProgram_icon.png","name":"btnMiniProgram","labelSize":30,"height":61,"anchorY":0.5,"anchorX":0.5},
+                    "nodeParent":2,
+                    "label":"Button(btnMiniProgram)",
+                    "isOpen":false,
+                    "isDirectory":true,
+                    "isAniNode":true,
+                    "hasChild":true,
+                    "compId":251,
+                    "child":[
+                        {
+                            "type":"Script",
+                            "source":"laya/pages/ScaleAnimScript.script",
+                            "props":{},
+                            "nodeParent":251,
+                            "label":"ScaleAnimScript",
+                            "isDirectory":false,
+                            "isAniNode":true,
+                            "hasChild":false,
+                            "compId":254,
+                            "child":[
+                                ]
+                        }]
+                },
+                {
+                    "x":30,
                     "type":"View",
                     "props":{"y":1,"x":0,"var":"menuView","name":"menuView","cacheAs":"bitmap"},
                     "nodeParent":2,
@@ -827,7 +853,7 @@
                         {
                             "x":45,
                             "type":"Button",
-                            "props":{"y":1209,"x":30,"var":"btn_fly","stateNum":"1","skin":"images/core/core_fly_icon.png","rotation":0},
+                            "props":{"y":1212,"x":30,"var":"btn_fly","stateNum":"1","skin":"images/core/core_fly_icon.png","rotation":0},
                             "nodeParent":37,
                             "label":"Button(btn_fly)",
                             "isDirectory":false,
@@ -847,19 +873,6 @@
                             "isAniNode":true,
                             "hasChild":false,
                             "compId":393,
-                            "child":[
-                                ]
-                        },
-                        {
-                            "x":45,
-                            "type":"Button",
-                            "props":{"y":266,"x":638,"var":"btn_block","stateNum":"1","skin":"images/core/core_block_icon.png","rotation":0},
-                            "nodeParent":37,
-                            "label":"Button(btn_block)",
-                            "isDirectory":false,
-                            "isAniNode":true,
-                            "hasChild":false,
-                            "compId":394,
                             "child":[
                                 ]
                         },
@@ -1177,33 +1190,7 @@
                         {
                             "x":45,
                             "type":"Button",
-                            "props":{"y":841,"x":0,"var":"btnInvitation","stateNum":1,"skin":"images/hall/hall_Invitation_icon.png"},
-                            "nodeParent":37,
-                            "label":"Button(btnInvitation)",
-                            "isOpen":false,
-                            "isDirectory":true,
-                            "isAniNode":true,
-                            "hasChild":true,
-                            "compId":422,
-                            "child":[
-                                {
-                                    "type":"Script",
-                                    "source":"laya/pages/ScaleAnimScript.script",
-                                    "props":{},
-                                    "nodeParent":422,
-                                    "label":"ScaleAnimScript",
-                                    "isDirectory":false,
-                                    "isAniNode":true,
-                                    "hasChild":false,
-                                    "compId":423,
-                                    "child":[
-                                        ]
-                                }]
-                        },
-                        {
-                            "x":45,
-                            "type":"Button",
-                            "props":{"y":931,"x":0,"var":"btnFeedback","stateNum":1,"skin":"images/hall/gbtn_feedback.png","name":"btnFeedback"},
+                            "props":{"y":843,"x":0,"var":"btnFeedback","stateNum":1,"skin":"images/hall/gbtn_feedback.png","name":"btnFeedback"},
                             "nodeParent":37,
                             "label":"Button(btnFeedback)",
                             "isOpen":false,
@@ -1229,7 +1216,7 @@
                         {
                             "x":45,
                             "type":"Button",
-                            "props":{"y":1021,"x":0,"var":"btnMore","stateNum":1,"skin":"images/hall/more_icon.png","name":"btnMore"},
+                            "props":{"y":937,"x":0,"var":"btnMore","stateNum":1,"skin":"images/hall/more_icon.png","name":"btnMore"},
                             "nodeParent":37,
                             "label":"Button(btnMore)",
                             "isOpen":false,
@@ -1267,7 +1254,7 @@
                         {
                             "x":45,
                             "type":"Button",
-                            "props":{"y":1107,"x":30,"var":"btnAcce","stateNum":1,"skin":"images/hall/gbtn_acce.png","scaleY":1,"scaleX":1,"name":"btnAcce"},
+                            "props":{"y":1101,"x":30,"var":"btnAcce","stateNum":1,"skin":"images/hall/gbtn_acce.png","scaleY":1,"scaleX":1,"name":"btnAcce"},
                             "nodeParent":37,
                             "label":"Button(btnAcce)",
                             "isOpen":false,
@@ -1303,7 +1290,7 @@
                                 },
                                 {
                                     "type":"Image",
-                                    "props":{"y":-16,"x":0,"visible":false,"skin":"images/hall/daojishi_di.png","name":"imgAcce"},
+                                    "props":{"y":-19,"x":9,"visible":false,"skin":"images/hall/daojishi_di.png","name":"imgAcce"},
                                     "nodeParent":11,
                                     "label":"Image(imgAcce)",
                                     "isOpen":true,
@@ -1325,35 +1312,49 @@
                                                 ]
                                         }]
                                 }]
+                        },
+                        {
+                            "x":45,
+                            "type":"Box",
+                            "props":{"y":282,"x":652,"width":100,"var":"btnInvitation","height":100},
+                            "nodeParent":37,
+                            "label":"Box(btnInvitation)",
+                            "isOpen":true,
+                            "isDirectory":true,
+                            "isAniNode":true,
+                            "hasChild":true,
+                            "compId":425,
+                            "child":[
+                                {
+                                    "x":60,
+                                    "type":"SkeletonPlayer",
+                                    "props":{"y":52,"x":50,"url":"images/effect/bone/yaoqing.sk"},
+                                    "nodeParent":425,
+                                    "label":"SkeletonPlayer",
+                                    "isDirectory":false,
+                                    "isAniNode":true,
+                                    "hasChild":false,
+                                    "compId":424,
+                                    "child":[
+                                        ]
+                                },
+                                {
+                                    "x":60,
+                                    "type":"Script",
+                                    "source":"laya/pages/ScaleAnimScript.script",
+                                    "props":{},
+                                    "nodeParent":425,
+                                    "label":"ScaleAnimScript",
+                                    "isDirectory":false,
+                                    "isAniNode":true,
+                                    "hasChild":false,
+                                    "compId":426,
+                                    "child":[
+                                        ]
+                                }]
                         }],
                     "$LOCKED":false,
                     "$HIDDEN":false
-                },
-                {
-                    "x":30,
-                    "type":"Button",
-                    "props":{"y":1269,"x":654,"width":84,"visible":false,"var":"btnMiniProgram","stateNum":"1","skin":"images/hall/miniProgram_icon.png","name":"btnMiniProgram","labelSize":30,"height":61,"anchorY":0.5,"anchorX":0.5},
-                    "nodeParent":2,
-                    "label":"Button(btnMiniProgram)",
-                    "isOpen":false,
-                    "isDirectory":true,
-                    "isAniNode":true,
-                    "hasChild":true,
-                    "compId":251,
-                    "child":[
-                        {
-                            "type":"Script",
-                            "source":"laya/pages/ScaleAnimScript.script",
-                            "props":{},
-                            "nodeParent":251,
-                            "label":"ScaleAnimScript",
-                            "isDirectory":false,
-                            "isAniNode":true,
-                            "hasChild":false,
-                            "compId":254,
-                            "child":[
-                                ]
-                        }]
                 },
                 {
                     "x":30,
@@ -1693,68 +1694,6 @@
         },
         {
             "nodes":[
-                {
-                    "target":394,
-                    "keyframes":{
-                        "rotation":[
-                            {
-                                "value":0,
-                                "tweenMethod":"linearNone",
-                                "tween":true,
-                                "target":394,
-                                "key":"rotation",
-                                "index":0
-                            },
-                            {
-                                "value":12,
-                                "tweenMethod":"linearNone",
-                                "tween":true,
-                                "target":394,
-                                "key":"rotation",
-                                "index":3
-                            },
-                            {
-                                "value":-12,
-                                "tweenMethod":"linearNone",
-                                "tween":true,
-                                "target":394,
-                                "key":"rotation",
-                                "index":9
-                            },
-                            {
-                                "value":8,
-                                "tweenMethod":"linearNone",
-                                "tween":true,
-                                "target":394,
-                                "key":"rotation",
-                                "index":15
-                            },
-                            {
-                                "value":-8,
-                                "tweenMethod":"linearNone",
-                                "tween":true,
-                                "target":394,
-                                "key":"rotation",
-                                "index":21
-                            },
-                            {
-                                "value":0,
-                                "tweenMethod":"linearNone",
-                                "tween":true,
-                                "target":394,
-                                "key":"rotation",
-                                "index":24
-                            },
-                            {
-                                "value":0,
-                                "tweenMethod":"linearNone",
-                                "tween":true,
-                                "target":394,
-                                "key":"rotation",
-                                "index":70
-                            }]
-                    }
-                },
                 {
                     "target":392,
                     "keyframes":{

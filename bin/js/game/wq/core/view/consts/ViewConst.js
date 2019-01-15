@@ -46,5 +46,7 @@ var ViewConst;
     ViewConst[ViewConst["AchiRewardView"] = 10022] = "AchiRewardView";
     /** 加速提示界面 */
     ViewConst[ViewConst["AccelerateTipsView"] = 10023] = "AccelerateTipsView";
+    /** 守卫升级动画界面 */
+    ViewConst[ViewConst["EvolutionLevelView"] = 10024] = "EvolutionLevelView";
 })(ViewConst || (ViewConst = {}));
 //# sourceMappingURL=ViewConst.js.map

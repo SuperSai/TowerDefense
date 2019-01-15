@@ -37,6 +37,8 @@ class GlobleData extends Laya.EventDispatcher {
     public static TrainDropVO: string = "TrainDrop_json";
     /** 物品表 */
     public static ItemVO: string = "Item_json";
+    /** 转盘中奖名单表 */
+    public static LotteryRosterVO: string = "LotteryRoster_json";
 
     private initModel(): void {
         let self = this;
@@ -48,6 +50,7 @@ class GlobleData extends Laya.EventDispatcher {
         self._totalStepCsvList.Add(GlobleData.SkillStrengthenVO, SkillStrengthenVO);
         self._totalStepCsvList.Add(GlobleData.TrainDropVO, TrainDropVO);
         self._totalStepCsvList.Add(GlobleData.ItemVO, ItemVO);
+        // self._totalStepCsvList.Add(GlobleData.LotteryRosterVO, LotteryRosterVO);
     }
 
     // 解析初始数据表

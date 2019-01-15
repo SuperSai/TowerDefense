@@ -174,7 +174,7 @@ class MaskLayer extends Layer {
             }
         }
         this._mask.off(Laya.Event.CLICK, this, this.applyClick);
-        Laya.timer.once(Time.SEC_IN_MILI, this, () => {
+        Laya.timer.once(Time.SEC_IN_MILI * 2, this, () => {
             this._mask.on(Laya.Event.CLICK, this, this.applyClick);
         });
         if (index) {

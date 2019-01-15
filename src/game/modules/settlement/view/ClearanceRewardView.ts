@@ -3,8 +3,6 @@
 */
 class ClearanceRewardView extends BaseView {
 
-    private _tween: Laya.Tween;
-
     constructor() {
         super(LAYER_TYPE.SUB_FRAME_LAYER, ui.settlement.ClearanceRewardViewUI);
         this.setResources(["ClearanceReward"]);
@@ -36,7 +34,6 @@ class ClearanceRewardView extends BaseView {
             rewardItem.create(cfgData.img, cfgData.value);
             self.ui.hbox.addChild(rewardItem);
         }
-        self._tween = EffectUtils.objectRotate(self.ui.lightImg)
     }
 
     public addEvents(): void {
@@ -66,7 +63,6 @@ class ClearanceRewardView extends BaseView {
     public close(...param: any[]): void {
         super.close(param);
         let self = this;
-        if (self._tween) Laya.Tween.clear(self._tween);
         DisplayUtils.removeAllChildren(self.ui.hbox);
         self.callback && self.callback();
     }

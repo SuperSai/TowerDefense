@@ -13,7 +13,6 @@ class OfflineRewardsView extends BaseView {
         self.ui.btnShare.visible = false;
         self._price = self.datas[0];
         self.ui.txtMoney.text = "金币+" + MathUtils.bytesToSize(self._price);
-        self._tween = EffectUtils.objectRotate(self.ui.lightImg);
     }
     addEvents() {
         super.addEvents();
@@ -48,8 +47,6 @@ class OfflineRewardsView extends BaseView {
             M.layer.screenEffectLayer.addChild(new FlyEffect().play("rollingCoin", LayerManager.mouseX, LayerManager.mouseY));
             MessageUtils.showMsgTips("获得金币:" + MathUtils.bytesToSize(self._price));
         }
-        self._tween && (Laya.Tween.clear(self._tween));
-        self._tween = null;
         EventsManager.Instance.event(EventsType.GOLD_CHANGE, { money: M.player.Info.userMoney + self._price });
     }
 }

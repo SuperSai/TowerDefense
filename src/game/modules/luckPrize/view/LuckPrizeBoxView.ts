@@ -3,8 +3,6 @@
 */
 class LuckPrizeBoxView extends BaseView {
 
-    private _tween: Laya.Tween;
-
     constructor() {
         super(LAYER_TYPE.SUB_FRAME_LAYER, ui.luckPrize.LuckPrizeBoxViewUI);
         this.myParent.maskEnabled = false;
@@ -12,7 +10,7 @@ class LuckPrizeBoxView extends BaseView {
 
     public initData(): void {
         super.initData();
-        this._tween = EffectUtils.objectRotate(this.ui.imgLight);
+        this.isRemoveBanner = false;
         if (this.datas[0]) {
             this.ui.txt_des.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.40", this.datas[0].num);
             HttpManager.Instance.requestPrizeCensus(this.datas[0].id);
@@ -62,17 +60,17 @@ class LuckPrizeBoxView extends BaseView {
                     }
                     break;
             }
-            this.callback && this.callback();
+            this.callback && this.callback(true);
             this.onCloseHandler();
         }
     }
 
     private onCloseHandler(): void {
+        this.callback && this.callback(false);
         ViewMgr.Ins.close(ViewConst.LuckPrizeBoxView);
     }
 
     public close(...param: any[]): void {
         super.close(param);
-        Laya.Tween.clear(this._tween);
     }
 }

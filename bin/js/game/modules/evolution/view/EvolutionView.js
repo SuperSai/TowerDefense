@@ -104,7 +104,7 @@ class EvolutionView extends BaseView {
     }
     evolutionLevelComplete(kingLevel, diamond) {
         let self = this;
-        MessageUtils.showMsgTips("升级成功");
+        ViewMgr.Ins.open(ViewConst.EvolutionLevelView, null, kingLevel);
         HallManager.Instance.hallData.isUpdate = false;
         if (HallManager.Instance.hall && kingLevel > HallManager.Instance.hallData.userKingLevel) {
             HallManager.Instance.hall.setKingLevel(kingLevel);

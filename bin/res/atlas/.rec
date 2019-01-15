@@ -1,6 +1,6 @@
 D .
 D config
-R A495F3BD language.txt
+R D71FC02A language.txt
 D images
 D loading
 D musics
@@ -20,6 +20,7 @@ R A06487AE BarrierConfig.json
 R D7B55D3D BarrierReward.json
 R 0FA4EFC9 Item.json
 R 843E43E6 KindLevelConfig.json
+R B6086C4D LotteryRoster.json
 R FB3CB231 Monster.json
 R 015B0E33 SkillConfig.json
 R 20D2D94D SkillStrengthen.json
@@ -135,6 +136,9 @@ D images/friendConcur
 P DA085E50 friendConcur_bg.png
 P 51E39C02 friendConcur_time_bg.png
 P 78B21B48 friendConcur_title.png
+D images/guardLevel
+R 04DB8AE2 guardlevel_num.png
+P 5DC83E9F guardlevel_txt.png
 D images/hall
 P 3035E761 acce_effect.png
 P 5131035C accelerate_icon.png
@@ -154,7 +158,7 @@ P 71296027 game_gameLasttime.png
 P 34CBD751 game_lockIcon.png
 P 9FF6FDA7 game_select_light.png
 P 3C15D3B7 gameLastTimeTip.png
-P 87CB7A5C gbtn_acce.png
+P D21A3F0B gbtn_acce.png
 P 8283E3EC gbtn_feedback.png
 P 78ED3472 gbtn_fire.png
 P 46AEBF86 gbtn_luck.png
@@ -207,6 +211,7 @@ P 27A69212 luck_item_box.png
 R 3ACAA4E1 luck_item_title.png
 R 28742DAD luck_item_title_2.png
 P 92A7675D luck_label_bg.png
+P E7420799 luck_lottery_bg.png
 P F8378FE5 luck_price_bg.png
 P D6DA3465 luck_prize_1.png
 P 01A9DB95 luck_prize_2.png
@@ -226,7 +231,7 @@ R BBF02B37 item_bg.png
 P 97EA1162 sound_closed.png
 P 31EC905B sound_opened.png
 P 6A4BFD26 subscribe.png
-P 4F395794 title.png
+P AF24E98B title.png
 D images/novice
 R D1E1B99E character.png
 P 084B8E3A finger.png

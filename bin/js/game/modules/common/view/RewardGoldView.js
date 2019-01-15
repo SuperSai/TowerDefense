@@ -42,12 +42,17 @@ class RewardGoldView extends BaseView {
         }
         else {
             if (userData.getAdTimes(12) > 0 && PlayerManager.Instance.Info.dayGetGoldCount > 0) {
-                let adStage = userData.toShareAd(() => {
-                    self.onComplete();
-                }, 12);
-                if (adStage > 0) {
-                    MessageUtils.showMsgTips("今日广告已经观看完毕!");
-                    ViewMgr.Ins.open(ViewConst.FriendConcurView);
+                if (HallManager.Instance.isClickVideoTime()) {
+                    let adStage = userData.toShareAd(() => {
+                        self.onComplete();
+                    }, 12);
+                    if (adStage > 0) {
+                        MessageUtils.showMsgTips("今日广告已经观看完毕!");
+                        ViewMgr.Ins.open(ViewConst.FriendConcurView);
+                    }
+                }
+                else {
+                    MessageUtils.showMsgTips("不能频繁看视频，10秒后再试试");
                 }
             }
             else {

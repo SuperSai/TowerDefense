@@ -159,7 +159,17 @@ class ShopView extends BaseView {
                     btnSharePrize.visible = (shareFreeCarId == carInfo.id);
                     btnSharePrize.offAll(Laya.Event.CLICK);
                     btnSharePrize.on(Laya.Event.CLICK, self, (_carInfo = null, _btnObj = null) => {
-                        this.onShareFreeCar(_carInfo, _btnObj);
+                        if (userData.isAdStage(11)) {
+                            if (HallManager.Instance.isClickVideoTime()) {
+                                this.onShareFreeCar(_carInfo, _btnObj);
+                            }
+                            else {
+                                MessageUtils.showMsgTips("不能频繁看视频，10秒后再试试");
+                            }
+                        }
+                        else {
+                            this.onShareFreeCar(_carInfo, _btnObj);
+                        }
                     }, [carInfo, btnSharePrize]);
                     //观看次数已用完
                     if (userData.getAdTimes(11) < 1 && userData.getShareTimes(11) < 1) {

@@ -167,6 +167,11 @@ class NoviceManager extends EventDispatcher {
             this.offAll();
             this.recoverTargets();
             this._currGroupSheets && (this._currGroupSheets.length = 0);
+            if (NoviceManager.cache) {
+                for (const key in NoviceManager.cache) {
+                    delete NoviceManager.cache[key];
+                }
+            }
         }
     }
     activateTargets(targetObjs) {

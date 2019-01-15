@@ -227,6 +227,19 @@ class HallManager extends Laya.EventDispatcher {
         });
     }
 
+    /** 是否超过10秒后点击视频 */
+    private _isClickVideo: boolean = true;
+    public isClickVideoTime(): boolean {
+        if (this._isClickVideo) {
+            this._isClickVideo = false;
+            this.hall.timerOnce(10000, this, () => {
+                this._isClickVideo = true;
+            })
+            return true;
+        }
+        return false;
+    }
+
 
     set hallData(value: HallModel) { this._model = value; }
     /** 大厅中的数据 */

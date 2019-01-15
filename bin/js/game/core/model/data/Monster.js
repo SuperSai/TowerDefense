@@ -347,20 +347,32 @@ class MonsterSprite extends Laya.Sprite {
         var that = this;
         //基础节点
         let effectNode = new Laya.Sprite();
+        effectNode.visible = false;
         _parentNode.addChild(effectNode);
         let pos = that.localToGlobal(new Laya.Point(0, 0));
         pos = _parentNode.globalToLocal(pos);
         effectNode.pos(pos.x + that.width / 2, pos.y + that.height / 2 - 2);
         that.setStage(4);
+        let img = new Laya.Image("images/hall/drop_box.png");
+        img.pivot(30, 30);
+        img.scale(0, 0);
+        let starPos = PointUtils.localToGlobal(HallManager.Instance.hall.imgTrain);
+        starPos = _parentNode.globalToLocal(starPos);
         let parkcarSp = new MonsterSprite();
         effectNode.addChild(parkcarSp);
         parkcarSp.loadImage("images/hall/drop_box.png", 0, 0, 60, 60);
         parkcarSp.pivot(parkcarSp.width / 2, parkcarSp.height / 2);
-        EffectUtils.playBoxDropEffect(effectNode, () => {
+        EffectUtils.verticalParabola(img, _parentNode, { x: starPos.x, y: starPos.y }, { x: effectNode.x + that.width / 2, y: effectNode.y + that.height / 2 - 2 }, 120, 360, 1000, () => {
+            effectNode.visible = true;
             parkcarSp.frameOnce(60, that, () => {
                 that.openBoxEffect();
             });
         });
+        // EffectUtils.playBoxDropEffect(effectNode, () => {
+        //     parkcarSp.frameOnce(60, that, () => {
+        //         that.openBoxEffect();
+        //     })
+        // });
         that._boxEffectNode = effectNode;
     }
     //打开宝箱

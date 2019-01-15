@@ -45,4 +45,6 @@ enum ViewConst {
     AchiRewardView,
     /** 加速提示界面 */
     AccelerateTipsView,
+    /** 守卫升级动画界面 */
+    EvolutionLevelView,
 }

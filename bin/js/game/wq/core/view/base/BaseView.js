@@ -5,6 +5,7 @@ class BaseView extends Laya.View {
     /** 构造函数 */
     constructor($layer, $class, isShowMask = true) {
         super();
+        this.isRemoveBanner = true;
         this._resources = null;
         this._myParent = LayerMgr.Instance.getLayerByType($layer);
         this._isInit = false;
@@ -94,7 +95,9 @@ class BaseView extends Laya.View {
     /** 面板关闭执行函数，用于子类继承 */
     close(...param) {
         this.removeEvents();
-        SDKManager.Instance.closeBannerAd();
+        if (this.isRemoveBanner) {
+            SDKManager.Instance.closeBannerAd();
+        }
     }
     /** 销毁 */
     destroy() {

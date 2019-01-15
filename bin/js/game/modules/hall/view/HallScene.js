@@ -274,7 +274,6 @@ class HallScene extends ui.hall.HallSceneUI {
     }
     addEvents() {
         let self = this;
-        // self.btnPower.on(Laya.Event.CLICK, self, self.onPowerAcce);
         self.btnShop.on(Laya.Event.CLICK, self, self.onShowCarport);
         self.btnCarStore.on(Laya.Event.CLICK, self, self.onCarStore);
         self.btnEvolution.on(Laya.Event.CLICK, self, self.onEvolution);
@@ -284,7 +283,6 @@ class HallScene extends ui.hall.HallSceneUI {
         self.btnMiniProgram.on(Laya.Event.CLICK, self, self.onMiniProgram);
         self.btnLuckPrize.on(Laya.Event.CLICK, self, self.showLuckPrizeView);
         self.btn_fly.on(Laya.Event.CLICK, self, self.onClickMiniProgram);
-        self.btn_block.on(Laya.Event.CLICK, self, self.onClickMiniProgram);
         self.btn_eliminate.on(Laya.Event.CLICK, self, self.onClickMiniProgram);
         self.btn_arrow.on(Laya.Event.CLICK, self, self.onClickMenuHandler);
         self.btn_concur.on(Laya.Event.CLICK, self, self.onClickConcur); //好友互助
@@ -399,6 +397,7 @@ class HallScene extends ui.hall.HallSceneUI {
         monsterType = userData.isEvolution() ? 2 : 1;
         HallManager.Instance.hallData.buyMonsterType = monsterType;
         let monsterLevel = userData.getCarLevel();
+        monsterLevel = MathUtils.rangeInt(Math.max(1, monsterLevel - 4), monsterLevel);
         let monsterInfo = BattleManager.Instance.getUnLockMonster(monsterType, monsterLevel);
         let btnBuy = self.btnShopShortcut;
         if (monsterInfo && btnBuy) {
@@ -1035,21 +1034,21 @@ class HallScene extends ui.hall.HallSceneUI {
     /** 赠送英雄中 */
     handlerGiveMonster() {
         let self = this;
-        if (M.novice.isRunning) { //新手关闭赠送
+        //新手关闭赠送
+        if (M.novice.isRunning)
             return;
-        }
         HallManager.Instance.hallData.giveMonsterAllTime = 3 * 60 * 60;
         self.imgTrain.visible = HallManager.Instance.hallData.giveMonsterAllTime > 0;
         if (!self.gameTimeImg.visible)
             EffectUtils.showTrainingTimeEffect(self);
         self.gameTimeImg.visible = self.gameTimebg.visible = self.txtGameTime.visible = true;
-        TimerManager.Instance.doFrame(1, 0, self.doGiveMonster, self);
+        this.frameLoop(1, self, self.doGiveMonster);
     }
     /** 执行赠送英雄 */
     doGiveMonster() {
         let self = this;
         if (HallManager.Instance.hallData.giveMonsterAllTime <= 0) {
-            TimerManager.Instance.remove(self.doGiveMonster, self);
+            this.clearTimer(self, this.doGiveMonster);
             self._giveCarTime = 0;
             self._giveTempTime = 0;
             self.imgTrain.visible = false;
@@ -1070,41 +1069,29 @@ class HallScene extends ui.hall.HallSceneUI {
         //是否训练中
         if (HallManager.Instance.hallData.giveMonsterAllTime > 0 && self._giveCarTime > 60 * HallManager.Instance.hallData.dropTime) {
             self._giveCarTime = 0;
-            // 1级：掉1级的怪物
-            // 2-7级：掉落1、2级的怪物
-            // 8级之后：随机掉落，最小值：当前金币最高解锁的等级-7，最大值=当前最高金币可购买怪物-4。
-            let boxDropCfg = GlobleData.getData(GlobleData.TrainDropVO, userData.getCarLevel());
             let randCarId = 101;
             let dropId = 100;
-            if (!boxDropCfg) { //先不走表的规则去掉落
-                let dropCarArray = [boxDropCfg.dropHeroLevel3, boxDropCfg.dropHeroLevel2, boxDropCfg.dropHeroLevel1];
-                let randIndex = Math.floor(Math.random() * 10) % 3;
-                dropId = userData.isEvolution() ? 1000 : 100;
-                randCarId = dropId + dropCarArray[randIndex];
+            if (HallManager.Instance.hallData.passStage < 1) { // 1级：掉1级的怪物
+                randCarId = 101;
             }
-            else { // 默认掉落
-                if (HallManager.Instance.hallData.passStage < 1) {
-                    randCarId = 101;
-                }
-                else if (HallManager.Instance.hallData.passStage < 8) {
-                    dropId = userData.isEvolution() ? 1000 : 100;
-                    randCarId = dropId + (Math.random() < 0.5 ? 1 : 2);
-                }
-                else {
-                    let monsterLevel = userData.getCarLevel();
-                    let monsterInfo = BattleManager.Instance.getUnLockMonster(HallManager.Instance.hallData.buyMonsterType, monsterLevel);
-                    randCarId = RandomUtils.rangeInt(monsterInfo.id - 6, monsterInfo.id - 4);
-                }
-                if (randCarId <= 100 && !userData.isEvolution()) {
-                    randCarId = 101;
-                }
-                else if (randCarId <= 1000 && userData.isEvolution()) {
-                    randCarId = 1001;
-                }
-                let carParkSp = BattleManager.Instance.createPet(randCarId, true);
-                if (carParkSp) {
-                    carParkSp.dropBoxEffect(self.mainView);
-                }
+            else if (HallManager.Instance.hallData.passStage < 8) { // 2-7级：掉落1、2级的怪物
+                dropId = userData.isEvolution() ? 1000 : 100;
+                randCarId = dropId + (Math.random() < 0.5 ? 1 : 2);
+            }
+            else { // 8级之后：随机掉落，最小值：当前金币最高解锁的等级-7，最大值=当前最高金币可购买怪物-4。
+                let monsterLevel = userData.getCarLevel();
+                let monsterInfo = BattleManager.Instance.getUnLockMonster(HallManager.Instance.hallData.buyMonsterType, monsterLevel);
+                randCarId = RandomUtils.rangeInt(monsterInfo.id - 6, monsterInfo.id - 4);
+            }
+            if (randCarId <= 100 && !userData.isEvolution()) {
+                randCarId = 101;
+            }
+            else if (randCarId <= 1000 && userData.isEvolution()) {
+                randCarId = 1001;
+            }
+            let carParkSp = BattleManager.Instance.createPet(randCarId, true);
+            if (carParkSp) {
+                carParkSp.dropBoxEffect(self.mainView);
             }
         }
         self._giveCarTime++;
@@ -1137,8 +1124,6 @@ class HallScene extends ui.hall.HallSceneUI {
                             if (that.btnStagePrize) {
                                 that.showStagePrize(HallManager.Instance.hallData.stagePrizeList.length > 0);
                             }
-                            // MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.09"));
-                            // Laya.timer.once(3000, that, () => {
                             if (userData) {
                                 //显示获得的奖品
                                 let stagePrizeCfg = GlobleData.getData(GlobleData.BarrierRewardVO, lastStage);
@@ -1165,7 +1150,6 @@ class HallScene extends ui.hall.HallSceneUI {
                                     }
                                 }
                             }
-                            // });
                         });
                     }
                 }
@@ -1187,13 +1171,8 @@ class HallScene extends ui.hall.HallSceneUI {
     onMiniProgram() {
         if (systemInfo.checkVersion(WXSDKVersion.NAVIGATE_TO_MINI_PROGRAM)) {
             platform.navigateToMiniProgram({
-                // appId: 'wx10e1554b604d7568',
                 appId: userData.miniCode(),
                 path: userData.miniPagePath(),
-                // extraData: {
-                //     box: '1'
-                // },
-                // envVersion: 'develop',
                 success(res) {
                     console.log("mini跳转成功", res);
                 }
@@ -1228,9 +1207,9 @@ class HallScene extends ui.hall.HallSceneUI {
             that.btnCarStore.visible = that.getCarStore() > 0;
         }
     }
-    //保存怪物到本地
-    saveCarStore(_carId) {
-        if (_carId < 1)
+    //保存英雄到本地
+    saveCarStore(heroId) {
+        if (heroId < 1)
             return;
         let that = this;
         let carArray = [];
@@ -1243,7 +1222,7 @@ class HallScene extends ui.hall.HallSceneUI {
             }
         }
         if (carArray) {
-            carArray.push(_carId);
+            carArray.push(heroId);
             let dataJson = JSON.stringify(carArray);
             if (dataJson) {
                 console.log("@FREEMAN: 本地数据保存追踪 - car_store_key");
@@ -1252,8 +1231,8 @@ class HallScene extends ui.hall.HallSceneUI {
         }
         that.carStoreBtnEnabled();
     }
-    //本地取出怪物
-    getCarStore(_isRemove = false) {
+    //本地取出英雄
+    getCarStore(isRemove = false) {
         let storage = window.localStorage;
         let dataJson = storage.getItem(HallManager.Instance.hallData.monsterStoreKey);
         if (dataJson) {
@@ -1261,7 +1240,7 @@ class HallScene extends ui.hall.HallSceneUI {
             if (jsonObj) {
                 let carId = jsonObj.shift();
                 //保存移除
-                if (_isRemove) {
+                if (isRemove) {
                     let dataJson = JSON.stringify(jsonObj);
                     if (dataJson) {
                         console.log("@FREEMAN: 本地数据保存追踪 - car_store_key 2");
@@ -1291,9 +1270,10 @@ class HallScene extends ui.hall.HallSceneUI {
         //加速开始
         that.setCarAcce(2);
         that.refreshAcceTime();
-        Laya.timer.loop(1000, that, that.refreshAcceTime);
+        this.timerLoop(1000, this, this.refreshAcceTime);
         Laya.SoundManager.playSound("musics/accecar.mp3");
     }
+    /** 刷新加速时间 */
     refreshAcceTime() {
         let that = this;
         //显示倒计时
@@ -1318,7 +1298,7 @@ class HallScene extends ui.hall.HallSceneUI {
         }
         else {
             that.setCarAcce(1);
-            Laya.timer.clear(that, that.refreshAcceTime);
+            this.clearTimer(this, this.refreshAcceTime);
             if (that.btnAcce) {
                 let imgAcce = that.btnAcce.getChildByName("imgAcce");
                 if (imgAcce) {
@@ -1354,6 +1334,7 @@ class HallScene extends ui.hall.HallSceneUI {
         //更新每秒收益
         HallManager.Instance.updateIncomePerSec(HallManager.Instance.getCalculateIncomePerSec(self.carparkList));
     }
+    /** 关卡BOSS出现的特效 */
     playBossEnterEffect() {
         let self = this;
         // 加载动画图集,加载成功后执行回调方法
@@ -1577,12 +1558,10 @@ class HallScene extends ui.hall.HallSceneUI {
         let self = this;
         if (HallManager.Instance.hallData.passSection >= HallManager.Instance.hallData.maxSection) {
             self.showPassStageResult(HallManager.Instance.hallData.passStage);
-            //上传腾讯云
-            userData.setUserCloudStorage();
+            userData.setUserCloudStorage(); //上传腾讯云
         }
         else if (HallManager.Instance.hallData.passSection >= (HallManager.Instance.hallData.maxSection - 1)) {
-            //是否进入boss关
-            self.timerOnce(600, self, self.playBossEnterEffect);
+            self.timerOnce(600, self, self.playBossEnterEffect); //是否进入boss关
         }
         self.timerOnce(2000, self, () => {
             HallManager.Instance.hallData.gameStatus = 1;

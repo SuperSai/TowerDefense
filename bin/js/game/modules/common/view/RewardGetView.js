@@ -8,7 +8,6 @@ class RewardGetView extends BaseView {
     initData() {
         super.initData();
         let self = this;
-        self._tween = EffectUtils.objectRotate(self.ui.imgLight);
         for (let index = 0, len = self.datas[0].length; index < len; index++) {
             let price = self.datas[0][index];
             let itemInfo = GlobleData.getData(GlobleData.ItemVO, self.datas[1][index]);
@@ -36,8 +35,6 @@ class RewardGetView extends BaseView {
         super.close(param);
         let self = this;
         self.ui.hbox.removeChildren();
-        self._tween && (Laya.Tween.clear(self._tween));
-        self._tween = null;
         self.callback && self.callback();
     }
 }

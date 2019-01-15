@@ -386,6 +386,39 @@ class EffectUtils extends Laya.Sprite {
             waittingSp.removeSelf();
         }
     }
+    /**
+     *垂直抛物线轨迹
+     * @static
+     * @param {Laya.Node} obj 抛物线的对象
+     * @param {*} thisObject 添加addChild的父类
+     * @param {{ x: number, y: number }} startPos 起始点
+     * @param {{ x: number, y: number }} endPos 终点
+     * @param {number} vertex 顶点的X高度
+     * @param {number} angle 角度，正数右抛物，负数左抛物
+     * @param {number} time 飞行时间
+     * @param {Function} callBack 结束后的回调函数
+     * @memberof EffectUtils
+     */
+    static verticalParabola(obj: Laya.Node, thisObject: any, startPos: { x: number, y: number }, endPos: { x: number, y: number }, vertex: number, angle: number, time: number, callBack: Function = null) {
+        let sprite: Laya.Sprite = new Laya.Sprite();
+        sprite.x = startPos.x;
+        sprite.y = startPos.y;
+        sprite.addChild(obj);
+        thisObject.addChild(sprite);
+        Laya.Tween.to(obj, { x: vertex }, time / 2, Laya.Ease.quadOut);
+        Laya.Tween.to(obj, { x: -vertex }, time / 2, Laya.Ease.sineIn, null, time / 2);
+        Laya.Tween.to(obj, { rotation: angle }, time, Laya.Ease.linearNone);
+        Laya.Tween.to(obj, { scaleX: 1, scaleY: 1 }, time, Laya.Ease.linearNone);
+        Laya.Tween.to(sprite, { x: endPos.x, y: endPos.y }, time, Laya.Ease.linearNone, Handler.create(this, () => {
+            Laya.Tween.clearTween(obj);
+            Laya.Tween.clearTween(sprite);
+            DisplayUtils.removeFromParent(obj);
+            DisplayUtils.removeFromParent(sprite);
+            obj = null;
+            sprite = null;
+            callBack && callBack();
+        }))
+    }
 }
 
 enum EFFECT_TYPE {

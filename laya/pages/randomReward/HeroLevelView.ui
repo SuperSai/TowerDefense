@@ -26,18 +26,16 @@
             "child":[
                 {
                     "x":30,
-                    "type":"Image",
-                    "props":{"y":334,"x":318,"var":"imgLight","skin":"images/core/light_01.png","anchorY":0.5,"anchorX":0.5},
+                    "type":"SkeletonPlayer",
+                    "props":{"y":324,"x":317,"url":"images/effect/bone/bglight.sk"},
                     "nodeParent":12,
-                    "label":"Image(imgLight)",
-                    "isOpen":false,
+                    "label":"SkeletonPlayer",
                     "isDirectory":false,
                     "isAniNode":true,
                     "hasChild":false,
-                    "compId":9,
+                    "compId":18,
                     "child":[
-                        ],
-                    "$HIDDEN":false
+                        ]
                 },
                 {
                     "x":30,

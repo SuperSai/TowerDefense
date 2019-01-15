@@ -7,7 +7,7 @@ class LuckPrizeItemView extends BaseView {
     }
     initData() {
         super.initData();
-        this._tween = EffectUtils.objectRotate(this.ui.imgLight);
+        this.isRemoveBanner = false;
         if (this.datas[0]) {
             this.ui.imgItem.skin = this.datas[0].imgUrl;
             switch (this.datas[0].id) {
@@ -15,7 +15,7 @@ class LuckPrizeItemView extends BaseView {
                     this.showDiamond(this.datas[0].name, this.datas[0].num);
                     break;
                 case 3: //少量金币
-                    this.showGold(this.getGold() * 0.8);
+                    this.showGold(this.getGold() * 1.5);
                     break;
                 case 4: //大量精华
                     this.showEssence(this.datas[0].name, this.datas[0].num);
@@ -24,7 +24,7 @@ class LuckPrizeItemView extends BaseView {
                     this.showDiamond(this.datas[0].name, this.datas[0].num);
                     break;
                 case 7: //大量金币
-                    this.showGold(this.getGold() * 1.5);
+                    this.showGold(this.getGold() * 3);
                     break;
                 case 8: //少量精华
                     this.showEssence(this.datas[0].name, this.datas[0].num);
@@ -74,7 +74,6 @@ class LuckPrizeItemView extends BaseView {
     }
     close(...param) {
         super.close(param);
-        Laya.Tween.clear(this._tween);
         HallManager.Instance.hallData.magnification = 1;
         this.callback && this.callback();
     }

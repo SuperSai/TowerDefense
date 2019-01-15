@@ -2,7 +2,7 @@
     "x":0,
     "type":"View",
     "selectedBox":2,
-    "selecteID":3,
+    "selecteID":12,
     "props":{"sceneWidth":600,"sceneHeight":400,"sceneColor":"#000000","sceneBg":"laya/views/common/view/RewardGetView.JPG"},
     "nodeParent":-1,
     "label":"View",
@@ -26,18 +26,16 @@
             "child":[
                 {
                     "x":30,
-                    "type":"Image",
-                    "props":{"y":334,"x":292,"var":"imgLight","skin":"images/core/light_01.png","anchorY":0.5,"anchorX":0.5},
+                    "type":"SkeletonPlayer",
+                    "props":{"y":318,"x":289,"url":"images/effect/bone/bglight.sk"},
                     "nodeParent":2,
-                    "label":"Image(imgLight)",
-                    "isOpen":true,
+                    "label":"SkeletonPlayer",
                     "isDirectory":false,
                     "isAniNode":true,
                     "hasChild":false,
-                    "compId":3,
+                    "compId":12,
                     "child":[
-                        ],
-                    "$HIDDEN":false
+                        ]
                 },
                 {
                     "x":30,
@@ -104,7 +102,8 @@
                     "hasChild":false,
                     "compId":11,
                     "child":[
-                        ]
+                        ],
+                    "$LOCKED":true
                 }]
         }],
     "animations":[

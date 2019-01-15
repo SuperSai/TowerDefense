@@ -78,7 +78,7 @@ class ShopView extends BaseView {
         let count: number = 1;
         let moveY: number = 50;
         self.ui.heroList.renderHandler = new Laya.Handler(self, (cell: Laya.Box, index: number) => {
-            if(cell.pivotX || cell.pivotY)cell.pivot(0,0);
+            if (cell.pivotX || cell.pivotY) cell.pivot(0, 0);
             if (index > self.ui.heroList.array.length) return;
             let carInfo = self.ui.heroList.array[index];
             if (carInfo) {
@@ -167,7 +167,15 @@ class ShopView extends BaseView {
                     btnSharePrize.visible = (shareFreeCarId == carInfo.id);
                     btnSharePrize.offAll(Laya.Event.CLICK);
                     btnSharePrize.on(Laya.Event.CLICK, self, (_carInfo: any = null, _btnObj: Laya.Button = null) => {
-                        this.onShareFreeCar(_carInfo, _btnObj);
+                        if (userData.isAdStage(11)) {
+                            if (HallManager.Instance.isClickVideoTime()) {
+                                this.onShareFreeCar(_carInfo, _btnObj);
+                            } else {
+                                MessageUtils.showMsgTips("不能频繁看视频，10秒后再试试");
+                            }
+                        } else {
+                            this.onShareFreeCar(_carInfo, _btnObj);
+                        }
                     }, [carInfo, btnSharePrize]);
                     //观看次数已用完
                     if (userData.getAdTimes(11) < 1 && userData.getShareTimes(11) < 1) {

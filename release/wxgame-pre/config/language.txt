@@ -1,13 +1,11 @@
-﻿#
-ok:确定
+﻿ok:确定
 cancel:取消
 tip:提示
 Refresh:刷新
 exp:经验
 close:关闭
-lock:停用
+lock:停用 
 out:退出
-
 hallScene.label.txt.01:位置不足，已保存到英雄宝箱
 hallScene.label.txt.02:升级守护解锁
 hallScene.label.txt.03:英雄已送达

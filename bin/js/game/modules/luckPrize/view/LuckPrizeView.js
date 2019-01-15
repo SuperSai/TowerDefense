@@ -131,10 +131,12 @@ class LuckPrizeView extends BaseView {
                         }, that.prizeItemTable[_itemId - 1]);
                     }
                     else {
-                        ViewMgr.Ins.open(ViewConst.LuckPrizeBoxView, () => {
-                            this.ui.imgLabel.skin = "images/luckLottery/luck_" + HallManager.Instance.hallData.magnification + ".png";
+                        ViewMgr.Ins.open(ViewConst.LuckPrizeBoxView, (flag) => {
                             that.startBtnEnabled(false);
-                            this.handlerFreeLottery();
+                            if (flag) {
+                                this.ui.imgLabel.skin = "images/luckLottery/luck_" + HallManager.Instance.hallData.magnification + ".png";
+                                this.handlerFreeLottery();
+                            }
                         }, that.prizeItemTable[_itemId - 1]);
                     }
                     this._isRunning = false;

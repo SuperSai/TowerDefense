@@ -2,7 +2,7 @@
     "x":0,
     "type":"View",
     "selectedBox":1,
-    "selecteID":25,
+    "selecteID":26,
     "props":{"sceneWidth":750,"sceneHeight":1334,"sceneColor":"#000000","sceneBg":"laya/views/MoreView.jpg"},
     "nodeParent":-1,
     "label":"View",
@@ -29,7 +29,7 @@
         {
             "x":15,
             "type":"Image",
-            "props":{"y":40,"x":307,"skin":"images/more/title.png"},
+            "props":{"y":32,"x":252,"skin":"images/more/title.png"},
             "nodeParent":1,
             "label":"Image",
             "isDirectory":false,
@@ -84,36 +84,8 @@
         },
         {
             "x":15,
-            "type":"Image",
-            "props":{"y":322,"x":194,"skin":"images/component/sub_title_bg.png"},
-            "nodeParent":1,
-            "label":"Image",
-            "isDirectory":false,
-            "isAniNode":true,
-            "hasChild":false,
-            "compId":17,
-            "child":[
-                ],
-            "$HIDDEN":false
-        },
-        {
-            "x":15,
             "type":"Label",
-            "props":{"y":331,"x":242,"width":228,"text":"更多好玩","height":45,"fontSize":40,"color":"#ab4c17","bold":true,"align":"center"},
-            "nodeParent":1,
-            "label":"Label",
-            "isDirectory":false,
-            "isAniNode":true,
-            "hasChild":false,
-            "compId":19,
-            "child":[
-                ],
-            "$HIDDEN":false
-        },
-        {
-            "x":15,
-            "type":"Label",
-            "props":{"y":405,"x":147,"width":418,"text":"完整体验一个游戏，可获得奖励","height":37,"fontSize":26,"color":"#845013","bold":true,"align":"center"},
+            "props":{"y":342,"x":139,"text":"完整体验一个游戏，可获得奖励","fontSize":30,"color":"#845013","bold":true,"align":"center"},
             "nodeParent":1,
             "label":"Label",
             "isDirectory":false,
@@ -127,7 +99,7 @@
         {
             "x":15,
             "type":"Image",
-            "props":{"y":426,"x":37,"skin":"images/component/seperate_line.png"},
+            "props":{"y":383,"x":37,"skin":"images/component/seperate_line.png"},
             "nodeParent":1,
             "label":"Image",
             "isDirectory":false,
@@ -141,7 +113,7 @@
         {
             "x":15,
             "type":"Button",
-            "props":{"y":178,"x":191,"var":"btnCustomService","stateNum":"1","skin":"images/more/custom_service.png"},
+            "props":{"y":164,"x":191,"var":"btnCustomService","stateNum":"1","skin":"images/more/custom_service.png"},
             "nodeParent":1,
             "label":"Button(btnCustomService)",
             "isOpen":null,
@@ -167,7 +139,7 @@
         {
             "x":15,
             "type":"Button",
-            "props":{"y":180,"x":466,"var":"btnSoundClosed","stateNum":"1","skin":"images/more/sound_closed.png"},
+            "props":{"y":167,"x":466,"var":"btnSoundClosed","stateNum":"1","skin":"images/more/sound_closed.png"},
             "nodeParent":1,
             "label":"Button(btnSoundClosed)",
             "isOpen":null,
@@ -192,7 +164,7 @@
         {
             "x":15,
             "type":"Button",
-            "props":{"y":179,"x":465,"var":"btnSoundOpend","stateNum":"1","skin":"images/more/sound_opened.png"},
+            "props":{"y":165,"x":465,"var":"btnSoundOpend","stateNum":"1","skin":"images/more/sound_opened.png"},
             "nodeParent":1,
             "label":"Button(btnSoundOpend)",
             "isOpen":true,
@@ -218,7 +190,7 @@
         {
             "x":15,
             "type":"List",
-            "props":{"y":454,"x":49,"width":619,"var":"listMoreItem","spaceY":15,"repeatY":4,"repeatX":1,"height":453},
+            "props":{"y":410,"x":49,"width":619,"var":"listMoreItem","spaceY":15,"repeatY":4,"repeatX":1,"height":497},
             "nodeParent":1,
             "label":"List(listMoreItem)",
             "isDirectory":false,

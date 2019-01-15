@@ -26,15 +26,14 @@
             "child":[
                 {
                     "x":30,
-                    "type":"Image",
-                    "props":{"y":355,"x":300,"width":600,"var":"imgLight","skin":"images/hall/common_bg_light.png","height":600,"anchorY":0.5,"anchorX":0.5},
+                    "type":"SkeletonPlayer",
+                    "props":{"y":342,"x":302,"url":"images/effect/bone/bglight.sk"},
                     "nodeParent":11,
-                    "label":"Image(imgLight)",
-                    "isOpen":true,
+                    "label":"SkeletonPlayer",
                     "isDirectory":false,
                     "isAniNode":true,
                     "hasChild":false,
-                    "compId":5,
+                    "compId":12,
                     "child":[
                         ]
                 },
