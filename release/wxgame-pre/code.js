@@ -7663,12 +7663,13 @@ var ui;
             class FreeGetPetViewUI extends View {
                 constructor() { super(); }
                 createChildren() {
+                    View.regComponent("SkeletonPlayer", laya.ani.bone.Skeleton);
                     View.regComponent("ScaleAnimScript", ScaleAnimScript);
                     super.createChildren();
                     this.createView(ui.common.view.FreeGetPetViewUI.uiView);
                 }
             }
-            FreeGetPetViewUI.uiView = { "type": "View", "props": {}, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "width": 650, "skin": "images/component/frame_9calce_04.png", "name": "imgBg", "height": 500 }, "child": [{ "type": "Image", "props": { "y": 26, "x": 175, "skin": "images/fontImg/getFreePet_title.png" } }, { "type": "Image", "props": { "y": 213, "x": 260, "skin": "images/component/frame_9calce_03.png", "sizeGrid": "26,31,23,28" } }, { "type": "Image", "props": { "y": 332, "x": 325, "var": "imgPet", "skin": "images/carImg/hero_d1_18.png", "anchorY": 1, "anchorX": 0.5 } }, { "type": "Label", "props": { "y": 496, "x": 234, "text": "点击空白处关闭", "fontSize": 26, "color": "#ffffff", "align": "center" } }, { "type": "Button", "props": { "y": -8, "x": 564, "var": "btnExit", "stateNum": 1, "skin": "images/component/frame_close_btn.png", "name": "btnExit" }, "child": [{ "type": "Script", "props": { "y": 0, "x": 0, "runtime": "ScaleAnimScript" } }] }] }] };
+            FreeGetPetViewUI.uiView = { "type": "View", "props": { "width": 587, "height": 788 }, "child": [{ "type": "Box", "props": { "y": 0, "x": 0, "width": 587, "height": 788 }, "child": [{ "type": "SkeletonPlayer", "props": { "y": 394, "x": 295, "url": "images/effect/bone/bglight.sk" } }, { "type": "Image", "props": { "y": 396, "x": 175, "skin": "images/core/hero_bg.png" } }, { "type": "Image", "props": { "skin": "images/fontImg/font_gongxi.png" } }, { "type": "Image", "props": { "y": 476, "x": 295, "var": "imgPet", "skin": "images/carImg/hero_d1_18.png", "scaleY": 2, "scaleX": 2, "anchorY": 1, "anchorX": 0.5 } }, { "type": "Image", "props": { "y": 611, "x": 143, "skin": "images/fontImg/getFreePet_title.png" } }, { "type": "Label", "props": { "y": 798, "x": 188, "text": "点击空白处关闭", "fontSize": 30, "color": "#ffffff" } }, { "type": "Label", "props": { "y": 215, "x": 46, "width": 494, "var": "txt_name", "text": "名字 Lv10", "strokeColor": "#946430", "stroke": 2, "height": 40, "fontSize": 40, "color": "#ffffff", "align": "center" } }, { "type": "Button", "props": { "y": 669, "x": 130, "var": "btn_get", "stateNum": 1, "skin": "images/component/yellow_btn.png", "labelStrokeColor": "#946430", "labelStroke": 2, "labelSize": 50, "labelColors": "#FFFFFF,#FFFFFF,#FFFFFF,#FFFFFF", "labelBold": true, "label": "领取" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }] }] };
             view.FreeGetPetViewUI = FreeGetPetViewUI;
         })(view = common.view || (common.view = {}));
     })(common = ui.common || (ui.common = {}));
@@ -8635,18 +8636,21 @@ class FreeGetPetView extends BaseView {
     initData() {
         super.initData();
         let self = this;
+        let monsterLevel = BattleManager.Instance.getLevel(self.datas[0].id);
         self.ui.imgPet.skin = "images/carImg/" + self.datas[0].imgUrl;
+        self.ui.txt_name.text = self.datas[0].name + " Lv" + monsterLevel;
     }
     addEvents() {
         let self = this;
-        self.ui.btnExit.on(Laya.Event.CLICK, self, self.onCloseHandler);
+        self.ui.btn_get.on(Laya.Event.CLICK, self, self.onCloseHandler);
     }
     removeEvents() {
         let self = this;
-        self.ui.btnExit.off(Laya.Event.CLICK, self, self.onCloseHandler);
+        self.ui.btn_get.off(Laya.Event.CLICK, self, self.onCloseHandler);
     }
     onCloseHandler() {
         ViewMgr.Ins.close(ViewConst.FreeGetPetView);
+        MessageUtils.showMsgTips("领取成功!");
     }
 }
 //# sourceMappingURL=FreeGetPetView.js.map
@@ -10684,9 +10688,6 @@ class HallScene extends ui.hall.HallSceneUI {
             case self.btn_fly:
                 appId = "wx5bf2e598a2acbb50";
                 break;
-            case self.btn_block:
-                appId = "wx9daa52931f687adc";
-                break;
             case self.btn_eliminate:
                 appId = "wx06f4827d100da314";
                 break;
@@ -11437,18 +11438,13 @@ class HallScene extends ui.hall.HallSceneUI {
             }
             else if (HallManager.Instance.hallData.passStage < 8) { // 2-7级：掉落1、2级的怪物
                 dropId = userData.isEvolution() ? 1000 : 100;
-                randCarId = dropId + (Math.random() < 0.5 ? 1 : 2);
+                randCarId = dropId + MathUtils.rangeInt(1, 2);
             }
             else { // 8级之后：随机掉落，最小值：当前金币最高解锁的等级-7，最大值=当前最高金币可购买怪物-4。
                 let monsterLevel = userData.getCarLevel();
                 let monsterInfo = BattleManager.Instance.getUnLockMonster(HallManager.Instance.hallData.buyMonsterType, monsterLevel);
-                randCarId = RandomUtils.rangeInt(monsterInfo.id - 6, monsterInfo.id - 4);
-            }
-            if (randCarId <= 100 && !userData.isEvolution()) {
-                randCarId = 101;
-            }
-            else if (randCarId <= 1000 && userData.isEvolution()) {
-                randCarId = 1001;
+                let minId = userData.isEvolution() ? 1001 : 101;
+                randCarId = MathUtils.rangeInt(Math.max(minId, monsterInfo.id - 6), Math.max(minId, monsterInfo.id - 4));
             }
             let carParkSp = BattleManager.Instance.createPet(randCarId, true);
             if (carParkSp) {

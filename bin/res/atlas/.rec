@@ -1,6 +1,6 @@
 D .
 D config
-R D71FC02A language.txt
+R C8825AAF language.txt
 D images
 D loading
 D musics
@@ -83,7 +83,6 @@ P 78C5773C core_block_icon.png
 P 67796B57 core_eliminate_icon.png
 P AE98943F core_fly_icon.png
 P BE12F052 core_tips_icon.png
-P EFAC6458 dailySingBtn.png
 P 2B06544D diamond.png
 P AC393376 diamond_icon.png
 P 1ECAC6D4 diamond_icon_more.png
@@ -91,6 +90,7 @@ P A1C17549 essence.png
 P 8721B77E essence_icon.png
 P 177E7319 fenxiang_icon.png
 P F5420F53 game_exp_pro_head.png
+P 2E2198A0 hero_bg.png
 P 75C5FEE8 light_01.png
 P A675715C red_dot_hint.png
 P 260D9C6B shop_free_share.png
@@ -126,6 +126,7 @@ R 6CDDB56A blood_num.png
 P 1D2679A1 buy_title.png
 R C0FCDF8C crit_num.png
 P 33797E78 evolution_shop_title.png
+P 3ACAA4E1 font_gongxi.png
 P 3979A099 game_Notice_title.png
 P 29A21142 getFreePet_title.png
 P D138D4F1 king_title_icon.png

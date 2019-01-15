@@ -53,4 +53,5 @@
    <item name="images/more/app_icon_ycy.png" type="Image" compress="0" pack="2" quality="80" props="" picType="0" scale="0"/>
    <item name="images/followReward" type="" compress="0" pack="0" quality="80" props="" picType="0" scale="0"/>
    <item name="images/followReward/followReward_btn.png" type="Image" compress="0" pack="0" quality="80" props="" picType="0" scale="0"/>
+   <item name="images/fontImg/font_gongxi.png" type="Image" compress="0" pack="1" quality="80" props="" picType="0" scale="0"/>
 </res>

@@ -81,17 +81,16 @@ class MainLoadingView extends Laya.Sprite {
         this._loadAssets(resList);
     }
 
-    private _loadAssets(assets:{url:string, type?:string}[]):void{
-        if(assets.length){
+    private _loadAssets(assets: { url: string, type?: string }[]): void {
+        if (assets.length) {
             Laya.loader.load(assets, Handler.create(this, () => {
-                for(let i:number = 0; i< assets.length ; i++)
-                {
-                    if(Laya.loader.getRes(assets[i].url)){
+                for (let i: number = 0; i < assets.length; i++) {
+                    if (Laya.loader.getRes(assets[i].url)) {
                         assets.splice(i, 1);
                         i--;
                     }
                 }
-                if(assets.length){
+                if (assets.length) {
                     M.sdk.showToast({
                         title: '网络异常，正在重新加载',
                         duration: 4500

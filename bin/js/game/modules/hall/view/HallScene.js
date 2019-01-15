@@ -323,9 +323,6 @@ class HallScene extends ui.hall.HallSceneUI {
             case self.btn_fly:
                 appId = "wx5bf2e598a2acbb50";
                 break;
-            case self.btn_block:
-                appId = "wx9daa52931f687adc";
-                break;
             case self.btn_eliminate:
                 appId = "wx06f4827d100da314";
                 break;
@@ -1076,18 +1073,13 @@ class HallScene extends ui.hall.HallSceneUI {
             }
             else if (HallManager.Instance.hallData.passStage < 8) { // 2-7级：掉落1、2级的怪物
                 dropId = userData.isEvolution() ? 1000 : 100;
-                randCarId = dropId + (Math.random() < 0.5 ? 1 : 2);
+                randCarId = dropId + MathUtils.rangeInt(1, 2);
             }
             else { // 8级之后：随机掉落，最小值：当前金币最高解锁的等级-7，最大值=当前最高金币可购买怪物-4。
                 let monsterLevel = userData.getCarLevel();
                 let monsterInfo = BattleManager.Instance.getUnLockMonster(HallManager.Instance.hallData.buyMonsterType, monsterLevel);
-                randCarId = RandomUtils.rangeInt(monsterInfo.id - 6, monsterInfo.id - 4);
-            }
-            if (randCarId <= 100 && !userData.isEvolution()) {
-                randCarId = 101;
-            }
-            else if (randCarId <= 1000 && userData.isEvolution()) {
-                randCarId = 1001;
+                let minId = userData.isEvolution() ? 1001 : 101;
+                randCarId = MathUtils.rangeInt(Math.max(minId, monsterInfo.id - 6), Math.max(minId, monsterInfo.id - 4));
             }
             let carParkSp = BattleManager.Instance.createPet(randCarId, true);
             if (carParkSp) {

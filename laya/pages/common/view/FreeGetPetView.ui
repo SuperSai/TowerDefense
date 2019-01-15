@@ -1,9 +1,9 @@
 {
     "x":0,
     "type":"View",
-    "selectedBox":2,
-    "selecteID":6,
-    "props":{"sceneWidth":650,"sceneHeight":500,"sceneColor":"#000000"},
+    "selectedBox":1,
+    "selecteID":1,
+    "props":{"width":587,"sceneWidth":650,"sceneHeight":500,"sceneColor":"#000000","height":788},
     "nodeParent":-1,
     "label":"View",
     "isOpen":true,
@@ -14,48 +14,61 @@
     "child":[
         {
             "x":15,
-            "type":"Image",
-            "props":{"y":0,"x":0,"width":650,"skin":"images/component/frame_9calce_04.png","name":"imgBg","height":500},
+            "type":"Box",
+            "props":{"y":0,"x":0,"width":587,"height":788},
             "nodeParent":1,
-            "label":"Image(imgBg)",
+            "label":"Box",
             "isOpen":true,
             "isDirectory":true,
             "isAniNode":true,
             "hasChild":true,
-            "compId":2,
+            "compId":16,
             "child":[
                 {
                     "x":30,
-                    "type":"Image",
-                    "props":{"y":26,"x":175,"skin":"images/fontImg/getFreePet_title.png"},
-                    "nodeParent":2,
-                    "label":"Image",
-                    "isOpen":true,
+                    "type":"SkeletonPlayer",
+                    "props":{"y":394,"x":295,"url":"images/effect/bone/bglight.sk"},
+                    "nodeParent":16,
+                    "label":"SkeletonPlayer",
                     "isDirectory":false,
                     "isAniNode":true,
                     "hasChild":false,
-                    "compId":3,
+                    "compId":17,
                     "child":[
                         ]
                 },
                 {
                     "x":30,
                     "type":"Image",
-                    "props":{"y":213,"x":260,"skin":"images/component/frame_9calce_03.png"},
-                    "nodeParent":2,
+                    "props":{"y":396,"x":175,"skin":"images/core/hero_bg.png"},
+                    "nodeParent":16,
                     "label":"Image",
                     "isDirectory":false,
                     "isAniNode":true,
                     "hasChild":false,
-                    "compId":5,
+                    "compId":26,
+                    "child":[
+                        ],
+                    "$LOCKED":true
+                },
+                {
+                    "x":30,
+                    "type":"Image",
+                    "props":{"skin":"images/fontImg/font_gongxi.png"},
+                    "nodeParent":16,
+                    "label":"Image",
+                    "isDirectory":false,
+                    "isAniNode":true,
+                    "hasChild":false,
+                    "compId":18,
                     "child":[
                         ]
                 },
                 {
                     "x":30,
                     "type":"Image",
-                    "props":{"y":332,"x":325,"var":"imgPet","skin":"images/carImg/hero_d1_18.png","anchorY":1,"anchorX":0.5},
-                    "nodeParent":2,
+                    "props":{"y":476,"x":295,"var":"imgPet","skin":"images/carImg/hero_d1_18.png","scaleY":2,"scaleX":2,"anchorY":1,"anchorX":0.5},
+                    "nodeParent":16,
                     "label":"Image(imgPet)",
                     "isOpen":false,
                     "isDirectory":false,
@@ -67,42 +80,70 @@
                 },
                 {
                     "x":30,
+                    "type":"Image",
+                    "props":{"y":611,"x":143,"skin":"images/fontImg/getFreePet_title.png"},
+                    "nodeParent":16,
+                    "label":"Image",
+                    "isOpen":true,
+                    "isDirectory":false,
+                    "isAniNode":true,
+                    "hasChild":false,
+                    "compId":3,
+                    "child":[
+                        ]
+                },
+                {
+                    "x":30,
                     "type":"Label",
-                    "props":{"y":496,"x":234,"text":"点击空白处关闭","fontSize":26,"color":"#ffffff","align":"center"},
-                    "nodeParent":2,
+                    "props":{"y":798,"x":188,"text":"点击空白处关闭","fontSize":30,"color":"#ffffff"},
+                    "nodeParent":16,
                     "label":"Label",
                     "isDirectory":false,
                     "isAniNode":true,
                     "hasChild":false,
-                    "compId":10,
+                    "compId":21,
+                    "child":[
+                        ]
+                },
+                {
+                    "x":30,
+                    "type":"Label",
+                    "props":{"y":215,"x":46,"width":494,"var":"txt_name","text":"名字 Lv10","strokeColor":"#946430","stroke":2,"height":40,"fontSize":40,"color":"#ffffff","align":"center"},
+                    "nodeParent":16,
+                    "label":"Label(txt_name)",
+                    "isDirectory":false,
+                    "isAniNode":true,
+                    "hasChild":false,
+                    "compId":22,
                     "child":[
                         ]
                 },
                 {
                     "x":30,
                     "type":"Button",
-                    "props":{"y":-8,"x":564,"var":"btnExit","stateNum":"1","skin":"images/component/frame_close_btn.png","name":"btnExit"},
-                    "nodeParent":2,
-                    "label":"Button(btnExit)",
+                    "props":{"y":669,"x":130,"var":"btn_get","stateNum":"1","skin":"images/component/yellow_btn.png","labelStrokeColor":"#946430","labelStroke":2,"labelSize":50,"labelColors":"#FFFFFF,#FFFFFF,#FFFFFF,#FFFFFF","labelBold":true,"label":"领取"},
+                    "nodeParent":16,
+                    "label":"Button(btn_get)",
                     "isOpen":false,
                     "isDirectory":true,
                     "isAniNode":true,
                     "hasChild":true,
-                    "compId":14,
+                    "compId":23,
                     "child":[
                         {
                             "type":"Script",
                             "source":"laya/pages/ScaleAnimScript.script",
-                            "props":{"y":0,"x":0},
-                            "nodeParent":14,
+                            "props":{},
+                            "nodeParent":23,
                             "label":"ScaleAnimScript",
                             "isDirectory":false,
                             "isAniNode":true,
                             "hasChild":false,
-                            "compId":15,
+                            "compId":24,
                             "child":[
                                 ]
-                        }]
+                        }],
+                    "$HIDDEN":false
                 }]
         }],
     "animations":[
