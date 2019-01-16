@@ -855,7 +855,7 @@ class HallScene extends ui.hall.HallSceneUI {
     userData.statistics.synthesisNum++;
     userData.synthesisCount++;
     //随机奖励
-    if (userData.synthesisCount % 48 == 0) {
+    if (userData.synthesisCount % 24 == 0) {
       let randomNum: number = Math.random();
       if (randomNum < 0.4) {
         self.showRandomDiamondReward();

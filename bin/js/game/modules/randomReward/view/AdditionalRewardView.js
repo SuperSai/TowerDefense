@@ -9,6 +9,7 @@ class AdditionalRewardView extends BaseView {
     initData() {
         super.initData();
         let self = this;
+        self.isRemoveBanner = false;
         self.ui.txt_count.text = "x" + self.datas[0].diamond;
     }
     addEvents() {

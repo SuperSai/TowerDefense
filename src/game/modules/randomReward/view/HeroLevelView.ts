@@ -36,10 +36,10 @@ class HeroLevelView extends ui.randomReward.HeroLevelViewUI {
         let self = this;
         let oldInfo: MonsterVO = BattleManager.Instance.getMonsterItem(self._arg[0]);
         self.oldHero.skin = "images/carImg/" + oldInfo.imgUrl;
-        self.txt_oldLevel.text = (userData.isEvolution() ? oldInfo.id - 1000 : oldInfo.id - 100) + "级";
+        self.txt_oldLevel.text = oldInfo.name + " Lv" + (userData.isEvolution() ? oldInfo.id - 1000 : oldInfo.id - 100);
         let newInfo = BattleManager.Instance.getMonsterItem(self._arg[1]);
         self.newHero.skin = "images/carImg/" + newInfo.imgUrl;
-        self.txt_newLevel.text = (userData.isEvolution() ? newInfo.id - 1000 : newInfo.id - 100) + "级";
+        self.txt_newLevel.text = newInfo.name + " Lv" + (userData.isEvolution() ? newInfo.id - 1000 : newInfo.id - 100);
     }
 
     private addEvents(): void {
