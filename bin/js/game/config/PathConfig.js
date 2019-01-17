@@ -3,7 +3,8 @@
 */
 class PathConfig {
 }
-PathConfig.AppUrl = "https://yamdev.xiaoduogame.cn/api/";
+PathConfig.AppUrl = "https://yamdev.xiaoduogame.cn/api/"; //测试服地址
+// public static AppUrl: string = "https://pokemon.vuggame.com/api/"; //正式服地址
 PathConfig.AppResUrl = "https://miniapp.vuggame.com/pokemon_vuggame_com_single/";
 PathConfig.RES_URL = PathConfig.AppResUrl + "v3/";
 PathConfig.Language = PathConfig.RES_URL + "config/language.txt";

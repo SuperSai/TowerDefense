@@ -166,44 +166,13 @@ class HallManager extends Laya.EventDispatcher {
             }
         }
     }
-    /** 轮盘免费抽奖倒计时 */
-    showLuckPrizeTime($freeTime = -1) {
+    /** 检查轮盘是否可以免费抽奖 */
+    checkIsFreeLottery($freeTime = -1) {
         this.hall.txt_prizeTime.text = "大转盘";
-        HttpManager.Instance.requestPrizeInfo((res) => {
-            if (!res)
-                return;
-            let freeTimes = MathUtils.parseInt(res.free_num); //免费次数
-            this._model.freeTime = MathUtils.parseInt(res.remain_time); //免费时间
-            this._model.nextFreeTime = MathUtils.parseInt(res.next_free); //离下次免费时间
-            if (freeTimes > 0 && $freeTime == -1) {
-                this.hall.txt_prizeTime.text = "免费抽奖";
-            }
-            else {
-                let loopFun = () => {
-                    if (this._model.freeTime > 0) {
-                        this._model.freeTime--;
-                        if (this._model.freeTime <= 0) {
-                            EventsManager.Instance.event(EventsType.UPDATE_LUCK_PRIZE);
-                        }
-                    }
-                    else if (this._model.nextFreeTime > 0) {
-                        this.hall.txt_prizeTime.text = TimeUtil.timeFormatStr(this._model.nextFreeTime, true);
-                        this._model.nextFreeTime--;
-                        freeTimes = 0; //免费次数清零
-                        if (this._model.nextFreeTime <= 0) {
-                            this.hall.txt_prizeTime.text = "免费抽奖";
-                            EventsManager.Instance.event(EventsType.UPDATE_LUCK_PRIZE);
-                        }
-                    }
-                    else {
-                        this.hall.txt_prizeTime.text = "大转盘";
-                        TimerManager.Instance.remove(loopFun, this);
-                    }
-                };
-                loopFun();
-                TimerManager.Instance.doTimer(1000, 0, loopFun, this);
-            }
-        });
+        if ($freeTime > 0 || userData.isShowLuckPrizeRedPoint()) {
+            this.hall.txt_prizeTime.text = "免费抽奖";
+            EventsManager.Instance.event(EventsType.LUCK_PRIZED_RED_POINT, "show");
+        }
     }
     /** 查询是否可以领取的成就任务 */
     checkIsGetAchievementReward() {
@@ -228,7 +197,7 @@ class HallManager extends Laya.EventDispatcher {
     isClickVideoTime() {
         if (this._isClickVideo) {
             this._isClickVideo = false;
-            this.hall.timerOnce(10000, this, () => {
+            this.hall.timerOnce(25 * 1000, this, () => {
                 this._isClickVideo = true;
             });
             return true;

@@ -29,6 +29,7 @@ class EvolutionLevelView extends BaseView {
         this.ui.effectLight.visible = false;
         this.ui.txt_name.visible = false;
         this.ui.txt_level.visible = false;
+        this.callback && this.callback();
     }
 }
 //# sourceMappingURL=EvolutionLevelView.js.map

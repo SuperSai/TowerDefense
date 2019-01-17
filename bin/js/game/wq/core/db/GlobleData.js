@@ -28,7 +28,7 @@ class GlobleData extends Laya.EventDispatcher {
         self._totalStepCsvList.Add(GlobleData.SkillStrengthenVO, SkillStrengthenVO);
         self._totalStepCsvList.Add(GlobleData.TrainDropVO, TrainDropVO);
         self._totalStepCsvList.Add(GlobleData.ItemVO, ItemVO);
-        // self._totalStepCsvList.Add(GlobleData.LotteryRosterVO, LotteryRosterVO);
+        self._totalStepCsvList.Add(GlobleData.LotteryRosterVO, LotteryRosterVO);
     }
     // 解析初始数据表
     initStep() {

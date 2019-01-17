@@ -118,14 +118,8 @@ class SDKManager {
             videoAd.onClose(closeCallback);
             let errCallback = (err) => {
                 console.log(err);
-                if (noAdCallback) {
-                    noAdCallback();
-                    return;
-                }
-                else {
-                    userData.toShareAd();
-                    return;
-                }
+                noAdCallback && noAdCallback();
+                return;
                 //无视频可看弹窗
                 let hintDialog = new ui.common.view.VideoAdViewUI();
                 AlignUtils.setToScreenGoldenPos(hintDialog);

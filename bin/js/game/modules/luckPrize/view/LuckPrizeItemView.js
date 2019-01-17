@@ -30,7 +30,6 @@ class LuckPrizeItemView extends BaseView {
                     this.showEssence(this.datas[0].name, this.datas[0].num);
                     break;
             }
-            HttpManager.Instance.requestPrizeCensus(this.datas[0].id);
         }
     }
     addEvents() {

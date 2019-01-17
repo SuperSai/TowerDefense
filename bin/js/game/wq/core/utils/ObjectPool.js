@@ -39,7 +39,6 @@ class ObjectPool {
      * 取出一个对象
      * @param classZ Class
      * @return Object
-     *
      */
     static pop(classZ, classKey, ...args) {
         if (!ObjectPool._content[classKey]) {
@@ -76,6 +75,44 @@ class ObjectPool {
             }
             obj.ObjectPoolKey = classKey;
             return obj;
+        }
+    }
+    /** 取出一个对象 */
+    static popObj(classZ, classKey, ...args) {
+        if (!ObjectPool._content[classKey]) {
+            ObjectPool._content[classKey] = [];
+        }
+        var list = ObjectPool._content[classKey];
+        if (list.length) {
+            let item = list.pop();
+            if ((item instanceof Laya.Image) && args.length > 0) {
+                item.skin = args[0];
+            }
+            return { obj: item, isPool: true };
+        }
+        else {
+            var argsLen = args.length;
+            var objClass;
+            if (argsLen == 0) {
+                objClass = new classZ();
+            }
+            else if (argsLen == 1) {
+                objClass = new classZ(args[0]);
+            }
+            else if (argsLen == 2) {
+                objClass = new classZ(args[0], args[1]);
+            }
+            else if (argsLen == 3) {
+                objClass = new classZ(args[0], args[1], args[2]);
+            }
+            else if (argsLen == 4) {
+                objClass = new classZ(args[0], args[1], args[2], args[3]);
+            }
+            else if (argsLen == 5) {
+                objClass = new classZ(args[0], args[1], args[2], args[3], args[4]);
+            }
+            objClass.ObjectPoolKey = classKey;
+            return { obj: objClass, isPool: false };
         }
     }
     /**

@@ -104,16 +104,17 @@ class EvolutionView extends BaseView {
     }
     evolutionLevelComplete(kingLevel, diamond) {
         let self = this;
-        ViewMgr.Ins.open(ViewConst.EvolutionLevelView, null, kingLevel);
-        HallManager.Instance.hallData.isUpdate = false;
-        if (HallManager.Instance.hall && kingLevel > HallManager.Instance.hallData.userKingLevel) {
-            HallManager.Instance.hall.setKingLevel(kingLevel);
-        }
-        if (diamond > 0)
-            EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: M.player.Info.userDiamond = diamond });
-        EventsManager.Instance.event(EventsType.EVOLUTION_LEVEL_COMPLETE, kingLevel);
-        self.refreshBoxUI();
-        self.ui.btnUpdate.disabled = !EvolutionManager.Instance.getIsEvolutionLevel();
+        ViewMgr.Ins.open(ViewConst.EvolutionLevelView, () => {
+            HallManager.Instance.hallData.isUpdate = false;
+            if (HallManager.Instance.hall && kingLevel > HallManager.Instance.hallData.userKingLevel) {
+                HallManager.Instance.hall.setKingLevel(kingLevel);
+            }
+            if (diamond > 0)
+                EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: M.player.Info.userDiamond = diamond });
+            EventsManager.Instance.event(EventsType.EVOLUTION_LEVEL_COMPLETE, kingLevel);
+            self.refreshBoxUI();
+            self.ui.btnUpdate.disabled = !EvolutionManager.Instance.getIsEvolutionLevel();
+        }, kingLevel);
     }
     close(...param) {
         super.close(param);

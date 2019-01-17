@@ -7,6 +7,7 @@ class SkyDropView extends BaseView {
     }
     initData() {
         super.initData();
+        this.isRemoveBanner = false;
         this.sheet = this.datas[0];
         switch (this.sheet.id) {
             case SkyDropSheet.ATTACK_SPEED_INCREASE: {

@@ -58,18 +58,7 @@ class HallScene extends ui.hall.HallSceneUI {
     init() {
         let self = this;
         HallManager.Instance.hall = self;
-        self.btnMiniProgram.visible = false;
-        if (self.btnMiniProgram && userData.miniImageUrl().length > 0) {
-            Laya.loader.load(userData.miniImageUrl(), Laya.Handler.create(self, (_imgTexture) => {
-                if (_imgTexture && _imgTexture.url) {
-                    self.btnMiniProgram.skin = _imgTexture.url;
-                }
-            }));
-        }
         self.carStoreBtnEnabled();
-        self.progressBarPower.changeHandler = new Handler(self, self.powerAcceChangeHandler);
-        self.powerAcceChangeHandler(self.progressBarPower.value);
-        self.btnPower.visible = false; //加速炮台暂时屏蔽
         if (GlobalConfig.DEBUG) {
             DebugView.GameView = self;
             LayerManager.getInstance().debugLayer.addChild(new DebugView());
@@ -169,7 +158,7 @@ class HallScene extends ui.hall.HallSceneUI {
         //游戏公告
         HttpManager.Instance.requestAnnouncement();
         MessageUtils.showMsgTips("");
-        HallManager.Instance.showLuckPrizeTime();
+        HallManager.Instance.checkIsFreeLottery();
     }
     /** 初始化用户数据 */
     initUserData() {
@@ -280,7 +269,6 @@ class HallScene extends ui.hall.HallSceneUI {
         self.btnAcce.on(Laya.Event.CLICK, self, self.onGameAccelerate);
         self.btnStrengthen.on(Laya.Event.CLICK, self, self.onStrengthen);
         self.btnStagePrize.on(Laya.Event.CLICK, self, self.onStagePrize);
-        self.btnMiniProgram.on(Laya.Event.CLICK, self, self.onMiniProgram);
         self.btnLuckPrize.on(Laya.Event.CLICK, self, self.showLuckPrizeView);
         self.btn_fly.on(Laya.Event.CLICK, self, self.onClickMiniProgram);
         self.btn_eliminate.on(Laya.Event.CLICK, self, self.onClickMiniProgram);
@@ -308,7 +296,6 @@ class HallScene extends ui.hall.HallSceneUI {
         EventsManager.Instance.on(EventsType.TASK_RED_POINT, self, self.onUpdateTaskRedPoint); //任务红点移除事件
         EventsManager.Instance.on(EventsType.LUCK_PRIZED_RED_POINT, self, self.onUpdatePrizeRedPoint); //转盘红点移除事件
         EventsManager.Instance.on(EventsType.HERO_SHOP_RED_POINT, M.hall, M.hall.resolveShopRedPoint); //英雄商店红点事件
-        EventsManager.Instance.on(EventsType.ACCE_CHANGE, self, self.onUpdateAccelerateBtnState); //加速按钮状态
         EventsManager.Instance.on(EventsType.STRENGTHEN_RED_POINT, self, self.onUpdateStrengthenRedPoint); //强化红点移除事件
         EventsManager.Instance.on(EventsType.FOLLOW_RED_POINT, self, self.onFollowRewardRedPoint); //关注红点事件
         EventsManager.Instance.on(EventsType.FRIEND_CONCUR_RED_POINT, self, self.onFriendConcurRedPoint); //好友互助红点事件
@@ -388,10 +375,10 @@ class HallScene extends ui.hall.HallSceneUI {
             });
         }
     }
-    refreshShortcutCreateBtn(_buyType = 0) {
+    refreshShortcutCreateBtn() {
         let self = this;
-        let monsterType = _buyType;
-        monsterType = userData.isEvolution() ? 2 : 1;
+        let monsterType = userData.isEvolution() ? 2 : 1;
+        ;
         HallManager.Instance.hallData.buyMonsterType = monsterType;
         let monsterLevel = userData.getCarLevel();
         monsterLevel = MathUtils.rangeInt(Math.max(1, monsterLevel - 4), monsterLevel);
@@ -432,7 +419,7 @@ class HallScene extends ui.hall.HallSceneUI {
             if (offlineTimeSpan > 10 * Time.MIN && HallManager.Instance.hallData.passStage > 1 && !M.novice.isRunning) {
                 // 当前关卡收益*(挂机时间/180)*0.1 (挂机时间最大2小时)
                 let stageIncome = BattleManager.Instance.getBarrierIncome(M.hall.hallData.passStage);
-                let prizeValue = stageIncome * Math.min(Time.HOUR * 2, offlineTimeSpan) / 180 * 0.01;
+                let prizeValue = stageIncome * Math.min(Time.HOUR * 2, offlineTimeSpan) / 180 * 0.1;
                 if (prizeValue > 0) {
                     ViewMgr.Ins.open(ViewConst.OfflineRewardsView, null, prizeValue);
                 }
@@ -496,7 +483,7 @@ class HallScene extends ui.hall.HallSceneUI {
         //强行重置精灵等级为1
         userData.resetMonsterLevel();
         //重置快捷购买按钮
-        that.refreshShortcutCreateBtn();
+        // that.refreshShortcutCreateBtn();
         //奖励三个高级精灵
         let prizeMonsterArray = [1001, 1001, 1001];
         if (that.carparkList) {
@@ -578,56 +565,6 @@ class HallScene extends ui.hall.HallSceneUI {
     }
     onShowCarport() {
         ViewMgr.Ins.open(ViewConst.ShopView);
-    }
-    //能量加速
-    onPowerAcce() {
-        // let that = this;
-        // that.progressBarPower.value += 0.06;
-        // if (that.progressBarPower.value >= 1) {
-        //   that.progressBarPower.value = 1;
-        //   that.btnPower.disabled = true;
-        //   that.btnPower.frameOnce(10, that, () => {
-        //     that.playAcceEffectView(10);
-        //     //加速次数统计
-        //     HttpManager.Instance.requestShareAdFinish("manual_acce");
-        //   });
-        //   EffectUtils.playCoinEffect(that.imgPowerCar, "images/core/coin_40x40.png");
-        // }
-        // that.btnPower.timerLoop(100, that, that.powerAcceTime);
-    }
-    powerAcceChangeHandler(_per) {
-        let that = this;
-        if (that.imgPowerCar) {
-            that.imgPowerCar.x = 20 + that.progressBarPower.width * (1 - _per);
-        }
-        if (that.imgPowerBg) {
-            if (that.imgPowerBg.visible == false && _per > 0) {
-                that.imgPowerBg.scaleY = 0;
-                let boxAnimation = (target, onEvtFinish = null) => {
-                    let timeLine = new Laya.TimeLine();
-                    timeLine.addLabel("show1", 0).to(target, { scaleY: 1 }, 100);
-                    if (onEvtFinish != null) {
-                        timeLine.on(Laya.Event.COMPLETE, target, () => {
-                            onEvtFinish();
-                            timeLine.destroy();
-                            timeLine = null;
-                        });
-                    }
-                    timeLine.play(0);
-                };
-                boxAnimation(that.imgPowerBg);
-            }
-            that.imgPowerBg.visible = _per > 0;
-        }
-    }
-    powerAcceTime() {
-        let that = this;
-        that.progressBarPower.value -= 1.0 / 100;
-        if (that.progressBarPower.value <= 0) {
-            that.progressBarPower.value = 0;
-            that.btnPower.clearTimer(that, that.powerAcceTime);
-            that.btnPower.disabled = false;
-        }
     }
     //显示签到红点
     showDailySignRedPoint(_show = true) {
@@ -841,7 +778,7 @@ class HallScene extends ui.hall.HallSceneUI {
         userData.statistics.synthesisNum++;
         userData.synthesisCount++;
         //随机奖励
-        if (userData.synthesisCount % 24 == 0) {
+        if (userData.synthesisCount % 28 == 0) {
             let randomNum = Math.random();
             if (randomNum < 0.4) {
                 self.showRandomDiamondReward();
@@ -889,7 +826,7 @@ class HallScene extends ui.hall.HallSceneUI {
             Laya.SoundManager.playSound("musics/makecar.mp3");
         }
         //刷新快捷买怪物按钮
-        self.refreshShortcutCreateBtn();
+        // self.refreshShortcutCreateBtn();
         HallManager.Instance.updateIncomePerSec(HallManager.Instance.getCalculateIncomePerSec(self.carparkList));
         //本地保存
         userData.setCarparkSave(heroItem, self.curMonsterSprite);
@@ -945,7 +882,7 @@ class HallScene extends ui.hall.HallSceneUI {
         }
         EventsManager.Instance.event(EventsType.UPDATE_CURRENCY);
         //刷新快捷买怪物按钮
-        that.refreshShortcutCreateBtn(HallManager.Instance.hallData.buyMonsterType);
+        // that.refreshShortcutCreateBtn();
         //本地保存
         userData.setMoney(PlayerManager.Instance.Info.userMoney);
     }
@@ -1159,28 +1096,6 @@ class HallScene extends ui.hall.HallSceneUI {
     showLuckPrizeView() {
         ViewMgr.Ins.open(ViewConst.LuckPrizeView);
     }
-    //跳转小程序
-    onMiniProgram() {
-        if (systemInfo.checkVersion(WXSDKVersion.NAVIGATE_TO_MINI_PROGRAM)) {
-            platform.navigateToMiniProgram({
-                appId: userData.miniCode(),
-                path: userData.miniPagePath(),
-                success(res) {
-                    console.log("mini跳转成功", res);
-                }
-            });
-            //小程序跳转次数统计
-            HttpManager.Instance.requestShareAdFinish("minipro_" + userData.miniCode());
-        }
-        else {
-            if (Laya.Browser.onMiniGame) {
-                Laya.Browser.window.wx.showModal({
-                    title: '温馨提示',
-                    content: '您当前微信版本过低，暂时使用该功能，请升级到最新微信版本后重试。'
-                });
-            }
-        }
-    }
     //怪物储存箱
     onCarStore() {
         let that = this;
@@ -1389,17 +1304,6 @@ class HallScene extends ui.hall.HallSceneUI {
             monsterAni.removeSelf();
             Laya.Pool.recover(userData.ANIMATION_POOL_NAME, monsterAni);
         });
-    }
-    /** 更新加速按钮状态 */
-    onUpdateAccelerateBtnState() {
-        let self = this;
-        if (self.btnMiniProgram && userData.miniImageUrl().length > 0) {
-            Laya.loader.load(userData.miniImageUrl(), Laya.Handler.create(self, (_imgTexture) => {
-                if (_imgTexture && _imgTexture.url) {
-                    self.btnMiniProgram.skin = _imgTexture.url;
-                }
-            }));
-        }
     }
     /** 更新转盘红点 */
     onUpdatePrizeRedPoint($data) {

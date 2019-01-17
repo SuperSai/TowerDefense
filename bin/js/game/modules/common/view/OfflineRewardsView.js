@@ -30,7 +30,7 @@ class OfflineRewardsView extends BaseView {
         let self = this;
         //显示广告
         userData.toShareAd(() => {
-            self._price = self._price * 2;
+            self._price = self._price * 8;
             self.ui.txtMoney.text = "金币+" + MathUtils.bytesToSize(self._price);
             self.ui.btnVideo.visible = false;
             M.layer.screenEffectLayer.addChild(new FlyEffect().play("rollingCoin", LayerManager.mouseX, LayerManager.mouseY));

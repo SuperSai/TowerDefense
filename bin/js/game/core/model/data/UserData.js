@@ -844,7 +844,7 @@ class UserData {
         let self = this;
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
-            url: 'v1/user/info',
+            url: 'v3/user/info',
             success: function (res) {
                 console.log("requestUserBaseData:", res);
                 if (res) {

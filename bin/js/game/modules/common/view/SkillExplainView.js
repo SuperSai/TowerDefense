@@ -8,6 +8,7 @@ class SkillExplainView extends BaseView {
     //初始化
     initUI() {
         super.initUI();
+        this.isRemoveBanner = false;
     }
     addEvents() {
         super.addEvents();

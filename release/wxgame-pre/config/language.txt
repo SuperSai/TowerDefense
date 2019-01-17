@@ -1,5 +1,5 @@
-﻿#"
-hallScene.label.txt.01:位置不足，已保存到英雄宝箱
+﻿#
+hallScene.label.txt.01:位置不足
 hallScene.label.txt.02:升级守护解锁
 hallScene.label.txt.03:英雄已送达
 hallScene.label.txt.04:钻石不足，做任务领钻石？

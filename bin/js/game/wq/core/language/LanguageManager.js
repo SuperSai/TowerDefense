@@ -21,7 +21,10 @@ class LanguageManager {
             data = Laya.Loader.getRes(PathConfig.Language);
         }
         let self = this;
-        let languageArr = String(data).split("\r\n");
+        let languageArr = String(data).split("\n");
+        if (languageArr.length <= 1) {
+            languageArr = String(data).split("\r\n");
+        }
         if (languageArr.length) {
             for (var i = 0; i < languageArr.length; i++) {
                 var obj = languageArr[i];

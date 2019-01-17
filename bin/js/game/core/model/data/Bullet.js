@@ -20,93 +20,79 @@ class Bullet extends Laya.Sprite {
         self.addChild(self._bulletImg);
     }
     //攻击目标
-    attackTarget(_targetSp, _collionCallback = null) {
-        let that = this;
-        let effectSp = that;
+    attackTarget(targetMonster, collionCallback = null) {
+        this._callBack = collionCallback;
         let targetPos = null;
-        if (_targetSp.calcuteNextMovePosFun) {
-            targetPos = _targetSp.calcuteNextMovePosFun();
+        if (targetMonster.calcuteNextMovePosFun) {
+            targetPos = targetMonster.calcuteNextMovePosFun();
         }
         else {
-            targetPos = new Laya.Point(_targetSp.x, _targetSp.y);
+            targetPos = { x: targetMonster.x, y: targetMonster.y };
         }
-        //动画
-        let timeLine = new Laya.TimeLine();
-        timeLine.addLabel("tl1", 0).to(effectSp, { x: targetPos.x - 30, y: targetPos.y - 80 }, 300, Laya.Ease.linearNone);
-        if (!timeLine.hasListener(Laya.Event.COMPLETE)) {
-            let timeLineHandler = () => {
-                //创建动画实例
-                let aniData = Bullet.aniTable[that._skillId - 1];
-                if (aniData && effectSp.parent) {
-                    let effectAni = new Laya.Animation();
-                    effectSp.parent.addChild(effectAni);
-                    effectAni.zOrder = effectSp.zOrder;
-                    // 加载动画图集,加载成功后执行回调方法
-                    let aniPath = aniData.aniPath;
-                    let aniKey = aniData.aniKey;
-                    let aniAtlas = PathConfig.EffectUrl.replace("{0}", aniPath);
-                    let aniInterval = 50;
-                    let frameCount = aniData.frameCount;
-                    effectAni.loadAtlas(aniAtlas, Handler.create(that, () => {
-                        //创建动画模板dizziness
-                        Laya.Animation.createFrames(AnimationUtils.aniUrls(aniKey, frameCount, aniPath + '/', true), aniPath);
-                        if (effectAni && effectAni.frames && effectAni.frames.length) {
-                            //设置坐标
-                            let aniGraphics = effectAni.frames[1];
-                            if (aniGraphics) {
-                                let aniBounds = aniGraphics.getBounds();
-                                effectAni.pos(effectSp.x + (effectSp.width - aniBounds.width) / 2 + 20, effectSp.y + (effectSp.height - aniBounds.width) / 2 + 40);
-                            }
-                            effectAni.interval = aniInterval;
-                            effectAni.play(0, false, aniPath);
-                        }
-                    }));
-                    effectAni.timerOnce(aniInterval * frameCount, that, () => {
-                        effectAni.removeSelf();
-                    });
-                }
-                ;
-                effectSp.removeChildren();
-                if (_collionCallback && _collionCallback(that._skillId)) {
-                    effectSp.removeSelf();
-                }
-                else {
-                    effectSp.removeSelf();
-                }
-                ObjectPool.push(effectSp);
-                timeLine.destroy();
-                timeLine = null;
-            };
-            timeLine.once(Laya.Event.COMPLETE, effectSp, timeLineHandler);
-            timeLine.play(0, false);
-        }
+        Laya.Tween.to(this, { x: targetPos.x - 30, y: targetPos.y - 80 }, 300, Laya.Ease.linearNone, Handler.create(this, this.buttetBomeEffect));
     }
-    //连接目标（雷电专用）
-    joinTarget(_targetPos, _collionCallback = null) {
-        let that = this;
-        let effectSp = that;
-        effectSp.loadImage("images/skill/effect_electric002.png");
-        effectSp.pivotX = 8;
-        effectSp.pivotY = effectSp.height / 2;
-        effectSp.rotation = MathUtils.calulatePointAnagle(effectSp.x, effectSp.y, _targetPos.x, _targetPos.y);
-        effectSp.scaleX = _targetPos.distance(effectSp.x, effectSp.y) / 100 + 0.1;
-        //动画
-        let timeLine = new Laya.TimeLine();
-        timeLine.addLabel("tl1", 0).to(effectSp, { scaleY: -1 }, 50, Laya.Ease.linearNone)
-            .addLabel("tl2", 0).to(effectSp, { scaleY: 1 }, 50, Laya.Ease.linearNone)
-            .addLabel("tl3", 0).to(effectSp, { alpha: 0 }, 100, Laya.Ease.linearNone);
-        timeLine.once(Laya.Event.COMPLETE, effectSp, () => {
-            effectSp.removeChildren();
-            if (_collionCallback && _collionCallback(that._skillId)) {
-                effectSp.removeSelf();
+    /** 子弹爆炸特效 */
+    buttetBomeEffect() {
+        Laya.Tween.clearTween(this);
+        //创建动画实例
+        let aniData = Bullet.aniTable[this._skillId - 1];
+        if (aniData && this.parent) {
+            let poolData = ObjectPool.popObj(Laya.Animation, aniData.aniPath);
+            let effectAni = poolData.obj;
+            this.parent.addChild(effectAni);
+            effectAni.zOrder = this.zOrder;
+            if (!poolData.isPool) {
+                effectAni.loadAtlas(PathConfig.EffectUrl.replace("{0}", aniData.aniPath), Handler.create(this, () => {
+                    //创建动画模板dizziness
+                    Laya.Animation.createFrames(AnimationUtils.aniUrls(aniData.aniKey, aniData.frameCount, aniData.aniPath + '/', true), aniData.aniPath);
+                    if (effectAni && effectAni.frames && effectAni.frames.length) {
+                        let aniGraphics = effectAni.frames[1]; //设置坐标
+                        if (aniGraphics) {
+                            let aniBounds = aniGraphics.getBounds();
+                            effectAni.pos(this.x + (this.width - aniBounds.width) / 2 + 20, this.y + (this.height - aniBounds.width) / 2 + 40);
+                        }
+                        effectAni.interval = 50;
+                        effectAni.play(0, false, aniData.aniPath);
+                    }
+                }));
             }
             else {
-                effectSp.removeSelf();
+                if (effectAni && effectAni.frames && effectAni.frames.length) {
+                    let aniGraphics = effectAni.frames[1];
+                    if (aniGraphics) {
+                        let aniBounds = aniGraphics.getBounds();
+                        effectAni.pos(this.x + (this.width - aniBounds.width) / 2 + 20, this.y + (this.height - aniBounds.width) / 2 + 40);
+                    }
+                    effectAni.play(0, false, aniData.aniPath);
+                }
             }
-            timeLine.destroy();
-            timeLine = null;
-        });
-        timeLine.play(0, false);
+            effectAni.timerOnce(50 * aniData.frameCount, this, () => {
+                effectAni.removeSelf();
+                ObjectPool.push(effectAni);
+            });
+        }
+        ;
+        this._callBack && this._callBack(this._skillId);
+        this.reset();
+        ObjectPool.push(this);
+    }
+    //连接目标（雷电专用）
+    joinTarget(targetPos) {
+        this.loadImage("images/skill/effect_electric002.png");
+        this.pivotX = 8;
+        this.pivotY = this.height / 2;
+        this.rotation = MathUtils.calulatePointAnagle(this.x, this.y, targetPos.x, targetPos.y);
+        this.scaleX = targetPos.distance(this.x, this.y) / 100 + 0.1;
+        Laya.Tween.to(this, { scaleY: -1 }, 50).to(this, { scaleY: 1 }, 50).to(this, { alpha: 0 }, 100, Laya.Ease.linearNone, Handler.create(this, () => {
+            this.removeChildren();
+            this.removeSelf();
+        }));
+    }
+    reset() {
+        DisplayUtils.removeFromParent(this._bulletImg);
+        this._bulletImg = null;
+        this.removeChildren();
+        this.removeSelf();
     }
 }
 Bullet.aniTable = [

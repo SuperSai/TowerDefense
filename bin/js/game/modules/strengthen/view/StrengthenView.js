@@ -96,7 +96,9 @@ class StrengthenView extends BaseView {
                                         let bone = new BoneAnim("qhcg");
                                         AlignUtils.setToScreenGoldenPos(bone);
                                         LayerMgr.Instance.addToLayer(bone, LAYER_TYPE.SCREEN_EFFECT_LAYER);
-                                        // MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.18"));
+                                        bone.completeBack = () => {
+                                            bone.destroy();
+                                        };
                                         StrengthenManager.Instance.checkRedPoint();
                                         if (_res.hasOwnProperty("essence")) {
                                             userData.setEssence(MathUtils.parseInt(_res.essence));

@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es6",
+    "sourceMap": true,
+    "outDir": "bin/js"//你要生成js的目录
+  },
+  "exclude": [
+    "node_modules"
+  ]
+}

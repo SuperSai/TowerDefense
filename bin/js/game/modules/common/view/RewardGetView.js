@@ -8,6 +8,7 @@ class RewardGetView extends BaseView {
     initData() {
         super.initData();
         let self = this;
+        this.isRemoveBanner = false;
         for (let index = 0, len = self.datas[0].length; index < len; index++) {
             let price = self.datas[0][index];
             let itemInfo = GlobleData.getData(GlobleData.ItemVO, self.datas[1][index]);

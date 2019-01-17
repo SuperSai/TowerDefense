@@ -5,17 +5,17 @@ class LuckPrizeView extends BaseView {
     constructor() {
         super(LAYER_TYPE.FRAME_LAYER, ui.luckPrize.LuckPrizeViewUI);
         this.costDiamond = 120;
-        this.freeTimes = 0; //免费次数
-        this.freeTime = 0; //免费时间
-        this.nextFreeTime = 0; //离下次免费时间
+        /** 免费抽奖次数 */
+        this._freeCount = 0;
+        /** 视频抽奖次数 */
+        this._videoCount = 0;
         this._isRunning = false;
-        this.isFreeDrawing = false; //是否正在免费抽奖
         this.prizeItemTable = [
             { id: 1, name: "2倍奖励", num: 2, imgUrl: "images/luckLottery/luck_item_box.png" },
             { id: 2, name: "大量钻石", num: 888, imgUrl: "images/core/diamond_icon_more.png" },
             { id: 3, name: "少量金币", num: 1, imgUrl: "images/luckLottery/luck_prize_1.png" },
             { id: 4, name: "大量精华", num: 20, imgUrl: "images/luckLottery/luck_prize_2.png" },
-            { id: 5, name: "4倍奖励", num: 4, imgUrl: "images/luckLottery/luck_item_box.png" },
+            { id: 5, name: "8倍奖励", num: 8, imgUrl: "images/luckLottery/luck_item_box.png" },
             { id: 6, name: "少量钻石", num: 188, imgUrl: "images/luckLottery/luck_prize_4.png" },
             { id: 7, name: "大量金币", num: 1, imgUrl: "images/core/coin_stack_01.png" },
             { id: 8, name: "少量精华", num: 10, imgUrl: "images/luckLottery/luck_prize_3.png" }
@@ -25,13 +25,11 @@ class LuckPrizeView extends BaseView {
     //初始化
     initUI() {
         super.initUI();
-        var self = this;
         SDKManager.Instance.showBannerAd();
-        self.startBtnEnabled(false);
-        self.initPrizeInfo();
-        //移除红点
-        userData.removeLuckPrizeRedPoint();
-        self.showMyDiamond(PlayerManager.Instance.Info.userDiamond);
+        this.startBtnEnabled(false);
+        this.initPrizeInfo();
+        this.onUpdateDiamond();
+        this.onUpdateRollName();
     }
     addEvents() {
         super.addEvents();
@@ -48,42 +46,33 @@ class LuckPrizeView extends BaseView {
         EventsManager.Instance.off(EventsType.UPDATE_LUCK_PRIZE, this, this.initPrizeInfo);
     }
     initPrizeInfo() {
-        HttpManager.Instance.requestPrizeInfo((_res) => {
-            if (!_res)
+        HttpManager.Instance.requestPrizeCount((data) => {
+            if (!data)
                 return;
-            if (this.isFreeDrawing == false) {
-                this.freeTimes = MathUtils.parseInt(_res.free_num);
-                this.freeTime = MathUtils.parseInt(_res.remain_time);
-                this.nextFreeTime = MathUtils.parseInt(_res.next_free);
-                HallManager.Instance.hallData.magnification = MathUtils.parseInt(_res.reward_x);
-                this.ui.imgLabel.skin = "images/luckLottery/luck_" + HallManager.Instance.hallData.magnification + ".png";
-            }
-            this.costDiamond = MathUtils.parseInt(_res.roulette_price);
-            //免费次数已用完
-            if (this.freeTimes < 1) {
-                this.freeTime = 0;
-            }
+            this._freeCount = MathUtils.parseInt(data.roulette_free_num);
+            this._videoCount = MathUtils.parseInt(data.roulette_ad_num);
+            HallManager.Instance.hallData.magnification = MathUtils.parseInt(data.reward_x);
+            this.ui.imgLabel.skin = "images/luckLottery/luck_" + HallManager.Instance.hallData.magnification + ".png";
             this.refreshDiamondText();
         });
     }
-    onClickExit() {
-        if (!this._isRunning) {
-            ViewMgr.Ins.close(ViewConst.LuckPrizeView);
-        }
-    }
     //开始抽奖
     onStart() {
-        let that = this;
-        that.startBtnEnabled(true);
-        if (that.freeTimes > 0) { //免费抽奖
-            this.handlerFreeLottery();
+        this.startBtnEnabled(true);
+        if (this._freeCount > 0) { //免费抽奖
+            this.doLotteryByType(LOTTERY_TYPE.FREE);
         }
-        else if (M.player.Info.userDiamond >= that.costDiamond) { //钻石抽奖
-            this.handlerDiamondLottery();
+        else if (this._videoCount > 0) { //看视频抽奖
+            if (HallManager.Instance.isClickVideoTime()) {
+                this.handlerLookVideoLottery();
+            }
+        }
+        else if (M.player.Info.userDiamond >= this.costDiamond) { //钻石抽奖
+            this.doLotteryByType(LOTTERY_TYPE.DIAMOND);
         }
         else {
             MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.04"));
-            that.startBtnEnabled(false);
+            this.startBtnEnabled(false);
         }
     }
     startBtnEnabled(_isEnabled = true) {
@@ -94,18 +83,18 @@ class LuckPrizeView extends BaseView {
     }
     //转盘
     onRotation(_rotation, _itemId) {
-        let that = this;
         this._isRunning = true;
         let fAdd = 0.2;
-        that.ui.imgBg.rotation = that.ui.imgBg.rotation % 360;
-        if (that.ui.imgBg.rotation > _rotation) {
+        this.ui.imgBg.rotation = this.ui.imgBg.rotation % 360;
+        if (this.ui.imgBg.rotation > _rotation) {
             fAdd = -fAdd;
         }
         let fAddLength = 0;
-        let fTotalLength = Math.abs(_rotation - that.ui.imgBg.rotation);
+        let fTotalLength = Math.abs(_rotation - this.ui.imgBg.rotation);
+        this.startBtnEnabled(true);
         let animFun = () => {
             if (fAdd > 0) {
-                if (that.ui.imgBg.rotation < _rotation) {
+                if (this.ui.imgBg.rotation < _rotation) {
                     let progress = fAddLength / fTotalLength;
                     //加速
                     if (progress < 0.2) {
@@ -118,100 +107,162 @@ class LuckPrizeView extends BaseView {
                         fAdd = 0.2;
                     }
                     fAddLength += fAdd;
-                    that.ui.imgBg.rotation += fAdd;
+                    this.ui.imgBg.rotation += fAdd;
                 }
                 else {
-                    that.ui.imgBg.rotation = _rotation;
-                    that.ui.imgBg.clearTimer(that, animFun);
+                    this.ui.imgBg.rotation = _rotation;
+                    this.ui.imgBg.clearTimer(this, animFun);
                     //显示奖励物品
                     if (_itemId != 1 && _itemId != 5) {
                         ViewMgr.Ins.open(ViewConst.LuckPrizeItemView, () => {
                             this.ui.imgLabel.skin = "images/luckLottery/luck_" + HallManager.Instance.hallData.magnification + ".png";
-                            that.startBtnEnabled(false);
-                        }, that.prizeItemTable[_itemId - 1]);
+                            this.startBtnEnabled(false);
+                        }, this.prizeItemTable[_itemId - 1]);
                     }
                     else {
                         ViewMgr.Ins.open(ViewConst.LuckPrizeBoxView, (flag) => {
-                            that.startBtnEnabled(false);
+                            this.startBtnEnabled(false);
+                            this.ui.imgLabel.skin = "images/luckLottery/luck_" + HallManager.Instance.hallData.magnification + ".png";
                             if (flag) {
-                                this.ui.imgLabel.skin = "images/luckLottery/luck_" + HallManager.Instance.hallData.magnification + ".png";
-                                this.handlerFreeLottery();
+                                this.startBtnEnabled(true);
+                                this.doLotteryByType(LOTTERY_TYPE.FREE_VIDEO);
                             }
-                        }, that.prizeItemTable[_itemId - 1]);
+                        }, this.prizeItemTable[_itemId - 1]);
                     }
                     this._isRunning = false;
-                    HallManager.Instance.showLuckPrizeTime(that.freeTimes);
                 }
             }
             else if (fAdd < 0) {
-                if (that.ui.imgBg.rotation > _rotation) {
-                    that.ui.imgBg.rotation += fAdd;
+                if (this.ui.imgBg.rotation > _rotation) {
+                    this.ui.imgBg.rotation += fAdd;
                 }
                 else {
-                    that.ui.imgBg.rotation = _rotation;
-                    that.ui.imgBg.clearTimer(that, animFun);
-                    that.startBtnEnabled(true);
+                    this.ui.imgBg.rotation = _rotation;
+                    this.ui.imgBg.clearTimer(this, animFun);
+                    this.startBtnEnabled(true);
                 }
             }
         };
-        that.ui.imgBg.timerLoop(10, that, animFun);
+        this.ui.imgBg.timerLoop(10, this, animFun);
     }
-    onUpdateDiamond(data) {
+    /** 更新钻石数量 */
+    onUpdateDiamond(data = null) {
         if (data && data.diamond) {
-            this.showMyDiamond(data.diamond);
+            this.ui.txt_diamond.text = data.diamond + "";
         }
         else {
-            this.showMyDiamond(M.player.Info.userDiamond);
+            this.ui.txt_diamond.text = M.player.Info.userDiamond + "";
         }
     }
-    showMyDiamond(value) {
-        let self = this;
-        self.ui.txt_diamond.text = value + "";
-    }
-    /** 免费抽奖 */
-    handlerFreeLottery() {
-        HttpManager.Instance.requestDrawPrize(0, (_res) => {
-            if (!_res || _res.id == null) {
-                console.log("无法正常抽奖free");
+    /** 抽奖 */
+    doLotteryByType(type) {
+        HttpManager.Instance.requestDrawPrize(type, (data) => {
+            if (!data || data.id == null) {
+                console.log("无法正常抽奖 type:", type);
                 this.startBtnEnabled(false);
                 return;
             }
-            this.isFreeDrawing = true;
-            let itemId = _res.id;
+            let itemId = data.id;
             let rotation = (8 - itemId) * 360 / 8 + 360 / 16;
             this.onRotation(360 * 7 + rotation, itemId);
-            this.freeTimes--;
-            this.freeTime = 0;
-            //移除红点
-            userData.removeLuckPrizeRedPoint();
-            this.refreshDiamondText();
+            switch (type) {
+                case LOTTERY_TYPE.FREE:
+                    this._freeCount--;
+                    this.refreshView(this._freeCount);
+                    break;
+                case LOTTERY_TYPE.VIDEO:
+                    this._videoCount--;
+                    this.refreshView(this._videoCount);
+                    break;
+                case LOTTERY_TYPE.DIAMOND:
+                    EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: data.diamond_total });
+                    break;
+                case LOTTERY_TYPE.FREE_VIDEO:
+                    HallManager.Instance.hallData.magnification = 1;
+                    this.ui.imgLabel.skin = "images/luckLottery/luck_" + HallManager.Instance.hallData.magnification + ".png";
+                    break;
+            }
         });
     }
-    /** 钻石抽奖 */
-    handlerDiamondLottery() {
-        HttpManager.Instance.requestDrawPrize(1, (_res) => {
-            if (!_res || _res.id == null) {
-                console.log("无法正常抽奖diamond");
-                this.startBtnEnabled(false);
-                return;
+    refreshView(count) {
+        if (this._freeCount <= 0 && this._videoCount <= 0) {
+            HallManager.Instance.checkIsFreeLottery(count);
+            userData.removeLuckPrizeRedPoint(); //移除红点
+        }
+        this.refreshDiamondText();
+    }
+    /** 看视频抽奖 */
+    handlerLookVideoLottery() {
+        SDKManager.Instance.showVideoAd((_res) => {
+            if (_res && _res.isEnded || _res == undefined) {
+                this.doLotteryByType(LOTTERY_TYPE.VIDEO);
             }
-            let itemId = _res.id;
-            let rotation = (8 - itemId) * 360 / 8 + 360 / 16;
-            this.onRotation(360 * 7 + rotation, itemId);
-            this.freeTimes--;
-            this.freeTime = 0;
-            //刷新钻石数量
-            HttpManager.Instance.requestDiamondData();
+            else {
+                this.startBtnEnabled(false);
+            }
+        }, () => {
+            userData.toShareAd(() => {
+                this.doLotteryByType(LOTTERY_TYPE.VIDEO);
+            });
         });
     }
     refreshDiamondText() {
         let self = this;
-        if (self.freeTime > 0) {
+        self.ui.imgIcon.visible = true;
+        self.ui.txtDiamond.x = 102;
+        if (self._freeCount > 0 || self._videoCount > 0) {
             self.ui.txtDiamond.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.24");
+            if (self._freeCount <= 0 && self._videoCount > 0) {
+                self.ui.imgIcon.skin = "images/core/video_icon.png";
+            }
+            else {
+                self.ui.imgIcon.visible = false;
+                self.ui.txtDiamond.x = 81;
+            }
         }
         else {
             self.ui.txtDiamond.changeText('' + self.costDiamond);
+            self.ui.imgIcon.skin = "images/core/diamond.png";
         }
     }
+    /** 更新滚动的名字 */
+    onUpdateRollName() {
+        this.ui.maskImg.mask = this.ui.rollBg;
+        this.timerLoop(900, this, this.timeLoopRollName);
+    }
+    timeLoopRollName() {
+        let vo = GlobleData.getData(GlobleData.LotteryRosterVO, MathUtils.rangeInt(1, 100));
+        let rollName = ObjectPool.pop(RollNameItem, "RollNameItem");
+        if (vo)
+            rollName.init(vo);
+        this.ui.rollBg.addChild(rollName);
+        rollName.x = 63; // (this.ui.rollBg.width - rollName.width) / 2;
+        rollName.y = this.ui.rollBg.height - rollName.height;
+        Laya.Tween.to(rollName, { y: 0 }, 2500, Laya.Ease.linearNone, Handler.create(this, () => {
+            Laya.Tween.clearTween(rollName);
+            DisplayUtils.removeFromParent(rollName);
+            ObjectPool.push(rollName);
+        }));
+    }
+    onClickExit() {
+        if (!this._isRunning) {
+            ViewMgr.Ins.close(ViewConst.LuckPrizeView);
+        }
+    }
+    close(...param) {
+        super.close(param);
+        this.clearTimer(this, this.timeLoopRollName);
+    }
 }
+var LOTTERY_TYPE;
+(function (LOTTERY_TYPE) {
+    /** 免费抽奖 */
+    LOTTERY_TYPE[LOTTERY_TYPE["FREE"] = 0] = "FREE";
+    /** 钻石抽奖 */
+    LOTTERY_TYPE[LOTTERY_TYPE["DIAMOND"] = 1] = "DIAMOND";
+    /** 免费抽奖的看视频 */
+    LOTTERY_TYPE[LOTTERY_TYPE["VIDEO"] = 2] = "VIDEO";
+    /** 这个是比较特殊的，只有抽中多倍后观看视频就免费赠送一次抽奖 */
+    LOTTERY_TYPE[LOTTERY_TYPE["FREE_VIDEO"] = 3] = "FREE_VIDEO";
+})(LOTTERY_TYPE || (LOTTERY_TYPE = {}));
 //# sourceMappingURL=LuckPrizeView.js.map

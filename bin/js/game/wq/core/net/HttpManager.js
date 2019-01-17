@@ -830,7 +830,7 @@ class HttpManager {
             }
         });
     }
-    /** 转盘信息统计 */
+    /** 转盘信息统计 废弃没用*/
     requestPrizeCensus(itemId) {
         let dataString = 'prizeId=' + itemId;
         console.log("requestPrizeCensus:", dataString);
@@ -848,10 +848,10 @@ class HttpManager {
         });
     }
     /** 转盘抽奖 */
-    requestDrawPrize(_itemId, _callback) {
+    requestDrawPrize(itemId, _callback) {
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
-            url: 'v2/activity/roulette/' + _itemId,
+            url: 'v3/activity/roulette/' + itemId,
             success: function (res) {
                 console.log("requestDrawPrize", res);
                 _callback && _callback(res);
@@ -859,6 +859,20 @@ class HttpManager {
             fail: function (res) {
                 console.log(res);
                 _callback && _callback(false);
+            }
+        });
+    }
+    /** 获取转盘抽奖次数 */
+    requestPrizeCount(callback) {
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+        HttpReqHelper.request({
+            url: 'v3/activity/num/roulette',
+            success: function (res) {
+                console.log("requestPrizeCount", res);
+                callback && callback(res);
+            },
+            fail: function (res) {
+                console.log(res);
             }
         });
     }

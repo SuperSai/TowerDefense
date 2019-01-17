@@ -1,6 +1,6 @@
 D .
 D config
-R C8825AAF language.txt
+R 1DF96AC3 language.txt
 D images
 D loading
 D musics
@@ -14,9 +14,9 @@ R AE065398 kingUpdate.mp3
 R CA9141BD makecar.mp3
 R DCB3F965 unlock.mp3
 D sheets
-R 60254AD8 sheet.json
+R B794DEE2 sheet.json
 D config/csvJson
-R A06487AE BarrierConfig.json
+R 0A06BB72 BarrierConfig.json
 R D7B55D3D BarrierReward.json
 R 0FA4EFC9 Item.json
 R 843E43E6 KindLevelConfig.json
@@ -193,9 +193,9 @@ P 95055F64 levelHero_titel.png
 D images/luckLottery
 P 6111854E luck_1.png
 P 48A272DE luck_2.png
-P A84490A4 luck_4.png
+P 3554159F luck_8.png
 P 043405C4 luck_go.png
-R 9D3A5DA7 luck_huanpan.png
+R FCFF25FD luck_huanpan.png
 R E0670AD6 luck_huanpan_light.png
 P 27A69212 luck_item_box.png
 R 3ACAA4E1 luck_item_title.png
@@ -224,6 +224,7 @@ P 6A4BFD26 subscribe.png
 P B84C9C96 title.png
 D images/novice
 R D1E1B99E character.png
+P 88A715CC character_bg.png
 P 084B8E3A finger.png
 P EB352E94 interact_circle.png
 D images/offlineReward

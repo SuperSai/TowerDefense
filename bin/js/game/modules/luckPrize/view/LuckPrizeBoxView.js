@@ -10,8 +10,19 @@ class LuckPrizeBoxView extends BaseView {
         super.initData();
         this.isRemoveBanner = false;
         if (this.datas[0]) {
+            switch (this.datas[0].id) {
+                case 1: //2倍奖励
+                    if (HallManager.Instance.hallData.magnification < 2) {
+                        HallManager.Instance.hallData.magnification = 2;
+                    }
+                    break;
+                case 5: //8倍奖励
+                    if (HallManager.Instance.hallData.magnification < 8) {
+                        HallManager.Instance.hallData.magnification = 8;
+                    }
+                    break;
+            }
             this.ui.txt_des.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.40", this.datas[0].num);
-            HttpManager.Instance.requestPrizeCensus(this.datas[0].id);
         }
     }
     addEvents() {
@@ -42,22 +53,8 @@ class LuckPrizeBoxView extends BaseView {
     }
     /** 更新倍率 */
     updateMagnification() {
-        if (this.datas[0]) {
-            switch (this.datas[0].id) {
-                case 1: //2倍奖励
-                    if (HallManager.Instance.hallData.magnification < 2) {
-                        HallManager.Instance.hallData.magnification = 2;
-                    }
-                    break;
-                case 5: //4倍奖励
-                    if (HallManager.Instance.hallData.magnification < 4) {
-                        HallManager.Instance.hallData.magnification = 4;
-                    }
-                    break;
-            }
-            this.callback && this.callback(true);
-            this.onCloseHandler();
-        }
+        this.callback && this.callback(true);
+        this.onCloseHandler();
     }
     onCloseHandler() {
         this.callback && this.callback(false);

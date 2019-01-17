@@ -8,6 +8,7 @@ class FreeGetPetView extends BaseView {
     initData() {
         super.initData();
         let self = this;
+        this.isRemoveBanner = false;
         let monsterLevel = BattleManager.Instance.getLevel(self.datas[0].id);
         self.ui.imgPet.skin = "images/carImg/" + self.datas[0].imgUrl;
         self.ui.txt_name.text = self.datas[0].name + " Lv" + monsterLevel;
