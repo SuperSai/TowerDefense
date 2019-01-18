@@ -100,7 +100,7 @@ class BattleManager extends Laya.EventDispatcher {
         petButtle.setBulletType(pet);
         let effectPos: Laya.Point = self._hallScene.roadView.globalToLocal(pet.localToGlobal(new Laya.Point(0, 0)));
         petButtle.pos(effectPos.x + 20, effectPos.y + 30);
-        petButtle.rotation = ObjectUtils.getAngle(effectPos, new Laya.Point(monster.x, monster.y));
+        petButtle.rotation = ObjectUtils.getAngle(effectPos, { x: monster.x, y: monster.y });
         petButtle.attackTarget(monster, (_skillId: number) => {
             let skillCfg: any = null;
             let isDoubleHurt: boolean = false;

@@ -10,6 +10,7 @@ class LuckPrizeView extends BaseView {
         /** 视频抽奖次数 */
         this._videoCount = 0;
         this._isRunning = false;
+        this._currType = -1;
         this.prizeItemTable = [
             { id: 1, name: "2倍奖励", num: 2, imgUrl: "images/luckLottery/luck_item_box.png" },
             { id: 2, name: "大量钻石", num: 888, imgUrl: "images/core/diamond_icon_more.png" },
@@ -97,8 +98,8 @@ class LuckPrizeView extends BaseView {
                 if (this.ui.imgBg.rotation < _rotation) {
                     let progress = fAddLength / fTotalLength;
                     //加速
-                    if (progress < 0.2) {
-                        fAdd += 0.2;
+                    if (progress < 0.3) {
+                        fAdd += 0.3;
                     }
                     else if (progress > 0.6) {
                         fAdd -= 0.1;
@@ -164,7 +165,7 @@ class LuckPrizeView extends BaseView {
             }
             let itemId = data.id;
             let rotation = (8 - itemId) * 360 / 8 + 360 / 16;
-            this.onRotation(360 * 7 + rotation, itemId);
+            this.onRotation(360 * 3 + rotation, itemId);
             switch (type) {
                 case LOTTERY_TYPE.FREE:
                     this._freeCount--;
@@ -177,17 +178,13 @@ class LuckPrizeView extends BaseView {
                 case LOTTERY_TYPE.DIAMOND:
                     EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: data.diamond_total });
                     break;
-                case LOTTERY_TYPE.FREE_VIDEO:
-                    HallManager.Instance.hallData.magnification = 1;
-                    this.ui.imgLabel.skin = "images/luckLottery/luck_" + HallManager.Instance.hallData.magnification + ".png";
-                    break;
             }
         });
     }
     refreshView(count) {
         if (this._freeCount <= 0 && this._videoCount <= 0) {
-            HallManager.Instance.checkIsFreeLottery(count);
             userData.removeLuckPrizeRedPoint(); //移除红点
+            HallManager.Instance.checkIsFreeLottery(count);
         }
         this.refreshDiamondText();
     }

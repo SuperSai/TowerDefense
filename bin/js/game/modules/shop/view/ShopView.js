@@ -60,13 +60,11 @@ class ShopView extends BaseView {
         self.ui.heroList.optimizeScrollRect = true;
         let firstLockId = 0; //第一个被锁项目
         let shareFreeCarId = 0; //免费得车Id
-        let shareFreeCarCfg = BattleManager.Instance.getPreMonster(monsterType * 100 + userData.getCarLevel(), -1);
+        let shareFreeCarCfg = BattleManager.Instance.getPreMonster(monsterType == 2 ? 1000 : 100 + userData.getCarLevel(), -1);
         if (shareFreeCarCfg) {
             shareFreeCarId = shareFreeCarCfg.id;
         }
         let curBuyIndex = BattleManager.Instance.getLevel(shareFreeCarId) - 1; //滚屏位置
-        let count = 1;
-        let moveY = 50;
         self.ui.heroList.renderHandler = new Laya.Handler(self, (cell, index) => {
             if (cell.pivotX || cell.pivotY)
                 cell.pivot(0, 0);

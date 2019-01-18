@@ -33,6 +33,8 @@ class SDKManager {
                 console.log("@FREEMAN: 在保存离线数据期间发生了错误：", e);
             }
         });
+        let queryData = "userId=" + userData.userId + "&shareId=0" + "&shareType=share";
+        platform.onShareAppMessage(queryData);
     }
     showToast(param) {
         if (Laya.Browser.onMiniGame) {

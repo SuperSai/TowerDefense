@@ -545,7 +545,7 @@ class HallScene extends ui.hall.HallSceneUI {
                     let skyDropBuff: number = BuffController.getInstance().getBuffValueById(BuffSheet.COIN_OBTAIN_INCREASE);
                     let skillBuff: number = userData.getSkillAdditionProbability(10);
                     let resultCoin: number = dropMoney * (1 + skillBuff + skyDropBuff);
-                    let txtPos = { x: monsterSp.x - 20, y: monsterSp.y - 50 }
+                    let txtPos = new Laya.Point(monsterSp.x - 20, monsterSp.y - 50);
                     EffectUtils.playImageTextEffect(that.roadView, "images/core/coin_40x40.png", "+" + MathUtils.bytesToSize(resultCoin), txtPos, monsterSp.zOrder + 100);
                     that.updateGold(PlayerManager.Instance.Info.userMoney + resultCoin);
                   }

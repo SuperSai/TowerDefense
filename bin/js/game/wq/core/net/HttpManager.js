@@ -180,7 +180,6 @@ class HttpManager {
     }
     /** 新老版本清理回调 */
     requestVersionClear(_callback) {
-        let that = this;
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/clear/user_data',
@@ -195,7 +194,6 @@ class HttpManager {
     }
     /** 新老版本更新检测（防止老数据覆盖） */
     requestVersionCheck(_callback) {
-        let that = this;
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/check/version',
@@ -269,7 +267,8 @@ class HttpManager {
             success: res => {
                 let offlineTimeSpan = MathUtils.parseInt(res.time); //离线时长
                 // let login_time = MathUtils.parseInt(res.login_time); //登录当前服务器时间
-                if (offlineTimeSpan > 10 * Time.MIN) {
+                HttpManager.Instance.requestSaveLog("@David 离线奖励服务器发送过来的时间：" + offlineTimeSpan);
+                if (offlineTimeSpan >= 10 * Time.MIN) {
                     M.event.event(EventsType.OFFLINE, offlineTimeSpan);
                     this.requestNotifyServerPrize();
                 }
@@ -735,6 +734,7 @@ class HttpManager {
     /** 分享礼包 */
     requestShareGift(param) {
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+        console.log("@David 点击分享卡牌进入游戏的参数：", param);
         HttpReqHelper.request({
             url: "v1/share/friend",
             method: "POST",

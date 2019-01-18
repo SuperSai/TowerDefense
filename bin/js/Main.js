@@ -46,7 +46,7 @@ class Main {
         EffectUtils.showWaitEffect();
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
-            url: 'v1/token/user',
+            url: 'v3/token/user',
             method: "Post",
             data: StringUtils.toUrlQueryString({ userName: account, password: pwd }),
             success: res => {

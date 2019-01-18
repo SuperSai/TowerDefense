@@ -119,7 +119,9 @@ class HallScene extends ui.hall.HallSceneUI {
         }
       });
     }
+
     self.navToMiniAni.play(0, true);
+
     /** 初始化用户数据 */
     self.initUserData();
     self.initCarUI();
@@ -184,7 +186,7 @@ class HallScene extends ui.hall.HallSceneUI {
       self.frameOnce(50, self, () => {
         //离线收益， 离线超过10分钟才向服务器请求离线时间，否则没有离线奖励
         const now: number = new Date().getTime();
-        if (now - userData.lastHeartBeatTime > 10 * Time.MIN) {
+        if (now - userData.lastHeartBeatTime > 10 * Time.MIN_IN_MILI) {
           M.http.requestOfflinePrizeData();
         }
         //超越好友
@@ -384,10 +386,10 @@ class HallScene extends ui.hall.HallSceneUI {
 
   public refreshShortcutCreateBtn() {
     let self = this;
-    let monsterType: number = userData.isEvolution() ? 2 : 1;
+    let monsterType: number = userData.isEvolution() ? 2 : 1;;
     HallManager.Instance.hallData.buyMonsterType = monsterType;
     let monsterLevel: number = userData.getCarLevel();
-    monsterLevel = MathUtils.rangeInt(Math.max(1, monsterLevel - 2), monsterLevel);
+    monsterLevel = MathUtils.rangeInt(Math.max(1, monsterLevel - 4), monsterLevel);
     let monsterInfo = BattleManager.Instance.getUnLockMonster(monsterType, monsterLevel);
     let btnBuy = self.btnShopShortcut;
     if (monsterInfo && btnBuy) {
@@ -545,7 +547,7 @@ class HallScene extends ui.hall.HallSceneUI {
                     let skyDropBuff: number = BuffController.getInstance().getBuffValueById(BuffSheet.COIN_OBTAIN_INCREASE);
                     let skillBuff: number = userData.getSkillAdditionProbability(10);
                     let resultCoin: number = dropMoney * (1 + skillBuff + skyDropBuff);
-                    let txtPos = { x: monsterSp.x - 20, y: monsterSp.y - 50 }
+                    let txtPos = new Laya.Point(monsterSp.x - 20, monsterSp.y - 50);
                     EffectUtils.playImageTextEffect(that.roadView, "images/core/coin_40x40.png", "+" + MathUtils.bytesToSize(resultCoin), txtPos, monsterSp.zOrder + 100);
                     that.updateGold(PlayerManager.Instance.Info.userMoney + resultCoin);
                   }
@@ -1291,40 +1293,29 @@ class HallScene extends ui.hall.HallSceneUI {
   public playKingUpdateEffect(): void {
     let that = this;
     if (that.spMountGuard == null) return;
-    let aniPath: string = "kingUpdate";
-    let poolData = ObjectPool.popObj(Laya.Animation, aniPath);
-    let monsterAni: Laya.Animation = poolData.obj;
+    let monsterAni: Laya.Animation = Laya.Pool.getItemByClass(userData.ANIMATION_POOL_NAME, Laya.Animation);
     that.spMountGuard.addChild(monsterAni);
+    // 加载动画图集,加载成功后执行回调方法
+    let aniPath: string = "kingUpdate";
+    let aniKey: string = "sj_";
+    let aniAtlas: string = PathConfig.EffectUrl.replace("{0}", aniPath);
     let aniInterval: number = 120;
     let frameCount: number = 5;
-    if (!poolData.isPool) {
-      // 加载动画图集,加载成功后执行回调方法
-      let aniKey: string = "sj_";
-      let aniAtlas: string = PathConfig.EffectUrl.replace("{0}", aniPath);
-      monsterAni.loadAtlas(aniAtlas, Handler.create(that, () => {
-        //创建动画模板dizziness
-        Laya.Animation.createFrames(AnimationUtils.aniUrls(aniKey, frameCount, aniPath + "/"), aniPath);
-        //设置坐标
-        let aniGraphics = monsterAni.frames[1] as Laya.Graphics;
-        if (aniGraphics) {
-          let aniBounds = aniGraphics.getBounds() as Laya.Rectangle;
-          monsterAni.pos(-aniBounds.width * 0.4, -aniBounds.height * 0.6);
-        }
-        monsterAni.interval = aniInterval;
-        monsterAni.play(0, false, aniPath);
-      }));
-    } else {
+    monsterAni.loadAtlas(aniAtlas, Handler.create(that, () => {
+      //创建动画模板dizziness
+      Laya.Animation.createFrames(AnimationUtils.aniUrls(aniKey, frameCount, aniPath + "/"), aniPath);
       //设置坐标
       let aniGraphics = monsterAni.frames[1] as Laya.Graphics;
       if (aniGraphics) {
         let aniBounds = aniGraphics.getBounds() as Laya.Rectangle;
         monsterAni.pos(-aniBounds.width * 0.4, -aniBounds.height * 0.6);
       }
+      monsterAni.interval = aniInterval;
       monsterAni.play(0, false, aniPath);
-    }
+    }));
     monsterAni.timerOnce(aniInterval * frameCount, that, () => {
       monsterAni.removeSelf();
-      ObjectPool.push(monsterAni);
+      Laya.Pool.recover(userData.ANIMATION_POOL_NAME, monsterAni);
     });
   }
 

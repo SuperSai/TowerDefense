@@ -88,14 +88,14 @@ class ObjectUtils {
         }
     }
 
-    static assign(target:any, source:any, useTargetKeys?:boolean):void{
-        if(target && source){
-            if(useTargetKeys){
-                for(const key in target){
+    static assign(target: any, source: any, useTargetKeys?: boolean): void {
+        if (target && source) {
+            if (useTargetKeys) {
+                for (const key in target) {
                     target[key] = source[key];
                 }
             } else {
-                for(const key in source){
+                for (const key in source) {
                     target[key] = source[key];
                 }
             }
@@ -132,7 +132,7 @@ class ObjectUtils {
     }
 
     /** 求2对象之间的角度 */
-    public static getAngle(starPos: Laya.Point, endPos: Laya.Point): number {
+    public static getAngle(starPos: Laya.Point, endPos: { x: number, y: number }): number {
         let vx = starPos.x - endPos.x;
         let vy = starPos.y - endPos.y;
         let hyp = Math.sqrt(Math.pow(vy, 2) + Math.pow(vx, 2));

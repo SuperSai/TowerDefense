@@ -19,7 +19,7 @@ class Token {
         Laya.Browser.window.wx.login({
             success: function (res) {
                 Laya.Browser.window.wx.request({
-                    url: PathConfig.AppUrl + 'v1/token/user',
+                    url: PathConfig.AppUrl + 'v3/token/user',
                     method: 'POST',
                     data: {
                         code: res.code,

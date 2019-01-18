@@ -191,6 +191,7 @@ class HttpManager {
 
     /** 新老版本清理回调 */
     public requestVersionClear(_callback: any): void {
+        let that = this;
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/clear/user_data',
@@ -206,6 +207,7 @@ class HttpManager {
 
     /** 新老版本更新检测（防止老数据覆盖） */
     public requestVersionCheck(_callback: any): void {
+        let that = this;
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/check/version',
@@ -283,8 +285,8 @@ class HttpManager {
             success: res => {
                 let offlineTimeSpan = MathUtils.parseInt(res.time); //离线时长
                 // let login_time = MathUtils.parseInt(res.login_time); //登录当前服务器时间
-                HttpManager.Instance.requestSaveLog("@David 离线奖励服务器发送过来的时间：" + offlineTimeSpan);
-                if (offlineTimeSpan >= 10 * Time.MIN) {
+
+                if (offlineTimeSpan > 10 * Time.MIN) {
                     M.event.event(EventsType.OFFLINE, offlineTimeSpan);
                     this.requestNotifyServerPrize();
                 }

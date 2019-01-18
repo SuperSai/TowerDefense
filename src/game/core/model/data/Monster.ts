@@ -182,11 +182,7 @@ class MonsterSprite extends Laya.Sprite {
         let roleAni = <Laya.Animation>self.getChildByName(MonsterSprite.roleKey);
         if (roleAni) {
             roleAni.interval = aniInterval;
-            if (animName == (self.animPreKey + MonsterSprite.standAnimKey)) {
-                roleAni.play(self._aniStandFrameStart, isLoop, animName);
-            } else {
-                roleAni.play(0, isLoop, animName);
-            }
+            roleAni.play(0, isLoop, animName);
         }
     }
 
@@ -397,13 +393,11 @@ class MonsterSprite extends Laya.Sprite {
         if (effectNode) {
             EffectUtils.playBoxShakeEffect(effectNode, () => {
                 effectNode.removeChildren();
-                EffectUtils.playCoinEffect(effectNode, 'images/hall/star2.png', {
-                    x: 0,
-                    y: 0
-                }, () => {
-                    effectNode.removeChildren();
-                    effectNode.removeSelf();
-                });
+                EffectUtils.playCoinEffect(effectNode, 'images/hall/star2.png', { x: 0, y: 0 },
+                    () => {
+                        effectNode.removeChildren();
+                        effectNode.removeSelf();
+                    });
                 that.setStage(1);
             });
             that._boxEffectNode = null;
@@ -482,7 +476,7 @@ class MonsterSprite extends Laya.Sprite {
         }
         //飘数字
         if (hurtBlood > 0) {
-            EffectUtils.playBloodTextEffect(self._parentNode, "-" + MathUtils.bytesToSize(hurtBlood, true), new Laya.Point(self.x, self.y - 60), _isDoubleHurt);
+            EffectUtils.playBloodTextEffect(self._parentNode, "-" + MathUtils.bytesToSize(hurtBlood, true), { x: self.x, y: self.y - 60 }, _isDoubleHurt);
         }
         //被击效果
         // that.playBehitEffect();
@@ -503,84 +497,51 @@ class MonsterSprite extends Laya.Sprite {
 
     //显示冰冻减速
     public reduceMoveSpeed(_ratio: number, _keepTime: number = 1): void {
-        let that = this;
-        if (that._moveSpeedRatio < 1) {
-            return;
-        }
-        that._moveSpeedRatio = _ratio;
+        if (this._moveSpeedRatio < 1) return;
+        this._moveSpeedRatio = _ratio;
         let effectKey: string = "iceKey";
-        let effectSp = <Laya.Image>that.getChildByName(effectKey);
+        let effectSp = <Laya.Image>this.getChildByName(effectKey);
         if (effectSp == null) {
             effectSp = Laya.Pool.getItemByClass("layaImage", Laya.Image);
             effectSp.skin = "images/skill/effect_water002.png";
             effectSp.name = effectKey;
-            that.addChild(effectSp);
+            this.addChild(effectSp);
             effectSp.pos(-110 / 2, -120 / 2);
             effectSp.zOrder = -1;
         }
-        effectSp.timerOnce(_keepTime * 1000, that, () => {
+        effectSp.timerOnce(_keepTime * 1000, this, () => {
             Laya.Pool.recover("layaImage", effectSp);
             effectSp.removeSelf();
-            that._moveSpeedRatio = 1;
+            this._moveSpeedRatio = 1;
         });
     }
 
-    //显示中毒效果
+    /** 显示中毒效果 */
     public showDrug(_hurtValue: number, _hurtTimes: number): void {
-        let that = this;
         let effectKey: string = "drugKey";
-        let effectSp = <Laya.Image>that.getChildByName(effectKey);
+        let effectSp = <Laya.Image>this.getChildByName(effectKey);
         if (effectSp == null) {
             effectSp = Laya.Pool.getItemByClass("layaImage", Laya.Image);
             effectSp.skin = "images/skill/effect_drug002.png";
             effectSp.name = effectKey;
-            that.addChild(effectSp);
+            this.addChild(effectSp);
             effectSp.pos(-75 / 2, -170 / 2);
             //特效
             let actionSp = <Laya.Image>effectSp;
             if (actionSp) {
-                let timeLine: Laya.TimeLine = Laya.Pool.getItemByClass("timeLine", Laya.TimeLine);
-                timeLine.addLabel("tl1", 0).to(actionSp, {
-                    alpha: 0.8
-                }, 100, Laya.Ease.linearNone)
-                    .addLabel("tl2", 100).to(actionSp, {
-                        alpha: 1
-                    }, 200, Laya.Ease.linearNone)
-                timeLine.once(Laya.Event.COMPLETE, actionSp, () => {
-                    timeLine.destroy();
-                    timeLine = null;
-                });
-                timeLine.play(0, true);
+                Laya.Tween.to(actionSp, { alpha: 0.8 }, 100).to(actionSp, { alpha: 1 }, 200, Laya.Ease.linearNone, Handler.create(this, () => {
+                    Laya.Tween.clearTween(actionSp);
+                }));
             }
         }
-        effectSp.timerOnce(1000, that, (_hurtTimes2: number) => {
-            that.updateBlood(_hurtValue);
+        effectSp.timerOnce(1000, this, (_hurtTimes2: number) => {
+            this.updateBlood(_hurtValue);
             Laya.Pool.recover("layaImage", effectSp);
             effectSp.removeSelf();
             if (_hurtTimes2 > 1) {
-                that.showDrug(_hurtValue, _hurtTimes2);
+                this.showDrug(_hurtValue, _hurtTimes2);
             }
         }, [_hurtTimes - 1]);
-    }
-
-    //被击效果
-    public playBehitEffect(): void {
-        let that = this;
-        //特效
-        let actionSp = that as MonsterSprite;
-        if (actionSp) {
-            let timeLine = Laya.Pool.getItemByClass("timeLine", Laya.TimeLine);
-            timeLine.addLabel("tl1", 0).to(actionSp, {
-                scaleX: 0.9
-            }, 100, Laya.Ease.linearNone)
-                .addLabel("tl2", 100).to(actionSp, {
-                    scaleX: 1
-                }, 200, Laya.Ease.linearNone)
-            timeLine.once(Laya.Event.COMPLETE, actionSp, () => {
-                // actionSp.removeSelf();
-            });
-            timeLine.play(0, false);
-        }
     }
 
     //是否活着
@@ -634,10 +595,9 @@ class MonsterSprite extends Laya.Sprite {
 
     //移动
     public playMoveAction(): void {
-        let that = this;
         let spPos = {
-            x: that.x,
-            y: that.y
+            x: this.x,
+            y: this.y
         };
         let targetPosArray = [{
             x: spPos.x + 140,
@@ -665,59 +625,58 @@ class MonsterSprite extends Laya.Sprite {
         }
         ];
         //移动速度
-        let moveSpeed: number = that._moveBaseSpeed * 0.04;
-        that._targetIndex = 0;
+        let moveSpeed: number = this._moveBaseSpeed * 0.04;
+        this._targetIndex = 0;
         let zOrderTime: number = 60; //层刷新时间
         let moveTime: number = zOrderTime - 1; //移动时间
-        that._moveLoopFun = () => {
-            if (that._targetIndex >= targetPosArray.length) return;
-            let targetPos: any = targetPosArray[that._targetIndex];
-            let curPos: Laya.Point = new Laya.Point(that.x, that.y);
+        this._moveLoopFun = () => {
+            if (this._targetIndex >= targetPosArray.length) return;
+            let targetPos: any = targetPosArray[this._targetIndex];
+            let curPos: Laya.Point = new Laya.Point(this.x, this.y);
             let disX: number = targetPos.x - curPos.x;
             let disY: number = targetPos.y - curPos.y;
             let distance: number = curPos.distance(targetPos.x, targetPos.y);
-            let ratio: number = moveSpeed / distance * that._moveSpeedRatio * that._moveAccelerate;
+            let ratio: number = moveSpeed / distance * this._moveSpeedRatio * this._moveAccelerate;
             if (distance < (ratio + 1)) {
-                that._targetIndex++;
+                this._targetIndex++;
                 return;
             }
-            switch (that._targetIndex) {
+            switch (this._targetIndex) {
                 case 0:
                 case 1:
                 case 2:
-                    that.scaleX = -1;
-                    that.changeBloodBarDir();
+                    this.scaleX = -1;
+                    this.changeBloodBarDir();
                     break;
                 default:
-                    that.scaleX = 1;
+                    this.scaleX = 1;
                     break;
             }
             let movePosX: number = disX * ratio;
             let movePosY: number = disY * ratio;
-            that.pos(curPos.x + movePosX, curPos.y + movePosY);
-            //zorder
+            this.pos(curPos.x + movePosX, curPos.y + movePosY);
             if (moveTime > zOrderTime) {
                 moveTime = 0;
-                that.zOrder = Math.floor(curPos.y);
+                this.zOrder = Math.floor(curPos.y);
             } else {
                 moveTime++;
             }
         };
-        that.timerLoop(10, that, that._moveLoopFun);
+        this.timerLoop(10, this, this._moveLoopFun);
         //计算下一步移动坐标
-        that.calcuteNextMovePosFun = () => {
-            if (that._targetIndex >= targetPosArray.length) {
-                return new Laya.Point(that.x, that.y);
+        this.calcuteNextMovePosFun = () => {
+            if (this._targetIndex >= targetPosArray.length) {
+                return { x: this.x, y: this.y };
             }
-            let targetPos: any = targetPosArray[that._targetIndex];
-            let curPos: Laya.Point = new Laya.Point(that.x, that.y);
+            let targetPos: any = targetPosArray[this._targetIndex];
+            let curPos: Laya.Point = new Laya.Point(this.x, this.y);
             let disX: number = targetPos.x - curPos.x;
             let disY: number = targetPos.y - curPos.y;
             let distance: number = curPos.distance(targetPos.x, targetPos.y);
-            let ratio: number = moveSpeed / distance * that._moveSpeedRatio * that._moveAccelerate;
+            let ratio: number = moveSpeed / distance * this._moveSpeedRatio * this._moveAccelerate;
             let movePosX: number = disX * ratio;
             let movePosY: number = disY * ratio;
-            return new Laya.Point(curPos.x + movePosX, curPos.y + movePosY);
+            return { x: curPos.x + movePosX, y: curPos.y + movePosY }
         };
     }
 

@@ -1,12 +1,12 @@
 /*
 * TER0803-新手;
 */
-class GuideView{
-    private mainNode:Laya.View;
-    private bgImg:Laya.Sprite;
+class GuideView {
+    private mainNode: Laya.View;
+    private bgImg: Laya.Sprite;
     // private cMask:Laya.Sprite;
-    private stage:number = 0; //新手步骤
-    private guideText:any = [
+    private stage: number = 0; //新手步骤
+    private guideText: any = [
         "点击招募武将～",
         "移动武将上阵自动战斗",
         "再点击招募武将～",
@@ -15,62 +15,62 @@ class GuideView{
         "使用元宝直接招募更高级的武将"
     ]; //指引文字
 
-    private offsetPos:Laya.Point;
-    
-    constructor(_offsetPos:Laya.Point=null){
+    private offsetPos: any;
+
+    constructor(_offsetPos: Laya.Point = null) {
         if (_offsetPos) {
             this.offsetPos = _offsetPos;
         } else {
-            this.offsetPos = new Laya.Point(0,0);
+            this.offsetPos = { x: 0, y: 0 };
         }
     }
 
-    public setStage(_stage:number) {
+    public setStage(_stage: number) {
         // console.log("stage",_stage)
         let that = this;
-        if (_stage ==1) {
+        if (_stage == 1) {
             //购买车
             let rect = new Laya.Rectangle(260, 1240, 220, 110);
             rect.x += that.offsetPos.x;
             rect.y += that.offsetPos.y;
             that.showMask(rect);
-            that.showGuideText(0, rect.x+10,rect.y-300);
-        } else if (_stage ==2) {
+            that.showGuideText(0, rect.x + 10, rect.y - 300);
+        } else if (_stage == 2) {
             //放车到跑道
             let rect = new Laya.Rectangle(5, 810, 150, 150);
             rect.x += that.offsetPos.x;
             rect.y += that.offsetPos.y;
             that.showMask(rect);
-            that.showGuideText(1, rect.x+10,rect.y-390);
-        } else if (_stage ==3) {
+            that.showGuideText(1, rect.x + 10, rect.y - 390);
+        } else if (_stage == 3) {
             //再次购买车
             let rect = new Laya.Rectangle(260, 1240, 220, 110);
             rect.x += that.offsetPos.x;
             rect.y += that.offsetPos.y;
             that.showMask(rect);
-            that.showGuideText(2, rect.x+10,rect.y-300);
-        } else if (_stage ==4) {
+            that.showGuideText(2, rect.x + 10, rect.y - 300);
+        } else if (_stage == 4) {
             //合并车
             let rect = new Laya.Rectangle(5, 810, 290, 150);
             rect.x += that.offsetPos.x;
             rect.y += that.offsetPos.y;
             that.showMask(rect);
-            that.showGuideText(3, rect.x,rect.y-300);
-            
-        } else if (_stage ==5) {
+            that.showGuideText(3, rect.x, rect.y - 300);
+
+        } else if (_stage == 5) {
             //车店
             let rect = new Laya.Rectangle(480, 1240, 265, 110);
             rect.x += that.offsetPos.x;
             rect.y += that.offsetPos.y;
             that.showMask(rect);
-            that.showGuideText(4, rect.x-40,rect.y-310);
-        } else if (_stage ==6) {
+            that.showGuideText(4, rect.x - 40, rect.y - 310);
+        } else if (_stage == 6) {
             //元宝购车
             let rect = new Laya.Rectangle(295, 606, 98, 80);
             rect.x += that.offsetPos.x;
             rect.y += that.offsetPos.y;
             that.showMask(rect);
-            that.showGuideText(5, rect.x-50,rect.y-300);
+            that.showGuideText(5, rect.x - 50, rect.y - 300);
 
         } else {
             that.hideMask();
@@ -79,15 +79,15 @@ class GuideView{
     }
     public nextStage() {
         let that = this;
-        that.setStage(that.stage +1);
+        that.setStage(that.stage + 1);
     }
-    public getStage():number {
+    public getStage(): number {
         return this.stage;
     }
     //显示遮罩
-    private showMask(_maskRect:Laya.Rectangle):void{
+    private showMask(_maskRect: Laya.Rectangle): void {
         let that = this;
-        if (that.mainNode ==null) {
+        if (that.mainNode == null) {
             that.mainNode = new Laya.View();
             Laya.stage.addChild(that.mainNode);
             that.mainNode.zOrder = 1001;
@@ -103,7 +103,7 @@ class GuideView{
         // that.bgImg.graphics.drawRect(0, _maskRect.y+_maskRect.height, Laya.stage.width, Laya.stage.height, "#000");
         // that.bgImg.graphics.drawRect(0, _maskRect.y, _maskRect.x, _maskRect.height, "#000");
         // that.bgImg.graphics.drawRect(_maskRect.x+_maskRect.width, _maskRect.y, Laya.stage.width, _maskRect.height, "#000");
-        
+
         // // //合并绘制结果
         // if (Laya.Browser.onIOS || Laya.Browser.onPC) {
         //     let canvas = that.bgImg.drawToCanvas(Laya.stage.width, Laya.stage.height,0,0);
@@ -111,20 +111,20 @@ class GuideView{
         //     that.bgImg.graphics.clear();
         //     that.bgImg.graphics.drawTexture(rankTexture, 0, 0, Laya.stage.width, Laya.stage.height);
         // }
-        
+
         //添加到舞台
         that.mainNode.addChild(that.bgImg);
         that.bgImg.alpha = 0.5;
-        that.bgImg.on(Laya.Event.CLICK, that, ()=>{
+        that.bgImg.on(Laya.Event.CLICK, that, () => {
             console.log("GuideView click")
             // that.nextStage();
         })
         //点击屏蔽
         let maskRect2 = [
-            {x:0, y:0, width:Laya.stage.width, height:_maskRect.y},
-            {x:0, y:_maskRect.y+_maskRect.height, width:Laya.stage.width, height:Laya.stage.height},
-            {x:0, y:_maskRect.y, width:_maskRect.x, height:_maskRect.height},
-            {x:_maskRect.x+_maskRect.width, y:_maskRect.y, width:Laya.stage.width, height:_maskRect.height},
+            { x: 0, y: 0, width: Laya.stage.width, height: _maskRect.y },
+            { x: 0, y: _maskRect.y + _maskRect.height, width: Laya.stage.width, height: Laya.stage.height },
+            { x: 0, y: _maskRect.y, width: _maskRect.x, height: _maskRect.height },
+            { x: _maskRect.x + _maskRect.width, y: _maskRect.y, width: Laya.stage.width, height: _maskRect.height },
         ];
         for (var index = 0; index < maskRect2.length; index++) {
             var element = maskRect2[index];
@@ -133,10 +133,10 @@ class GuideView{
                 maskView.pos(element.x, element.y)
                 maskView.size(element.width, element.height);
                 that.bgImg.addChild(maskView);
-                maskView.on(Laya.Event.CLICK, that, ()=>{
+                maskView.on(Laya.Event.CLICK, that, () => {
                     console.log("maskview prevent")
                 })
-                maskView.name = 'maskview_'+index;
+                maskView.name = 'maskview_' + index;
             }
         }
 
@@ -158,22 +158,22 @@ class GuideView{
         }
     }
     //显示指引文本
-    private showGuideText(_guideId:number, _px:number, _py:number):void {
+    private showGuideText(_guideId: number, _px: number, _py: number): void {
         let that = this;
         if (that.mainNode) {
             let content = that.guideText[_guideId];
             let txtBox = new Laya.Sprite();
             that.mainNode.addChild(txtBox);
             txtBox.pos(_px, _py);
-            
+
             let txtImg = new Laya.Image("images/guide_bhj.png");
             txtBox.addChild(txtImg);
             txtImg.anchorX = 0.2;
             txtImg.anchorY = 1.0;
-            txtImg.pos(txtImg.width*txtImg.anchorX, txtImg.height*txtImg.anchorY);
+            txtImg.pos(txtImg.width * txtImg.anchorX, txtImg.height * txtImg.anchorY);
             let timeLine = new Laya.TimeLine();
-            timeLine.addLabel("tl1", 0).to(txtImg, {scaleX:0.98, scaleY:0.98}, 800, Laya.Ease.sineInOut)
-            .addLabel("tl2", 0).to(txtImg, {scaleX:1.0, scaleY:1.0}, 800);
+            timeLine.addLabel("tl1", 0).to(txtImg, { scaleX: 0.98, scaleY: 0.98 }, 800, Laya.Ease.sineInOut)
+                .addLabel("tl2", 0).to(txtImg, { scaleX: 1.0, scaleY: 1.0 }, 800);
             timeLine.play(0, true);
 
             let txtLabel = new Laya.Label(content);
@@ -185,84 +185,84 @@ class GuideView{
             // txtLabel.bgColor = "#000"
             txtLabel.wordWrap = true;
             txtLabel.valign = "middle";
-            txtLabel.pos(txtImg.width*0.12, txtImg.height*0.25);
+            txtLabel.pos(txtImg.width * 0.12, txtImg.height * 0.25);
 
             //文本框缩小
-            if (_guideId ==4) {
+            if (_guideId == 4) {
                 timeLine.pause();
                 txtImg.scaleX = 0.7;
                 txtImg.scaleY = txtImg.scaleX;
                 txtLabel.fontSize /= txtImg.scaleX;
             }
 
-            if (_guideId ==0 || _guideId ==2) {
+            if (_guideId == 0 || _guideId == 2) {
                 let pointSp = new Laya.Image("images/shouzhi.png");
                 txtBox.addChild(pointSp);
-                pointSp.pos(txtImg.width*0.35, txtImg.height +20);
+                pointSp.pos(txtImg.width * 0.35, txtImg.height + 20);
                 let timeLine = new Laya.TimeLine();
-                timeLine.addLabel("tl1", 0).to(pointSp, {x:pointSp.x +30, y:pointSp.y +30}, 800)
-                .addLabel("tl2", 0).to(pointSp, {x:pointSp.x, y:pointSp.y}, 800, Laya.Ease.backInOut);
+                timeLine.addLabel("tl1", 0).to(pointSp, { x: pointSp.x + 30, y: pointSp.y + 30 }, 800)
+                    .addLabel("tl2", 0).to(pointSp, { x: pointSp.x, y: pointSp.y }, 800, Laya.Ease.backInOut);
                 timeLine.play(0, true);
-            } else if (_guideId ==1) {
+            } else if (_guideId == 1) {
                 let pointSp = new Laya.Image("images/shouzhi.png");
                 txtBox.addChild(pointSp);
-                pointSp.pos(65, txtImg.height +150);
-                
+                pointSp.pos(65, txtImg.height + 150);
+
                 let timeLine = new Laya.TimeLine();
-                timeLine.addLabel("tl1", 0).to(pointSp, {x:pointSp.x +120, y:pointSp.y -220}, 1000)
-                .addLabel("tl2", 0).to(pointSp, {x:pointSp.x, y:pointSp.y}, 200);
+                timeLine.addLabel("tl1", 0).to(pointSp, { x: pointSp.x + 120, y: pointSp.y - 220 }, 1000)
+                    .addLabel("tl2", 0).to(pointSp, { x: pointSp.x, y: pointSp.y }, 200);
                 timeLine.play(0, true);
-                
-            } else if (_guideId ==3) {
+
+            } else if (_guideId == 3) {
                 // let arrSp = new Laya.Image("images/bhj3.png");
                 // txtImg.addChild(arrSp);
                 // arrSp.pos(txtImg.width*0.22, txtImg.height +120);
                 // arrSp.alpha = 0.9;
-                
+
                 let pointSp = new Laya.Image("images/shouzhi.png");
                 txtBox.addChild(pointSp);
-                pointSp.pos(txtImg.width*0.4, txtImg.height +60);
-                
+                pointSp.pos(txtImg.width * 0.4, txtImg.height + 60);
+
                 let timeLine = new Laya.TimeLine();
-                timeLine.addLabel("tl1", 0).to(pointSp, {x:pointSp.x -120, y:pointSp.y}, 800)
-                .addLabel("tl2", 0).to(pointSp, {x:pointSp.x, y:pointSp.y}, 800, Laya.Ease.backInOut);
+                timeLine.addLabel("tl1", 0).to(pointSp, { x: pointSp.x - 120, y: pointSp.y }, 800)
+                    .addLabel("tl2", 0).to(pointSp, { x: pointSp.x, y: pointSp.y }, 800, Laya.Ease.backInOut);
                 timeLine.play(0, true);
-                
-            } else if (_guideId ==4) {
+
+            } else if (_guideId == 4) {
                 let pointSp = new Laya.Image("images/shouzhi.png");
                 txtBox.addChild(pointSp);
-                pointSp.pos(txtImg.width*0.25, txtImg.height +70);
-                
+                pointSp.pos(txtImg.width * 0.25, txtImg.height + 70);
+
                 let timeLine = new Laya.TimeLine();
-                timeLine.addLabel("tl1", 0).to(pointSp, {x:pointSp.x +30, y:pointSp.y +30}, 800)
-                .addLabel("tl2", 0).to(pointSp, {x:pointSp.x, y:pointSp.y}, 800, Laya.Ease.backInOut);
+                timeLine.addLabel("tl1", 0).to(pointSp, { x: pointSp.x + 30, y: pointSp.y + 30 }, 800)
+                    .addLabel("tl2", 0).to(pointSp, { x: pointSp.x, y: pointSp.y }, 800, Laya.Ease.backInOut);
                 timeLine.play(0, true);
-                
-            } else if (_guideId ==5) {
+
+            } else if (_guideId == 5) {
                 let pointSp = new Laya.Image("images/shouzhi.png");
                 txtBox.addChild(pointSp);
-                pointSp.pos(txtImg.width*0.2, txtImg.height +40);
-                
+                pointSp.pos(txtImg.width * 0.2, txtImg.height + 40);
+
                 let timeLine = new Laya.TimeLine();
-                timeLine.addLabel("tl1", 0).to(pointSp, {x:pointSp.x +30, y:pointSp.y +30}, 800)
-                .addLabel("tl2", 0).to(pointSp, {x:pointSp.x, y:pointSp.y}, 800, Laya.Ease.backInOut);
+                timeLine.addLabel("tl1", 0).to(pointSp, { x: pointSp.x + 30, y: pointSp.y + 30 }, 800)
+                    .addLabel("tl2", 0).to(pointSp, { x: pointSp.x, y: pointSp.y }, 800, Laya.Ease.backInOut);
                 timeLine.play(0, true);
             }
         }
     }
 
-    public setTouchEnable(_enable:boolean=true) {
+    public setTouchEnable(_enable: boolean = true) {
         let that = this;
         if (that.bgImg) {
             for (var index = 0; index < 4; index++) {
-                var element = that.bgImg.getChildByName('maskview_'+index) as Laya.View;
+                var element = that.bgImg.getChildByName('maskview_' + index) as Laya.View;
                 if (element) {
                     element.mouseEnabled = _enable;
                 }
             }
         }
     }
-    
+
 }
 
 
@@ -271,13 +271,13 @@ class GuideView{
 // 	import Stage = Laya.Stage;
 // 	import HitArea = Laya.HitArea;
 // 	import WebGL = Laya.WebGL;
-	
+
 // 	export class Sprite_Guide 
 // 	{
 // 		private red:Sprite;
 // 		private guideContainer:Sprite;
 // 		private tipContainer:Sprite;
-		
+
 // 		private guideSteps:Array<any> = 
 // 		[
 // 			{ x: 151, y: 575, radius:150, tip:"../../res/guide/help6.png", tipx:200, tipy:250 },
@@ -287,49 +287,49 @@ class GuideView{
 // 		private guideStep:number = 0;
 // 		private hitArea:HitArea;
 // 		private interactionArea:Sprite;
-		
+
 // 		constructor() 
 // 		{
 // 			Laya.init(1285, 727);
 // 			Laya.stage.alignH = Stage.ALIGN_CENTER;
 // 			Laya.stage.alignV = Stage.ALIGN_MIDDLE;
-			
+
 // 			//绘制一个蓝色方块，不被抠图
 // 			var gameContainer:Sprite = new Sprite();
 // 			gameContainer.loadImage("../../res/guide/crazy_snowball.png");
 // 			Laya.stage.addChild(gameContainer);
-			
+
 // 			// 引导所在容器
 // 			this.guideContainer = new Sprite();
 // 			// 设置容器为画布缓存
 // 			this.guideContainer.cacheAs = "bitmap";
 // 			Laya.stage.addChild(this.guideContainer);
 // 			gameContainer.on("click", this, this.nextStep);
-			
+
 // 			//绘制遮罩区，含透明度，可见游戏背景
 // 			var maskArea:Sprite = new Sprite();
 // 			maskArea.alpha = 0.5;
 // 			maskArea.graphics.drawRect(0, 0, Laya.stage.width, Laya.stage.height, "#000000");
 // 			this.guideContainer.addChild(maskArea);
-			
+
 // 			//绘制一个圆形区域，利用叠加模式，从遮罩区域抠出可交互区
 // 			this.interactionArea = new Sprite();
 // 			//设置叠加模式
 // 			this.interactionArea.blendMode = "destination-out";
 // 			this.guideContainer.addChild(this.interactionArea);
-			
+
 // 			this.hitArea = new HitArea();
 // 			this.hitArea.hit.drawRect(0, 0, Laya.stage.width, Laya.stage.height, "#000000");
-			
+
 // 			this.guideContainer.hitArea = this.hitArea;
 // 			this.guideContainer.mouseEnabled = true;
-			
+
 // 			this.tipContainer = new Sprite();
 // 			Laya.stage.addChild(this.tipContainer);
-			
+
 // 			this.nextStep();
 // 		}
-		
+
 // 		private nextStep():void
 // 		{
 // 			if (this.guideStep == this.guideSteps.length)
@@ -340,13 +340,13 @@ class GuideView{
 // 			else
 // 			{
 // 				var step:any = this.guideSteps[this.guideStep++];
-				
+
 // 				this.hitArea.unHit.clear();
 // 				this.hitArea.unHit.drawCircle(step.x, step.y, step.radius, "#000000");
-				
+
 // 				this.interactionArea.graphics.clear();
 // 				this.interactionArea.graphics.drawCircle(step.x, step.y, step.radius, "#000000");
-				
+
 // 				this.tipContainer.graphics.clear();
 // 				this.tipContainer.loadImage(step.tip);
 // 				this.tipContainer.pos(step.tipx, step.tipy);

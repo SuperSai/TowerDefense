@@ -17,7 +17,7 @@ class GuideView {
             this.offsetPos = _offsetPos;
         }
         else {
-            this.offsetPos = new Laya.Point(0, 0);
+            this.offsetPos = { x: 0, y: 0 };
         }
     }
     setStage(_stage) {

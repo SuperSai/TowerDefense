@@ -120,7 +120,7 @@ class NoviceManager extends EventDispatcher {
                     // 拖拽指引
                     LayerMgr.Instance.getLayerByType(LAYER_TYPE.GUIDE_LAYER).maskEnabled = false;
                     this.ui.viewStackNovice.selectedIndex = NoviceType.CLICK - 1;
-                    this.ui.viewStackNovice.mouseEnabled = false;
+                    // this.ui.viewStackNovice.mouseEnabled = false;
                     this.ui.viewInteract.visible = true;
                     this.updateDisplay(sheet, position.x, position.y);
                     this.updateSpecialInteractArea(sheet);

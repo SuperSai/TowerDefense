@@ -10,14 +10,14 @@ class Bullet extends Laya.Sprite {
     setBulletType(monster) {
         let self = this;
         self._skillId = RandomUtils.rangeInt(1, 3);
-        self._bulletImg = new Laya.Image();
         if (monster && monster.monsterInfo) {
-            self._bulletImg.skin = PathConfig.GameResUrl.replace("{0}", monster.monsterInfo.buttleName);
+            let poolData = ObjectPool.popObj(Laya.Image, monster.monsterInfo.buttleName);
+            self._bulletImg = poolData.obj;
+            if (!poolData.isPool) {
+                self._bulletImg.skin = PathConfig.GameResUrl.replace("{0}", monster.monsterInfo.buttleName);
+            }
+            self.addChild(self._bulletImg);
         }
-        else {
-            self._bulletImg.skin = "images/skill/effect_water001.png";
-        }
-        self.addChild(self._bulletImg);
     }
     //攻击目标
     attackTarget(targetMonster, collionCallback = null) {
@@ -74,6 +74,7 @@ class Bullet extends Laya.Sprite {
         ;
         this._callBack && this._callBack(this._skillId);
         this.reset();
+        ObjectPool.push(this._bulletImg);
         ObjectPool.push(this);
     }
     //连接目标（雷电专用）
@@ -90,7 +91,6 @@ class Bullet extends Laya.Sprite {
     }
     reset() {
         DisplayUtils.removeFromParent(this._bulletImg);
-        this._bulletImg = null;
         this.removeChildren();
         this.removeSelf();
     }

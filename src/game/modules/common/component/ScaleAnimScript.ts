@@ -4,11 +4,10 @@
 class ScaleAnimScript {
 
     private scaleBox: Laya.Box;
-    private scaleOrginValue: Laya.Point;
+    private scaleOrginValue: { x: number, y: number };
     private isMouseDown: boolean = false; //按下
-    private isMouseOut:boolean = false; //移除
+    private isMouseOut: boolean = false; //移除
     private _originAnchor: Laya.Point;
-    private _originPos: Laya.Point;
 
     constructor() {
 
@@ -19,14 +18,10 @@ class ScaleAnimScript {
         this.scaleBox.frameOnce(2, this, this.onLoaded);
     }
     private onLoaded(): void {
-
-        this.scaleOrginValue = new Laya.Point(this.scaleBox.scaleX, this.scaleBox.scaleY);
-        // this._originAnchor = new Laya.Point((this.scaleBox.anchorX ? this.scaleBox.anchorX : 0), (this.scaleBox.anchorY ? this.scaleBox.anchorY : 0));
-        this._originPos = new Laya.Point(this.scaleBox.x, this.scaleBox.y);
+        this.scaleOrginValue = { x: this.scaleBox.scaleX, y: this.scaleBox.scaleY }
         this.scaleBox.on(Laya.Event.MOUSE_DOWN, this, this.mouseDown);
         this.scaleBox.on(Laya.Event.MOUSE_UP, this, this.mouseUp);
         this.scaleBox.on(Laya.Event.MOUSE_OUT, this, this.mouseOut);
-        // this.scaleBox.on(Laya.Event.MOUSE_MOVE, this, this.mouseMove);
     }
     private mouseDown(): void {
         this.isMouseDown = true;
@@ -46,7 +41,7 @@ class ScaleAnimScript {
         this.isMouseDown = false;
         this.isMouseOut = true;
     }
-    private mouseMove():void {
+    private mouseMove(): void {
         if (this.isMouseOut) {
             if (this.isHit(this.scaleBox)) {
                 this.scaleSmall();
@@ -57,28 +52,12 @@ class ScaleAnimScript {
     }
     private scaleSmall(): void {
         if (this.scaleBox) {
-            // if (isNaN(this.scaleBox.left) && isNaN(this.scaleBox.right) && isNaN(this.scaleBox.top) &&
-            //     isNaN(this.scaleBox.bottom) && isNaN(this.scaleBox.centerX) && isNaN(this.scaleBox.centerY)) {
-            //     //居中处理
-            //     this.scaleBox.anchorX = 0.5;
-            //     this.scaleBox.anchorY = 0.5;
-            //
-            //     this.scaleBox.pos(this.scaleBox.x + this.scaleBox.width * 0.5, this.scaleBox.y + this.scaleBox.height * 0.5);
-            // }
-
-            this.scaleBox.scale(this.scaleOrginValue.x *0.95, this.scaleOrginValue.y *0.95);
+            this.scaleBox.scale(this.scaleOrginValue.x * 0.95, this.scaleOrginValue.y * 0.95);
             this.scaleBox.filters = DisplayUtils.createColorFilter(1);
         }
     }
     private scaleNormal(): void {
         if (this.scaleBox) {
-            // if (isNaN(this.scaleBox.left) && isNaN(this.scaleBox.right) && isNaN(this.scaleBox.top) &&
-            //     isNaN(this.scaleBox.bottom) && isNaN(this.scaleBox.centerX) && isNaN(this.scaleBox.centerY)) {
-            //     //居中处理
-            //     this.scaleBox.anchorX = this._originAnchor.x;
-            //     this.scaleBox.anchorY = this._originAnchor.y;
-            //     this.scaleBox.pos(this._originPos.x, this._originPos.y);
-            // }
             this.scaleBox.scale(this.scaleOrginValue.x, this.scaleOrginValue.y);
             this.scaleBox.filters = [];
         }

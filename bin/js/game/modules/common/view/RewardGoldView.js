@@ -18,8 +18,7 @@ class RewardGoldView extends BaseView {
         let monsterLevel = userData.getCarLevel();
         let monsterInfo = BattleManager.Instance.getUnLockMonster(monsterType, monsterLevel);
         if (monsterInfo) {
-            let curPrice = BattleManager.Instance.getMonsterPrice(monsterInfo.buyPrice, userData.queryBuyRecord(monsterInfo.id));
-            self._money = curPrice * 5;
+            self._money = BattleManager.Instance.getMonsterPrice(monsterInfo.buyPrice, userData.queryBuyRecord(monsterInfo.id));
         }
         self.ui.txt_gold.text = MathUtils.bytesToSize(self._money);
     }
@@ -63,6 +62,8 @@ class RewardGoldView extends BaseView {
         self.onCloseHandler();
     }
     onComplete() {
+        this._money = this._money * 5;
+        this.ui.txt_gold.text = MathUtils.bytesToSize(this._money);
         PlayerManager.Instance.Info.dayGetGoldCount--;
         EventsManager.Instance.event(EventsType.GOLD_CHANGE, { money: M.player.Info.userMoney += this._money });
     }

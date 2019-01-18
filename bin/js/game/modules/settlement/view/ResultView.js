@@ -15,11 +15,15 @@ class ResultView extends ui.settlement.ResultViewUI {
             { url: "res/atlas/images/ClearanceReward.atlas", type: Laya.Loader.ATLAS }
         ];
         Laya.loader.load(resList, Handler.create(null, () => {
-            let nodeView = new ResultView(_stage);
-            nodeView.removeCallback = _removeCallback;
-            M.layer.frameLayer.addChildWithMaskCall(nodeView, () => {
-                nodeView.removeSelf();
-            });
+            let nodeView = M.layer.frameLayer.getChildByName("ResultView");
+            if (!nodeView) {
+                nodeView = new ResultView(_stage);
+                nodeView.name = "ResultView";
+                nodeView.removeCallback = _removeCallback;
+                M.layer.frameLayer.addChildWithMaskCall(nodeView, () => {
+                    nodeView.removeSelf();
+                });
+            }
             _callback && _callback(nodeView);
         }));
     }

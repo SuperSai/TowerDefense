@@ -46,7 +46,7 @@ class FriendConcurItem extends ui.friendConcur.FriendConcurItemUI {
             }
             else {
                 let curPrice = BattleManager.Instance.getMonsterPrice(monsterInfo.buyPrice, userData.queryBuyRecord(monsterInfo.id));
-                self._gold = curPrice * 0.4;
+                self._gold = curPrice * 2;
                 HallManager.Instance.hallData.concurGoldDic.Add(self._data.id, self._gold);
                 userData.cache.setCache(CacheKey.CONCUR, HallManager.Instance.hallData.concurGoldDic.toJsonObject());
             }

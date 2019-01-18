@@ -177,7 +177,7 @@ class HallScene extends ui.hall.HallSceneUI {
             self.frameOnce(50, self, () => {
                 //离线收益， 离线超过10分钟才向服务器请求离线时间，否则没有离线奖励
                 const now = new Date().getTime();
-                if (now - userData.lastHeartBeatTime > 10 * Time.MIN_IN_MILI) {
+                if (now - userData.lastHeartBeatTime > 10 * Time.MIN) {
                     M.http.requestOfflinePrizeData();
                 }
                 //超越好友
@@ -378,10 +378,9 @@ class HallScene extends ui.hall.HallSceneUI {
     refreshShortcutCreateBtn() {
         let self = this;
         let monsterType = userData.isEvolution() ? 2 : 1;
-        ;
         HallManager.Instance.hallData.buyMonsterType = monsterType;
         let monsterLevel = userData.getCarLevel();
-        monsterLevel = MathUtils.rangeInt(Math.max(1, monsterLevel - 4), monsterLevel);
+        monsterLevel = MathUtils.rangeInt(Math.max(1, monsterLevel - 2), monsterLevel);
         let monsterInfo = BattleManager.Instance.getUnLockMonster(monsterType, monsterLevel);
         let btnBuy = self.btnShopShortcut;
         if (monsterInfo && btnBuy) {
@@ -536,7 +535,7 @@ class HallScene extends ui.hall.HallSceneUI {
                                         let skyDropBuff = BuffController.getInstance().getBuffValueById(BuffSheet.COIN_OBTAIN_INCREASE);
                                         let skillBuff = userData.getSkillAdditionProbability(10);
                                         let resultCoin = dropMoney * (1 + skillBuff + skyDropBuff);
-                                        let txtPos = new Laya.Point(monsterSp.x - 20, monsterSp.y - 50);
+                                        let txtPos = { x: monsterSp.x - 20, y: monsterSp.y - 50 };
                                         EffectUtils.playImageTextEffect(that.roadView, "images/core/coin_40x40.png", "+" + MathUtils.bytesToSize(resultCoin), txtPos, monsterSp.zOrder + 100);
                                         that.updateGold(PlayerManager.Instance.Info.userMoney + resultCoin);
                                     }
@@ -882,7 +881,7 @@ class HallScene extends ui.hall.HallSceneUI {
         }
         EventsManager.Instance.event(EventsType.UPDATE_CURRENCY);
         //刷新快捷买怪物按钮
-        // that.refreshShortcutCreateBtn();
+        that.refreshShortcutCreateBtn();
         //本地保存
         userData.setMoney(PlayerManager.Instance.Info.userMoney);
     }
@@ -1280,29 +1279,41 @@ class HallScene extends ui.hall.HallSceneUI {
         let that = this;
         if (that.spMountGuard == null)
             return;
-        let monsterAni = Laya.Pool.getItemByClass(userData.ANIMATION_POOL_NAME, Laya.Animation);
-        that.spMountGuard.addChild(monsterAni);
-        // 加载动画图集,加载成功后执行回调方法
         let aniPath = "kingUpdate";
-        let aniKey = "sj_";
-        let aniAtlas = PathConfig.EffectUrl.replace("{0}", aniPath);
+        let poolData = ObjectPool.popObj(Laya.Animation, aniPath);
+        let monsterAni = poolData.obj;
+        that.spMountGuard.addChild(monsterAni);
         let aniInterval = 120;
         let frameCount = 5;
-        monsterAni.loadAtlas(aniAtlas, Handler.create(that, () => {
-            //创建动画模板dizziness
-            Laya.Animation.createFrames(AnimationUtils.aniUrls(aniKey, frameCount, aniPath + "/"), aniPath);
+        if (!poolData.isPool) {
+            // 加载动画图集,加载成功后执行回调方法
+            let aniKey = "sj_";
+            let aniAtlas = PathConfig.EffectUrl.replace("{0}", aniPath);
+            monsterAni.loadAtlas(aniAtlas, Handler.create(that, () => {
+                //创建动画模板dizziness
+                Laya.Animation.createFrames(AnimationUtils.aniUrls(aniKey, frameCount, aniPath + "/"), aniPath);
+                //设置坐标
+                let aniGraphics = monsterAni.frames[1];
+                if (aniGraphics) {
+                    let aniBounds = aniGraphics.getBounds();
+                    monsterAni.pos(-aniBounds.width * 0.4, -aniBounds.height * 0.6);
+                }
+                monsterAni.interval = aniInterval;
+                monsterAni.play(0, false, aniPath);
+            }));
+        }
+        else {
             //设置坐标
             let aniGraphics = monsterAni.frames[1];
             if (aniGraphics) {
                 let aniBounds = aniGraphics.getBounds();
                 monsterAni.pos(-aniBounds.width * 0.4, -aniBounds.height * 0.6);
             }
-            monsterAni.interval = aniInterval;
             monsterAni.play(0, false, aniPath);
-        }));
+        }
         monsterAni.timerOnce(aniInterval * frameCount, that, () => {
             monsterAni.removeSelf();
-            Laya.Pool.recover(userData.ANIMATION_POOL_NAME, monsterAni);
+            ObjectPool.push(monsterAni);
         });
     }
     /** 更新转盘红点 */

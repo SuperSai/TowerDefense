@@ -17,7 +17,7 @@ class AnimationUtils {
             urls.push(_url + _aniName + (i + 1) + ".png");
         }
         if (_isReverse) {
-            urls = urls.concat([].concat(urls).reverse());
+            urls = urls.concat([].concat(urls).splice(0, 1).reverse().splice(0, 1));
         }
         return urls;
     }

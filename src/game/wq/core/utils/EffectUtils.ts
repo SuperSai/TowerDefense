@@ -103,36 +103,32 @@ class EffectUtils extends Laya.Sprite {
     }
 
     /** 血量特效 */
-    static playBloodTextEffect(_parentNode: any, _content: string, _pos: Laya.Point = null, _isDoubleHurt: boolean = false): void {
-        //飘文字
-        if (Math.random() < 0.6) return;
-        let bloodClip: Laya.FontClip = ObjectPool.pop(Laya.FontClip, "BloodFontClip");
-        bloodClip.mouseEnabled = bloodClip.mouseThrough = false;
-        bloodClip.skin = "images/fontImg/blood_num.png";
-        bloodClip.sheet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWSYZT";
-        bloodClip.alpha = 1;
-        bloodClip.value = _content;
-        bloodClip.zOrder = _parentNode.zOrder + 1;
-        if (_pos) {
-            bloodClip.pos(_pos.x - 40, _pos.y);
-        } else {
-            bloodClip.pos(_parentNode.width / 2, -_parentNode.height / 2);
+    static playBloodTextEffect(parentNode: any, content: string, pos: { x: number, y: number }, isDoubleHurt: boolean = false): void {
+        if (Math.random() < 0.5) return;
+        let poolData = ObjectPool.popObj(Laya.FontClip, "BloodFontClip");
+        let bloodClip: Laya.FontClip = poolData.obj;// ObjectPool.pop(Laya.FontClip, "BloodFontClip");
+        if (!poolData.isPool) {
+            bloodClip.mouseEnabled = bloodClip.mouseThrough = false;
+            bloodClip.skin = "images/fontImg/blood_num.png";
+            bloodClip.sheet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWSYZT";
+            bloodClip.zOrder = parentNode.zOrder + 1;
         }
-        PointUtils.parentToParent(bloodClip, _parentNode, true);
-        _parentNode.addChild(bloodClip);
-        if (_isDoubleHurt) {
+        bloodClip.alpha = 1;
+        bloodClip.value = content;
+        if (pos) {
+            bloodClip.pos(pos.x - 40, pos.y);
+        } else {
+            bloodClip.pos(parentNode.width / 2, -parentNode.height / 2);
+        }
+        PointUtils.parentToParent(bloodClip, parentNode, true);
+        parentNode.addChild(bloodClip);
+        if (isDoubleHurt) {
             bloodClip.skin = "images/fontImg/crit_num.png";
-            //缩放一下
-            let timeLine = new Laya.TimeLine();
-            timeLine.addLabel("tl1", 0).from(bloodClip, { scaleX: 1.5, scaleY: 1.2 }, 200, Laya.Ease.linearNone)
-                .addLabel("tl2", 200).to(bloodClip, { caleX: 1, scaleY: 1, alpha: 0 }, 500, Laya.Ease.cubicInOut);
-            timeLine.on(Laya.Event.COMPLETE, bloodClip, () => {
+            Laya.Tween.from(bloodClip, { scaleX: 1.5, scaleY: 1.2 }, 200).to(bloodClip, { caleX: 1, scaleY: 1, alpha: 0 }, 500, Laya.Ease.cubicInOut, Handler.create(this, () => {
+                Laya.Tween.clearTween(bloodClip);
                 bloodClip.removeSelf();
                 ObjectPool.push(bloodClip);
-                timeLine.destroy();
-                timeLine = null;
-            });
-            timeLine.play(0, false);
+            }), 200);
         } else {
             Laya.Tween.to(bloodClip, { y: (bloodClip.y - 70), alpha: 0 }, 2000,
                 Laya.Ease.cubicInOut, Laya.Handler.create(this, (_bloodClip: Laya.Node) => {
@@ -145,8 +141,7 @@ class EffectUtils extends Laya.Sprite {
     }
 
     /** 图片+文本上飘的特效 */
-    static playImageTextEffect(_parentNode: any, _imgUrl: string, _content: string, _pos: Laya.Point = null, _zOrder: number = 0): void {
-        //图片
+    static playImageTextEffect(_parentNode: any, _imgUrl: string, _content: string, _pos: { x: number, y: number } = null, _zOrder: number = 0): void {
         let coinImg: Laya.Image = ObjectPool.pop(Laya.Image, "Image", _imgUrl);
         coinImg.alpha = 1;
         coinImg.anchorX = 0.5;
@@ -161,26 +156,21 @@ class EffectUtils extends Laya.Sprite {
             coinImg.zOrder = _zOrder;
         }
         //飘文字
-        var coinLabel = ObjectPool.pop(Laya.Label, "LabelEffect");
+        let coinLabel = ObjectPool.pop(Laya.Label, "LabelEffect");
         coinLabel.text = _content;
         coinLabel.fontSize = 30;
         coinLabel.color = "#552233";
         coinLabel.anchorY = 0.5;
         coinImg.addChild(coinLabel);
         coinLabel.pos(coinImg.width, coinImg.height * 0.5);
-        //动画
-        let timeLine = new Laya.TimeLine();
-        timeLine.addLabel("tl1", 0).from(coinImg, { scaleX: 0, scaleY: 0, y: (coinImg.y + 30) }, 300, Laya.Ease.linearNone)
-            .addLabel("tl2", 500).to(coinImg, { x: coinImg.x, y: (coinImg.y - 50), alpha: 0 }, 1200, Laya.Ease.cubicInOut);
-        timeLine.on(Laya.Event.COMPLETE, coinImg, () => {
-            ObjectPool.push(coinLabel);
-            coinImg.removeChildren();
-            coinImg.removeSelf();
-            ObjectPool.push(coinImg);
-            timeLine.destroy();
-            timeLine = null;
-        });
-        timeLine.play(0, false);
+        Laya.Tween.from(coinImg, { y: (coinImg.y + 30) }, 300)
+            .to(coinImg, { x: coinImg.x, y: (coinImg.y - 50), alpha: 0 }, 1200, Laya.Ease.cubicInOut, Handler.create(this, () => {
+                Laya.Tween.clearTween(coinImg);
+                ObjectPool.push(coinLabel);
+                coinImg.removeChildren();
+                coinImg.removeSelf();
+                ObjectPool.push(coinImg);
+            }), 500);
     }
 
     /** 人物自白弹框效果 */
@@ -235,16 +225,20 @@ class EffectUtils extends Laya.Sprite {
     static playCoinRainEffect(_imgUrl: string): void {
         for (var index = 0; index < 5; index++) {
             Laya.timer.frameOnce(5, this, () => {
-                let coinSp: Laya.Image = Laya.Pool.getItemByClass("p_coin_rain", Laya.Image);
-                coinSp.graphics.clear();
-                coinSp.loadImage(_imgUrl);
-                coinSp.pivot(coinSp.width / 2, coinSp.height / 2);
+                let poolData = ObjectPool.popObj(Laya.Image, "p_coin_rain");
+                let coinSp: Laya.Image = poolData.obj;
+                if (!poolData.isPool) {
+                    coinSp.graphics.clear();
+                    coinSp.loadImage(_imgUrl);
+                    coinSp.pivot(coinSp.width / 2, coinSp.height / 2);
+                }
                 LayerManager.getInstance().screenEffectLayer.addChild(coinSp);
                 coinSp.pos(Math.random() * 8 * (LayerManager.stageDesignWidth / 8) + Math.random() * 100, Math.random() * 500 - 300);
                 Laya.Tween.to(coinSp, { x: coinSp.x, y: LayerManager.stageDesignHeight + 300 }, 3000,
                     Laya.Ease.linearNone, Handler.create(this, (_coinSp: Laya.Node) => {
+                        Laya.Tween.clearTween(_coinSp);
                         _coinSp.removeSelf();
-                        Laya.Pool.recover("p_coin_rain", _coinSp);
+                        ObjectPool.push(_coinSp);
                     }, [coinSp]));
             })
         }
