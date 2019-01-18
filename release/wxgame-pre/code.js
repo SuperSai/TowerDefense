@@ -6480,14 +6480,13 @@ class MonsterSprite extends Laya.Sprite {
     isLock() {
         return this._isLock;
     }
-    //设置锁
-    setLight(_light) {
-        let that = this;
-        let imgLight = that.getChildByName('imgLight');
-        if (imgLight) {
-            imgLight.visible = _light;
+    setAlpha(alphaNum) {
+        if (this.isLock() || this.monsterStage == 0)
+            return;
+        let roleAni = this.getChildByName(MonsterSprite.roleKey);
+        if (roleAni) {
+            roleAni.alpha = alphaNum;
         }
-        that._isLight = _light;
     }
     //是否上锁
     isLight() {
@@ -9521,9 +9520,11 @@ class LevelHeroView extends ui.evolution.LevelHeroViewUI {
             else {
                 HttpManager.Instance.requestUpdateKingLevel(EvolutionView.kingEvolutionType, userData.getKingLevel(), EvolutionManager.Instance.getEvolutionLevelDiamond(), (_res) => {
                     if (_res && _res.type) {
-                        MessageUtils.showMsgTips("升级成功");
-                        HallManager.Instance.hallData.isUpdate = false;
-                        this._callback && this._callback(userData.getKingLevel() + 1, _res.diamond);
+                        ViewMgr.Ins.open(ViewConst.EvolutionLevelView, () => {
+                            MessageUtils.showMsgTips("升级成功");
+                            HallManager.Instance.hallData.isUpdate = false;
+                            this._callback && this._callback(userData.getKingLevel() + 1, _res.diamond);
+                        }, userData.getKingLevel() + 1);
                     }
                 });
             }
@@ -10718,7 +10719,7 @@ class HallScene extends ui.hall.HallSceneUI {
         let monsterType = userData.isEvolution() ? 2 : 1;
         HallManager.Instance.hallData.buyMonsterType = monsterType;
         if (!isUpdateGold) {
-            if (userData.getCarLevel() > 6) {
+            if (userData.getCarLevel() > 8) {
                 if (this._monsterLevel <= Math.max(1, (userData.getCarLevel() - 3))) {
                     this._monsterLevel = userData.getCarLevel();
                 }
@@ -11005,7 +11006,7 @@ class HallScene extends ui.hall.HallSceneUI {
             });
             that.mainView.on(Laya.Event.MOUSE_UP, that, (e = null) => {
                 //移除高亮提示
-                that.setCarparkLight();
+                that.setCarparkLight(null);
                 if (that.parkMonsterModelSp && that.curMonsterSprite) {
                     if (that.btnDelete && ObjectUtils.isHit(that.btnDelete) && !M.novice.isRunning) {
                         let obtainMoney = that.curMonsterSprite.getSellPrice();
@@ -11246,23 +11247,26 @@ class HallScene extends ui.hall.HallSceneUI {
         userData.setDiamond(PlayerManager.Instance.Info.userDiamond);
     }
     //设置兵营高亮状态
-    setCarparkLight(_monsterSp = null) {
+    setCarparkLight(monsterSp = null) {
         let that = this;
         if (that.carparkList) {
             let monsterId = 0;
-            if (_monsterSp) {
-                monsterId = _monsterSp.monsterId;
+            if (monsterSp) {
+                monsterId = monsterSp.monsterId;
             }
             for (var index = 0; index < HallManager.Instance.hallData.parkMonsterCount; index++) {
                 var element = that.carparkList.getCell(index);
                 if (element) {
                     let carParkSp = element.getChildByName("car");
-                    if (carParkSp && carParkSp != _monsterSp) {
+                    if (monsterSp == null && carParkSp) {
+                        carParkSp.setAlpha(1);
+                    }
+                    else if (carParkSp && carParkSp != monsterSp) {
                         if (carParkSp.isSameLevel(monsterId)) {
-                            carParkSp.setLight(true);
+                            carParkSp.setAlpha(1);
                         }
-                        else if (carParkSp.isLight()) {
-                            carParkSp.setLight(false);
+                        else {
+                            carParkSp.setAlpha(0.3);
                         }
                     }
                 }

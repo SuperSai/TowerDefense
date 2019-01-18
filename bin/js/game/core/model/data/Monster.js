@@ -268,14 +268,13 @@ class MonsterSprite extends Laya.Sprite {
     isLock() {
         return this._isLock;
     }
-    //设置锁
-    setLight(_light) {
-        let that = this;
-        let imgLight = that.getChildByName('imgLight');
-        if (imgLight) {
-            imgLight.visible = _light;
+    setAlpha(alphaNum) {
+        if (this.isLock() || this.monsterStage == 0)
+            return;
+        let roleAni = this.getChildByName(MonsterSprite.roleKey);
+        if (roleAni) {
+            roleAni.alpha = alphaNum;
         }
-        that._isLight = _light;
     }
     //是否上锁
     isLight() {

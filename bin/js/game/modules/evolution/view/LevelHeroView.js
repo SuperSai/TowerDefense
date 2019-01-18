@@ -51,9 +51,11 @@ class LevelHeroView extends ui.evolution.LevelHeroViewUI {
             else {
                 HttpManager.Instance.requestUpdateKingLevel(EvolutionView.kingEvolutionType, userData.getKingLevel(), EvolutionManager.Instance.getEvolutionLevelDiamond(), (_res) => {
                     if (_res && _res.type) {
-                        MessageUtils.showMsgTips("升级成功");
-                        HallManager.Instance.hallData.isUpdate = false;
-                        this._callback && this._callback(userData.getKingLevel() + 1, _res.diamond);
+                        ViewMgr.Ins.open(ViewConst.EvolutionLevelView, () => {
+                            MessageUtils.showMsgTips("升级成功");
+                            HallManager.Instance.hallData.isUpdate = false;
+                            this._callback && this._callback(userData.getKingLevel() + 1, _res.diamond);
+                        }, userData.getKingLevel() + 1);
                     }
                 });
             }

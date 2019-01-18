@@ -380,7 +380,7 @@ class HallScene extends ui.hall.HallSceneUI {
         let monsterType = userData.isEvolution() ? 2 : 1;
         HallManager.Instance.hallData.buyMonsterType = monsterType;
         if (!isUpdateGold) {
-            if (userData.getCarLevel() > 6) {
+            if (userData.getCarLevel() > 8) {
                 if (this._monsterLevel <= Math.max(1, (userData.getCarLevel() - 3))) {
                     this._monsterLevel = userData.getCarLevel();
                 }
@@ -667,7 +667,7 @@ class HallScene extends ui.hall.HallSceneUI {
             });
             that.mainView.on(Laya.Event.MOUSE_UP, that, (e = null) => {
                 //移除高亮提示
-                that.setCarparkLight();
+                that.setCarparkLight(null);
                 if (that.parkMonsterModelSp && that.curMonsterSprite) {
                     if (that.btnDelete && ObjectUtils.isHit(that.btnDelete) && !M.novice.isRunning) {
                         let obtainMoney = that.curMonsterSprite.getSellPrice();
@@ -908,23 +908,26 @@ class HallScene extends ui.hall.HallSceneUI {
         userData.setDiamond(PlayerManager.Instance.Info.userDiamond);
     }
     //设置兵营高亮状态
-    setCarparkLight(_monsterSp = null) {
+    setCarparkLight(monsterSp = null) {
         let that = this;
         if (that.carparkList) {
             let monsterId = 0;
-            if (_monsterSp) {
-                monsterId = _monsterSp.monsterId;
+            if (monsterSp) {
+                monsterId = monsterSp.monsterId;
             }
             for (var index = 0; index < HallManager.Instance.hallData.parkMonsterCount; index++) {
                 var element = that.carparkList.getCell(index);
                 if (element) {
                     let carParkSp = element.getChildByName("car");
-                    if (carParkSp && carParkSp != _monsterSp) {
+                    if (monsterSp == null && carParkSp) {
+                        carParkSp.setAlpha(1);
+                    }
+                    else if (carParkSp && carParkSp != monsterSp) {
                         if (carParkSp.isSameLevel(monsterId)) {
-                            carParkSp.setLight(true);
+                            carParkSp.setAlpha(1);
                         }
-                        else if (carParkSp.isLight()) {
-                            carParkSp.setLight(false);
+                        else {
+                            carParkSp.setAlpha(0.3);
                         }
                     }
                 }
