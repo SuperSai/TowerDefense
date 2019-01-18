@@ -3660,12 +3660,14 @@ class NoviceGuide {
     set fingerPosition(value) { this.m = value; }
     get specialInteractArea() { return this.n; }
     set specialInteractArea(value) { this.n = value; }
-    get script() { return this.o; }
-    set script(value) { this.o = value; }
+    get skipPos() { return this.o; }
+    set skipPos(value) { this.o = value; }
+    get script() { return this.p; }
+    set script(value) { this.p = value; }
 } // prettier-ignore
 NoviceGuide.dataArr = [];
 NoviceGuide.dataObj = {};
-NoviceGuide._keys = { id: "b", groupId: "c", stepId: "d", completed: "e", type: "f", activateType: "g", activateValue: "h", eventName: "i", eventParam: "j", position: "k", interactPosition: "l", fingerPosition: "m", specialInteractArea: "n", script: "o" };
+NoviceGuide._keys = { id: "b", groupId: "c", stepId: "d", completed: "e", type: "f", activateType: "g", activateValue: "h", eventName: "i", eventParam: "j", position: "k", interactPosition: "l", fingerPosition: "m", specialInteractArea: "n", skipPos: "o", script: "p" };
 class Sheet {
     static initSheets(data) { const classInstance = { NoviceGuide }; for (const sheet of data) {
         const sheetClass = classInstance[sheet.sheetName];
@@ -5339,7 +5341,7 @@ class UserData {
             url: 'v3/user/info',
             success: function (res) {
                 console.log("requestUserBaseData:", res);
-                if (res) {
+                if (res && res.hasOwnProperty("remain_online_num")) {
                     self.offlineRewardCount = res.remain_online_num;
                     self.shareAdTimes = res.operation;
                     console.log("@David 用户基础数据 operation：", self.shareAdTimes);
@@ -5394,7 +5396,7 @@ class UserData {
         });
     }
     loadCache() {
-        this.cache.setCacheKey("xd_" + M.player.account);
+        this.cache.setCacheKey("yxtz_" + PathConfig.AppUrl + "_" + M.player.account);
         this.cache.loadCache(Laya.Handler.create(this, (cache) => {
             // 有缓存才赋值
             cache.hasCache(CacheKey.PET_LIST) && (this.parkcarInfoArray = cache.getCache(CacheKey.PET_LIST));
@@ -6104,11 +6106,8 @@ class Bullet extends Laya.Sprite {
         let self = this;
         self._skillId = RandomUtils.rangeInt(1, 3);
         if (monster && monster.monsterInfo) {
-            let poolData = ObjectPool.popObj(Laya.Image, monster.monsterInfo.buttleName);
-            self._bulletImg = poolData.obj;
-            if (!poolData.isPool) {
-                self._bulletImg.skin = PathConfig.GameResUrl.replace("{0}", monster.monsterInfo.buttleName);
-            }
+            self._bulletImg = new Laya.Image();
+            self._bulletImg.skin = PathConfig.GameResUrl.replace("{0}", monster.monsterInfo.buttleName);
             self.addChild(self._bulletImg);
         }
     }
@@ -6167,7 +6166,6 @@ class Bullet extends Laya.Sprite {
         ;
         this._callBack && this._callBack(this._skillId);
         this.reset();
-        ObjectPool.push(this._bulletImg);
         ObjectPool.push(this);
     }
     //连接目标（雷电专用）
@@ -6184,6 +6182,7 @@ class Bullet extends Laya.Sprite {
     }
     reset() {
         DisplayUtils.removeFromParent(this._bulletImg);
+        this._bulletImg = null;
         this.removeChildren();
         this.removeSelf();
     }
@@ -7926,7 +7925,7 @@ var ui;
                 this.createView(ui.guide.NoviceViewUI.uiView);
             }
         }
-        NoviceViewUI.uiView = { "type": "View", "props": { "name": "NoviceViewUI", "mouseThrough": true, "mouseEnabled": true }, "child": [{ "type": "View", "props": { "y": 0, "x": 0, "width": 750, "visible": false, "var": "viewInteract", "name": "ViewInteract", "mouseThrough": true, "mouseEnabled": true, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "width": 750, "var": "imgTop", "skin": "images/core/blank.png", "mouseEnabled": true, "height": 400 } }, { "type": "Image", "props": { "y": 400, "x": 420, "width": 330, "var": "imgRight", "skin": "images/core/blank.png", "mouseEnabled": true, "height": 100 } }, { "type": "Image", "props": { "y": 500, "x": 0, "width": 750, "var": "imgBottom", "skin": "images/core/blank.png", "mouseEnabled": true, "height": 834 } }, { "type": "Image", "props": { "y": 400, "x": 0, "width": 200, "var": "imgLeft", "skin": "images/core/blank.png", "mouseEnabled": true, "height": 100 } }] }, { "type": "ViewStack", "props": { "var": "viewStackNovice", "selectedIndex": 0, "name": "viewStackNovice" }, "child": [{ "type": "View", "props": { "y": 0, "x": 0, "width": 750, "name": "item0", "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 791, "x": 10, "var": "imgDialogCharacter", "skin": "images/novice/character.png" }, "child": [{ "type": "Label", "props": { "y": 176, "x": 237, "wordWrap": true, "width": 300, "var": "lblDialogScript", "text": "文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本", "overflow": "scroll", "leading": 10, "height": 103, "fontSize": 26, "color": "#a17338" } }, { "type": "Button", "props": { "y": 98, "x": 409, "var": "btnReturnNovice1", "stateNum": 1, "skin": "images/component/frame_btn_small_blue.png", "labelStrokeColor": "#a17338", "labelStroke": 2, "labelSize": 26, "labelColors": "#ffffff,#ffffff,#ffffff,#ffffff", "labelBold": true, "label": "跳过", "sizeGrid": "0,32,0,34" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }] }] }, { "type": "View", "props": { "width": 750, "name": "item1", "height": 1334 }, "child": [{ "type": "View", "props": { "y": 1256, "x": 263, "var": "viewInteractArea", "name": "ViewInteractArea" }, "child": [{ "type": "View", "props": { "y": 0, "x": 0, "name": "ViewMASK", "alpha": 0.5 }, "child": [{ "type": "Rect", "props": { "y": -1299, "x": -750, "width": 1500, "lineWidth": 1, "height": 1155, "fillColor": "#000000" } }, { "type": "Rect", "props": { "y": 126, "x": -750, "width": 1500, "lineWidth": 1, "height": 1155, "fillColor": "#000000" } }, { "type": "Rect", "props": { "y": -144, "x": -750, "width": 615, "lineWidth": 1, "height": 270, "fillColor": "#000000" } }, { "type": "Rect", "props": { "y": -144, "x": 135, "width": 615, "lineWidth": 1, "height": 270, "fillColor": "#000000" } }, { "type": "Image", "props": { "y": -144, "x": -135, "width": 270, "skin": "images/novice/interact_circle.png", "height": 270 } }] }, { "type": "View", "props": { "y": 0, "x": 0, "var": "viewClickTargetContainer", "name": "viewClickTargetContainer" } }, { "type": "Image", "props": { "y": 30, "x": 30, "var": "imgFinger", "skin": "images/novice/finger.png" } }] }, { "type": "Image", "props": { "y": 773, "x": 88, "var": "imgClickCharacter", "skin": "images/novice/character.png" }, "child": [{ "type": "Label", "props": { "y": 171, "x": 236, "wordWrap": true, "width": 300, "var": "lblClickScript", "text": "文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本", "overflow": "scroll", "leading": 10, "height": 103, "fontSize": 26, "color": "#a17338" } }, { "type": "Button", "props": { "y": 96, "x": 407, "var": "btnReturnNovice2", "stateNum": 1, "skin": "images/component/frame_btn_small_blue.png", "labelStrokeColor": "#a17338", "labelStroke": 2, "labelSize": 26, "labelColors": "#ffffff,#ffffff,#ffffff,#ffffff", "labelBold": true, "label": "跳过", "sizeGrid": "0,32,0,34" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }] }] }] }] };
+        NoviceViewUI.uiView = { "type": "View", "props": { "name": "NoviceViewUI", "mouseThrough": true, "mouseEnabled": true }, "child": [{ "type": "View", "props": { "y": 0, "x": 0, "width": 750, "visible": false, "var": "viewInteract", "name": "ViewInteract", "mouseThrough": true, "mouseEnabled": true, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "width": 750, "var": "imgTop", "skin": "images/core/blank.png", "mouseEnabled": true, "height": 400 } }, { "type": "Image", "props": { "y": 400, "x": 420, "width": 330, "var": "imgRight", "skin": "images/core/blank.png", "mouseEnabled": true, "height": 100 } }, { "type": "Image", "props": { "y": 500, "x": 0, "width": 750, "var": "imgBottom", "skin": "images/core/blank.png", "mouseEnabled": true, "height": 834 } }, { "type": "Image", "props": { "y": 400, "x": 0, "width": 200, "var": "imgLeft", "skin": "images/core/blank.png", "mouseEnabled": true, "height": 100 } }] }, { "type": "ViewStack", "props": { "var": "viewStackNovice", "selectedIndex": 0, "name": "viewStackNovice" }, "child": [{ "type": "View", "props": { "y": 0, "x": 0, "width": 750, "name": "item0", "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 791, "x": 10, "var": "imgDialogCharacter", "skin": "images/novice/character.png" }, "child": [{ "type": "Label", "props": { "y": 176, "x": 237, "wordWrap": true, "width": 300, "var": "lblDialogScript", "text": "文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本", "overflow": "scroll", "leading": 10, "height": 103, "fontSize": 26, "color": "#a17338" } }] }] }, { "type": "View", "props": { "width": 750, "name": "item1", "height": 1334 }, "child": [{ "type": "View", "props": { "y": 1256, "x": 263, "var": "viewInteractArea", "name": "ViewInteractArea" }, "child": [{ "type": "View", "props": { "y": 0, "x": 0, "name": "ViewMASK", "alpha": 0.5 }, "child": [{ "type": "Rect", "props": { "y": -1299, "x": -750, "width": 1500, "lineWidth": 1, "height": 1155, "fillColor": "#000000" } }, { "type": "Rect", "props": { "y": 126, "x": -750, "width": 1500, "lineWidth": 1, "height": 1155, "fillColor": "#000000" } }, { "type": "Rect", "props": { "y": -144, "x": -750, "width": 615, "lineWidth": 1, "height": 270, "fillColor": "#000000" } }, { "type": "Rect", "props": { "y": -144, "x": 135, "width": 615, "lineWidth": 1, "height": 270, "fillColor": "#000000" } }, { "type": "Image", "props": { "y": -144, "x": -135, "width": 270, "skin": "images/novice/interact_circle.png", "height": 270 } }] }, { "type": "View", "props": { "y": 0, "x": 0, "var": "viewClickTargetContainer", "name": "viewClickTargetContainer" } }, { "type": "Image", "props": { "y": 30, "x": 30, "var": "imgFinger", "skin": "images/novice/finger.png" } }] }, { "type": "Image", "props": { "y": 773, "x": 88, "var": "imgClickCharacter", "skin": "images/novice/character.png" }, "child": [{ "type": "Label", "props": { "y": 171, "x": 236, "wordWrap": true, "width": 300, "var": "lblClickScript", "text": "文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本", "overflow": "scroll", "leading": 10, "height": 103, "fontSize": 26, "color": "#a17338" } }] }] }] }, { "type": "Button", "props": { "y": 865, "x": 491, "var": "btnReturnNovice", "stateNum": 1, "skin": "images/component/frame_btn_small_blue.png", "labelStrokeColor": "#a17338", "labelStroke": 2, "labelSize": 26, "labelColors": "#ffffff,#ffffff,#ffffff,#ffffff", "labelBold": true, "label": "跳过", "sizeGrid": "0,32,0,34" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }] };
         guide.NoviceViewUI = NoviceViewUI;
     })(guide = ui.guide || (ui.guide = {}));
 })(ui || (ui = {}));
@@ -9373,7 +9372,6 @@ class EvolutionView extends BaseView {
                             M.novice.activateClickTarget(self.ui.btnUpdate, eventParam, self.ui.btnUpdate.parent);
                         }
                         else if (eventParam === NoviceTarget.FOREST_KING_CLOSE) {
-                            M.novice.ui.btnReturnNovice2.visible = true;
                             M.novice.activateClickTarget(self.ui.btnExit, eventParam, self.ui.btnExit.parent);
                         }
                     });
@@ -9747,12 +9745,12 @@ class FriendConcurView extends BaseView {
             return console.log("好友互动 -- 拉取不到数据。。。");
         self.ui.rewardList.visible = true;
         let listData = data;
-        listData.sort((pre, next) => {
-            if (pre.static == 1 && next.static == 1) {
-                return pre.p_status - next.p_status;
-            }
-            return pre.status - next.status;
-        });
+        // listData.sort((pre, next): number => {
+        //     if (pre.static == 1 && next.static == 1) {
+        //         return pre.p_status - next.p_status;
+        //     }
+        //     return pre.status - next.status;
+        // });
         listData.forEach((data, index, list) => {
             if (data.uid == userData.userId) {
                 FriendConcurView.redPointNum += (data.status == 0 ? 1 : 0);
@@ -9827,8 +9825,8 @@ class NoviceManager extends EventDispatcher {
             this.ui.mouseThrough = true;
             this.ui.viewStackNovice.selectedIndex = NoviceType.NONE;
             this.ui.visible = false;
-            this.ui.btnReturnNovice1.on(Laya.Event.CLICK, this, this.__onCompleteNovice);
-            this.ui.btnReturnNovice2.on(Laya.Event.CLICK, this, this.__onCompleteNovice);
+            this.ui.btnReturnNovice.on(Laya.Event.CLICK, this, this.__onCompleteNovice);
+            this.ui.btnReturnNovice.visible = false;
             this._container.addChild(this.ui);
             Laya.timer.frameOnce(10, this, this.nextStep);
         }
@@ -9899,7 +9897,7 @@ class NoviceManager extends EventDispatcher {
                     // 拖拽指引
                     LayerMgr.Instance.getLayerByType(LAYER_TYPE.GUIDE_LAYER).maskEnabled = false;
                     this.ui.viewStackNovice.selectedIndex = NoviceType.CLICK - 1;
-                    // this.ui.viewStackNovice.mouseEnabled = false;
+                    this.ui.viewStackNovice.mouseEnabled = false;
                     this.ui.viewInteract.visible = true;
                     this.updateDisplay(sheet, position.x, position.y);
                     this.updateSpecialInteractArea(sheet);
@@ -9911,6 +9909,13 @@ class NoviceManager extends EventDispatcher {
                 }
                 else {
                     console.log("指引类型未实现！");
+                }
+                if (sheet.skipPos) {
+                    this.ui.timerOnce(3000, this.ui, () => {
+                        this.ui.btnReturnNovice.visible = true;
+                    });
+                    const skipPos = sheet.skipPos.split(",");
+                    this.ui.btnReturnNovice.pos(parseInt(skipPos[0]), parseInt(skipPos[1]));
                 }
             }
             else {
@@ -9938,8 +9943,7 @@ class NoviceManager extends EventDispatcher {
             this.saveGroupId(this._currGroupId = 999);
             LayerMgr.Instance.getLayerByType(LAYER_TYPE.GUIDE_LAYER).off(Laya.Event.CLICK, this, this.onMaskClick);
             if (this.ui) {
-                this.ui.btnReturnNovice1.off(Laya.Event.CLICK, this, this.__onCompleteNovice);
-                this.ui.btnReturnNovice2.off(Laya.Event.CLICK, this, this.__onCompleteNovice);
+                this.ui.btnReturnNovice.off(Laya.Event.CLICK, this, this.__onCompleteNovice);
                 this.ui && Laya.Tween.clearAll(this.ui.imgFinger);
                 this.ui.destroy();
             }
@@ -10343,6 +10347,7 @@ class HallScene extends ui.hall.HallSceneUI {
         this.curMonsterSprite = null;
         this._giveCarTime = 0; //定时赠送怪物
         this._giveTempTime = 0; //定时赠送怪物
+        this._monsterLevel = 0;
         /** 功能菜单 */
         this._isShowMenu = true;
         /** 更新在线奖励时间 */
@@ -10420,7 +10425,6 @@ class HallScene extends ui.hall.HallSceneUI {
                     M.novice.activateClickTarget(self.btnShopShortcut, eventParam, self.btnShopShortcut.parent);
                 }
                 else if (eventParam === NoviceTarget.FOREST_KING) {
-                    M.novice.ui.btnReturnNovice2.visible = false;
                     M.novice.activateClickTarget(self.btnEvolution, eventParam, self.btnEvolution.parent, [{ target: self.spMountGuard, parent: self.spMountGuard.parent }]);
                 }
                 else if (eventParam === NoviceTarget.MONSTER_CELL_2) {
@@ -10709,13 +10713,24 @@ class HallScene extends ui.hall.HallSceneUI {
             });
         }
     }
-    refreshShortcutCreateBtn() {
+    refreshShortcutCreateBtn(isUpdateGold = false) {
         let self = this;
         let monsterType = userData.isEvolution() ? 2 : 1;
         HallManager.Instance.hallData.buyMonsterType = monsterType;
-        let monsterLevel = userData.getCarLevel();
-        monsterLevel = MathUtils.rangeInt(Math.max(1, monsterLevel - 2), monsterLevel);
-        let monsterInfo = BattleManager.Instance.getUnLockMonster(monsterType, monsterLevel);
+        if (!isUpdateGold) {
+            if (userData.getCarLevel() > 6) {
+                if (this._monsterLevel <= Math.max(1, (userData.getCarLevel() - 3))) {
+                    this._monsterLevel = userData.getCarLevel();
+                }
+                else {
+                    this._monsterLevel--;
+                }
+            }
+            else {
+                this._monsterLevel = userData.getCarLevel();
+            }
+        }
+        let monsterInfo = BattleManager.Instance.getUnLockMonster(monsterType, this._monsterLevel);
         let btnBuy = self.btnShopShortcut;
         if (monsterInfo && btnBuy) {
             if (HallManager.Instance.hallData.curNewMonsterId != monsterInfo.id) {
@@ -11215,7 +11230,7 @@ class HallScene extends ui.hall.HallSceneUI {
         }
         EventsManager.Instance.event(EventsType.UPDATE_CURRENCY);
         //刷新快捷买怪物按钮
-        that.refreshShortcutCreateBtn();
+        that.refreshShortcutCreateBtn(true);
         //本地保存
         userData.setMoney(PlayerManager.Instance.Info.userMoney);
     }
@@ -15110,7 +15125,7 @@ class EffectUtils extends Laya.Sprite {
         for (var index = 0; index < 5; index++) {
             Laya.timer.frameOnce(5, this, () => {
                 let poolData = ObjectPool.popObj(Laya.Image, "p_coin_rain");
-                let coinSp = poolData.obj; // Laya.Pool.getItemByClass("p_coin_rain", Laya.Image);
+                let coinSp = poolData.obj;
                 if (!poolData.isPool) {
                     coinSp.graphics.clear();
                     coinSp.loadImage(_imgUrl);
@@ -15122,7 +15137,6 @@ class EffectUtils extends Laya.Sprite {
                     Laya.Tween.clearTween(_coinSp);
                     _coinSp.removeSelf();
                     ObjectPool.push(_coinSp);
-                    // Laya.Pool.recover("p_coin_rain", _coinSp);
                 }, [coinSp]));
             });
         }

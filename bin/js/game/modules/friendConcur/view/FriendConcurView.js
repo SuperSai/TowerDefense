@@ -44,12 +44,12 @@ class FriendConcurView extends BaseView {
             return console.log("好友互动 -- 拉取不到数据。。。");
         self.ui.rewardList.visible = true;
         let listData = data;
-        listData.sort((pre, next) => {
-            if (pre.static == 1 && next.static == 1) {
-                return pre.p_status - next.p_status;
-            }
-            return pre.status - next.status;
-        });
+        // listData.sort((pre, next): number => {
+        //     if (pre.static == 1 && next.static == 1) {
+        //         return pre.p_status - next.p_status;
+        //     }
+        //     return pre.status - next.status;
+        // });
         listData.forEach((data, index, list) => {
             if (data.uid == userData.userId) {
                 FriendConcurView.redPointNum += (data.status == 0 ? 1 : 0);

@@ -9,6 +9,7 @@ class HallScene extends ui.hall.HallSceneUI {
         this.curMonsterSprite = null;
         this._giveCarTime = 0; //定时赠送怪物
         this._giveTempTime = 0; //定时赠送怪物
+        this._monsterLevel = 0;
         /** 功能菜单 */
         this._isShowMenu = true;
         /** 更新在线奖励时间 */
@@ -86,7 +87,6 @@ class HallScene extends ui.hall.HallSceneUI {
                     M.novice.activateClickTarget(self.btnShopShortcut, eventParam, self.btnShopShortcut.parent);
                 }
                 else if (eventParam === NoviceTarget.FOREST_KING) {
-                    M.novice.ui.btnReturnNovice2.visible = false;
                     M.novice.activateClickTarget(self.btnEvolution, eventParam, self.btnEvolution.parent, [{ target: self.spMountGuard, parent: self.spMountGuard.parent }]);
                 }
                 else if (eventParam === NoviceTarget.MONSTER_CELL_2) {
@@ -375,13 +375,24 @@ class HallScene extends ui.hall.HallSceneUI {
             });
         }
     }
-    refreshShortcutCreateBtn() {
+    refreshShortcutCreateBtn(isUpdateGold = false) {
         let self = this;
         let monsterType = userData.isEvolution() ? 2 : 1;
         HallManager.Instance.hallData.buyMonsterType = monsterType;
-        let monsterLevel = userData.getCarLevel();
-        monsterLevel = MathUtils.rangeInt(Math.max(1, monsterLevel - 2), monsterLevel);
-        let monsterInfo = BattleManager.Instance.getUnLockMonster(monsterType, monsterLevel);
+        if (!isUpdateGold) {
+            if (userData.getCarLevel() > 6) {
+                if (this._monsterLevel <= Math.max(1, (userData.getCarLevel() - 3))) {
+                    this._monsterLevel = userData.getCarLevel();
+                }
+                else {
+                    this._monsterLevel--;
+                }
+            }
+            else {
+                this._monsterLevel = userData.getCarLevel();
+            }
+        }
+        let monsterInfo = BattleManager.Instance.getUnLockMonster(monsterType, this._monsterLevel);
         let btnBuy = self.btnShopShortcut;
         if (monsterInfo && btnBuy) {
             if (HallManager.Instance.hallData.curNewMonsterId != monsterInfo.id) {
@@ -881,7 +892,7 @@ class HallScene extends ui.hall.HallSceneUI {
         }
         EventsManager.Instance.event(EventsType.UPDATE_CURRENCY);
         //刷新快捷买怪物按钮
-        that.refreshShortcutCreateBtn();
+        that.refreshShortcutCreateBtn(true);
         //本地保存
         userData.setMoney(PlayerManager.Instance.Info.userMoney);
     }

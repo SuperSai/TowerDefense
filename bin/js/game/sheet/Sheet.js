@@ -51,12 +51,14 @@ class NoviceGuide {
     set fingerPosition(value) { this.m = value; }
     get specialInteractArea() { return this.n; }
     set specialInteractArea(value) { this.n = value; }
-    get script() { return this.o; }
-    set script(value) { this.o = value; }
+    get skipPos() { return this.o; }
+    set skipPos(value) { this.o = value; }
+    get script() { return this.p; }
+    set script(value) { this.p = value; }
 } // prettier-ignore
 NoviceGuide.dataArr = [];
 NoviceGuide.dataObj = {};
-NoviceGuide._keys = { id: "b", groupId: "c", stepId: "d", completed: "e", type: "f", activateType: "g", activateValue: "h", eventName: "i", eventParam: "j", position: "k", interactPosition: "l", fingerPosition: "m", specialInteractArea: "n", script: "o" };
+NoviceGuide._keys = { id: "b", groupId: "c", stepId: "d", completed: "e", type: "f", activateType: "g", activateValue: "h", eventName: "i", eventParam: "j", position: "k", interactPosition: "l", fingerPosition: "m", specialInteractArea: "n", skipPos: "o", script: "p" };
 class Sheet {
     static initSheets(data) { const classInstance = { NoviceGuide }; for (const sheet of data) {
         const sheetClass = classInstance[sheet.sheetName];

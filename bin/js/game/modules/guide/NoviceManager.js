@@ -48,8 +48,8 @@ class NoviceManager extends EventDispatcher {
             this.ui.mouseThrough = true;
             this.ui.viewStackNovice.selectedIndex = NoviceType.NONE;
             this.ui.visible = false;
-            this.ui.btnReturnNovice1.on(Laya.Event.CLICK, this, this.__onCompleteNovice);
-            this.ui.btnReturnNovice2.on(Laya.Event.CLICK, this, this.__onCompleteNovice);
+            this.ui.btnReturnNovice.on(Laya.Event.CLICK, this, this.__onCompleteNovice);
+            this.ui.btnReturnNovice.visible = false;
             this._container.addChild(this.ui);
             Laya.timer.frameOnce(10, this, this.nextStep);
         }
@@ -120,7 +120,7 @@ class NoviceManager extends EventDispatcher {
                     // 拖拽指引
                     LayerMgr.Instance.getLayerByType(LAYER_TYPE.GUIDE_LAYER).maskEnabled = false;
                     this.ui.viewStackNovice.selectedIndex = NoviceType.CLICK - 1;
-                    // this.ui.viewStackNovice.mouseEnabled = false;
+                    this.ui.viewStackNovice.mouseEnabled = false;
                     this.ui.viewInteract.visible = true;
                     this.updateDisplay(sheet, position.x, position.y);
                     this.updateSpecialInteractArea(sheet);
@@ -132,6 +132,13 @@ class NoviceManager extends EventDispatcher {
                 }
                 else {
                     console.log("指引类型未实现！");
+                }
+                if (sheet.skipPos) {
+                    this.ui.timerOnce(3000, this.ui, () => {
+                        this.ui.btnReturnNovice.visible = true;
+                    });
+                    const skipPos = sheet.skipPos.split(",");
+                    this.ui.btnReturnNovice.pos(parseInt(skipPos[0]), parseInt(skipPos[1]));
                 }
             }
             else {
@@ -159,8 +166,7 @@ class NoviceManager extends EventDispatcher {
             this.saveGroupId(this._currGroupId = 999);
             LayerMgr.Instance.getLayerByType(LAYER_TYPE.GUIDE_LAYER).off(Laya.Event.CLICK, this, this.onMaskClick);
             if (this.ui) {
-                this.ui.btnReturnNovice1.off(Laya.Event.CLICK, this, this.__onCompleteNovice);
-                this.ui.btnReturnNovice2.off(Laya.Event.CLICK, this, this.__onCompleteNovice);
+                this.ui.btnReturnNovice.off(Laya.Event.CLICK, this, this.__onCompleteNovice);
                 this.ui && Laya.Tween.clearAll(this.ui.imgFinger);
                 this.ui.destroy();
             }

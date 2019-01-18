@@ -26,7 +26,6 @@ class EvolutionView extends BaseView {
                             M.novice.activateClickTarget(self.ui.btnUpdate, eventParam, self.ui.btnUpdate.parent);
                         }
                         else if (eventParam === NoviceTarget.FOREST_KING_CLOSE) {
-                            M.novice.ui.btnReturnNovice2.visible = true;
                             M.novice.activateClickTarget(self.ui.btnExit, eventParam, self.ui.btnExit.parent);
                         }
                     });

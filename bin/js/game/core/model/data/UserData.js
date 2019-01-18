@@ -849,7 +849,7 @@ class UserData {
             url: 'v3/user/info',
             success: function (res) {
                 console.log("requestUserBaseData:", res);
-                if (res) {
+                if (res && res.hasOwnProperty("remain_online_num")) {
                     self.offlineRewardCount = res.remain_online_num;
                     self.shareAdTimes = res.operation;
                     console.log("@David 用户基础数据 operation：", self.shareAdTimes);
@@ -904,7 +904,7 @@ class UserData {
         });
     }
     loadCache() {
-        this.cache.setCacheKey("xd_" + M.player.account);
+        this.cache.setCacheKey("yxtz_" + PathConfig.AppUrl + "_" + M.player.account);
         this.cache.loadCache(Laya.Handler.create(this, (cache) => {
             // 有缓存才赋值
             cache.hasCache(CacheKey.PET_LIST) && (this.parkcarInfoArray = cache.getCache(CacheKey.PET_LIST));
