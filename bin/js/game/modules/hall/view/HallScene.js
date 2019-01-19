@@ -1111,68 +1111,27 @@ class HallScene extends ui.hall.HallSceneUI {
     }
     //怪物储存箱
     onCarStore() {
-        let that = this;
-        let carId = that.getCarStore();
-        if (carId > 0) {
-            let carParkSp = BattleManager.Instance.createPet(carId);
-            if (carParkSp) {
-                that.getCarStore(true);
-                that.carStoreBtnEnabled();
+        const store = M.hall.hallData.monsterStore;
+        if (store && store.length) {
+            const id = store.shift();
+            if (id && id > 0) {
+                M.battle.createPet(id);
             }
         }
+        this.carStoreBtnEnabled();
     }
     carStoreBtnEnabled() {
-        let that = this;
-        if (that.btnCarStore) {
-            that.btnCarStore.visible = that.getCarStore() > 0;
+        if (this.btnCarStore) {
+            this.btnCarStore.visible = M.hall.hallData.monsterStore.length > 0;
         }
     }
     //保存英雄到本地
     saveCarStore(heroId) {
-        if (heroId < 1)
-            return;
-        let that = this;
-        let carArray = [];
-        let storage = window.localStorage;
-        let dataJson = storage.getItem(HallManager.Instance.hallData.monsterStoreKey);
-        if (dataJson) {
-            let jsonObj = JSON.parse(dataJson);
-            if (jsonObj) {
-                carArray = jsonObj;
-            }
+        if (heroId && heroId > 0) {
+            M.hall.hallData.monsterStore.push(heroId);
+            userData.cache.setCache(CacheKey.PET_STORE, M.hall.hallData.monsterStore);
+            this.carStoreBtnEnabled();
         }
-        if (carArray) {
-            carArray.push(heroId);
-            let dataJson = JSON.stringify(carArray);
-            if (dataJson) {
-                console.log("@FREEMAN: 本地数据保存追踪 - car_store_key");
-                storage.setItem(HallManager.Instance.hallData.monsterStoreKey, dataJson);
-            }
-        }
-        that.carStoreBtnEnabled();
-    }
-    //本地取出英雄
-    getCarStore(isRemove = false) {
-        let storage = window.localStorage;
-        let dataJson = storage.getItem(HallManager.Instance.hallData.monsterStoreKey);
-        if (dataJson) {
-            let jsonObj = JSON.parse(dataJson);
-            if (jsonObj) {
-                let carId = jsonObj.shift();
-                //保存移除
-                if (isRemove) {
-                    let dataJson = JSON.stringify(jsonObj);
-                    if (dataJson) {
-                        console.log("@FREEMAN: 本地数据保存追踪 - car_store_key 2");
-                        storage.setItem(HallManager.Instance.hallData.monsterStoreKey, dataJson);
-                    }
-                }
-                if (carId) {
-                    return carId;
-                }
-            }
-        }
-        return 0;
     }
     //显示加速效果
     playAcceEffectView(acceTime = 120, isEffect = true) {
@@ -1183,9 +1142,13 @@ class HallScene extends ui.hall.HallSceneUI {
         }
         HallManager.Instance.hallData.userAcceTime += acceTime;
         if (isEffect) {
-            let bone = new BoneAnim("anger");
+            let boneName = userData.isEvolution() ? "fennu2" : "fennu1";
+            let bone = new BoneAnim(boneName);
+            bone.completeBack = () => {
+                bone.destroy();
+            };
             AlignUtils.setToScreenGoldenPos(bone);
-            LayerMgr.Instance.addToLayer(bone, LAYER_TYPE.SCREEN_EFFECT_LAYER);
+            LayerMgr.Ins.addToLayer(bone, LAYER_TYPE.SCREEN_EFFECT_LAYER);
         }
         //加速开始
         that.setCarAcce(2);

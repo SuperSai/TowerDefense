@@ -18,7 +18,7 @@ class EvolutionView extends BaseView {
             ViewMgr.Ins.close(ViewConst.EvolutionView);
         });
         self.refreshBoxUI();
-        LayerMgr.Instance.getLayerByType(LAYER_TYPE.FRAME_LAYER).on(LayerEvent.LAYER_ANIMATION_COMPLETE, this, (complete) => {
+        LayerMgr.Ins.getLayerByType(LAYER_TYPE.FRAME_LAYER).on(LayerEvent.LAYER_ANIMATION_COMPLETE, this, (complete) => {
             if (complete) {
                 if (!NoviceManager.isComplete) {
                     M.novice.on(NoviceEvent.ACTIVATE_TARGET, self, (eventParam) => {

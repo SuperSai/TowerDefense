@@ -16,6 +16,7 @@ CacheKey.GUARD_LEVEL = "guard_level"; //守护等级 @FREEMAN
 CacheKey.EVOLUTION_LEVEL = "evolution_level"; //进化等级 @FREEMAN
 CacheKey.NOVICE_GROUP_ID = "novice_group_id"; //新手节点ID @FREEMAN
 CacheKey.PET_LIST = "pet_list"; //参战的宠物列表 @FREEMAN
+CacheKey.PET_STORE = "pet_store"; //宠物仓库
 CacheKey.SHOP_DATA = "shop_data"; //商店数据 @FREEMAN
 CacheKey.SKILL_DATA = "skill_data"; //技能数据 @FREEMAN
 //# sourceMappingURL=CacheKey.js.map

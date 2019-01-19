@@ -1630,7 +1630,7 @@ class MessageUtils {
         msg.visible = content == "" ? false : true;
         msg.zOrder = 999;
         AlignUtils.setToScreenGoldenPos(msg);
-        LayerMgr.Instance.addToLayer(msg, LAYER_TYPE.ROLL_MSG_LAYER);
+        LayerMgr.Ins.addToLayer(msg, LAYER_TYPE.ROLL_MSG_LAYER);
         Laya.Tween.to(msg, { x: msg.x, y: msg.y - 100, alpha: 0 }, 4000, Laya.Ease.cubicInOut, Laya.Handler.create(self, ($msg) => {
             Laya.Tween.clearTween($msg);
             $msg.zOrder = 1;
@@ -1679,7 +1679,7 @@ class MessageUtils {
             hbox.align = "middle";
             const global = PointUtils.localToGlobal(obj);
             hbox.pos(global.x, global.y);
-            LayerMgr.Instance.addToLayer(hbox, LAYER_TYPE.SCREEN_EFFECT_LAYER);
+            LayerMgr.Ins.addToLayer(hbox, LAYER_TYPE.SCREEN_EFFECT_LAYER);
             hbox.x += (obj.width - hbox.width) / 2;
             Laya.Tween.to(hbox, { y: hbox.y - 50, alpha: 0 }, 2000, null, Laya.Handler.create(this, () => {
                 Laya.Tween.clearTween(hbox);
@@ -1689,7 +1689,7 @@ class MessageUtils {
         else {
             const global = PointUtils.localToGlobal(obj);
             label.pos(global.x, global.y);
-            LayerMgr.Instance.addToLayer(label, LAYER_TYPE.SCREEN_EFFECT_LAYER);
+            LayerMgr.Ins.addToLayer(label, LAYER_TYPE.SCREEN_EFFECT_LAYER);
             label.x += (obj.width - label.width) / 2;
             Laya.Tween.to(label, { y: label.y - 50, alpha: 0 }, 2000, null, Laya.Handler.create(this, () => {
                 Laya.Tween.clearTween(label);
@@ -2666,7 +2666,6 @@ class HttpManager {
             success: res => {
                 let offlineTimeSpan = MathUtils.parseInt(res.time); //离线时长
                 // let login_time = MathUtils.parseInt(res.login_time); //登录当前服务器时间
-                HttpManager.Instance.requestSaveLog("@David 离线奖励服务器发送过来的时间：" + offlineTimeSpan);
                 if (offlineTimeSpan >= 10 * Time.MIN) {
                     M.event.event(EventsType.OFFLINE, offlineTimeSpan);
                     this.requestNotifyServerPrize();
@@ -3776,7 +3775,8 @@ class HallModel {
         /** 当前最新怪物ID-快捷购怪物按钮 */
         this.curNewMonsterId = 0;
         /** 本地保存兵营怪物 */
-        this.monsterStoreKey = "car_store_key";
+        // public monsterStoreKey: string = "car_store_key";
+        this.monsterStore = [];
         /** 怪物列表 */
         this.monsterArray = [];
         /** 未领取的关卡奖励 */
@@ -5402,6 +5402,7 @@ class UserData {
             cache.hasCache(CacheKey.PET_LIST) && (this.parkcarInfoArray = cache.getCache(CacheKey.PET_LIST));
             cache.hasCache(CacheKey.SHOP_DATA) && (this.carBuyRecordArray = cache.getCache(CacheKey.SHOP_DATA));
             cache.hasCache(CacheKey.SKILL_DATA) && (this.skillAdditionArray = cache.getCache(CacheKey.SKILL_DATA));
+            cache.hasCache(CacheKey.PET_STORE) && (M.hall.hallData.monsterStore = cache.getCache(CacheKey.PET_STORE));
             cache.hasCache(CacheKey.CONCUR) && (HallManager.Instance.hallData.concurGoldDic.fromJsonObject(cache.getCache(CacheKey.CONCUR)));
             if (cache.hasCache(CacheKey.USER_ID)) {
                 this.userId = cache.getCache(CacheKey.USER_ID);
@@ -5467,6 +5468,7 @@ CacheKey.GUARD_LEVEL = "guard_level"; //守护等级 @FREEMAN
 CacheKey.EVOLUTION_LEVEL = "evolution_level"; //进化等级 @FREEMAN
 CacheKey.NOVICE_GROUP_ID = "novice_group_id"; //新手节点ID @FREEMAN
 CacheKey.PET_LIST = "pet_list"; //参战的宠物列表 @FREEMAN
+CacheKey.PET_STORE = "pet_store"; //宠物仓库
 CacheKey.SHOP_DATA = "shop_data"; //商店数据 @FREEMAN
 CacheKey.SKILL_DATA = "skill_data"; //技能数据 @FREEMAN
 //# sourceMappingURL=CacheKey.js.map
@@ -5483,6 +5485,7 @@ class SDKManager {
             if (data.scene == 1104 || data.scene == 1103 || data.scene == 1023) { //ios从我的小程序入口进
                 PlayerManager.Instance.Info.isMySceneEnter = true;
             }
+            MoreController.getInstance().applyMute(false);
             SDKManager.Instance.handlerSceneValue(data);
             EventsManager.Instance.event(EventsType.BACK_GAME);
             if (platform.isSharing())
@@ -5678,6 +5681,7 @@ class SDKManager {
     /** 处理场景值 */
     handlerSceneValue(data) {
         switch (Math.floor(data.scene)) {
+            case 1007:
             case 1008:
             case 1044:
                 HttpManager.Instance.requestShareGift(data);
@@ -5821,7 +5825,7 @@ class PathConfig {
 // public static AppUrl: string = "https://yamdev.xiaoduogame.cn/api/"; //测试服地址
 PathConfig.AppUrl = "https://pokemon.vuggame.com/api/"; //正式服地址
 PathConfig.AppResUrl = "https://miniapp.vuggame.com/pokemon_vuggame_com_single/";
-PathConfig.RES_URL = PathConfig.AppResUrl + "v3/";
+PathConfig.RES_URL = PathConfig.AppResUrl + "v4/";
 PathConfig.Language = PathConfig.RES_URL + "config/language.txt";
 PathConfig.MonsterUrl = PathConfig.RES_URL + "anim/{0}.atlas";
 PathConfig.GameResUrl = "images/skill/{0}.png";
@@ -7919,12 +7923,13 @@ var ui;
         class NoviceViewUI extends View {
             constructor() { super(); }
             createChildren() {
+                View.regComponent("SkeletonPlayer", laya.ani.bone.Skeleton);
                 View.regComponent("ScaleAnimScript", ScaleAnimScript);
                 super.createChildren();
                 this.createView(ui.guide.NoviceViewUI.uiView);
             }
         }
-        NoviceViewUI.uiView = { "type": "View", "props": { "name": "NoviceViewUI", "mouseThrough": true, "mouseEnabled": true }, "child": [{ "type": "View", "props": { "y": 0, "x": 0, "width": 750, "visible": false, "var": "viewInteract", "name": "ViewInteract", "mouseThrough": true, "mouseEnabled": true, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "width": 750, "var": "imgTop", "skin": "images/core/blank.png", "mouseEnabled": true, "height": 400 } }, { "type": "Image", "props": { "y": 400, "x": 420, "width": 330, "var": "imgRight", "skin": "images/core/blank.png", "mouseEnabled": true, "height": 100 } }, { "type": "Image", "props": { "y": 500, "x": 0, "width": 750, "var": "imgBottom", "skin": "images/core/blank.png", "mouseEnabled": true, "height": 834 } }, { "type": "Image", "props": { "y": 400, "x": 0, "width": 200, "var": "imgLeft", "skin": "images/core/blank.png", "mouseEnabled": true, "height": 100 } }] }, { "type": "ViewStack", "props": { "var": "viewStackNovice", "selectedIndex": 0, "name": "viewStackNovice" }, "child": [{ "type": "View", "props": { "y": 0, "x": 0, "width": 750, "name": "item0", "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 791, "x": 10, "var": "imgDialogCharacter", "skin": "images/novice/character.png" }, "child": [{ "type": "Label", "props": { "y": 176, "x": 237, "wordWrap": true, "width": 300, "var": "lblDialogScript", "text": "文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本", "overflow": "scroll", "leading": 10, "height": 103, "fontSize": 26, "color": "#a17338" } }] }] }, { "type": "View", "props": { "width": 750, "name": "item1", "height": 1334 }, "child": [{ "type": "View", "props": { "y": 1256, "x": 263, "var": "viewInteractArea", "name": "ViewInteractArea" }, "child": [{ "type": "View", "props": { "y": 0, "x": 0, "name": "ViewMASK", "alpha": 0.5 }, "child": [{ "type": "Rect", "props": { "y": -1299, "x": -750, "width": 1500, "lineWidth": 1, "height": 1155, "fillColor": "#000000" } }, { "type": "Rect", "props": { "y": 126, "x": -750, "width": 1500, "lineWidth": 1, "height": 1155, "fillColor": "#000000" } }, { "type": "Rect", "props": { "y": -144, "x": -750, "width": 615, "lineWidth": 1, "height": 270, "fillColor": "#000000" } }, { "type": "Rect", "props": { "y": -144, "x": 135, "width": 615, "lineWidth": 1, "height": 270, "fillColor": "#000000" } }, { "type": "Image", "props": { "y": -144, "x": -135, "width": 270, "skin": "images/novice/interact_circle.png", "height": 270 } }] }, { "type": "View", "props": { "y": 0, "x": 0, "var": "viewClickTargetContainer", "name": "viewClickTargetContainer" } }, { "type": "Image", "props": { "y": 30, "x": 30, "var": "imgFinger", "skin": "images/novice/finger.png" } }] }, { "type": "Image", "props": { "y": 773, "x": 88, "var": "imgClickCharacter", "skin": "images/novice/character.png" }, "child": [{ "type": "Label", "props": { "y": 171, "x": 236, "wordWrap": true, "width": 300, "var": "lblClickScript", "text": "文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本", "overflow": "scroll", "leading": 10, "height": 103, "fontSize": 26, "color": "#a17338" } }] }] }] }, { "type": "Button", "props": { "y": 865, "x": 491, "var": "btnReturnNovice", "stateNum": 1, "skin": "images/component/frame_btn_small_blue.png", "labelStrokeColor": "#a17338", "labelStroke": 2, "labelSize": 26, "labelColors": "#ffffff,#ffffff,#ffffff,#ffffff", "labelBold": true, "label": "跳过", "sizeGrid": "0,32,0,34" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }] };
+        NoviceViewUI.uiView = { "type": "View", "props": { "name": "NoviceViewUI", "mouseThrough": true, "mouseEnabled": true }, "child": [{ "type": "View", "props": { "y": 0, "x": 0, "width": 750, "visible": false, "var": "viewInteract", "name": "ViewInteract", "mouseThrough": true, "mouseEnabled": true, "height": 1334 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "width": 750, "var": "imgTop", "skin": "images/core/blank.png", "mouseEnabled": true, "height": 400 } }, { "type": "Image", "props": { "y": 400, "x": 420, "width": 330, "var": "imgRight", "skin": "images/core/blank.png", "mouseEnabled": true, "height": 100 } }, { "type": "Image", "props": { "y": 500, "x": 0, "width": 750, "var": "imgBottom", "skin": "images/core/blank.png", "mouseEnabled": true, "height": 834 } }, { "type": "Image", "props": { "y": 400, "x": 0, "width": 200, "var": "imgLeft", "skin": "images/core/blank.png", "mouseEnabled": true, "height": 100 } }] }, { "type": "ViewStack", "props": { "var": "viewStackNovice", "selectedIndex": 0, "name": "viewStackNovice" }, "child": [{ "type": "View", "props": { "y": 0, "x": 0, "width": 750, "name": "item0", "height": 1334 }, "child": [{ "type": "Box", "props": { "y": 791, "x": 10, "width": 566, "var": "imgDialogCharacter", "skin": "images/novice/character.png", "height": 330 }, "child": [{ "type": "Image", "props": { "y": 145, "x": 144, "skin": "images/novice/character_bg.png" } }, { "type": "Label", "props": { "y": 176, "x": 237, "wordWrap": true, "width": 300, "var": "lblDialogScript", "text": "文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本", "overflow": "scroll", "leading": 10, "height": 103, "fontSize": 26, "color": "#a17338" } }, { "type": "SkeletonPlayer", "props": { "y": 217, "x": 113, "url": "images/effect/bone/xinshouyindao.sk" } }] }] }, { "type": "View", "props": { "width": 750, "name": "item1", "height": 1334 }, "child": [{ "type": "View", "props": { "y": 1256, "x": 263, "var": "viewInteractArea", "name": "ViewInteractArea" }, "child": [{ "type": "View", "props": { "y": 0, "x": 0, "name": "ViewMASK", "alpha": 0.5 }, "child": [{ "type": "Rect", "props": { "y": -1299, "x": -750, "width": 1500, "lineWidth": 1, "height": 1155, "fillColor": "#000000" } }, { "type": "Rect", "props": { "y": 126, "x": -750, "width": 1500, "lineWidth": 1, "height": 1155, "fillColor": "#000000" } }, { "type": "Rect", "props": { "y": -144, "x": -750, "width": 615, "lineWidth": 1, "height": 270, "fillColor": "#000000" } }, { "type": "Rect", "props": { "y": -144, "x": 135, "width": 615, "lineWidth": 1, "height": 270, "fillColor": "#000000" } }, { "type": "Image", "props": { "y": -144, "x": -135, "width": 270, "skin": "images/novice/interact_circle.png", "height": 270 } }] }, { "type": "View", "props": { "y": 0, "x": 0, "var": "viewClickTargetContainer", "name": "viewClickTargetContainer" } }, { "type": "Image", "props": { "y": 30, "x": 30, "var": "imgFinger", "skin": "images/novice/finger.png" } }] }, { "type": "Box", "props": { "y": 773, "x": 88, "width": 566, "var": "imgClickCharacter", "skin": "images/novice/character.png", "height": 330 }, "child": [{ "type": "Image", "props": { "y": 147, "x": 145, "skin": "images/novice/character_bg.png" } }, { "type": "Label", "props": { "y": 171, "x": 236, "wordWrap": true, "width": 300, "var": "lblClickScript", "text": "文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本", "overflow": "scroll", "leading": 10, "height": 103, "fontSize": 26, "color": "#a17338" } }, { "type": "SkeletonPlayer", "props": { "y": 217, "x": 113, "url": "images/effect/bone/xinshouyindao.sk" } }] }] }] }, { "type": "Button", "props": { "y": 865, "x": 491, "var": "btnReturnNovice", "stateNum": 1, "skin": "images/component/frame_btn_small_blue.png", "labelStrokeColor": "#a17338", "labelStroke": 2, "labelSize": 26, "labelColors": "#ffffff,#ffffff,#ffffff,#ffffff", "labelBold": true, "label": "跳过", "sizeGrid": "0,32,0,34" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }] };
         guide.NoviceViewUI = NoviceViewUI;
     })(guide = ui.guide || (ui.guide = {}));
 })(ui || (ui = {}));
@@ -8420,7 +8425,7 @@ class BaseView extends Laya.View {
         super();
         this.isRemoveBanner = true;
         this._resources = null;
-        this._myParent = LayerMgr.Instance.getLayerByType($layer);
+        this._myParent = LayerMgr.Ins.getLayerByType($layer);
         this._isInit = false;
         this._isShowMask = isShowMask;
         this._ui = $class;
@@ -8687,7 +8692,6 @@ class OfflineRewardsView extends BaseView {
         let self = this;
         self.ui.btnShare.visible = false;
         self._price = self.datas[0];
-        console.log("@David 离线奖励正常金额：", self._price);
         self.ui.txtMoney.text = "金币+" + MathUtils.bytesToSize(self._price);
     }
     addEvents() {
@@ -8708,7 +8712,6 @@ class OfflineRewardsView extends BaseView {
         userData.toShareAd(() => {
             self._price = self._price * 8;
             self.ui.txtMoney.text = "金币+" + MathUtils.bytesToSize(self._price);
-            console.log("@David 离线奖励正常翻倍后金额：", self._price);
             self.ui.btnVideo.visible = false;
             M.layer.screenEffectLayer.addChild(new FlyEffect().play("rollingCoin", LayerManager.mouseX, LayerManager.mouseY));
             MessageUtils.showMsgTips("获得金币:" + MathUtils.bytesToSize(self._price));
@@ -8725,7 +8728,6 @@ class OfflineRewardsView extends BaseView {
             MessageUtils.showMsgTips("获得金币:" + MathUtils.bytesToSize(self._price));
         }
         EventsManager.Instance.event(EventsType.GOLD_CHANGE, { money: M.player.Info.userMoney += self._price });
-        console.log("@David 离线奖励最终获得金币：", self._price);
     }
 }
 //# sourceMappingURL=OfflineRewardsView.js.map
@@ -9363,7 +9365,7 @@ class EvolutionView extends BaseView {
             ViewMgr.Ins.close(ViewConst.EvolutionView);
         });
         self.refreshBoxUI();
-        LayerMgr.Instance.getLayerByType(LAYER_TYPE.FRAME_LAYER).on(LayerEvent.LAYER_ANIMATION_COMPLETE, this, (complete) => {
+        LayerMgr.Ins.getLayerByType(LAYER_TYPE.FRAME_LAYER).on(LayerEvent.LAYER_ANIMATION_COMPLETE, this, (complete) => {
             if (complete) {
                 if (!NoviceManager.isComplete) {
                     M.novice.on(NoviceEvent.ACTIVATE_TARGET, self, (eventParam) => {
@@ -9817,7 +9819,7 @@ class NoviceManager extends EventDispatcher {
                 this._container = container;
             }
             else {
-                this._container = LayerMgr.Instance.getLayerByType(LAYER_TYPE.GUIDE_LAYER);
+                this._container = LayerMgr.Ins.getLayerByType(LAYER_TYPE.GUIDE_LAYER);
             }
             this._currStepId = 0;
             this._currGroupSheets = [].concat(NoviceGuide.getSheetByFieldValue("groupId", this._currGroupId));
@@ -9872,14 +9874,14 @@ class NoviceManager extends EventDispatcher {
                 const position = StringUtils.splitStringToPoint(sheet.position);
                 if (this._currStepType === NoviceType.DEFAULT) {
                     // 剧情对话
-                    LayerMgr.Instance.getLayerByType(LAYER_TYPE.GUIDE_LAYER).maskEnabled = true;
+                    LayerMgr.Ins.getLayerByType(LAYER_TYPE.GUIDE_LAYER).maskEnabled = true;
                     this.ui.viewStackNovice.selectedIndex = NoviceType.DEFAULT - 1;
                     this.updateDisplay(sheet, position.x, position.y);
                     this.activateMaskClick();
                 }
                 else if (this._currStepType === NoviceType.CLICK) {
                     // 点击指引
-                    LayerMgr.Instance.getLayerByType(LAYER_TYPE.GUIDE_LAYER).maskEnabled = false;
+                    LayerMgr.Ins.getLayerByType(LAYER_TYPE.GUIDE_LAYER).maskEnabled = false;
                     this.ui.mouseEnabled = true;
                     this.ui.viewStackNovice.selectedIndex = NoviceType.CLICK - 1;
                     this.ui.viewStackNovice.mouseEnabled = true;
@@ -9896,7 +9898,7 @@ class NoviceManager extends EventDispatcher {
                 }
                 else if (this._currStepType === NoviceType.DRAG) {
                     // 拖拽指引
-                    LayerMgr.Instance.getLayerByType(LAYER_TYPE.GUIDE_LAYER).maskEnabled = false;
+                    LayerMgr.Ins.getLayerByType(LAYER_TYPE.GUIDE_LAYER).maskEnabled = false;
                     this.ui.viewStackNovice.selectedIndex = NoviceType.CLICK - 1;
                     this.ui.viewStackNovice.mouseEnabled = false;
                     this.ui.viewInteract.visible = true;
@@ -9942,7 +9944,7 @@ class NoviceManager extends EventDispatcher {
         if (!NoviceManager.isComplete) {
             NoviceManager.isComplete = true;
             this.saveGroupId(this._currGroupId = 999);
-            LayerMgr.Instance.getLayerByType(LAYER_TYPE.GUIDE_LAYER).off(Laya.Event.CLICK, this, this.onMaskClick);
+            LayerMgr.Ins.getLayerByType(LAYER_TYPE.GUIDE_LAYER).off(Laya.Event.CLICK, this, this.onMaskClick);
             if (this.ui) {
                 this.ui.btnReturnNovice.off(Laya.Event.CLICK, this, this.__onCompleteNovice);
                 this.ui && Laya.Tween.clearAll(this.ui.imgFinger);
@@ -9989,7 +9991,7 @@ class NoviceManager extends EventDispatcher {
             if (!this._currSheet || !this._currSheet.eventParam)
                 return;
             if (targetName === this._currSheet.eventParam) {
-                LayerMgr.Instance.getLayerByType(LAYER_TYPE.GUIDE_LAYER).maskEnabled = true;
+                LayerMgr.Ins.getLayerByType(LAYER_TYPE.GUIDE_LAYER).maskEnabled = true;
                 target.off(Laya.Event.CLICK, this, this.onTargetClick);
                 this.recoverTargets();
                 this.nextStep();
@@ -10042,12 +10044,12 @@ class NoviceManager extends EventDispatcher {
     activateMaskClick() {
         Laya.timer.once(Time.SEC_IN_MILI * 0.05, this, () => {
             // prettier-ignore
-            LayerMgr.Instance.getLayerByType(LAYER_TYPE.GUIDE_LAYER).on(Laya.Event.CLICK, this, this.onMaskClick);
+            LayerMgr.Ins.getLayerByType(LAYER_TYPE.GUIDE_LAYER).on(Laya.Event.CLICK, this, this.onMaskClick);
         });
     }
     onMaskClick() {
         if (this._currStepType === NoviceType.DEFAULT) {
-            LayerMgr.Instance.getLayerByType(LAYER_TYPE.GUIDE_LAYER).off(Laya.Event.CLICK, this, this.onMaskClick);
+            LayerMgr.Ins.getLayerByType(LAYER_TYPE.GUIDE_LAYER).off(Laya.Event.CLICK, this, this.onMaskClick);
             this.nextStep();
         }
     }
@@ -11450,68 +11452,27 @@ class HallScene extends ui.hall.HallSceneUI {
     }
     //怪物储存箱
     onCarStore() {
-        let that = this;
-        let carId = that.getCarStore();
-        if (carId > 0) {
-            let carParkSp = BattleManager.Instance.createPet(carId);
-            if (carParkSp) {
-                that.getCarStore(true);
-                that.carStoreBtnEnabled();
+        const store = M.hall.hallData.monsterStore;
+        if (store && store.length) {
+            const id = store.shift();
+            if (id && id > 0) {
+                M.battle.createPet(id);
             }
         }
+        this.carStoreBtnEnabled();
     }
     carStoreBtnEnabled() {
-        let that = this;
-        if (that.btnCarStore) {
-            that.btnCarStore.visible = that.getCarStore() > 0;
+        if (this.btnCarStore) {
+            this.btnCarStore.visible = M.hall.hallData.monsterStore.length > 0;
         }
     }
     //保存英雄到本地
     saveCarStore(heroId) {
-        if (heroId < 1)
-            return;
-        let that = this;
-        let carArray = [];
-        let storage = window.localStorage;
-        let dataJson = storage.getItem(HallManager.Instance.hallData.monsterStoreKey);
-        if (dataJson) {
-            let jsonObj = JSON.parse(dataJson);
-            if (jsonObj) {
-                carArray = jsonObj;
-            }
+        if (heroId && heroId > 0) {
+            M.hall.hallData.monsterStore.push(heroId);
+            userData.cache.setCache(CacheKey.PET_STORE, M.hall.hallData.monsterStore);
+            this.carStoreBtnEnabled();
         }
-        if (carArray) {
-            carArray.push(heroId);
-            let dataJson = JSON.stringify(carArray);
-            if (dataJson) {
-                console.log("@FREEMAN: 本地数据保存追踪 - car_store_key");
-                storage.setItem(HallManager.Instance.hallData.monsterStoreKey, dataJson);
-            }
-        }
-        that.carStoreBtnEnabled();
-    }
-    //本地取出英雄
-    getCarStore(isRemove = false) {
-        let storage = window.localStorage;
-        let dataJson = storage.getItem(HallManager.Instance.hallData.monsterStoreKey);
-        if (dataJson) {
-            let jsonObj = JSON.parse(dataJson);
-            if (jsonObj) {
-                let carId = jsonObj.shift();
-                //保存移除
-                if (isRemove) {
-                    let dataJson = JSON.stringify(jsonObj);
-                    if (dataJson) {
-                        console.log("@FREEMAN: 本地数据保存追踪 - car_store_key 2");
-                        storage.setItem(HallManager.Instance.hallData.monsterStoreKey, dataJson);
-                    }
-                }
-                if (carId) {
-                    return carId;
-                }
-            }
-        }
-        return 0;
     }
     //显示加速效果
     playAcceEffectView(acceTime = 120, isEffect = true) {
@@ -11522,9 +11483,13 @@ class HallScene extends ui.hall.HallSceneUI {
         }
         HallManager.Instance.hallData.userAcceTime += acceTime;
         if (isEffect) {
-            let bone = new BoneAnim("anger");
+            let boneName = userData.isEvolution() ? "fennu2" : "fennu1";
+            let bone = new BoneAnim(boneName);
+            bone.completeBack = () => {
+                bone.destroy();
+            };
             AlignUtils.setToScreenGoldenPos(bone);
-            LayerMgr.Instance.addToLayer(bone, LAYER_TYPE.SCREEN_EFFECT_LAYER);
+            LayerMgr.Ins.addToLayer(bone, LAYER_TYPE.SCREEN_EFFECT_LAYER);
         }
         //加速开始
         that.setCarAcce(2);
@@ -12248,14 +12213,14 @@ class LuckPrizeItemView extends BaseView {
         gold = gold * HallManager.Instance.hallData.magnification;
         this.ui.txtItemName.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.20", this.datas[0].name, MathUtils.bytesToSize(gold));
         let point = PointUtils.localToGlobal(this.ui.imgItem);
-        LayerMgr.Instance.addToLayer(new FlyEffect().play("rollingCoin", point.x, point.y), LAYER_TYPE.SCREEN_EFFECT_LAYER);
+        LayerMgr.Ins.addToLayer(new FlyEffect().play("rollingCoin", point.x, point.y), LAYER_TYPE.SCREEN_EFFECT_LAYER);
         EventsManager.Instance.event(EventsType.GOLD_CHANGE, { money: M.player.Info.userMoney += gold });
     }
     showDiamond(name, diamond) {
         diamond = diamond * HallManager.Instance.hallData.magnification;
         this.ui.txtItemName.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.20", name, diamond);
         let point = PointUtils.localToGlobal(this.ui.imgItem);
-        LayerMgr.Instance.addToLayer(new FlyEffect().play("diamond", point.x, point.y), LAYER_TYPE.SCREEN_EFFECT_LAYER);
+        LayerMgr.Ins.addToLayer(new FlyEffect().play("diamond", point.x, point.y), LAYER_TYPE.SCREEN_EFFECT_LAYER);
         HttpManager.Instance.requestDiamondData(); //刷新钻石数量
     }
     showEssence(name, essence) {
@@ -12586,7 +12551,7 @@ class MoreController extends Laya.EventDispatcher {
         this._model = new MoreModel();
         this.addEvents();
         // 不是用任务集市的时候设置为true
-        this._noQuestMarket = false;
+        this._noQuestMarket = true;
     }
     addEvents() {
     }
@@ -13941,7 +13906,7 @@ class StrengthenView extends BaseView {
                                         that.refreshBoxUI(_btnInfo.skillId);
                                         let bone = new BoneAnim("qhcg");
                                         AlignUtils.setToScreenGoldenPos(bone);
-                                        LayerMgr.Instance.addToLayer(bone, LAYER_TYPE.SCREEN_EFFECT_LAYER);
+                                        LayerMgr.Ins.addToLayer(bone, LAYER_TYPE.SCREEN_EFFECT_LAYER);
                                         bone.completeBack = () => {
                                             bone.destroy();
                                         };
@@ -14031,13 +13996,13 @@ class AchiRewardView extends BaseView {
                     if (this.datas[0].reward_type != "money") {
                         MessageUtils.showMsgTips("成就奖励:" + this._rewardName + "x" + this._awardNum);
                         let point = PointUtils.localToGlobal(this.ui.imgIcon);
-                        LayerMgr.Instance.addToLayer(new FlyEffect().play("diamond", point.x, point.y), LAYER_TYPE.SCREEN_EFFECT_LAYER);
+                        LayerMgr.Ins.addToLayer(new FlyEffect().play("diamond", point.x, point.y), LAYER_TYPE.SCREEN_EFFECT_LAYER);
                         EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: M.player.Info.userDiamond += this._awardNum });
                     }
                     else {
                         MessageUtils.showMsgTips("成就奖励:" + this._rewardName + "x" + MathUtils.bytesToSize(this._awardNum));
                         let point = PointUtils.localToGlobal(this.ui.imgIcon);
-                        LayerMgr.Instance.addToLayer(new FlyEffect().play("rollingCoin", point.x, point.y), LAYER_TYPE.SCREEN_EFFECT_LAYER);
+                        LayerMgr.Ins.addToLayer(new FlyEffect().play("rollingCoin", point.x, point.y), LAYER_TYPE.SCREEN_EFFECT_LAYER);
                         EventsManager.Instance.event(EventsType.GOLD_CHANGE, { money: M.player.Info.userMoney += this._awardNum });
                     }
                 }
@@ -14311,12 +14276,12 @@ class TaskView extends BaseView {
                                         MessageUtils.showMsgTips("奖励领取成功");
                                         if (item.reward_type == "money") {
                                             MessageUtils.shopMsgByObj(btnGet, "+" + MathUtils.bytesToSize(awardNum), EFFECT_TYPE.GOLD);
-                                            LayerMgr.Instance.addToLayer(new FlyEffect().play("rollingCoin", LayerManager.mouseX, LayerManager.mouseY), LAYER_TYPE.SCREEN_EFFECT_LAYER);
+                                            LayerMgr.Ins.addToLayer(new FlyEffect().play("rollingCoin", LayerManager.mouseX, LayerManager.mouseY), LAYER_TYPE.SCREEN_EFFECT_LAYER);
                                             EventsManager.Instance.event(EventsType.GOLD_CHANGE, { money: M.player.Info.userMoney += awardNum });
                                         }
                                         else {
                                             MessageUtils.shopMsgByObj(btnGet, "+" + awardNum, EFFECT_TYPE.DIAMOND);
-                                            LayerMgr.Instance.addToLayer(new FlyEffect().play("diamond", LayerManager.mouseX, LayerManager.mouseY), LAYER_TYPE.SCREEN_EFFECT_LAYER);
+                                            LayerMgr.Ins.addToLayer(new FlyEffect().play("diamond", LayerManager.mouseX, LayerManager.mouseY), LAYER_TYPE.SCREEN_EFFECT_LAYER);
                                             EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, res);
                                         }
                                         _btnObj.visible = false;
@@ -14820,7 +14785,7 @@ class LayerMgr extends EventDispatcher {
     constructor() {
         super(...arguments);
         this._layerCount = 11;
-        this._layers = [];
+        this._layers = new Laya.Dictionary();
     }
     initLayer(container, designWidth, designHeight) {
         const pixelRatio = Laya.Browser.pixelRatio;
@@ -14865,14 +14830,18 @@ class LayerMgr extends EventDispatcher {
         container.addChild(this.getLayerByType(LAYER_TYPE.SMALL_LOADING_LAYER));
         container.addChild(this.getLayerByType(LAYER_TYPE.NOTE_LAYER));
         container.addChild(this.getLayerByType(LAYER_TYPE.DEBUG_LAYER));
-        for (const layer of this._layers) {
-            layer.pos(left, top);
-            layer.scale(adaptScale, adaptScale);
+        for (const key in this._layers) {
+            if (this._layers.indexOf(key) != -1) {
+                const element = this._layers.get(key);
+                element.pos(left, top);
+                element.scale(adaptScale, adaptScale);
+            }
         }
     }
     createAllLayers() {
         for (let i = 0; i < this._layerCount; i++) {
-            this._layers.push(this.createOnLayer(i));
+            let layerObj = this.createOnLayer(i);
+            this._layers.set(layerObj.layerId, layerObj);
         }
     }
     createOnLayer(layerType) {
@@ -14880,22 +14849,18 @@ class LayerMgr extends EventDispatcher {
         return layer;
     }
     addToLayer(display, layerType) {
-        let layer = this.getLayerByType(layerType);
+        let layer = this._layers.get(layerType);
         layer.maskEnabled = false;
         layer.addChild(display);
     }
     getLayerByType(layerType) {
-        for (let i = 0; i < this._layers.length; i++) {
-            if (this._layers[i].layerId == layerType) {
-                return this._layers[i];
-            }
-        }
+        return this._layers.get(layerType);
     }
-    static get Instance() {
-        if (LayerMgr._instance == null) {
-            LayerMgr._instance = new LayerMgr();
+    static get Ins() {
+        if (LayerMgr._ins == null) {
+            LayerMgr._ins = new LayerMgr();
         }
-        return LayerMgr._instance;
+        return LayerMgr._ins;
     }
 }
 var LAYER_TYPE;
@@ -15010,7 +14975,7 @@ class EffectUtils extends Laya.Sprite {
         if (Math.random() < 0.5)
             return;
         let poolData = ObjectPool.popObj(Laya.FontClip, "BloodFontClip");
-        let bloodClip = poolData.obj; // ObjectPool.pop(Laya.FontClip, "BloodFontClip");
+        let bloodClip = poolData.obj;
         if (!poolData.isPool) {
             bloodClip.mouseEnabled = bloodClip.mouseThrough = false;
             bloodClip.skin = "images/fontImg/blood_num.png";
@@ -15029,7 +14994,7 @@ class EffectUtils extends Laya.Sprite {
         parentNode.addChild(bloodClip);
         if (isDoubleHurt) {
             bloodClip.skin = "images/fontImg/crit_num.png";
-            Laya.Tween.from(bloodClip, { scaleX: 1.5, scaleY: 1.2 }, 200).to(bloodClip, { caleX: 1, scaleY: 1, alpha: 0 }, 500, Laya.Ease.cubicInOut, Handler.create(this, () => {
+            Laya.Tween.from(bloodClip, { scaleX: 1.2, scaleY: 1.2 }, 200).to(bloodClip, { scaleX: 1, scaleY: 1, alpha: 0 }, 500, Laya.Ease.cubicInOut, Handler.create(this, () => {
                 Laya.Tween.clearTween(bloodClip);
                 bloodClip.removeSelf();
                 ObjectPool.push(bloodClip);
@@ -15683,6 +15648,7 @@ class ManagerShortcuts {
         this.http = HttpManager.Instance;
         this.event = EventsManager.Instance;
         this.sdk = SDKManager.Instance;
+        this.battle = BattleManager.Instance;
     }
 }
 //# sourceMappingURL=ManagerShortcuts.js.map
@@ -15922,7 +15888,7 @@ class Main {
         // Laya.URL.basePath = PathConfig.RES_URL;
         M.layer.initLayer(Laya.stage, 750, 1334);
         userData = new UserData();
-        LayerMgr.Instance.initLayer(Laya.stage, 750, 1334);
+        LayerMgr.Ins.initLayer(Laya.stage, 750, 1334);
         systemInfo = new WXSystemInfo();
         try {
             const infoSync = Laya.Browser.window.wx.getSystemInfoSync();

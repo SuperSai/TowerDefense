@@ -910,6 +910,7 @@ class UserData {
             cache.hasCache(CacheKey.PET_LIST) && (this.parkcarInfoArray = cache.getCache(CacheKey.PET_LIST));
             cache.hasCache(CacheKey.SHOP_DATA) && (this.carBuyRecordArray = cache.getCache(CacheKey.SHOP_DATA));
             cache.hasCache(CacheKey.SKILL_DATA) && (this.skillAdditionArray = cache.getCache(CacheKey.SKILL_DATA));
+            cache.hasCache(CacheKey.PET_STORE) && (M.hall.hallData.monsterStore = cache.getCache(CacheKey.PET_STORE));
             cache.hasCache(CacheKey.CONCUR) && (HallManager.Instance.hallData.concurGoldDic.fromJsonObject(cache.getCache(CacheKey.CONCUR)));
             if (cache.hasCache(CacheKey.USER_ID)) {
                 this.userId = cache.getCache(CacheKey.USER_ID);

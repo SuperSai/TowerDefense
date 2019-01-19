@@ -2,7 +2,7 @@ class LayerMgr extends EventDispatcher {
     constructor() {
         super(...arguments);
         this._layerCount = 11;
-        this._layers = [];
+        this._layers = new Laya.Dictionary();
     }
     initLayer(container, designWidth, designHeight) {
         const pixelRatio = Laya.Browser.pixelRatio;
@@ -47,14 +47,18 @@ class LayerMgr extends EventDispatcher {
         container.addChild(this.getLayerByType(LAYER_TYPE.SMALL_LOADING_LAYER));
         container.addChild(this.getLayerByType(LAYER_TYPE.NOTE_LAYER));
         container.addChild(this.getLayerByType(LAYER_TYPE.DEBUG_LAYER));
-        for (const layer of this._layers) {
-            layer.pos(left, top);
-            layer.scale(adaptScale, adaptScale);
+        for (const key in this._layers) {
+            if (this._layers.indexOf(key) != -1) {
+                const element = this._layers.get(key);
+                element.pos(left, top);
+                element.scale(adaptScale, adaptScale);
+            }
         }
     }
     createAllLayers() {
         for (let i = 0; i < this._layerCount; i++) {
-            this._layers.push(this.createOnLayer(i));
+            let layerObj = this.createOnLayer(i);
+            this._layers.set(layerObj.layerId, layerObj);
         }
     }
     createOnLayer(layerType) {
@@ -62,22 +66,18 @@ class LayerMgr extends EventDispatcher {
         return layer;
     }
     addToLayer(display, layerType) {
-        let layer = this.getLayerByType(layerType);
+        let layer = this._layers.get(layerType);
         layer.maskEnabled = false;
         layer.addChild(display);
     }
     getLayerByType(layerType) {
-        for (let i = 0; i < this._layers.length; i++) {
-            if (this._layers[i].layerId == layerType) {
-                return this._layers[i];
-            }
-        }
+        return this._layers.get(layerType);
     }
-    static get Instance() {
-        if (LayerMgr._instance == null) {
-            LayerMgr._instance = new LayerMgr();
+    static get Ins() {
+        if (LayerMgr._ins == null) {
+            LayerMgr._ins = new LayerMgr();
         }
-        return LayerMgr._instance;
+        return LayerMgr._ins;
     }
 }
 var LAYER_TYPE;

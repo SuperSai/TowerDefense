@@ -12,7 +12,6 @@ class OfflineRewardsView extends BaseView {
         let self = this;
         self.ui.btnShare.visible = false;
         self._price = self.datas[0];
-        console.log("@David 离线奖励正常金额：", self._price);
         self.ui.txtMoney.text = "金币+" + MathUtils.bytesToSize(self._price);
     }
     addEvents() {
@@ -33,7 +32,6 @@ class OfflineRewardsView extends BaseView {
         userData.toShareAd(() => {
             self._price = self._price * 8;
             self.ui.txtMoney.text = "金币+" + MathUtils.bytesToSize(self._price);
-            console.log("@David 离线奖励正常翻倍后金额：", self._price);
             self.ui.btnVideo.visible = false;
             M.layer.screenEffectLayer.addChild(new FlyEffect().play("rollingCoin", LayerManager.mouseX, LayerManager.mouseY));
             MessageUtils.showMsgTips("获得金币:" + MathUtils.bytesToSize(self._price));
@@ -50,7 +48,6 @@ class OfflineRewardsView extends BaseView {
             MessageUtils.showMsgTips("获得金币:" + MathUtils.bytesToSize(self._price));
         }
         EventsManager.Instance.event(EventsType.GOLD_CHANGE, { money: M.player.Info.userMoney += self._price });
-        console.log("@David 离线奖励最终获得金币：", self._price);
     }
 }
 //# sourceMappingURL=OfflineRewardsView.js.map

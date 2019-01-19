@@ -38,7 +38,8 @@ class HallModel {
         /** 当前最新怪物ID-快捷购怪物按钮 */
         this.curNewMonsterId = 0;
         /** 本地保存兵营怪物 */
-        this.monsterStoreKey = "car_store_key";
+        // public monsterStoreKey: string = "car_store_key";
+        this.monsterStore = [];
         /** 怪物列表 */
         this.monsterArray = [];
         /** 未领取的关卡奖励 */

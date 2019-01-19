@@ -1,8 +1,8 @@
 {
     "x":0,
     "type":"View",
-    "selectedBox":1,
-    "selecteID":43,
+    "selectedBox":20,
+    "selecteID":21,
     "props":{"sceneWidth":750,"sceneHeight":1373,"sceneColor":"#000000","sceneBg":"laya/views/NoviceView.png","name":"NoviceViewUI","mouseThrough":true,"mouseEnabled":true},
     "nodeParent":-1,
     "label":"View(NoviceViewUI)",
@@ -92,17 +92,18 @@
                     "props":{"y":0,"x":0,"width":750,"name":"item0","height":1334},
                     "nodeParent":2,
                     "label":"View(item0)",
-                    "isOpen":false,
+                    "isOpen":true,
                     "isDirectory":true,
                     "isAniNode":true,
                     "hasChild":true,
                     "compId":20,
                     "child":[
                         {
-                            "type":"Image",
-                            "props":{"y":791,"x":10,"var":"imgDialogCharacter","skin":"images/novice/character.png"},
+                            "x":45,
+                            "type":"Box",
+                            "props":{"y":791,"x":10,"width":566,"var":"imgDialogCharacter","skin":"images/novice/character.png","height":330},
                             "nodeParent":20,
-                            "label":"Image(imgDialogCharacter)",
+                            "label":"Box(imgDialogCharacter)",
                             "isOpen":true,
                             "isDirectory":true,
                             "isAniNode":true,
@@ -110,6 +111,20 @@
                             "compId":21,
                             "child":[
                                 {
+                                    "x":60,
+                                    "type":"Image",
+                                    "props":{"y":145,"x":144,"skin":"images/novice/character_bg.png"},
+                                    "nodeParent":21,
+                                    "label":"Image",
+                                    "isDirectory":false,
+                                    "isAniNode":true,
+                                    "hasChild":false,
+                                    "compId":49,
+                                    "child":[
+                                        ]
+                                },
+                                {
+                                    "x":60,
                                     "type":"Label",
                                     "props":{"y":176,"x":237,"wordWrap":true,"width":300,"var":"lblDialogScript","text":"文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本","overflow":"scroll","leading":10,"height":103,"fontSize":26,"color":"#a17338"},
                                     "nodeParent":21,
@@ -120,9 +135,22 @@
                                     "compId":22,
                                     "child":[
                                         ]
+                                },
+                                {
+                                    "x":60,
+                                    "type":"SkeletonPlayer",
+                                    "props":{"y":217,"x":113,"url":"images/effect/bone/xinshouyindao.sk"},
+                                    "nodeParent":21,
+                                    "label":"SkeletonPlayer",
+                                    "isDirectory":false,
+                                    "isAniNode":true,
+                                    "hasChild":false,
+                                    "compId":48,
+                                    "child":[
+                                        ]
                                 }]
                         }],
-                    "$HIDDEN":true
+                    "$HIDDEN":false
                 },
                 {
                     "x":30,
@@ -141,7 +169,7 @@
                             "props":{"y":1256,"x":263,"var":"viewInteractArea","name":"ViewInteractArea"},
                             "nodeParent":3,
                             "label":"View(viewInteractArea)",
-                            "isOpen":false,
+                            "isOpen":true,
                             "isDirectory":true,
                             "isAniNode":true,
                             "hasChild":true,
@@ -247,19 +275,31 @@
                                         ],
                                     "$HIDDEN":false
                                 }],
-                            "$HIDDEN":true
+                            "$HIDDEN":false
                         },
                         {
-                            "type":"Image",
-                            "props":{"y":773,"x":88,"var":"imgClickCharacter","skin":"images/novice/character.png"},
+                            "type":"Box",
+                            "props":{"y":773,"x":88,"width":566,"var":"imgClickCharacter","skin":"images/novice/character.png","height":330},
                             "nodeParent":3,
-                            "label":"Image(imgClickCharacter)",
+                            "label":"Box(imgClickCharacter)",
                             "isOpen":true,
                             "isDirectory":true,
                             "isAniNode":true,
                             "hasChild":true,
                             "compId":4,
                             "child":[
+                                {
+                                    "type":"Image",
+                                    "props":{"y":147,"x":145,"skin":"images/novice/character_bg.png"},
+                                    "nodeParent":4,
+                                    "label":"Image",
+                                    "isDirectory":false,
+                                    "isAniNode":true,
+                                    "hasChild":false,
+                                    "compId":46,
+                                    "child":[
+                                        ]
+                                },
                                 {
                                     "type":"Label",
                                     "props":{"y":171,"x":236,"wordWrap":true,"width":300,"var":"lblClickScript","text":"文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本","overflow":"scroll","leading":10,"height":103,"fontSize":26,"color":"#a17338"},
@@ -271,9 +311,22 @@
                                     "compId":5,
                                     "child":[
                                         ]
-                                }]
+                                },
+                                {
+                                    "type":"SkeletonPlayer",
+                                    "props":{"y":217,"x":113,"url":"images/effect/bone/xinshouyindao.sk"},
+                                    "nodeParent":4,
+                                    "label":"SkeletonPlayer",
+                                    "isDirectory":false,
+                                    "isAniNode":true,
+                                    "hasChild":false,
+                                    "compId":45,
+                                    "child":[
+                                        ]
+                                }],
+                            "$HIDDEN":true
                         }],
-                    "$HIDDEN":false
+                    "$HIDDEN":true
                 }],
             "$HIDDEN":false
         },

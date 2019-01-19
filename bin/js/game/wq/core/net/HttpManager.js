@@ -267,7 +267,6 @@ class HttpManager {
             success: res => {
                 let offlineTimeSpan = MathUtils.parseInt(res.time); //离线时长
                 // let login_time = MathUtils.parseInt(res.login_time); //登录当前服务器时间
-                HttpManager.Instance.requestSaveLog("@David 离线奖励服务器发送过来的时间：" + offlineTimeSpan);
                 if (offlineTimeSpan >= 10 * Time.MIN) {
                     M.event.event(EventsType.OFFLINE, offlineTimeSpan);
                     this.requestNotifyServerPrize();

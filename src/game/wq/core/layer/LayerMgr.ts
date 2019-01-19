@@ -2,7 +2,7 @@
 class LayerMgr extends EventDispatcher {
 
     private _layerCount: number = 11;
-    private _layers: MaskLayer[] = [];
+    private _layers: Laya.Dictionary = new Laya.Dictionary();
 
     public initLayer(container: Laya.Stage, designWidth?: number, designHeight?: number): void {
         const pixelRatio: number = Laya.Browser.pixelRatio;
@@ -54,15 +54,19 @@ class LayerMgr extends EventDispatcher {
         container.addChild(this.getLayerByType(LAYER_TYPE.NOTE_LAYER));
         container.addChild(this.getLayerByType(LAYER_TYPE.DEBUG_LAYER));
 
-        for (const layer of this._layers) {
-            layer.pos(left, top);
-            layer.scale(adaptScale, adaptScale);
+        for (const key in this._layers) {
+            if (this._layers.indexOf(key) != -1) {
+                const element = this._layers.get(key);
+                element.pos(left, top);
+                element.scale(adaptScale, adaptScale);
+            }
         }
     }
 
     private createAllLayers(): void {
         for (let i: number = 0; i < this._layerCount; i++) {
-            this._layers.push(this.createOnLayer(i));
+            let layerObj = this.createOnLayer(i);
+            this._layers.set(layerObj.layerId, layerObj);
         }
     }
 
@@ -72,25 +76,21 @@ class LayerMgr extends EventDispatcher {
     }
 
     public addToLayer(display: any, layerType: number): void {
-        let layer: MaskLayer = this.getLayerByType(layerType);
+        let layer: MaskLayer = this._layers.get(layerType);
         layer.maskEnabled = false;
         layer.addChild(display);
     }
 
     public getLayerByType(layerType: number): MaskLayer {
-        for (let i: number = 0; i < this._layers.length; i++) {
-            if (this._layers[i].layerId == layerType) {
-                return this._layers[i];
-            }
-        }
+        return this._layers.get(layerType);
     }
 
-    private static _instance: LayerMgr;
-    public static get Instance(): LayerMgr {
-        if (LayerMgr._instance == null) {
-            LayerMgr._instance = new LayerMgr();
+    private static _ins: LayerMgr;
+    public static get Ins(): LayerMgr {
+        if (LayerMgr._ins == null) {
+            LayerMgr._ins = new LayerMgr();
         }
-        return LayerMgr._instance;
+        return LayerMgr._ins;
     }
 }
 

@@ -16,7 +16,7 @@ class BaseView extends Laya.View implements IBaseView {
     /** 构造函数 */
     public constructor($layer: number, $class: any, isShowMask: boolean = true) {
         super();
-        this._myParent = LayerMgr.Instance.getLayerByType($layer);
+        this._myParent = LayerMgr.Ins.getLayerByType($layer);
         this._isInit = false;
         this._isShowMask = isShowMask;
         this._ui = $class;

@@ -39,7 +39,7 @@ class NoviceManager extends EventDispatcher {
                 this._container = container;
             }
             else {
-                this._container = LayerMgr.Instance.getLayerByType(LAYER_TYPE.GUIDE_LAYER);
+                this._container = LayerMgr.Ins.getLayerByType(LAYER_TYPE.GUIDE_LAYER);
             }
             this._currStepId = 0;
             this._currGroupSheets = [].concat(NoviceGuide.getSheetByFieldValue("groupId", this._currGroupId));
@@ -94,14 +94,14 @@ class NoviceManager extends EventDispatcher {
                 const position = StringUtils.splitStringToPoint(sheet.position);
                 if (this._currStepType === NoviceType.DEFAULT) {
                     // 剧情对话
-                    LayerMgr.Instance.getLayerByType(LAYER_TYPE.GUIDE_LAYER).maskEnabled = true;
+                    LayerMgr.Ins.getLayerByType(LAYER_TYPE.GUIDE_LAYER).maskEnabled = true;
                     this.ui.viewStackNovice.selectedIndex = NoviceType.DEFAULT - 1;
                     this.updateDisplay(sheet, position.x, position.y);
                     this.activateMaskClick();
                 }
                 else if (this._currStepType === NoviceType.CLICK) {
                     // 点击指引
-                    LayerMgr.Instance.getLayerByType(LAYER_TYPE.GUIDE_LAYER).maskEnabled = false;
+                    LayerMgr.Ins.getLayerByType(LAYER_TYPE.GUIDE_LAYER).maskEnabled = false;
                     this.ui.mouseEnabled = true;
                     this.ui.viewStackNovice.selectedIndex = NoviceType.CLICK - 1;
                     this.ui.viewStackNovice.mouseEnabled = true;
@@ -118,7 +118,7 @@ class NoviceManager extends EventDispatcher {
                 }
                 else if (this._currStepType === NoviceType.DRAG) {
                     // 拖拽指引
-                    LayerMgr.Instance.getLayerByType(LAYER_TYPE.GUIDE_LAYER).maskEnabled = false;
+                    LayerMgr.Ins.getLayerByType(LAYER_TYPE.GUIDE_LAYER).maskEnabled = false;
                     this.ui.viewStackNovice.selectedIndex = NoviceType.CLICK - 1;
                     this.ui.viewStackNovice.mouseEnabled = false;
                     this.ui.viewInteract.visible = true;
@@ -164,7 +164,7 @@ class NoviceManager extends EventDispatcher {
         if (!NoviceManager.isComplete) {
             NoviceManager.isComplete = true;
             this.saveGroupId(this._currGroupId = 999);
-            LayerMgr.Instance.getLayerByType(LAYER_TYPE.GUIDE_LAYER).off(Laya.Event.CLICK, this, this.onMaskClick);
+            LayerMgr.Ins.getLayerByType(LAYER_TYPE.GUIDE_LAYER).off(Laya.Event.CLICK, this, this.onMaskClick);
             if (this.ui) {
                 this.ui.btnReturnNovice.off(Laya.Event.CLICK, this, this.__onCompleteNovice);
                 this.ui && Laya.Tween.clearAll(this.ui.imgFinger);
@@ -211,7 +211,7 @@ class NoviceManager extends EventDispatcher {
             if (!this._currSheet || !this._currSheet.eventParam)
                 return;
             if (targetName === this._currSheet.eventParam) {
-                LayerMgr.Instance.getLayerByType(LAYER_TYPE.GUIDE_LAYER).maskEnabled = true;
+                LayerMgr.Ins.getLayerByType(LAYER_TYPE.GUIDE_LAYER).maskEnabled = true;
                 target.off(Laya.Event.CLICK, this, this.onTargetClick);
                 this.recoverTargets();
                 this.nextStep();
@@ -264,12 +264,12 @@ class NoviceManager extends EventDispatcher {
     activateMaskClick() {
         Laya.timer.once(Time.SEC_IN_MILI * 0.05, this, () => {
             // prettier-ignore
-            LayerMgr.Instance.getLayerByType(LAYER_TYPE.GUIDE_LAYER).on(Laya.Event.CLICK, this, this.onMaskClick);
+            LayerMgr.Ins.getLayerByType(LAYER_TYPE.GUIDE_LAYER).on(Laya.Event.CLICK, this, this.onMaskClick);
         });
     }
     onMaskClick() {
         if (this._currStepType === NoviceType.DEFAULT) {
-            LayerMgr.Instance.getLayerByType(LAYER_TYPE.GUIDE_LAYER).off(Laya.Event.CLICK, this, this.onMaskClick);
+            LayerMgr.Ins.getLayerByType(LAYER_TYPE.GUIDE_LAYER).off(Laya.Event.CLICK, this, this.onMaskClick);
             this.nextStep();
         }
     }

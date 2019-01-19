@@ -7,7 +7,7 @@ class BaseView extends Laya.View {
         super();
         this.isRemoveBanner = true;
         this._resources = null;
-        this._myParent = LayerMgr.Instance.getLayerByType($layer);
+        this._myParent = LayerMgr.Ins.getLayerByType($layer);
         this._isInit = false;
         this._isShowMask = isShowMask;
         this._ui = $class;

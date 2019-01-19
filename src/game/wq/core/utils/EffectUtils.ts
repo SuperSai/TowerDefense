@@ -106,7 +106,7 @@ class EffectUtils extends Laya.Sprite {
     static playBloodTextEffect(parentNode: any, content: string, pos: { x: number, y: number }, isDoubleHurt: boolean = false): void {
         if (Math.random() < 0.5) return;
         let poolData = ObjectPool.popObj(Laya.FontClip, "BloodFontClip");
-        let bloodClip: Laya.FontClip = poolData.obj;// ObjectPool.pop(Laya.FontClip, "BloodFontClip");
+        let bloodClip: Laya.FontClip = poolData.obj;
         if (!poolData.isPool) {
             bloodClip.mouseEnabled = bloodClip.mouseThrough = false;
             bloodClip.skin = "images/fontImg/blood_num.png";
@@ -124,7 +124,7 @@ class EffectUtils extends Laya.Sprite {
         parentNode.addChild(bloodClip);
         if (isDoubleHurt) {
             bloodClip.skin = "images/fontImg/crit_num.png";
-            Laya.Tween.from(bloodClip, { scaleX: 1.5, scaleY: 1.2 }, 200).to(bloodClip, { caleX: 1, scaleY: 1, alpha: 0 }, 500, Laya.Ease.cubicInOut, Handler.create(this, () => {
+            Laya.Tween.from(bloodClip, { scaleX: 1.2, scaleY: 1.2 }, 200).to(bloodClip, { scaleX: 1, scaleY: 1, alpha: 0 }, 500, Laya.Ease.cubicInOut, Handler.create(this, () => {
                 Laya.Tween.clearTween(bloodClip);
                 bloodClip.removeSelf();
                 ObjectPool.push(bloodClip);

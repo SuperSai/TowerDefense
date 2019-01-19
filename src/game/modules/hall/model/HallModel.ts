@@ -37,7 +37,8 @@ class HallModel {
     /** 当前最新怪物ID-快捷购怪物按钮 */
     public curNewMonsterId: number = 0;
     /** 本地保存兵营怪物 */
-    public monsterStoreKey: string = "car_store_key";
+    // public monsterStoreKey: string = "car_store_key";
+    public monsterStore: number[] = [];
     /** 怪物列表 */
     public monsterArray: Array<MonsterSprite> = [];
     /** 未领取的关卡奖励 */
@@ -50,6 +51,7 @@ class HallModel {
     public concurGoldDic: TSDictionary<number, number>;
     /** 转盘倍率 */
     public magnification: number = 1;
+
 
     constructor() {
         this.concurGoldDic = new TSDictionary<number, number>();

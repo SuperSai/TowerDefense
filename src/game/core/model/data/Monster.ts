@@ -450,6 +450,7 @@ class MonsterSprite extends Laya.Sprite {
             }
         }
         self.resetLeftBlood();
+
         let bloodBarKey: string = "bloodBar";
         let bloodBar = <Laya.ProgressBar>self.getChildByName(bloodBarKey);
         if (bloodBar == null) {

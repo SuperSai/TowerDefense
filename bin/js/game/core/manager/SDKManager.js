@@ -10,6 +10,7 @@ class SDKManager {
             if (data.scene == 1104 || data.scene == 1103 || data.scene == 1023) { //ios从我的小程序入口进
                 PlayerManager.Instance.Info.isMySceneEnter = true;
             }
+            MoreController.getInstance().applyMute(false);
             SDKManager.Instance.handlerSceneValue(data);
             EventsManager.Instance.event(EventsType.BACK_GAME);
             if (platform.isSharing())
@@ -205,6 +206,7 @@ class SDKManager {
     /** 处理场景值 */
     handlerSceneValue(data) {
         switch (Math.floor(data.scene)) {
+            case 1007:
             case 1008:
             case 1044:
                 HttpManager.Instance.requestShareGift(data);

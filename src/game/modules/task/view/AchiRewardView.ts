@@ -67,12 +67,12 @@ class AchiRewardView extends BaseView {
                     if (this.datas[0].reward_type != "money") {
                         MessageUtils.showMsgTips("成就奖励:" + this._rewardName + "x" + this._awardNum);
                         let point: Laya.Point = PointUtils.localToGlobal(this.ui.imgIcon);
-                        LayerMgr.Instance.addToLayer(new FlyEffect().play("diamond", point.x, point.y), LAYER_TYPE.SCREEN_EFFECT_LAYER);
+                        LayerMgr.Ins.addToLayer(new FlyEffect().play("diamond", point.x, point.y), LAYER_TYPE.SCREEN_EFFECT_LAYER);
                         EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: M.player.Info.userDiamond += this._awardNum });
                     } else {
                         MessageUtils.showMsgTips("成就奖励:" + this._rewardName + "x" + MathUtils.bytesToSize(this._awardNum));
                         let point: Laya.Point = PointUtils.localToGlobal(this.ui.imgIcon);
-                        LayerMgr.Instance.addToLayer(new FlyEffect().play("rollingCoin", point.x, point.y), LAYER_TYPE.SCREEN_EFFECT_LAYER);
+                        LayerMgr.Ins.addToLayer(new FlyEffect().play("rollingCoin", point.x, point.y), LAYER_TYPE.SCREEN_EFFECT_LAYER);
                         EventsManager.Instance.event(EventsType.GOLD_CHANGE, { money: M.player.Info.userMoney += this._awardNum });
                     }
                 } else if (res.code === 2) {

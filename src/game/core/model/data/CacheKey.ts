@@ -17,6 +17,7 @@ class CacheKey {
     static NOVICE_GROUP_ID = "novice_group_id"; //新手节点ID @FREEMAN
 
     static PET_LIST = "pet_list";   //参战的宠物列表 @FREEMAN
+    static PET_STORE = "pet_store"; //宠物仓库
     static SHOP_DATA = "shop_data";   //商店数据 @FREEMAN
     static SKILL_DATA = "skill_data";   //技能数据 @FREEMAN
 }

@@ -17,7 +17,7 @@ class MessageUtils {
         msg.visible = content == "" ? false : true;
         msg.zOrder = 999;
         AlignUtils.setToScreenGoldenPos(msg);
-        LayerMgr.Instance.addToLayer(msg, LAYER_TYPE.ROLL_MSG_LAYER);
+        LayerMgr.Ins.addToLayer(msg, LAYER_TYPE.ROLL_MSG_LAYER);
         Laya.Tween.to(msg, { x: msg.x, y: msg.y - 100, alpha: 0 }, 4000, Laya.Ease.cubicInOut, Laya.Handler.create(self, ($msg: MessageTips) => {
             Laya.Tween.clearTween($msg);
             $msg.zOrder = 1;
@@ -67,7 +67,7 @@ class MessageUtils {
             hbox.align = "middle";
             const global: Laya.Point = PointUtils.localToGlobal(obj);
             hbox.pos(global.x, global.y);
-            LayerMgr.Instance.addToLayer(hbox, LAYER_TYPE.SCREEN_EFFECT_LAYER);
+            LayerMgr.Ins.addToLayer(hbox, LAYER_TYPE.SCREEN_EFFECT_LAYER);
             hbox.x += (obj.width - hbox.width) / 2;
             Laya.Tween.to(hbox, { y: hbox.y - 50, alpha: 0 }, 2000, null, Laya.Handler.create(this, () => {
                 Laya.Tween.clearTween(hbox);
@@ -76,7 +76,7 @@ class MessageUtils {
         } else {
             const global: Laya.Point = PointUtils.localToGlobal(obj);
             label.pos(global.x, global.y);
-            LayerMgr.Instance.addToLayer(label, LAYER_TYPE.SCREEN_EFFECT_LAYER);
+            LayerMgr.Ins.addToLayer(label, LAYER_TYPE.SCREEN_EFFECT_LAYER);
             label.x += (obj.width - label.width) / 2;
             Laya.Tween.to(label, { y: label.y - 50, alpha: 0 }, 2000, null, Laya.Handler.create(this, () => {
                 Laya.Tween.clearTween(label);

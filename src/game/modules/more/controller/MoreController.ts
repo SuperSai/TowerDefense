@@ -39,7 +39,7 @@ class MoreController extends Laya.EventDispatcher {
         this.addEvents();
 
         // 不是用任务集市的时候设置为true
-        this._noQuestMarket = false;
+        this._noQuestMarket = true;
     }
 
     private addEvents(): void {
