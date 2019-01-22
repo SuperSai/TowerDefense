@@ -2,7 +2,7 @@
     "x":0,
     "type":"View",
     "selectedBox":2,
-    "selecteID":6,
+    "selecteID":9,
     "props":{"sceneWidth":750,"sceneHeight":1334,"sceneColor":"#000000","mouseThrough":true,"mouseEnabled":true},
     "nodeParent":-1,
     "label":"View",
@@ -122,7 +122,7 @@
                         {
                             "x":45,
                             "type":"Button",
-                            "props":{"y":-24,"x":631,"stateNum":"1","skin":"images/component/frame_close_btn.png","name":"btnExit"},
+                            "props":{"y":-24,"x":631,"visible":false,"var":"btnExit","stateNum":"1","skin":"images/component/frame_close_btn.png"},
                             "nodeParent":2,
                             "label":"Button(btnExit)",
                             "isOpen":false,

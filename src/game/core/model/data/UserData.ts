@@ -11,7 +11,9 @@ class UserData {
     set dayGetGoldCount(value: number) {
         PlayerManager.Instance.Info.dayGetGoldCount = value;
     }
-
+    /** 分享成功率数组 */
+    private _shareSuccessRates: any[] = [{ time: 4, fail: 20 }, { time: 3.2, fail: 20 }, { time: 2.3, fail: 30 }];
+    private _shareIndex: number = 0;
     /** 合成次数 */
     public synthesisCount: number = 0;
     /** 怪物缓存池的名字 */
@@ -684,13 +686,21 @@ class UserData {
             EventsManager.Instance.once(EventsType.BACK_GAME, that, (_data: any) => {
                 let backTime: number = (new Date()).getTime() / 1000;
                 let leaveTime = backTime - curTime;
-                if (isAutoShare && leaveTime > 2.3) {
+                let shareData: any = this._shareSuccessRates[this._shareIndex];
+                let isSucces: boolean = MathUtils.rangeInt(0, 100) > shareData.fail ? true : false;
+                console.log("@David 测试分享机制：", shareData, " -- isSucces:", isSucces, " -- leaveTime:", leaveTime);
+                if (isAutoShare && leaveTime > shareData.time && isSucces) {
                     that.shareFailedTimes = 0;
+                    this._shareIndex++;
+                    if (this._shareIndex >= this._shareSuccessRates.length) {
+                        this._shareIndex = 0;
+                    }
                     _callback && _callback(shareCfg.id);
                     HttpManager.Instance.requestShareFinish(shareCfg.id);
+                } else {
+                    MessageUtils.showMsgTips("分享失败，请确认您已分享到微信群！");
                 }
             });
-            console.log("@David 发送分享卡牌的参数:", queryData);
             platform.onShare({
                 title: shareCfg.content,
                 imageUrl: shareCfg.imageUrl,
@@ -855,27 +865,10 @@ class UserData {
     }
 
     //新老版本更新检测（防止老数据覆盖）
-    public versionCheck(_callback: any): void {
-        let that = this;
-        let storage = window.localStorage;
+    public versionCheck(callback: any): void {
         HttpManager.Instance.requestVersionCheck((_res: any) => {
-            if (_res && _res.clear_flag) {
-                //清理老数据
-                storage.setItem(that.s_version_clear, 'true');
-            }
+            callback && callback(_res);
         });
-        //上一次记录清理
-        let dataJson = storage.getItem(that.s_version_clear);
-        if (dataJson) {
-            //需要清理数据
-            HttpManager.Instance.requestVersionClear((_res: any) => {
-                storage.removeItem(that.s_version_clear);
-                that.clearLocalData();
-                _callback && _callback();
-            });
-        } else {
-            _callback && _callback();
-        }
     }
 
     //用户基础数据
@@ -889,7 +882,6 @@ class UserData {
                 if (res && res.hasOwnProperty("remain_online_num")) {
                     self.offlineRewardCount = res.remain_online_num;
                     self.shareAdTimes = res.operation;
-                    console.log("@David 用户基础数据 operation：", self.shareAdTimes);
                     PlayerManager.Instance.Info.dayGetGoldCount = self.shareAdTimes.share_no_money_num;
                     self.showShareGiftRedPoint = res.share_reward_flag;
                     self.showDailySignRedPoint = res.sign_flag;
@@ -943,7 +935,6 @@ class UserData {
 
 
     public loadCache(): void {
-        this.cache.setCacheKey("yxtz_" + PathConfig.AppUrl + "_" + M.player.account);
         this.cache.loadCache(Laya.Handler.create(this, (cache: CacheObject) => {
             // 有缓存才赋值
             cache.hasCache(CacheKey.PET_LIST) && (this.parkcarInfoArray = cache.getCache(CacheKey.PET_LIST));

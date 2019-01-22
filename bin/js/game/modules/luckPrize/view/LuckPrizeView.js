@@ -98,8 +98,8 @@ class LuckPrizeView extends BaseView {
                 if (this.ui.imgBg.rotation < _rotation) {
                     let progress = fAddLength / fTotalLength;
                     //加速
-                    if (progress < 0.3) {
-                        fAdd += 0.3;
+                    if (progress < 0.2) {
+                        fAdd += 0.2;
                     }
                     else if (progress > 0.6) {
                         fAdd -= 0.1;

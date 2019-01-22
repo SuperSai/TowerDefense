@@ -119,7 +119,7 @@
                 {
                     "x":30,
                     "type":"Button",
-                    "props":{"y":55,"x":558,"var":"btn_exit","stateNum":"1","skin":"images/component/frame_close_btn.png","labelStrokeColor":"#946430","labelStroke":2,"labelSize":30,"labelColors":"#FFFFFF,#FFFFFF,#FFFFFF,#FFFFFF","labelBold":true},
+                    "props":{"y":55,"x":558,"visible":false,"var":"btn_exit","stateNum":"1","skin":"images/component/frame_close_btn.png","labelStrokeColor":"#946430","labelStroke":2,"labelSize":30,"labelColors":"#FFFFFF,#FFFFFF,#FFFFFF,#FFFFFF","labelBold":true},
                     "nodeParent":12,
                     "label":"Button(btn_exit)",
                     "isOpen":true,

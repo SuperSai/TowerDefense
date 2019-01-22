@@ -483,17 +483,8 @@ class WxgamePlatform {
         return wx.getLaunchOptionsSync();
     }
 
-    onShareAppMessage(queryData) {
-        wx.onShareAppMessage(() => {
-            return {
-                title: '是英雄就挺住100秒...',
-                imageUrl: "",
-                query: queryData,
-                success() {
-                    console.log("@David -- onShareAppMessage成功！");
-                }
-            }
-        })
+    onShareAppMessage(callback) {
+        wx.onShareAppMessage(callback);
     }
 
     //编码（名字表情）

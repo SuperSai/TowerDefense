@@ -11,6 +11,10 @@ class SkyDropView extends BaseView {
 
     public initData(): void {
         super.initData();
+        this.timerOnce(2000, this, () => {
+            this.ui.txt_close.visible = true;
+            this.ui.btnClose.visible = true;
+        })
         this.isRemoveBanner = false;
         this.sheet = this.datas[0];
         switch (this.sheet.id) {
@@ -79,5 +83,11 @@ class SkyDropView extends BaseView {
 
     private onCloseHandler(): void {
         ViewMgr.Ins.close(ViewConst.SkyDropView);
+    }
+
+    public close(...param: any[]): void {
+        super.close(param);
+        this.ui.txt_close.visible = false;
+        this.ui.btnClose.visible = false;
     }
 }

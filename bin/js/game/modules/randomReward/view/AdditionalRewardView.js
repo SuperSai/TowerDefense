@@ -11,6 +11,9 @@ class AdditionalRewardView extends BaseView {
         let self = this;
         self.isRemoveBanner = false;
         self.ui.txt_count.text = "x" + self.datas[0].diamond;
+        this.timerOnce(2000, this, () => {
+            self.ui.txt_close.visible = true;
+        });
     }
     addEvents() {
         super.addEvents();
@@ -38,6 +41,10 @@ class AdditionalRewardView extends BaseView {
     }
     removeView() {
         ViewMgr.Ins.close(ViewConst.AdditionalRewardView);
+    }
+    close(...param) {
+        super.close(param);
+        this.ui.txt_close.visible = false;
     }
 }
 //# sourceMappingURL=AdditionalRewardView.js.map

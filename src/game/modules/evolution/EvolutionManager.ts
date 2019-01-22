@@ -36,7 +36,7 @@ class EvolutionManager {
     }
 
     /** 守卫是否可以升级*/
-    public getIsEvolutionLevel(): boolean {
+    public canEvolutionUpgrade(): boolean {
         let kingLevel: number = userData.getKingLevel();
         if (kingLevel > 10) {
             return !((M.player.Info.userDiamond < this.getEvolutionLevelDiamond()) || (userData.caculateMonsterCount(this.getHeroId()) < this.needHeroCount));

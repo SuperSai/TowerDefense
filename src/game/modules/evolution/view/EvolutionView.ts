@@ -61,7 +61,7 @@ class EvolutionView extends BaseView {
             //需要钻石
             self._diamond = M.player.Info.userDiamond;
             self._needDiamond = MathUtils.parseInt(kingVO.gemxh.toString());
-            self.ui.btnUpdate.disabled = !EvolutionManager.Instance.getIsEvolutionLevel();
+            self.ui.btnUpdate.disabled = !EvolutionManager.Instance.canEvolutionUpgrade();
 
             self.ui.txtKingLevel.text = kingLevel + "";
             self.ui.txtAtk.text = MathUtils.bytesToSize(atk);
@@ -121,7 +121,7 @@ class EvolutionView extends BaseView {
             if (diamond > 0) EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: M.player.Info.userDiamond = diamond });
             EventsManager.Instance.event(EventsType.EVOLUTION_LEVEL_COMPLETE, kingLevel);
             self.refreshBoxUI();
-            self.ui.btnUpdate.disabled = !EvolutionManager.Instance.getIsEvolutionLevel();
+            self.ui.btnUpdate.disabled = !EvolutionManager.Instance.canEvolutionUpgrade();
         }, kingLevel);
     }
 

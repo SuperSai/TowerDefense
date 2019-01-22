@@ -100,6 +100,7 @@ class MoreViewListItem extends Laya.Component {
                         appId: this._vo.appId,
                         path: this._vo.pageQuery,
                     });
+                    HttpManager.Instance.requestShareAdFinish("allow_" + this._vo.appId);
                 }
                 else {
                     platform.navigateToMiniProgram({
@@ -111,6 +112,7 @@ class MoreViewListItem extends Laya.Component {
                         },
                         envVersion: "develop"
                     });
+                    HttpManager.Instance.requestShareAdFinish("allow_" + this._vo.appId);
                 }
             }
             else {
@@ -125,7 +127,8 @@ class MoreViewListItem extends Laya.Component {
     }
     requestsMoreQuestAward() {
         if (xiaoduo) {
-            xiaoduo.wxQuestMarket.requestQuestReward({ questId: this._vo.questId, success: (code) => {
+            xiaoduo.wxQuestMarket.requestQuestReward({
+                questId: this._vo.questId, success: (code) => {
                     if (code === 100) {
                         for (const item of this._vo.questAwards) {
                             if (item.awardId === ITEM_ID.DIAMOND) {
@@ -142,7 +145,8 @@ class MoreViewListItem extends Laya.Component {
                     else {
                         console.log("@FREEMAN: 领取任务集市奖励失败! code:", code);
                     }
-                } });
+                }
+            });
         }
     }
 }

@@ -24,6 +24,7 @@ class ResultView extends ui.settlement.ResultViewUI {
                     nodeView.removeSelf();
                 });
             }
+            nodeView.btnExit.visible = false;
             _callback && _callback(nodeView);
         }));
     }
@@ -31,6 +32,9 @@ class ResultView extends ui.settlement.ResultViewUI {
     init(_stage) {
         let that = this;
         that.curStage = _stage;
+        this.timerOnce(2000, this, () => {
+            this.btnExit.visible = true;
+        });
     }
     removeSelf() {
         this.removeCallback && this.removeCallback();
@@ -43,14 +47,11 @@ class ResultView extends ui.settlement.ResultViewUI {
         let imgBg = that.mainView.getChildByName("imgBg");
         if (imgBg) {
             imgBg.visible = true;
-            let btnExit = imgBg.getChildByName("btnExit");
-            if (btnExit) {
-                btnExit.offAll(Laya.Event.CLICK);
-                btnExit.on(Laya.Event.CLICK, btnExit, () => {
-                    DisplayUtils.removeAllChildren(this.hbox);
-                    that.removeSelf();
-                });
-            }
+            this.btnExit.offAll(Laya.Event.CLICK);
+            this.btnExit.on(Laya.Event.CLICK, this, () => {
+                DisplayUtils.removeAllChildren(this.hbox);
+                that.removeSelf();
+            });
             let btnGet = imgBg.getChildByName("btn_get");
             if (btnGet) {
                 btnGet.offAll(Laya.Event.CLICK);

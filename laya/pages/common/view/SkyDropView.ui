@@ -2,7 +2,7 @@
     "x":0,
     "type":"View",
     "selectedBox":1,
-    "selecteID":28,
+    "selecteID":24,
     "props":{"width":717,"sceneWidth":750,"sceneHeight":1334,"sceneColor":"#000000","sceneBg":"laya/views/SkyDropFrame.JPG","height":634},
     "nodeParent":-1,
     "label":"View",
@@ -41,7 +41,7 @@
                 {
                     "x":30,
                     "type":"Button",
-                    "props":{"y":65,"x":632,"var":"btnClose","stateNum":"1","skin":"images/component/frame_close_btn.png"},
+                    "props":{"y":65,"x":632,"visible":false,"var":"btnClose","stateNum":"1","skin":"images/component/frame_close_btn.png"},
                     "nodeParent":24,
                     "label":"Button(btnClose)",
                     "isOpen":true,
@@ -221,6 +221,19 @@
                             "child":[
                                 ]
                         }]
+                },
+                {
+                    "x":30,
+                    "type":"Label",
+                    "props":{"y":634,"x":281,"visible":false,"var":"txt_close","text":"点击空白处关闭","fontSize":26,"color":"#ffffff","align":"center"},
+                    "nodeParent":24,
+                    "label":"Label(txt_close)",
+                    "isDirectory":false,
+                    "isAniNode":true,
+                    "hasChild":false,
+                    "compId":29,
+                    "child":[
+                        ]
                 }]
         }],
     "animations":[

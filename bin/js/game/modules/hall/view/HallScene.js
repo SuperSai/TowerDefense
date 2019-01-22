@@ -496,14 +496,16 @@ class HallScene extends ui.hall.HallSceneUI {
         // that.refreshShortcutCreateBtn();
         //奖励三个高级精灵
         let prizeMonsterArray = [1001, 1001, 1001];
+        let count = 0;
         if (that.carparkList) {
             for (let index = 0; index < HallManager.Instance.hallData.parkMonsterCount; index++) {
                 var element = that.carparkList.getCell(index);
                 if (element) {
                     let carParkSp = element.getChildByName("car");
                     if (carParkSp && carParkSp.monsterId > 0) {
-                        if (index < 3) {
-                            carParkSp.setKind(prizeMonsterArray[index]);
+                        if (count < 3) {
+                            carParkSp.setKind(prizeMonsterArray[count]);
+                            count++;
                         }
                         else {
                             carParkSp.clearStage();
@@ -719,12 +721,15 @@ class HallScene extends ui.hall.HallSceneUI {
                                                             that.playKingUpdateEffect();
                                                             Laya.SoundManager.playSound("musics/kingUpdate.mp3");
                                                             that.checkKingIsUpdate();
+                                                            //移除高亮提示
+                                                            that.setCarparkLight(null);
                                                         }, () => {
                                                             that.curMonsterSprite = null;
                                                         });
                                                     }
                                                     else {
                                                         MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.02"));
+                                                        that.curMonsterSprite = null;
                                                     }
                                                 }
                                                 else { //英雄升级
@@ -1041,7 +1046,7 @@ class HallScene extends ui.hall.HallSceneUI {
     /** 检查守护是否可以升级 */
     checkKingIsUpdate() {
         let self = this;
-        self.kingUpdateImg.visible = EvolutionManager.Instance.getIsEvolutionLevel();
+        self.kingUpdateImg.visible = EvolutionManager.Instance.canEvolutionUpgrade();
     }
     //显示通关结果(_isManual:手动调用)
     showPassStageResult(_stage, _callback = null, _isManual = false) {
@@ -1080,7 +1085,12 @@ class HallScene extends ui.hall.HallSceneUI {
                                             _nodeView.removeSelf();
                                             ViewMgr.Ins.open(ViewConst.ClearanceRewardView, () => {
                                                 if (that.btnStagePrize.visible) {
-                                                    that.showPassStageResult(HallManager.Instance.hallData.passStage, null, true);
+                                                    if (HallManager.Instance.hallData.stagePrizeList.length > 0) {
+                                                        that.showPassStageResult(HallManager.Instance.hallData.passStage, null, true);
+                                                    }
+                                                    else {
+                                                        that.showStagePrize(HallManager.Instance.hallData.stagePrizeList.length > 0);
+                                                    }
                                                 }
                                             }, stage, false);
                                             HttpManager.Instance.requestDiamondData();

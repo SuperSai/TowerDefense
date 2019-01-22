@@ -218,7 +218,7 @@
                 {
                     "x":30,
                     "type":"Button",
-                    "props":{"y":0,"x":631,"var":"btnExit","stateNum":"1","skin":"images/component/frame_close_btn.png","name":"btnExit"},
+                    "props":{"y":0,"x":631,"visible":false,"var":"btnExit","stateNum":"1","skin":"images/component/frame_close_btn.png","name":"btnExit"},
                     "nodeParent":2,
                     "label":"Button(btnExit)",
                     "isOpen":true,

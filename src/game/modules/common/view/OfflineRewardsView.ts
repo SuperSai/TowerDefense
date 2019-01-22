@@ -16,6 +16,9 @@ class OfflineRewardsView extends BaseView {
         self.ui.btnShare.visible = false;
         self._price = self.datas[0];
         self.ui.txtMoney.text = "金币+" + MathUtils.bytesToSize(self._price);
+        this.timerOnce(2000, this, () => {
+            this.ui.btnExit.visible = true;
+        })
     }
 
     public addEvents(): void {
@@ -51,6 +54,7 @@ class OfflineRewardsView extends BaseView {
     public close(...param: any[]): void {
         super.close(param);
         let self = this;
+        this.ui.btnExit.visible = false;
         if (self.ui.btnVideo && self.ui.btnVideo.visible == true) {
             M.layer.screenEffectLayer.addChild(new FlyEffect().play("rollingCoin", LayerManager.mouseX, LayerManager.mouseY));
             MessageUtils.showMsgTips("获得金币:" + MathUtils.bytesToSize(self._price));

@@ -14,7 +14,7 @@ declare interface Platform {
     getShareInfo(shareTicket, callback, failCallback): void;
     httpToken(_url: string, _callback: any, _forceNew: boolean): any;
     httpRequest(_url: string, _params: any, _noToken: boolean): any;
-    onShareAppMessage(queryData): void;
+    onShareAppMessage(callback): void;
     onShare(_data: any): void;
     isSharing(): any;
 

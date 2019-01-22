@@ -47,7 +47,7 @@ class LayerMgr extends EventDispatcher {
         container.addChild(this.getLayerByType(LAYER_TYPE.SMALL_LOADING_LAYER));
         container.addChild(this.getLayerByType(LAYER_TYPE.NOTE_LAYER));
         container.addChild(this.getLayerByType(LAYER_TYPE.DEBUG_LAYER));
-        for (const key in this._layers) {
+        for (const key in this._layers.keys) {
             if (this._layers.indexOf(key) != -1) {
                 const element = this._layers.get(key);
                 element.pos(left, top);

@@ -40,7 +40,8 @@ class MainLoadingView extends Laya.Sprite {
 
     private startToLoad(): void {
         this.ui.probox.visible = true;
-        this.ui.btnStart.visible = false;
+        this.clearTimer(this, this.onShowBreathEffect);
+        this.ui.btn_enter.visible = false;
         let launch: any = platform.getLaunchOptionsSync();
         console.log("@David getLaunchOptionsSync:", launch);
         PlayerManager.Instance.Info.isMySceneEnter = false;
@@ -109,7 +110,10 @@ class MainLoadingView extends Laya.Sprite {
 
     private checkAuthority(): void {
         let curStatus = 0;
-        const rect: Rectangle = LayerManager.getRealStageRect(this.ui.btnStart);
+        this.ui.btn_enter.visible = true;
+        this.onShowBreathEffect();
+        this.timerLoop(2000, this, this.onShowBreathEffect);
+        const rect: Rectangle = LayerManager.getRealStageRect(this.ui.bg);
         platform.authenticLogin((res: any) => {
             if (res) {
                 new Token().verify(Laya.Handler.create(this, (token: string) => {
@@ -124,13 +128,18 @@ class MainLoadingView extends Laya.Sprite {
                             }
                         }
                     });
-                    userData.versionCheck(() => {
+                    userData.versionCheck((versionData) => {
                         if (res && res.userInfo) {
                             M.player.account = res.userInfo.nickName;
                             HttpManager.Instance.requestSaveWxUserinfoData(platform.encode(res.userInfo.nickName), res.userInfo.avatarUrl, res.userInfo.city, res.userInfo.gender);
                             this.loadCache();
                         }
-                    });
+                        if (versionData && versionData.clear_flag) {
+                            userData.cache.setCacheKey("yxtz_" + PathConfig.AppUrl + "_" + M.player.account);
+                            //清理老数据
+                            userData.cache.clearCache();
+                        }
+                    })
                 }));
             }
         }, {
@@ -149,6 +158,13 @@ class MainLoadingView extends Laya.Sprite {
                     EffectUtils.stopWaitEffect();
                 }
             });
+    }
+
+    private onShowBreathEffect(): void {
+        Laya.Tween.clearTween(this.ui.btn_enter);
+        Laya.Tween.to(this.ui.btn_enter, { scaleX: 0.9, scaleY: 0.9 }, 900, null, Handler.create(this, () => {
+            Laya.Tween.to(this.ui.btn_enter, { scaleX: 1, scaleY: 1 }, 900);
+        }))
     }
 
     private updateLoadingProgress(percentage: number): void {

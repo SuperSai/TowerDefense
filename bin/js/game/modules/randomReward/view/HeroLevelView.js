@@ -17,6 +17,7 @@ class HeroLevelView extends ui.randomReward.HeroLevelViewUI {
         Laya.loader.load(resList, Handler.create(null, () => {
             if (_parentNode) {
                 let nodeView = new HeroLevelView(callBack, arg);
+                nodeView.btn_exit.visible = false;
                 nodeView._closeCallback = closeCallBack;
                 AlignUtils.setToScreenGoldenPos(nodeView);
                 LayerManager.getInstance().subFrameLayer.addChild(nodeView);
@@ -33,6 +34,9 @@ class HeroLevelView extends ui.randomReward.HeroLevelViewUI {
         let newInfo = BattleManager.Instance.getMonsterItem(self._arg[1]);
         self.newHero.skin = "images/carImg/" + newInfo.imgUrl;
         self.txt_newLevel.text = newInfo.name + " Lv" + (userData.isEvolution() ? newInfo.id - 1000 : newInfo.id - 100);
+        this.timerOnce(2000, this, () => {
+            this.btn_exit.visible = true;
+        });
     }
     addEvents() {
         let self = this;

@@ -28,7 +28,7 @@ class EvolutionManager {
         return MathUtils.parseInt(kingVO.gemxh.toString());
     }
     /** 守卫是否可以升级*/
-    getIsEvolutionLevel() {
+    canEvolutionUpgrade() {
         let kingLevel = userData.getKingLevel();
         if (kingLevel > 10) {
             return !((M.player.Info.userDiamond < this.getEvolutionLevelDiamond()) || (userData.caculateMonsterCount(this.getHeroId()) < this.needHeroCount));

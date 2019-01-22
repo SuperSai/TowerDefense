@@ -28,7 +28,7 @@
         {
             "x":15,
             "type":"Image",
-            "props":{"y":18,"x":12,"skin":"images/core/core_tips_icon.png"},
+            "props":{"y":18,"x":18,"skin":"images/core/core_tips_icon.png"},
             "nodeParent":1,
             "label":"Image",
             "isDirectory":false,
@@ -41,7 +41,7 @@
         {
             "x":15,
             "type":"Label",
-            "props":{"y":20,"x":50,"var":"txt_content","text":"消息提示","fontSize":30,"color":"#ffffff","bold":true,"align":"left"},
+            "props":{"y":20,"x":56,"var":"txt_content","text":"消息提示","fontSize":30,"color":"#ffffff","bold":true,"align":"left"},
             "nodeParent":1,
             "label":"Label(txt_content)",
             "isDirectory":false,

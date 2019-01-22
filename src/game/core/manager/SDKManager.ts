@@ -40,8 +40,24 @@ class SDKManager {
                 console.log("@FREEMAN: 在保存离线数据期间发生了错误：", e);
             }
         });
-        let queryData = "userId=" + userData.userId + "&shareId=0" + "&shareType=share";
-        platform.onShareAppMessage(queryData);
+        platform.onShareAppMessage(() => {
+            HttpManager.Instance.requestShareSubject("share", (res) => {
+                let shareCfg = { imageUrl: res.image, content: res.describe, id: res.id };
+                let queryData: string = "userId=" + userData.userId + "&shareId=" + shareCfg.id + "&shareType=index";
+                console.log("@David 右上角分享数据", res, " --- query:", queryData);
+                return {
+                    title: shareCfg.content,
+                    imageUrl: shareCfg.imageUrl,
+                    query: queryData,
+                    success: function (_res) {
+                        console.log("@David 右上角转发成功!!!");
+                    },
+                    fail: function () {
+                        console.log("@David 右上角转发失败!!!");
+                    }
+                }
+            });
+        });
     }
 
     public showToast(param: { title: string, duration: number, icon?: string }): void {
@@ -235,10 +251,8 @@ class SDKManager {
     /** 检查是否可以领取通关奖励 */
     private checkIsGetClearanceReward(data: any): void {
         if (!data || !data.prescene_note) return;
-        console.log("@David 检查是否可以领取通关奖励 -- start", data);
         let groupId: string = data.prescene_note.split("@")[0];
         HttpManager.Instance.requestClearanceReward(userData.userId + "", groupId, HallManager.Instance.hallData.passStage, (result: boolean) => {
-            console.log("@David 检查是否可以领取通关奖励 返回结果 flag:", result);
             if (result == true) {  //成功
                 HallManager.Instance.showClearanceRewardView(true);
                 return;

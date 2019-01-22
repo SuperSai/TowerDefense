@@ -60,7 +60,7 @@ class ShopView extends BaseView {
         self.ui.heroList.optimizeScrollRect = true;
         let firstLockId = 0; //第一个被锁项目
         let shareFreeCarId = 0; //免费得车Id
-        let shareFreeCarCfg = BattleManager.Instance.getPreMonster(monsterType == 2 ? 1000 : 100 + userData.getCarLevel(), -1);
+        let shareFreeCarCfg = BattleManager.Instance.getPreMonster(monsterType * 100 + userData.getCarLevel(), -1);
         if (shareFreeCarCfg) {
             shareFreeCarId = shareFreeCarCfg.id;
         }

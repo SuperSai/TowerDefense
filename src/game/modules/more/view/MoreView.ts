@@ -64,6 +64,7 @@ class MoreView extends Laya.Component {
             sendMessagePath: "",
             sendMessageImg: "",
             success: function (res) {
+                
             },
             fail: function (res) {
             }

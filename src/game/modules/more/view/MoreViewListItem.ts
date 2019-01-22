@@ -22,15 +22,15 @@ class MoreViewListItem extends Laya.Component {
         }
     }
 
-    private updateAwardItems():void{
+    private updateAwardItems(): void {
         const awardItems = [this.ui.boxAwardItem_1, this.ui.boxAwardItem_2];
-        if(M.more.noQuestMarket){
-            awardItems.map((item:Laya.Component)=>{
+        if (M.more.noQuestMarket) {
+            awardItems.map((item: Laya.Component) => {
                 item.visible = false;
             })
         } else {
-            for(let i:number = 0; i < awardItems.length; i++){
-                if(i <= this._vo.questAwards.length){
+            for (let i: number = 0; i < awardItems.length; i++) {
+                if (i <= this._vo.questAwards.length) {
                     awardItems[i].visible = true;
                     const icon = awardItems[i].getChildByName("imgAwardIcon") as Laya.Image;
                     icon && (icon.skin = "images/core/" + (GlobleData.getData(GlobleData.ItemVO, this._vo.questAwards[i].awardId) as ItemVO).smallIcon + ".png");
@@ -44,17 +44,17 @@ class MoreViewListItem extends Laya.Component {
         }
     }
 
-    private updateDescs():void{
+    private updateDescs(): void {
         const descItems = [this.ui.hboxQuestDesc_1, this.ui.hboxQuestDesc_2];
-        for(let k:number = 0; k < descItems.length; k++){
-            if(this._vo.questTargets && this._vo.questTargets.length){
-                if(k < this._vo.questTargets.length){
+        for (let k: number = 0; k < descItems.length; k++) {
+            if (this._vo.questTargets && this._vo.questTargets.length) {
+                if (k < this._vo.questTargets.length) {
                     descItems[k].visible = true;
                     const desc = descItems[k].getChildByName("lblDesc") as Laya.Label;
                     desc && desc.changeText(this._vo.questTargets[k].desc);
 
                     const progress = descItems[k].getChildByName("lblProgress") as Laya.Label;
-                    if(this._vo.questTargets[k].target){
+                    if (this._vo.questTargets[k].target) {
                         progress && progress.changeText("(" + this._vo.questTargets[k].progress + "/" + this._vo.questTargets[k].target + ")")
                     } else {
                         progress && progress.changeText("")
@@ -63,7 +63,7 @@ class MoreViewListItem extends Laya.Component {
                     descItems[k].visible = false;
                 }
             } else {
-                if(k < 1){
+                if (k < 1) {
                     descItems[k].visible = true;
                     const desc = descItems[k].getChildByName("lblDesc") as Laya.Label;
                     desc && desc.changeText("超好玩的游戏，美女都在玩！");
@@ -76,12 +76,12 @@ class MoreViewListItem extends Laya.Component {
             }
         }
 
-        if(!this._vo.questTargets || (this._vo.questTargets && this._vo.questTargets.length === 1)){
-            const one = [{x:131, y:76}];
+        if (!this._vo.questTargets || (this._vo.questTargets && this._vo.questTargets.length === 1)) {
+            const one = [{ x: 131, y: 76 }];
             descItems[0].pos(one[0].x, one[0].y);
 
         } else {
-            const two = [{x:131, y:59}, {x:131, y:93}];
+            const two = [{ x: 131, y: 59 }, { x: 131, y: 93 }];
             descItems[0].pos(two[0].x, two[0].y);
             descItems[1].pos(two[1].x, two[1].y);
         }
@@ -103,12 +103,13 @@ class MoreViewListItem extends Laya.Component {
 
     private naviToApp() {
         if (platform) {
-            if(systemInfo.checkVersion(WXSDKVersion.NAVIGATE_TO_MINI_PROGRAM)) {
+            if (systemInfo.checkVersion(WXSDKVersion.NAVIGATE_TO_MINI_PROGRAM)) {
                 if (M.more.noQuestMarket) {
                     platform.navigateToMiniProgram({
                         appId: this._vo.appId,
                         path: this._vo.pageQuery,
                     });
+                    HttpManager.Instance.requestShareAdFinish("allow_" + this._vo.appId);
                 } else {
                     platform.navigateToMiniProgram({
                         appId: this._vo.appId,
@@ -119,9 +120,10 @@ class MoreViewListItem extends Laya.Component {
                         },
                         envVersion: "develop"
                     });
+                    HttpManager.Instance.requestShareAdFinish("allow_" + this._vo.appId);
                 }
             } else {
-                if(Laya.Browser.onMiniGame){
+                if (Laya.Browser.onMiniGame) {
                     Laya.Browser.window.wx.showModal({
                         title: '温馨提示',
                         content: '您当前微信版本过低，暂时使用该功能，请升级到最新微信版本后重试。'
@@ -132,22 +134,24 @@ class MoreViewListItem extends Laya.Component {
     }
 
     private requestsMoreQuestAward() {
-        if(xiaoduo){
-            xiaoduo.wxQuestMarket.requestQuestReward({questId:this._vo.questId, success:(code)=>{
-                if(code === 100){
-                    for(const item of this._vo.questAwards){
-                        if(item.awardId === ITEM_ID.DIAMOND){
-                            M.event.event(EventsType.DIAMOND_CHANGE, {diamond:M.player.Info.userDiamond + item.awardNum});
-                        } else if (item.awardId === ITEM_ID.ESSENCE){
-                            M.event.event(EventsType.ESSENCE_CHANGE, {essence:M.player.Info.userEssence + item.awardNum});
-                        } else {
-                            console.log("@FREEMAN: 未处理的物品类型 @requestsMoreQuestAward");
+        if (xiaoduo) {
+            xiaoduo.wxQuestMarket.requestQuestReward({
+                questId: this._vo.questId, success: (code) => {
+                    if (code === 100) {
+                        for (const item of this._vo.questAwards) {
+                            if (item.awardId === ITEM_ID.DIAMOND) {
+                                M.event.event(EventsType.DIAMOND_CHANGE, { diamond: M.player.Info.userDiamond + item.awardNum });
+                            } else if (item.awardId === ITEM_ID.ESSENCE) {
+                                M.event.event(EventsType.ESSENCE_CHANGE, { essence: M.player.Info.userEssence + item.awardNum });
+                            } else {
+                                console.log("@FREEMAN: 未处理的物品类型 @requestsMoreQuestAward");
+                            }
                         }
+                    } else {
+                        console.log("@FREEMAN: 领取任务集市奖励失败! code:", code);
                     }
-                } else {
-                    console.log("@FREEMAN: 领取任务集市奖励失败! code:", code);
                 }
-                }})
+            })
         }
     }
 }

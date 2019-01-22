@@ -11,6 +11,10 @@ class RewardGoldView extends BaseView {
         super.initUI();
         let self = this;
         SDKManager.Instance.showBannerAd();
+        this.timerOnce(2000, this, () => {
+            self.ui.txt_close.visible = true;
+            self.ui.btnExit.visible = true;
+        });
         self.ui.txt_share.visible = false;
         self.ui.advBox.visible = !self.ui.txt_share.visible;
         self.ui.txt_lastCount.text = "今天剩余" + PlayerManager.Instance.Info.dayGetGoldCount + "次";
@@ -69,6 +73,11 @@ class RewardGoldView extends BaseView {
     }
     onCloseHandler() {
         ViewMgr.Ins.close(ViewConst.RewardGoldView);
+    }
+    close(...param) {
+        super.close(param);
+        this.ui.txt_close.visible = false;
+        this.ui.btnExit.visible = false;
     }
 }
 //# sourceMappingURL=RewardGoldView.js.map

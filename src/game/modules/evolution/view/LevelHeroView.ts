@@ -35,7 +35,7 @@ class LevelHeroView extends ui.evolution.LevelHeroViewUI {
         this.txt_diamond.text = M.player.Info.userDiamond + "/" + EvolutionManager.Instance.getEvolutionLevelDiamond();
         this.txt_level.text = "Lv" + userData.getKingLevel();
         this.txt_uplevel.text = "Lv" + (userData.getKingLevel() + 1);
-        this.btn_sure.disabled = !EvolutionManager.Instance.getIsEvolutionLevel();
+        this.btn_sure.disabled = !EvolutionManager.Instance.canEvolutionUpgrade();
     }
 
     private addEvents(): void {
@@ -51,7 +51,7 @@ class LevelHeroView extends ui.evolution.LevelHeroViewUI {
     }
 
     private onClickSure(): void {
-        if (EvolutionManager.Instance.getIsEvolutionLevel()) {
+        if (EvolutionManager.Instance.canEvolutionUpgrade()) {
             if (GlobalConfig.DEBUG) {
                 MessageUtils.showMsgTips("升级成功");
                 HallManager.Instance.hallData.isUpdate = false;

@@ -1,8 +1,8 @@
 {
     "x":0,
     "type":"View",
-    "selectedBox":5,
-    "selecteID":12,
+    "selectedBox":1,
+    "selecteID":5,
     "props":{"sceneWidth":600,"sceneHeight":400,"sceneColor":"#000000","sceneBg":"laya/views/randomReward/AdditionalRewardView.JPG"},
     "nodeParent":-1,
     "label":"View",
@@ -81,9 +81,9 @@
                 {
                     "x":30,
                     "type":"Label",
-                    "props":{"y":621,"x":188,"text":"点击空白处关闭","fontSize":30,"color":"#ffffff"},
+                    "props":{"y":621,"x":188,"visible":false,"var":"txt_close","text":"点击空白处关闭","fontSize":30,"color":"#ffffff"},
                     "nodeParent":5,
-                    "label":"Label",
+                    "label":"Label(txt_close)",
                     "isDirectory":false,
                     "isAniNode":true,
                     "hasChild":false,

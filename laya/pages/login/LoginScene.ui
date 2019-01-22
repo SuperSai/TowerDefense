@@ -1,8 +1,8 @@
 {
     "x":0,
     "type":"View",
-    "selectedBox":1,
-    "selecteID":30,
+    "selectedBox":2,
+    "selecteID":29,
     "referenceLines":null,
     "props":{"y":0,"x":0,"width":750,"sceneColor":"#000000","height":1334},
     "nodeParent":-1,
@@ -28,9 +28,9 @@
                 {
                     "x":30,
                     "type":"Image",
-                    "props":{"y":0,"x":0,"skin":"loading/loading_bg.jpg"},
+                    "props":{"y":0,"x":0,"var":"bg","skin":"loading/loading_bg.jpg"},
                     "nodeParent":2,
-                    "label":"Image",
+                    "label":"Image(bg)",
                     "isDirectory":false,
                     "isAniNode":true,
                     "hasChild":false,
@@ -40,34 +40,8 @@
                 },
                 {
                     "x":30,
-                    "type":"Button",
-                    "props":{"y":918,"x":206,"var":"btnStart","stateNum":1,"skin":"loading/start_btn.png","name":"btnStart"},
-                    "nodeParent":2,
-                    "label":"Button(btnStart)",
-                    "isOpen":false,
-                    "isDirectory":true,
-                    "isAniNode":true,
-                    "hasChild":true,
-                    "compId":9,
-                    "child":[
-                        {
-                            "type":"Script",
-                            "source":"laya/pages/ScaleAnimScript.script",
-                            "props":{},
-                            "nodeParent":9,
-                            "label":"ScaleAnimScript",
-                            "isDirectory":false,
-                            "isAniNode":true,
-                            "hasChild":false,
-                            "compId":11,
-                            "child":[
-                                ]
-                        }]
-                },
-                {
-                    "x":30,
                     "type":"Label",
-                    "props":{"y":1197,"x":309,"width":139,"text":"健康游戏公告","strokeColor":"#000000","stroke":2,"height":28,"fontSize":24,"color":"#ffffff","align":"center"},
+                    "props":{"y":1197,"x":309,"text":"健康游戏公告","strokeColor":"#000000","stroke":2,"fontSize":24,"font":"Microsoft YaHei","color":"#ffffff","align":"center"},
                     "nodeParent":2,
                     "label":"Label",
                     "isDirectory":false,
@@ -80,7 +54,7 @@
                 {
                     "x":30,
                     "type":"Label",
-                    "props":{"y":1237,"x":43,"width":571,"text":"抵制不良游戏，拒绝盗版游戏。注意自我保护，谨防受骗上当。","strokeColor":"#000000","stroke":2,"height":28,"fontSize":24,"color":"#ffffff","align":"center"},
+                    "props":{"y":1237,"x":43,"text":"抵制不良游戏，拒绝盗版游戏。注意自我保护，谨防受骗上当。","strokeColor":"#000000","stroke":2,"fontSize":24,"font":"Microsoft YaHei","color":"#ffffff","align":"center"},
                     "nodeParent":2,
                     "label":"Label",
                     "isDirectory":false,
@@ -93,7 +67,7 @@
                 {
                     "x":30,
                     "type":"Label",
-                    "props":{"y":1272,"x":43,"width":571,"text":"适度游戏益脑，沉迷游戏伤身。合理安排时间，享受健康生活。","strokeColor":"#000000","stroke":2,"height":28,"fontSize":24,"color":"#ffffff","align":"center"},
+                    "props":{"y":1272,"x":43,"text":"适度游戏益脑，沉迷游戏伤身。合理安排时间，享受健康生活。","strokeColor":"#000000","stroke":2,"fontSize":24,"font":"Microsoft YaHei","color":"#ffffff","align":"center"},
                     "nodeParent":2,
                     "label":"Label",
                     "isDirectory":false,
@@ -106,16 +80,17 @@
                 {
                     "x":30,
                     "type":"Box",
-                    "props":{"y":1059,"x":233,"visible":false,"var":"probox"},
+                    "props":{"y":996,"x":233,"visible":false,"var":"probox"},
                     "nodeParent":2,
                     "label":"Box(probox)",
-                    "isOpen":null,
+                    "isOpen":true,
                     "isDirectory":true,
                     "isAniNode":true,
                     "hasChild":true,
                     "compId":28,
                     "child":[
                         {
+                            "x":45,
                             "type":"Image",
                             "props":{"var":"progressBar","skin":"loading/bar_bg.png"},
                             "nodeParent":28,
@@ -140,8 +115,9 @@
                                 }]
                         },
                         {
+                            "x":45,
                             "type":"Label",
-                            "props":{"y":41,"x":42,"width":199,"var":"lblLoadingDesc","text":"英雄准备中...","strokeColor":"#000000","stroke":2,"height":28,"fontSize":24,"color":"#ffffff","bold":true,"align":"center"},
+                            "props":{"y":33,"x":42,"width":199,"var":"lblLoadingDesc","text":"英雄准备中...","strokeColor":"#000000","stroke":2,"height":28,"fontSize":24,"font":"Microsoft YaHei","color":"#ffffff","bold":true,"align":"center"},
                             "nodeParent":28,
                             "label":"Label(lblLoadingDesc)",
                             "isDirectory":false,
@@ -152,6 +128,7 @@
                                 ]
                         },
                         {
+                            "x":45,
                             "type":"Label",
                             "props":{"y":1,"width":280,"visible":false,"var":"lblProgress","strokeColor":"#000000","stroke":3,"height":28,"fontSize":20,"color":"#ffffff","align":"center"},
                             "nodeParent":28,
@@ -163,6 +140,19 @@
                             "child":[
                                 ]
                         }]
+                },
+                {
+                    "x":30,
+                    "type":"Label",
+                    "props":{"y":1010,"x":375,"visible":false,"var":"btn_enter","text":"点击任意位置进入游戏","strokeColor":"#000000","stroke":2,"fontSize":28,"color":"#ffffff","anchorY":0.5,"anchorX":0.5},
+                    "nodeParent":2,
+                    "label":"Label(btn_enter)",
+                    "isDirectory":false,
+                    "isAniNode":true,
+                    "hasChild":false,
+                    "compId":29,
+                    "child":[
+                        ]
                 }]
         },
         {
