@@ -61,6 +61,33 @@ class MathUtils {
         return -tanAngle;
     }
 
+    /** 计算旋转角度 */
+    static computeAngle(nowPos: { x: number, y: number }, centPos: { x: number, y: number }): number {
+        let length: number = this.pointLegth(nowPos, centPos);
+        //求弧度
+        let radian: number = Math.asin(Math.abs(nowPos.y - centPos.y) / length);
+        let angle: number = radian * 180 / Math.PI;
+        //第一象限90-
+        if ((centPos.x - nowPos.x) <= 0 && (centPos.y - nowPos.y) >= 0)
+            angle = 90 - angle;
+        //第二象限90+
+        else if ((centPos.x - nowPos.x) <= 0 && (centPos.y - nowPos.y) <= 0)
+            angle = angle + 90;
+        //第三象限270-
+        else if ((centPos.x - nowPos.x) >= 0 && (centPos.y - nowPos.y) <= 0)
+            angle = 270 - angle;
+        //第四象限270+
+        else if ((centPos.x - nowPos.x) >= 0 && (centPos.y - nowPos.y) >= 0)
+            angle = angle + 270;
+        //偏移
+        angle -= 360;
+        return angle;
+    }
+
+    static pointLegth(nowPos: { x: number, y: number }, centPos: { x: number, y: number }) {
+        return Math.sqrt(Math.pow((nowPos.x - centPos.x), 2) + Math.pow((nowPos.y - centPos.y), 2));
+    }
+
     //字符串转数字
     static parseStringNum(_strNum: string): number {
         let intNum = parseFloat(_strNum);

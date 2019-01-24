@@ -66,7 +66,6 @@ class TaskView extends BaseView {
             return;
         }
         self.ui.taskItemList.vScrollBarSkin = '';
-        self.ui.taskItemList.repeatY = 4;
         self.ui.taskItemList.array = listData;
         self.ui.taskItemList.refresh();
         self.ui.taskItemList.renderHandler = new Laya.Handler(self, (cell, index) => {
@@ -175,7 +174,6 @@ class TaskView extends BaseView {
             return;
         }
         self.ui.achiItemList.vScrollBarSkin = '';
-        self.ui.achiItemList.repeatY = 4;
         self.ui.achiItemList.array = listData;
         self.ui.achiItemList.refresh();
         self.ui.achiItemList.renderHandler = new Laya.Handler(self, (cell, index) => {

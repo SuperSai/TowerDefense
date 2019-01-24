@@ -995,6 +995,23 @@ class HttpManager {
         });
     }
 
+    /** 互推位操作日志 */
+    public requestAdvertLog(type: string): void {
+        let dataString = 'type=' + type;
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+        HttpReqHelper.request({
+            url: 'v3/advert/log',
+            method: 'Post',
+            data: dataString,
+            success: function (res) {
+                console.log(res);
+            },
+            fail: function (res) {
+                console.log(res);
+            }
+        });
+    }
+
     private static _instance: HttpManager;
     public static get Instance(): HttpManager {
         if (HttpManager._instance == null) {

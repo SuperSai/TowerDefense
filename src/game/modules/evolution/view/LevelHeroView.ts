@@ -33,9 +33,12 @@ class LevelHeroView extends ui.evolution.LevelHeroViewUI {
         this.txt_name.text = levelData.name + "Lv" + EvolutionManager.Instance.getHeroLevel();
         this.txt_count.text = "x" + EvolutionManager.Instance.needHeroCount;
         this.txt_diamond.text = M.player.Info.userDiamond + "/" + EvolutionManager.Instance.getEvolutionLevelDiamond();
-        this.txt_level.text = "Lv" + userData.getKingLevel();
-        this.txt_uplevel.text = "Lv" + (userData.getKingLevel() + 1);
+        this.txt_level.value = userData.getKingLevel() + "";
+        this.txt_uplevel.value = (userData.getKingLevel() + 1) + "";
         this.btn_sure.disabled = !EvolutionManager.Instance.canEvolutionUpgrade();
+
+        let bossId: number = userData.isEvolution() ? 100003 : 100002;
+        this.spMountGuard.setKind(bossId);
     }
 
     private addEvents(): void {

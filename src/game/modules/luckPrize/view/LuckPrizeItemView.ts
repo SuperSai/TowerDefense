@@ -17,7 +17,7 @@ class LuckPrizeItemView extends BaseView {
                     this.showDiamond(this.datas[0].name, this.datas[0].num);
                     break;
                 case 3://少量金币
-                    this.showGold(this.getGold() * 1.5);
+                    this.showGold(this.getGold() * 2);
                     break;
                 case 4://大量精华
                     this.showEssence(this.datas[0].name, this.datas[0].num);
@@ -26,7 +26,7 @@ class LuckPrizeItemView extends BaseView {
                     this.showDiamond(this.datas[0].name, this.datas[0].num);
                     break;
                 case 7://大量金币
-                    this.showGold(this.getGold() * 3);
+                    this.showGold(this.getGold() * 5);
                     break;
                 case 8://少量精华
                     this.showEssence(this.datas[0].name, this.datas[0].num);
@@ -69,11 +69,15 @@ class LuckPrizeItemView extends BaseView {
     }
 
     private getGold(): number {
-        let monsterType: number = userData.isEvolution() ? 2 : 1;
-        let monsterInfo = BattleManager.Instance.getUnLockMonster(monsterType, userData.getCarLevel());
-        if (monsterInfo) {
-            let curPrice = BattleManager.Instance.getMonsterPrice(monsterInfo.buyPrice, userData.queryBuyRecord(monsterInfo.id));
-            return curPrice;
+        // let monsterType: number = userData.isEvolution() ? 2 : 1;
+        // let monsterInfo = BattleManager.Instance.getUnLockMonster(monsterType, userData.getCarLevel());
+        // if (monsterInfo) {
+        //     let curPrice = BattleManager.Instance.getMonsterPrice(monsterInfo.buyPrice, userData.queryBuyRecord(monsterInfo.id));
+        //     return curPrice;
+        // }
+        let stagePrizeCfg: any = GlobleData.getData(GlobleData.BarrierRewardVO, HallManager.Instance.hallData.passStage);
+        if (stagePrizeCfg) {
+            return BattleManager.Instance.getBarrierRewardToGold(HallManager.Instance.hallData.passStage, MathUtils.parseStringNum(stagePrizeCfg.gold))
         }
         return 0;
     }

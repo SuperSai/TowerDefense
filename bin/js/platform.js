@@ -34,6 +34,8 @@ class DebugPlatform {
         return __awaiter(this, void 0, void 0, function* () { });
     }
     getLaunchOptionsSync() { }
+    onShareAppMessage(callback) { }
+    ;
     getShareInfo(shareTicket, callback, failCallback) {
         return __awaiter(this, void 0, void 0, function* () { });
     }

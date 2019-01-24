@@ -186,7 +186,7 @@
                                 {
                                     "x":60,
                                     "type":"List",
-                                    "props":{"y":0,"x":0,"width":638,"var":"taskItemList","spaceY":10,"repeatY":1,"repeatX":1,"name":"taskItemList","height":690},
+                                    "props":{"y":0,"x":0,"width":638,"var":"taskItemList","spaceY":10,"repeatX":1,"name":"taskItemList","height":690},
                                     "nodeParent":23,
                                     "label":"List(taskItemList)",
                                     "isOpen":false,
@@ -340,7 +340,7 @@
                                 {
                                     "x":60,
                                     "type":"List",
-                                    "props":{"y":0,"x":0,"width":638,"var":"achiItemList","spaceY":10,"repeatY":1,"repeatX":1,"height":690},
+                                    "props":{"y":0,"x":0,"width":638,"var":"achiItemList","spaceY":10,"repeatX":1,"height":690},
                                     "nodeParent":103,
                                     "label":"List(achiItemList)",
                                     "isOpen":true,

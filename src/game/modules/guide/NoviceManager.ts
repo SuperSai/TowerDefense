@@ -215,7 +215,7 @@ class NoviceManager extends EventDispatcher {
             if (this.ui) {
                 this.ui.btnReturnNovice.off(Laya.Event.CLICK, this, this.__onCompleteNovice);
                 this.ui && Laya.Tween.clearAll(this.ui.imgFinger);
-                this.ui.destroy();
+                this.ui.removeSelf();
             }
             this.offAll();
             this.recoverTargets();

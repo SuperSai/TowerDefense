@@ -78,9 +78,6 @@ class HallScene extends ui.hall.HallSceneUI {
                 PlayerManager.Instance.Info.wxUserInfo = Laya.Browser.window.wxUserInfo;
             }
         });
-        Laya.timer.once(1200, this, () => {
-            self.showDaySignView();
-        });
         if (!NoviceManager.isComplete) {
             M.novice.on(NoviceEvent.ACTIVATE_TARGET, self, (eventParam) => {
                 if (eventParam === NoviceTarget.QUICK_PURCHASE_MONSTER) {
@@ -159,6 +156,12 @@ class HallScene extends ui.hall.HallSceneUI {
         HttpManager.Instance.requestAnnouncement();
         MessageUtils.showMsgTips("");
         HallManager.Instance.checkIsFreeLottery();
+        Laya.timer.once(1200, this, () => {
+            // self.showDaySignView();
+            if (!M.novice.isRunning) {
+                M.more.show();
+            }
+        });
     }
     /** 初始化用户数据 */
     initUserData() {

@@ -56,6 +56,7 @@ class DebugPlatform implements Platform {
     async onShow(_callback: any) { }
     async onHide(_callback: any) { }
     getLaunchOptionsSync(): any { }
+    onShareAppMessage(callback): void { };
     async getShareInfo(shareTicket: string, callback: any, failCallback: any) { }
     httpToken(_url: string, _callback: any, _forceNew: boolean = false) {
         return M.player.token;

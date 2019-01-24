@@ -99,11 +99,11 @@ class StrengthenView extends BaseView {
                                         bone.completeBack = () => {
                                             bone.destroy();
                                         };
-                                        StrengthenManager.Instance.checkRedPoint();
                                         if (_res.hasOwnProperty("essence")) {
                                             userData.setEssence(MathUtils.parseInt(_res.essence));
                                             that.setEssence(M.player.Info.userEssence);
                                         }
+                                        StrengthenManager.Instance.checkRedPoint();
                                     }
                                 });
                             }, [btnStrengthen, { skillId: skillId, price: price }]);

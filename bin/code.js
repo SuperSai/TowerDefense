@@ -1763,6 +1763,31 @@ class MathUtils {
         }
         return -tanAngle;
     }
+    /** 计算旋转角度 */
+    static computeAngle(nowPos, centPos) {
+        let length = this.pointLegth(nowPos, centPos);
+        //求弧度
+        let radian = Math.asin(Math.abs(nowPos.y - centPos.y) / length);
+        let angle = radian * 180 / Math.PI;
+        //第一象限90-
+        if ((centPos.x - nowPos.x) <= 0 && (centPos.y - nowPos.y) >= 0)
+            angle = 90 - angle;
+        //第二象限90+
+        else if ((centPos.x - nowPos.x) <= 0 && (centPos.y - nowPos.y) <= 0)
+            angle = angle + 90;
+        //第三象限270-
+        else if ((centPos.x - nowPos.x) >= 0 && (centPos.y - nowPos.y) <= 0)
+            angle = 270 - angle;
+        //第四象限270+
+        else if ((centPos.x - nowPos.x) >= 0 && (centPos.y - nowPos.y) >= 0)
+            angle = angle + 270;
+        //偏移
+        angle -= 360;
+        return angle;
+    }
+    static pointLegth(nowPos, centPos) {
+        return Math.sqrt(Math.pow((nowPos.x - centPos.x), 2) + Math.pow((nowPos.y - centPos.y), 2));
+    }
     //字符串转数字
     static parseStringNum(_strNum) {
         let intNum = parseFloat(_strNum);
@@ -3326,6 +3351,22 @@ class HttpManager {
             success: function (res) {
                 console.log("requestTaskReward", res);
                 callback && callback(res);
+            },
+            fail: function (res) {
+                console.log(res);
+            }
+        });
+    }
+    /** 互推位操作日志 */
+    requestAdvertLog(type) {
+        let dataString = 'type=' + type;
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+        HttpReqHelper.request({
+            url: 'v3/advert/log',
+            method: 'Post',
+            data: dataString,
+            success: function (res) {
+                console.log(res);
             },
             fail: function (res) {
                 console.log(res);
@@ -5658,10 +5699,11 @@ class SDKManager {
                 path: userData.miniPagePath(),
                 success(res) {
                     console.log("小程序跳转成功", res);
+                    HttpManager.Instance.requestAdvertLog("allow_" + appId);
                 }
             });
             //小程序跳转次数统计
-            HttpManager.Instance.requestShareAdFinish("minipro_" + appId);
+            HttpManager.Instance.requestAdvertLog("click_" + appId);
         }
         else {
             if (Laya.Browser.onMiniGame) {
@@ -5831,7 +5873,7 @@ class PathConfig {
 // public static AppUrl: string = "https://yamdev.xiaoduogame.cn/api/"; //测试服地址
 PathConfig.AppUrl = "https://pokemon.vuggame.com/api/"; //正式服地址
 PathConfig.AppResUrl = "https://miniapp.vuggame.com/pokemon_vuggame_com_single/";
-PathConfig.RES_URL = PathConfig.AppResUrl + "v4/";
+PathConfig.RES_URL = PathConfig.AppResUrl + "v5/";
 PathConfig.Language = PathConfig.RES_URL + "config/language.txt";
 PathConfig.MonsterUrl = PathConfig.RES_URL + "anim/{0}.atlas";
 PathConfig.GameResUrl = "images/skill/{0}.png";
@@ -7062,13 +7104,14 @@ class BattleManager extends Laya.EventDispatcher {
         //触发攻击技能
         let petButtle = ObjectPool.pop(Bullet, "Buttle");
         petButtle.alpha = 1;
+        petButtle.pivotX = 20;
         petButtle.scaleX = petButtle.scaleY = 0.6;
         self._hallScene.roadView.addChild(petButtle);
         petButtle.zOrder = monster.zOrder + 1;
         petButtle.setBulletType(pet);
         let effectPos = self._hallScene.roadView.globalToLocal(pet.localToGlobal(new Laya.Point(0, 0)));
         petButtle.pos(effectPos.x + 20, effectPos.y + 30);
-        petButtle.rotation = ObjectUtils.getAngle(effectPos, { x: monster.x, y: monster.y });
+        petButtle.rotation = MathUtils.computeAngle({ x: petButtle.x, y: petButtle.y }, { x: monster.x, y: monster.y }); //  ObjectUtils.getAngle(effectPos, { x: monster.x, y: monster.y });
         petButtle.attackTarget(monster, (_skillId) => {
             let skillCfg = null;
             let isDoubleHurt = false;
@@ -7511,7 +7554,7 @@ class BattleManager extends Laya.EventDispatcher {
         let barriers = self.getBarrierSectionConfig(id);
         if (barriers) {
             barriers.forEach(element => {
-                income += element.earnings * 10;
+                income += element.earnings * 6;
             });
         }
         self._model.barrierIncomeReordDic.Add(id, income);
@@ -7528,7 +7571,7 @@ class BattleManager extends Laya.EventDispatcher {
     }
     /** 关卡奖励金币换算 */
     getBarrierRewardToGold(stage, gold) {
-        return gold * this.getBarrierIncome(stage) * 0.04;
+        return gold * this.getBarrierIncome(stage) * 0.8;
     }
     set hallScene(value) { this._hallScene = value; }
     get hallScene() { return this._hallScene; }
@@ -7867,11 +7910,13 @@ var ui;
             constructor() { super(); }
             createChildren() {
                 View.regComponent("ScaleAnimScript", ScaleAnimScript);
+                View.regComponent("SkeletonPlayer", laya.ani.bone.Skeleton);
+                View.regComponent("MonsterSprite", MonsterSprite);
                 super.createChildren();
                 this.createView(ui.evolution.LevelHeroViewUI.uiView);
             }
         }
-        LevelHeroViewUI.uiView = { "type": "View", "props": { "width": 714, "height": 562 }, "child": [{ "type": "Box", "props": { "y": 0, "x": 0, "width": 714, "height": 562 }, "child": [{ "type": "Image", "props": { "y": 4, "width": 716, "skin": "images/component/frame_9calce_01.png", "height": 565, "sizeGrid": "168,65,62,82" } }, { "type": "Image", "props": { "y": 35, "x": 166, "skin": "images/levelHero/levelHero_titel.png" } }, { "type": "Image", "props": { "y": 172, "x": 317, "skin": "images/levelHero/levelHero_arrow.png" } }, { "type": "Image", "props": { "y": 139, "x": 186, "skin": "images/levelHero/levelHero_level_icon.png" } }, { "type": "Image", "props": { "y": 378, "x": 25, "skin": "images/component/frame_line_02.png" } }, { "type": "Image", "props": { "y": 317, "x": 33, "skin": "images/component/frame_9calce_05.png" } }, { "type": "Image", "props": { "y": 324, "x": 168, "skin": "images/core/diamond.png", "scaleY": 0.9, "scaleX": 0.9 } }, { "type": "Image", "props": { "y": 139, "x": 422, "skin": "images/levelHero/levelHero_level_icon.png" } }, { "type": "Box", "props": { "y": 259, "x": 33 }, "child": [{ "type": "Image", "props": { "skin": "images/component/frame_9calce_05.png" } }, { "type": "Image", "props": { "y": 9, "x": 139, "width": 182, "skin": "images/levelHero/levelHero_name_bg.png", "sizeGrid": "13,42,13,36", "height": 34 } }, { "type": "Label", "props": { "y": 14, "x": 11, "text": "升级条件：", "fontSize": 26, "color": "#9a2525", "bold": true, "align": "center" } }, { "type": "Label", "props": { "y": 12, "x": 139, "width": 182, "var": "txt_name", "text": "强•克瑞翁Lv30", "height": 26, "fontSize": 26, "color": "#ad1c1c", "bold": true, "align": "center" } }, { "type": "Label", "props": { "y": 12, "x": 324, "var": "txt_count", "text": "x3", "fontSize": 26, "color": "#9a8d00", "align": "center" } }] }, { "type": "Label", "props": { "y": 178, "x": 196, "width": 88, "var": "txt_level", "text": "Lv8", "height": 32, "fontSize": 32, "color": "#886300", "align": "center" } }, { "type": "Label", "props": { "y": 178, "x": 433, "width": 88, "var": "txt_uplevel", "text": "Lv8", "height": 32, "fontSize": 32, "color": "#886300", "align": "center" } }, { "type": "Label", "props": { "y": 328, "x": 44, "text": "升级消耗：", "fontSize": 26, "color": "#9a2525", "bold": true, "align": "center" } }, { "type": "Label", "props": { "y": 327, "x": 213, "var": "txt_diamond", "text": "0/0", "fontSize": 26, "color": "#9a8d00", "align": "left" } }, { "type": "Label", "props": { "y": 570, "x": 268, "text": "点击空白处关闭", "fontSize": 26, "color": "#ffffff", "align": "center" } }, { "type": "Button", "props": { "x": 632, "var": "btn_exit", "stateNum": 1, "skin": "images/component/frame_close_btn.png" } }, { "type": "Button", "props": { "y": 418, "x": 395, "var": "btn_sure", "stateNum": 1, "skin": "images/component/btn_yellow_yuan.png", "labelStrokeColor": "#825321", "labelStroke": 2, "labelSize": 40, "labelColors": "#ffffff,#ffffff,#ffffff,#ffffff", "label": "确定" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }, { "type": "Button", "props": { "y": 418, "x": 95, "var": "btn_next", "stateNum": 1, "skin": "images/component/btn_blue_yuan.png", "labelStrokeColor": "#306294", "labelStroke": 2, "labelSize": 40, "labelColors": "#ffffff,#ffffff,#ffffff,#ffffff", "label": "下次" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }] }] };
+        LevelHeroViewUI.uiView = { "type": "View", "props": {}, "child": [{ "type": "Box", "props": { "y": 0, "x": 0, "width": 716, "height": 567 }, "child": [{ "type": "Image", "props": { "y": 5, "width": 716, "skin": "images/component/frame_9calce_01.png", "height": 565, "sizeGrid": "168,65,62,82" } }, { "type": "Image", "props": { "y": 34, "x": 167, "skin": "images/levelHero/levelHero_titel.png" } }, { "type": "Image", "props": { "y": 191, "x": 425, "skin": "images/levelHero/levelHero_arrow.png" } }, { "type": "Image", "props": { "y": 146, "x": 245, "skin": "images/levelHero/levelHero_level_bg.png" } }, { "type": "Image", "props": { "y": 416, "x": 24, "skin": "images/component/frame_line_02.png" } }, { "type": "Image", "props": { "y": 146, "x": 502, "skin": "images/levelHero/levelHero_level_bg.png" } }, { "type": "Box", "props": { "y": 293, "x": 246 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "width": 430, "skin": "images/component/frame_9calce_05.png", "height": 50 } }, { "type": "Image", "props": { "y": 9, "x": 139, "width": 182, "skin": "images/levelHero/levelHero_name_bg.png", "sizeGrid": "13,42,13,36", "height": 34 } }, { "type": "Label", "props": { "y": 14, "x": 11, "text": "升级条件：", "fontSize": 26, "color": "#9a2525", "bold": true, "align": "center" } }, { "type": "Label", "props": { "y": 12, "x": 139, "width": 182, "var": "txt_name", "text": "强•克瑞翁Lv30", "height": 26, "fontSize": 26, "color": "#ad1c1c", "bold": true, "align": "center" } }, { "type": "Label", "props": { "y": 12, "x": 324, "var": "txt_count", "text": "x3", "fontSize": 26, "color": "#9a8d00", "align": "center" } }] }, { "type": "Label", "props": { "y": 569, "x": 262, "text": "点击空白处关闭", "fontSize": 26, "color": "#ffffff", "align": "center" } }, { "type": "Button", "props": { "x": 631, "var": "btn_exit", "stateNum": 1, "skin": "images/component/frame_close_btn.png" } }, { "type": "Button", "props": { "y": 450, "x": 390, "var": "btn_sure", "stateNum": 1, "skin": "images/component/frame_btn_small_yellow.png", "labelStrokeColor": "#825321", "labelStroke": 2, "labelSize": 30, "labelColors": "#ffffff,#ffffff,#ffffff,#ffffff", "label": "确定" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }, { "type": "Button", "props": { "y": 451, "x": 142, "width": 183, "var": "btn_next", "stateNum": 1, "skin": "images/component/frame_btn_small_blue.png", "sizeGrid": "-1,32,-6,34", "labelStrokeColor": "#306294", "labelStroke": 2, "labelSize": 30, "labelColors": "#ffffff,#ffffff,#ffffff,#ffffff", "label": "下次", "height": 65 }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }, { "type": "Image", "props": { "y": 237, "x": 533, "skin": "images/levelHero/levelHero_next.png" } }, { "type": "Image", "props": { "y": 238, "x": 277, "skin": "images/levelHero/levelHero_curr.png" } }, { "type": "Image", "props": { "y": 373, "x": 43, "skin": "images/levelHero/levelHero_base.png" } }, { "type": "FontClip", "props": { "y": 186, "x": 289, "width": 180, "var": "txt_level", "value": "0", "spaceX": -15, "skin": "images/levelHero/levelHero_num.png", "sheet": "0123456789", "scaleY": 0.5, "scaleX": 0.5, "height": 86, "align": "center" } }, { "type": "FontClip", "props": { "y": 186, "x": 547, "width": 180, "var": "txt_uplevel", "value": "0", "spaceX": -15, "skin": "images/levelHero/levelHero_num.png", "sheet": "0123456789", "scaleY": 0.5, "scaleX": 0.5, "height": 86, "align": "center" } }, { "type": "Box", "props": { "y": 349, "x": 246 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "width": 431, "skin": "images/component/frame_9calce_05.png", "height": 50 } }, { "type": "Image", "props": { "y": 7, "x": 135, "skin": "images/core/diamond.png", "scaleY": 0.9, "scaleX": 0.9 } }, { "type": "Label", "props": { "y": 11, "x": 11, "text": "升级消耗：", "fontSize": 26, "color": "#9a2525", "bold": true, "align": "center" } }, { "type": "Label", "props": { "y": 10, "x": 180, "var": "txt_diamond", "text": "0/0", "fontSize": 26, "color": "#9a8d00", "align": "left" } }] }, { "type": "SkeletonPlayer", "props": { "y": 258, "x": 136, "url": "images/effect/bone/bglight.sk", "scaleY": 0.5, "scaleX": 0.5 } }, { "type": "Sprite", "props": { "y": 346, "x": 149, "width": 32, "var": "spMountGuard", "scaleX": -1, "runtime": "MonsterSprite", "height": 32 } }] }] };
         evolution.LevelHeroViewUI = LevelHeroViewUI;
     })(evolution = ui.evolution || (ui.evolution = {}));
 })(ui || (ui = {}));
@@ -7901,7 +7946,7 @@ var ui;
                 this.createView(ui.friendConcur.FriendConcurUI.uiView);
             }
         }
-        FriendConcurUI.uiView = { "type": "View", "props": {}, "child": [{ "type": "Box", "props": { "y": 0, "x": 0 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "width": 715, "skin": "images/component/frame_9calce_01.png", "height": 1015, "sizeGrid": "168,65,62,82" } }, { "type": "Image", "props": { "y": 35, "x": 258, "skin": "images/friendConcur/friendConcur_title.png" } }, { "type": "Image", "props": { "y": 137, "x": 35, "width": 646, "skin": "images/component/frame_9calce_02.png", "height": 668, "sizeGrid": "25,32,32,36" } }, { "type": "Label", "props": { "y": 942, "x": 116, "text": "好友点开互助链接，双方都能获得金币奖励", "fontSize": 26, "color": "#ff0000" } }, { "type": "List", "props": { "y": 149, "x": 49, "width": 617, "var": "rewardList", "spaceY": 5, "repeatY": 1, "repeatX": 1, "height": 636 } }, { "type": "Button", "props": { "y": 823, "x": 200, "var": "btn_send", "stateNum": 1, "skin": "images/component/yellow_btn.png", "labelStrokeColor": "#946430", "labelStroke": 2, "labelSize": 40, "labelColors": "#FFFFFF,#FFFFFF,#FFFFFF,#FFFFFF", "labelBold": true, "label": "发起好友互助" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }, { "type": "Button", "props": { "y": -6, "x": 633, "var": "btn_exit", "stateNum": 1, "skin": "images/component/frame_close_btn.png" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }] }] };
+        FriendConcurUI.uiView = { "type": "View", "props": {}, "child": [{ "type": "Box", "props": { "y": 0, "x": 0 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "width": 715, "skin": "images/component/frame_9calce_01.png", "height": 1015, "sizeGrid": "168,65,62,82" } }, { "type": "Image", "props": { "y": 35, "x": 258, "skin": "images/friendConcur/friendConcur_title.png" } }, { "type": "Image", "props": { "y": 137, "x": 35, "width": 646, "skin": "images/component/frame_9calce_02.png", "height": 668, "sizeGrid": "25,32,32,36" } }, { "type": "Label", "props": { "y": 942, "x": 116, "text": "好友点开互助链接，双方都能获得金币奖励", "fontSize": 26, "color": "#ff0000" } }, { "type": "List", "props": { "y": 149, "x": 49, "width": 617, "var": "rewardList", "spaceY": 5, "repeatX": 1, "height": 636 } }, { "type": "Button", "props": { "y": 823, "x": 200, "var": "btn_send", "stateNum": 1, "skin": "images/component/yellow_btn.png", "labelStrokeColor": "#946430", "labelStroke": 2, "labelSize": 40, "labelColors": "#FFFFFF,#FFFFFF,#FFFFFF,#FFFFFF", "labelBold": true, "label": "发起好友互助" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }, { "type": "Button", "props": { "y": -6, "x": 633, "var": "btn_exit", "stateNum": 1, "skin": "images/component/frame_close_btn.png" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }] }] };
         friendConcur.FriendConcurUI = FriendConcurUI;
     })(friendConcur = ui.friendConcur || (ui.friendConcur = {}));
 })(ui || (ui = {}));
@@ -8111,7 +8156,7 @@ var ui;
                 this.createView(ui.more.MoreViewUI.uiView);
             }
         }
-        MoreViewUI.uiView = { "type": "View", "props": {}, "child": [{ "type": "Image", "props": { "y": 4, "x": 0, "width": 715, "skin": "images/component/frame_9calce_01.png", "height": 1015, "sizeGrid": "168,65,62,82" } }, { "type": "Image", "props": { "y": 32, "x": 252, "skin": "images/more/title.png" } }, { "type": "Image", "props": { "y": 0, "x": 631, "var": "imgClose", "skin": "images/component/frame_close_btn.png" } }, { "type": "Image", "props": { "y": 144, "x": 33, "width": 649, "skin": "images/component/frame_9calce_02.png", "height": 153, "sizeGrid": "25,32,32,36" } }, { "type": "Image", "props": { "y": 312, "x": 33, "width": 649, "skin": "images/component/frame_9calce_02.png", "height": 615, "sizeGrid": "25,32,32,36" } }, { "type": "Label", "props": { "y": 342, "x": 181, "text": "欢迎您体验更多好玩的游戏", "fontSize": 30, "color": "#845013", "bold": true, "align": "center" } }, { "type": "Image", "props": { "y": 383, "x": 37, "skin": "images/component/seperate_line.png" } }, { "type": "Button", "props": { "y": 164, "x": 191, "var": "btnCustomService", "stateNum": 1, "skin": "images/more/custom_service.png" }, "child": [{ "type": "Label", "props": { "y": 81, "x": 15, "text": "客服", "strokeColor": "#8d5d2e", "stroke": 3, "fontSize": 30, "color": "#ffffff", "bold": true, "align": "center" } }] }, { "type": "Button", "props": { "y": 167, "x": 466, "var": "btnSoundClosed", "stateNum": 1, "skin": "images/more/sound_closed.png" }, "child": [{ "type": "Label", "props": { "y": 79, "x": 17, "text": "声音", "strokeColor": "#8d5d2e", "stroke": 3, "fontSize": 30, "color": "#ffffff", "bold": true, "align": "center" } }] }, { "type": "Button", "props": { "y": 165, "x": 465, "var": "btnSoundOpend", "stateNum": 1, "skin": "images/more/sound_opened.png" }, "child": [{ "type": "Label", "props": { "y": 80, "x": 18, "text": "声音", "strokeColor": "#8d5d2e", "stroke": 3, "fontSize": 30, "color": "#ffffff", "bold": true, "align": "center" } }] }, { "type": "List", "props": { "y": 410, "x": 49, "width": 619, "var": "listMoreItem", "spaceY": 15, "repeatY": 4, "repeatX": 1, "height": 497 } }, { "type": "Label", "props": { "y": 685, "x": 147, "width": 418, "var": "lblNoneGameTips", "text": "暂时没有游戏体验哦", "strokeColor": "#845013", "stroke": 3, "height": 37, "fontSize": 36, "color": "#e2e2e2", "bold": true, "align": "center" } }, { "type": "Label", "props": { "y": 944, "x": 72, "width": 585, "var": "txt_uid", "text": "UID：0", "height": 30, "fontSize": 26, "color": "#FF6800", "bold": true, "align": "center" } }] };
+        MoreViewUI.uiView = { "type": "View", "props": {}, "child": [{ "type": "Image", "props": { "y": 4, "x": 0, "width": 715, "skin": "images/component/frame_9calce_01.png", "height": 1015, "sizeGrid": "168,65,62,82" } }, { "type": "Image", "props": { "y": 32, "x": 252, "skin": "images/more/title.png" } }, { "type": "Image", "props": { "y": 0, "x": 631, "var": "imgClose", "skin": "images/component/frame_close_btn.png" } }, { "type": "Image", "props": { "y": 234, "x": 33, "width": 649, "skin": "images/component/frame_9calce_02.png", "height": 693, "sizeGrid": "25,32,32,36" } }, { "type": "Label", "props": { "y": 930, "x": 215, "text": "欢迎您体验更多好玩的游戏", "fontSize": 26, "color": "#845013", "bold": true, "align": "center" } }, { "type": "Button", "props": { "y": 138, "x": 186, "var": "btnCustomService", "stateNum": 1, "skin": "images/more/custom_service.png", "scaleY": 0.8, "scaleX": 0.8 }, "child": [{ "type": "Label", "props": { "y": 81, "x": 15, "text": "客服", "strokeColor": "#8d5d2e", "stroke": 3, "fontSize": 30, "color": "#ffffff", "bold": true, "align": "center" } }] }, { "type": "Button", "props": { "y": 138, "x": 466, "var": "btnSoundClosed", "stateNum": 1, "skin": "images/more/sound_closed.png", "scaleY": 0.8, "scaleX": 0.8 }, "child": [{ "type": "Label", "props": { "y": 79, "x": 17, "text": "声音", "strokeColor": "#8d5d2e", "stroke": 3, "fontSize": 30, "color": "#ffffff", "bold": true, "align": "center" } }] }, { "type": "Button", "props": { "y": 136, "x": 465, "var": "btnSoundOpend", "stateNum": 1, "skin": "images/more/sound_opened.png", "scaleY": 0.8, "scaleX": 0.8 }, "child": [{ "type": "Label", "props": { "y": 80, "x": 18, "text": "声音", "strokeColor": "#8d5d2e", "stroke": 3, "fontSize": 30, "color": "#ffffff", "bold": true, "align": "center" } }] }, { "type": "List", "props": { "y": 251, "x": 49, "width": 619, "var": "listMoreItem", "spaceY": 15, "repeatX": 1, "height": 656 } }, { "type": "Label", "props": { "y": 648, "x": 136, "width": 418, "var": "lblNoneGameTips", "text": "暂时没有游戏体验哦", "strokeColor": "#845013", "stroke": 3, "height": 37, "fontSize": 36, "color": "#e2e2e2", "bold": true, "align": "center" } }, { "type": "Label", "props": { "y": 962, "x": 72, "width": 585, "var": "txt_uid", "text": "UID：0", "height": 30, "fontSize": 26, "color": "#FF6800", "bold": true, "align": "center" } }] };
         more.MoreViewUI = MoreViewUI;
     })(more = ui.more || (ui.more = {}));
 })(ui || (ui = {}));
@@ -8262,7 +8307,7 @@ var ui;
                 this.createView(ui.task.TaskViewUI.uiView);
             }
         }
-        TaskViewUI.uiView = { "type": "View", "props": { "y": 0, "x": 0 }, "child": [{ "type": "View", "props": { "width": 750, "visible": true, "var": "mainView", "name": "mainView", "height": 1334, "centerY": 0, "centerX": 0 }, "child": [{ "type": "View", "props": { "y": 0, "x": 0, "var": "blankView", "top": 0, "right": 0, "name": "blankView", "left": 0, "bottom": 0 } }, { "type": "View", "props": { "y": 124, "x": 0, "width": 750, "name": "coverView", "mouseThrough": false, "mouseEnabled": true, "height": 1050 } }, { "type": "Image", "props": { "y": 103, "x": 19, "width": 713, "skin": "images/component/frame_9calce_01.png", "height": 1013, "sizeGrid": "168,65,62,82" } }, { "type": "Image", "props": { "y": 140, "x": 324, "skin": "images/quest/title.png" } }, { "type": "Image", "props": { "y": 338, "x": 52, "width": 646, "skin": "images/component/frame_9calce_02.png", "height": 745, "sizeGrid": "25,32,32,36" } }, { "type": "View", "props": { "y": 239, "x": 137, "var": "tabGroup" }, "child": [{ "type": "Button", "props": { "y": 10, "x": 0, "strokeColors": "#998a4e,#a86c24", "stateNum": 2, "skin": "images/component/tab_01.png", "selected": true, "labelStroke": 5, "labelSize": 36, "labelPadding": "0,0,13,0", "labelColors": "#fff4e1,#fff4e1", "labelBold": true, "labelAlign": "center", "label": "每日任务" }, "child": [{ "type": "Image", "props": { "y": -10, "x": 180, "visible": false, "skin": "images/core/red_dot_hint.png", "name": "imgRetDotHint" } }] }, { "type": "Button", "props": { "y": 10, "x": 274, "strokeColors": "#998a4e,#a86c24", "stateNum": 2, "skin": "images/component/tab_01.png", "selected": false, "labelStroke": 5, "labelSize": 36, "labelPadding": "0,0,13,0", "labelColors": "#fff4e1,#fff4e1", "labelBold": true, "labelAlign": "center", "label": "成就任务" }, "child": [{ "type": "Image", "props": { "y": -10, "x": 180, "visible": false, "skin": "images/core/red_dot_hint.png", "name": "imgRetDotHint" } }] }] }, { "type": "ViewStack", "props": { "y": 341, "width": 750, "var": "viewStackTask", "selectedIndex": 0, "right": 0, "name": "viewStackTask", "left": 0, "height": 738 }, "child": [{ "type": "Image", "props": { "y": 1, "x": 56, "width": 637, "name": "item0", "height": 736 }, "child": [{ "type": "List", "props": { "y": 0, "x": 0, "width": 638, "var": "taskItemList", "spaceY": 10, "repeatY": 1, "repeatX": 1, "name": "taskItemList", "height": 690 }, "child": [{ "type": "Box", "props": { "y": 0, "x": 2, "visible": false, "right": 2, "renderType": "render", "left": 2, "cacheAs": "bitmap" }, "child": [{ "type": "Image", "props": { "y": 10, "x": 6, "skin": "images/quest/item_bg.png" } }, { "type": "Image", "props": { "y": 82, "x": 45, "skin": "images/quest/reward_bg.png" } }, { "type": "Image", "props": { "y": 81, "x": 33, "skin": "images/core/diamond.png", "name": "imgAwardIcon" } }, { "type": "Label", "props": { "y": 28, "x": 35, "width": 350, "text": "完成车辆合成30次 (0/30)", "name": "txtTitle", "fontSize": 32, "color": "#a17338", "bold": true, "align": "left" } }, { "type": "Label", "props": { "y": 85, "x": 79, "width": 100, "text": "100", "name": "txtDiamond", "fontSize": 30, "color": "#fcf4cd", "align": "left" } }, { "type": "Image", "props": { "y": 52, "x": 433, "skin": "images/component/frame_9scale_11.png", "name": "txtGet" }, "child": [{ "type": "Label", "props": { "y": 9, "x": 22, "width": 120, "text": "已领取", "fontSize": 30, "color": "#fff4e1", "bold": true, "align": "center" } }] }, { "type": "Button", "props": { "y": 44, "x": 424, "stateNum": 1, "skin": "images/quest/btn_obtain.png", "name": "btnGet", "labelStrokeColor": "#946430", "labelStroke": 3, "labelSize": 30, "labelColors": "#fff4e1", "labelBold": true, "label": "领取" } }] }] }, { "type": "Label", "props": { "y": 699, "x": -1, "width": 638, "text": "每天00:00时系统自动重置任务", "strokeColor": "#7a572b", "stroke": 2, "height": 24, "fontSize": 24, "color": "#ffffff", "bold": true, "align": "center" } }] }, { "type": "Image", "props": { "y": 1, "x": 56, "width": 637, "name": "item1", "height": 736 }, "child": [{ "type": "List", "props": { "y": 0, "x": 0, "width": 638, "var": "achiItemList", "spaceY": 10, "repeatY": 1, "repeatX": 1, "height": 690 }, "child": [{ "type": "Box", "props": { "y": 0, "x": 2, "visible": false, "right": 2, "renderType": "render", "left": 2, "cacheAs": "bitmap" }, "child": [{ "type": "Image", "props": { "y": 10, "x": 6, "skin": "images/quest/item_bg_1.png" } }, { "type": "Label", "props": { "y": 28, "x": 35, "width": 350, "text": "完成车辆合成30次", "name": "txtTitle", "fontSize": 32, "color": "#a17338", "bold": true, "align": "left" } }, { "type": "Image", "props": { "y": 79, "x": 433, "skin": "images/component/frame_9scale_11.png", "name": "txtGet" }, "child": [{ "type": "Label", "props": { "y": 9, "x": 22, "width": 120, "text": "已领取", "fontSize": 30, "color": "#fff4e1", "bold": true, "align": "center" } }] }, { "type": "Label", "props": { "y": 28, "x": 425, "width": 185, "text": "(0/30)", "name": "txtNum", "height": 32, "fontSize": 32, "color": "#a17338", "bold": true, "align": "center" } }, { "type": "Image", "props": { "y": 82, "x": 45, "width": 144, "skin": "images/quest/reward_bg.png", "sizeGrid": "15,24,19,26", "height": 40 } }, { "type": "Image", "props": { "y": 81, "x": 33, "skin": "images/core/diamond.png", "name": "imgAwardIcon" } }, { "type": "Label", "props": { "y": 85, "x": 79, "width": 103, "text": "100", "name": "txtDiamond", "height": 30, "fontSize": 30, "color": "#fcf4cd", "align": "left" } }, { "type": "Button", "props": { "y": 71, "x": 424, "stateNum": 1, "skin": "images/quest/btn_obtain.png", "name": "btnGet", "labelStrokeColor": "#946430", "labelStroke": 3, "labelSize": 30, "labelColors": "#fff4e1", "labelBold": true, "label": "领取" } }] }] }] }, { "type": "Label", "props": { "y": 317, "x": 193, "width": 350, "text": "暂时没有任务", "strokeColor": "#7a572b", "name": "item2", "fontSize": 46, "color": "#d9d9d9", "bold": true, "align": "center" } }] }, { "type": "Button", "props": { "y": 99, "x": 649, "var": "btnExit", "stateNum": 1, "skin": "images/component/frame_close_btn.png", "name": "btnExit" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }] }] };
+        TaskViewUI.uiView = { "type": "View", "props": { "y": 0, "x": 0 }, "child": [{ "type": "View", "props": { "width": 750, "visible": true, "var": "mainView", "name": "mainView", "height": 1334, "centerY": 0, "centerX": 0 }, "child": [{ "type": "View", "props": { "y": 0, "x": 0, "var": "blankView", "top": 0, "right": 0, "name": "blankView", "left": 0, "bottom": 0 } }, { "type": "View", "props": { "y": 124, "x": 0, "width": 750, "name": "coverView", "mouseThrough": false, "mouseEnabled": true, "height": 1050 } }, { "type": "Image", "props": { "y": 103, "x": 19, "width": 713, "skin": "images/component/frame_9calce_01.png", "height": 1013, "sizeGrid": "168,65,62,82" } }, { "type": "Image", "props": { "y": 140, "x": 324, "skin": "images/quest/title.png" } }, { "type": "Image", "props": { "y": 338, "x": 52, "width": 646, "skin": "images/component/frame_9calce_02.png", "height": 745, "sizeGrid": "25,32,32,36" } }, { "type": "View", "props": { "y": 239, "x": 137, "var": "tabGroup" }, "child": [{ "type": "Button", "props": { "y": 10, "x": 0, "strokeColors": "#998a4e,#a86c24", "stateNum": 2, "skin": "images/component/tab_01.png", "selected": true, "labelStroke": 5, "labelSize": 36, "labelPadding": "0,0,13,0", "labelColors": "#fff4e1,#fff4e1", "labelBold": true, "labelAlign": "center", "label": "每日任务" }, "child": [{ "type": "Image", "props": { "y": -10, "x": 180, "visible": false, "skin": "images/core/red_dot_hint.png", "name": "imgRetDotHint" } }] }, { "type": "Button", "props": { "y": 10, "x": 274, "strokeColors": "#998a4e,#a86c24", "stateNum": 2, "skin": "images/component/tab_01.png", "selected": false, "labelStroke": 5, "labelSize": 36, "labelPadding": "0,0,13,0", "labelColors": "#fff4e1,#fff4e1", "labelBold": true, "labelAlign": "center", "label": "成就任务" }, "child": [{ "type": "Image", "props": { "y": -10, "x": 180, "visible": false, "skin": "images/core/red_dot_hint.png", "name": "imgRetDotHint" } }] }] }, { "type": "ViewStack", "props": { "y": 341, "width": 750, "var": "viewStackTask", "selectedIndex": 0, "right": 0, "name": "viewStackTask", "left": 0, "height": 738 }, "child": [{ "type": "Image", "props": { "y": 1, "x": 56, "width": 637, "name": "item0", "height": 736 }, "child": [{ "type": "List", "props": { "y": 0, "x": 0, "width": 638, "var": "taskItemList", "spaceY": 10, "repeatX": 1, "name": "taskItemList", "height": 690 }, "child": [{ "type": "Box", "props": { "y": 0, "x": 2, "visible": false, "right": 2, "renderType": "render", "left": 2, "cacheAs": "bitmap" }, "child": [{ "type": "Image", "props": { "y": 10, "x": 6, "skin": "images/quest/item_bg.png" } }, { "type": "Image", "props": { "y": 82, "x": 45, "skin": "images/quest/reward_bg.png" } }, { "type": "Image", "props": { "y": 81, "x": 33, "skin": "images/core/diamond.png", "name": "imgAwardIcon" } }, { "type": "Label", "props": { "y": 28, "x": 35, "width": 350, "text": "完成车辆合成30次 (0/30)", "name": "txtTitle", "fontSize": 32, "color": "#a17338", "bold": true, "align": "left" } }, { "type": "Label", "props": { "y": 85, "x": 79, "width": 100, "text": "100", "name": "txtDiamond", "fontSize": 30, "color": "#fcf4cd", "align": "left" } }, { "type": "Image", "props": { "y": 52, "x": 433, "skin": "images/component/frame_9scale_11.png", "name": "txtGet" }, "child": [{ "type": "Label", "props": { "y": 9, "x": 22, "width": 120, "text": "已领取", "fontSize": 30, "color": "#fff4e1", "bold": true, "align": "center" } }] }, { "type": "Button", "props": { "y": 44, "x": 424, "stateNum": 1, "skin": "images/quest/btn_obtain.png", "name": "btnGet", "labelStrokeColor": "#946430", "labelStroke": 3, "labelSize": 30, "labelColors": "#fff4e1", "labelBold": true, "label": "领取" } }] }] }, { "type": "Label", "props": { "y": 699, "x": -1, "width": 638, "text": "每天00:00时系统自动重置任务", "strokeColor": "#7a572b", "stroke": 2, "height": 24, "fontSize": 24, "color": "#ffffff", "bold": true, "align": "center" } }] }, { "type": "Image", "props": { "y": 1, "x": 56, "width": 637, "name": "item1", "height": 736 }, "child": [{ "type": "List", "props": { "y": 0, "x": 0, "width": 638, "var": "achiItemList", "spaceY": 10, "repeatX": 1, "height": 690 }, "child": [{ "type": "Box", "props": { "y": 0, "x": 2, "visible": false, "right": 2, "renderType": "render", "left": 2, "cacheAs": "bitmap" }, "child": [{ "type": "Image", "props": { "y": 10, "x": 6, "skin": "images/quest/item_bg_1.png" } }, { "type": "Label", "props": { "y": 28, "x": 35, "width": 350, "text": "完成车辆合成30次", "name": "txtTitle", "fontSize": 32, "color": "#a17338", "bold": true, "align": "left" } }, { "type": "Image", "props": { "y": 79, "x": 433, "skin": "images/component/frame_9scale_11.png", "name": "txtGet" }, "child": [{ "type": "Label", "props": { "y": 9, "x": 22, "width": 120, "text": "已领取", "fontSize": 30, "color": "#fff4e1", "bold": true, "align": "center" } }] }, { "type": "Label", "props": { "y": 28, "x": 425, "width": 185, "text": "(0/30)", "name": "txtNum", "height": 32, "fontSize": 32, "color": "#a17338", "bold": true, "align": "center" } }, { "type": "Image", "props": { "y": 82, "x": 45, "width": 144, "skin": "images/quest/reward_bg.png", "sizeGrid": "15,24,19,26", "height": 40 } }, { "type": "Image", "props": { "y": 81, "x": 33, "skin": "images/core/diamond.png", "name": "imgAwardIcon" } }, { "type": "Label", "props": { "y": 85, "x": 79, "width": 103, "text": "100", "name": "txtDiamond", "height": 30, "fontSize": 30, "color": "#fcf4cd", "align": "left" } }, { "type": "Button", "props": { "y": 71, "x": 424, "stateNum": 1, "skin": "images/quest/btn_obtain.png", "name": "btnGet", "labelStrokeColor": "#946430", "labelStroke": 3, "labelSize": 30, "labelColors": "#fff4e1", "labelBold": true, "label": "领取" } }] }] }] }, { "type": "Label", "props": { "y": 317, "x": 193, "width": 350, "text": "暂时没有任务", "strokeColor": "#7a572b", "name": "item2", "fontSize": 46, "color": "#d9d9d9", "bold": true, "align": "center" } }] }, { "type": "Button", "props": { "y": 99, "x": 649, "var": "btnExit", "stateNum": 1, "skin": "images/component/frame_close_btn.png", "name": "btnExit" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }] }] };
         task.TaskViewUI = TaskViewUI;
     })(task = ui.task || (ui.task = {}));
 })(ui || (ui = {}));
@@ -9513,9 +9558,11 @@ class LevelHeroView extends ui.evolution.LevelHeroViewUI {
         this.txt_name.text = levelData.name + "Lv" + EvolutionManager.Instance.getHeroLevel();
         this.txt_count.text = "x" + EvolutionManager.Instance.needHeroCount;
         this.txt_diamond.text = M.player.Info.userDiamond + "/" + EvolutionManager.Instance.getEvolutionLevelDiamond();
-        this.txt_level.text = "Lv" + userData.getKingLevel();
-        this.txt_uplevel.text = "Lv" + (userData.getKingLevel() + 1);
+        this.txt_level.value = userData.getKingLevel() + "";
+        this.txt_uplevel.value = (userData.getKingLevel() + 1) + "";
         this.btn_sure.disabled = !EvolutionManager.Instance.canEvolutionUpgrade();
+        let bossId = userData.isEvolution() ? 100003 : 100002;
+        this.spMountGuard.setKind(bossId);
     }
     addEvents() {
         this.btn_sure.on(Laya.Event.CLICK, this, this.onClickSure);
@@ -9777,7 +9824,7 @@ class FriendConcurView extends BaseView {
                 FriendConcurView.redPointNum += (data.p_status == 0 ? 1 : 0);
             }
         });
-        self.ui.rewardList.repeatY = listData.length;
+        self.ui.rewardList.vScrollBarSkin = '';
         self.ui.rewardList.array = listData;
     }
     onUpdateFriendList() {
@@ -9963,7 +10010,7 @@ class NoviceManager extends EventDispatcher {
             if (this.ui) {
                 this.ui.btnReturnNovice.off(Laya.Event.CLICK, this, this.__onCompleteNovice);
                 this.ui && Laya.Tween.clearAll(this.ui.imgFinger);
-                this.ui.destroy();
+                this.ui.removeSelf();
             }
             this.offAll();
             this.recoverTargets();
@@ -10210,9 +10257,8 @@ class HallManager extends Laya.EventDispatcher {
                 HttpManager.Instance.requestStagePrizeDiamond(lastStage, diamond, essence, (_res) => {
                     let stage = _res;
                     if (stage > 0) {
-                        ViewMgr.Ins.open(ViewConst.ClearanceRewardView, () => {
-                            this._hall.showStagePrize(HallManager.Instance.hallData.stagePrizeList.length > 0);
-                        }, stage, isDouble);
+                        ViewMgr.Ins.open(ViewConst.ClearanceRewardView, null, stage, isDouble);
+                        this._hall.showStagePrize(HallManager.Instance.hallData.stagePrizeList.length > 0);
                         HttpManager.Instance.requestDiamondData();
                         HttpManager.Instance.requestEssenceData();
                     }
@@ -10434,9 +10480,6 @@ class HallScene extends ui.hall.HallSceneUI {
                 PlayerManager.Instance.Info.wxUserInfo = Laya.Browser.window.wxUserInfo;
             }
         });
-        Laya.timer.once(1200, this, () => {
-            self.showDaySignView();
-        });
         if (!NoviceManager.isComplete) {
             M.novice.on(NoviceEvent.ACTIVATE_TARGET, self, (eventParam) => {
                 if (eventParam === NoviceTarget.QUICK_PURCHASE_MONSTER) {
@@ -10515,6 +10558,12 @@ class HallScene extends ui.hall.HallSceneUI {
         HttpManager.Instance.requestAnnouncement();
         MessageUtils.showMsgTips("");
         HallManager.Instance.checkIsFreeLottery();
+        Laya.timer.once(1200, this, () => {
+            // self.showDaySignView();
+            if (!M.novice.isRunning) {
+                M.more.show();
+            }
+        });
     }
     /** 初始化用户数据 */
     initUserData() {
@@ -12209,7 +12258,7 @@ class LuckPrizeItemView extends BaseView {
                     this.showDiamond(this.datas[0].name, this.datas[0].num);
                     break;
                 case 3: //少量金币
-                    this.showGold(this.getGold() * 1.5);
+                    this.showGold(this.getGold() * 2);
                     break;
                 case 4: //大量精华
                     this.showEssence(this.datas[0].name, this.datas[0].num);
@@ -12218,7 +12267,7 @@ class LuckPrizeItemView extends BaseView {
                     this.showDiamond(this.datas[0].name, this.datas[0].num);
                     break;
                 case 7: //大量金币
-                    this.showGold(this.getGold() * 3);
+                    this.showGold(this.getGold() * 5);
                     break;
                 case 8: //少量精华
                     this.showEssence(this.datas[0].name, this.datas[0].num);
@@ -12254,11 +12303,15 @@ class LuckPrizeItemView extends BaseView {
         HttpManager.Instance.requestEssenceData();
     }
     getGold() {
-        let monsterType = userData.isEvolution() ? 2 : 1;
-        let monsterInfo = BattleManager.Instance.getUnLockMonster(monsterType, userData.getCarLevel());
-        if (monsterInfo) {
-            let curPrice = BattleManager.Instance.getMonsterPrice(monsterInfo.buyPrice, userData.queryBuyRecord(monsterInfo.id));
-            return curPrice;
+        // let monsterType: number = userData.isEvolution() ? 2 : 1;
+        // let monsterInfo = BattleManager.Instance.getUnLockMonster(monsterType, userData.getCarLevel());
+        // if (monsterInfo) {
+        //     let curPrice = BattleManager.Instance.getMonsterPrice(monsterInfo.buyPrice, userData.queryBuyRecord(monsterInfo.id));
+        //     return curPrice;
+        // }
+        let stagePrizeCfg = GlobleData.getData(GlobleData.BarrierRewardVO, HallManager.Instance.hallData.passStage);
+        if (stagePrizeCfg) {
+            return BattleManager.Instance.getBarrierRewardToGold(HallManager.Instance.hallData.passStage, MathUtils.parseStringNum(stagePrizeCfg.gold));
         }
         return 0;
     }
@@ -12896,8 +12949,12 @@ class MoreViewListItem extends Laya.Component {
                     platform.navigateToMiniProgram({
                         appId: this._vo.appId,
                         path: this._vo.pageQuery,
+                        success(res) {
+                            console.log("小程序跳转成功", res);
+                            HttpManager.Instance.requestAdvertLog("allow_" + this._vo.appId);
+                        }
                     });
-                    HttpManager.Instance.requestShareAdFinish("allow_" + this._vo.appId);
+                    HttpManager.Instance.requestAdvertLog("click_" + this._vo.appId);
                 }
                 else {
                     platform.navigateToMiniProgram({
@@ -12905,11 +12962,15 @@ class MoreViewListItem extends Laya.Component {
                         extraData: {
                             fromQuestMarket: true,
                             userId: userData.userId,
-                            questId: this._vo.questId
+                            questId: this._vo.questId,
+                            success(res) {
+                                console.log("小程序跳转成功", res);
+                                HttpManager.Instance.requestAdvertLog("allow_" + this._vo.appId);
+                            }
                         },
                         envVersion: "develop"
                     });
-                    HttpManager.Instance.requestShareAdFinish("allow_" + this._vo.appId);
+                    HttpManager.Instance.requestAdvertLog("click_" + this._vo.appId);
                 }
             }
             else {
@@ -13395,6 +13456,7 @@ class ClearanceRewardView extends BaseView {
             let cfgData = itemArray[index];
             let rewardItem = ObjectPool.pop(RewardItem, "RewardItem");
             rewardItem.create(cfgData.img, cfgData.value);
+            rewardItem.x = index;
             self.ui.hbox.addChild(rewardItem);
         }
     }
@@ -13424,7 +13486,6 @@ class ClearanceRewardView extends BaseView {
         super.close(param);
         let self = this;
         DisplayUtils.removeAllChildren(self.ui.hbox);
-        self.callback && self.callback();
     }
 }
 //# sourceMappingURL=ClearanceRewardView.js.map
@@ -13586,6 +13647,7 @@ class ResultView extends ui.settlement.ResultViewUI {
                     let cfgData = itemArray[index];
                     let rewardItem = ObjectPool.pop(RewardItem, "RewardItem");
                     rewardItem.create(cfgData.img, cfgData.value);
+                    rewardItem.x = index;
                     this.hbox.addChild(rewardItem);
                 }
             }
@@ -13951,11 +14013,11 @@ class StrengthenView extends BaseView {
                                         bone.completeBack = () => {
                                             bone.destroy();
                                         };
-                                        StrengthenManager.Instance.checkRedPoint();
                                         if (_res.hasOwnProperty("essence")) {
                                             userData.setEssence(MathUtils.parseInt(_res.essence));
                                             that.setEssence(M.player.Info.userEssence);
                                         }
+                                        StrengthenManager.Instance.checkRedPoint();
                                     }
                                 });
                             }, [btnStrengthen, { skillId: skillId, price: price }]);
@@ -14133,7 +14195,6 @@ class TaskView extends BaseView {
             return;
         }
         self.ui.taskItemList.vScrollBarSkin = '';
-        self.ui.taskItemList.repeatY = 4;
         self.ui.taskItemList.array = listData;
         self.ui.taskItemList.refresh();
         self.ui.taskItemList.renderHandler = new Laya.Handler(self, (cell, index) => {
@@ -14242,7 +14303,6 @@ class TaskView extends BaseView {
             return;
         }
         self.ui.achiItemList.vScrollBarSkin = '';
-        self.ui.achiItemList.repeatY = 4;
         self.ui.achiItemList.array = listData;
         self.ui.achiItemList.refresh();
         self.ui.achiItemList.renderHandler = new Laya.Handler(self, (cell, index) => {
@@ -15663,6 +15723,8 @@ class DebugPlatform {
         return __awaiter(this, void 0, void 0, function* () { });
     }
     getLaunchOptionsSync() { }
+    onShareAppMessage(callback) { }
+    ;
     getShareInfo(shareTicket, callback, failCallback) {
         return __awaiter(this, void 0, void 0, function* () { });
     }

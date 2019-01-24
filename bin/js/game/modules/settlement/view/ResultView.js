@@ -156,6 +156,7 @@ class ResultView extends ui.settlement.ResultViewUI {
                     let cfgData = itemArray[index];
                     let rewardItem = ObjectPool.pop(RewardItem, "RewardItem");
                     rewardItem.create(cfgData.img, cfgData.value);
+                    rewardItem.x = index;
                     this.hbox.addChild(rewardItem);
                 }
             }

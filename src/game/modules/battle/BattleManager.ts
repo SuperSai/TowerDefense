@@ -94,13 +94,14 @@ class BattleManager extends Laya.EventDispatcher {
         //触发攻击技能
         let petButtle: Bullet = ObjectPool.pop(Bullet, "Buttle");
         petButtle.alpha = 1;
+        petButtle.pivotX = 20;
         petButtle.scaleX = petButtle.scaleY = 0.6;
         self._hallScene.roadView.addChild(petButtle);
         petButtle.zOrder = monster.zOrder + 1;
         petButtle.setBulletType(pet);
         let effectPos: Laya.Point = self._hallScene.roadView.globalToLocal(pet.localToGlobal(new Laya.Point(0, 0)));
         petButtle.pos(effectPos.x + 20, effectPos.y + 30);
-        petButtle.rotation = ObjectUtils.getAngle(effectPos, { x: monster.x, y: monster.y });
+        petButtle.rotation = MathUtils.computeAngle({ x: petButtle.x, y: petButtle.y }, { x: monster.x, y: monster.y });//  ObjectUtils.getAngle(effectPos, { x: monster.x, y: monster.y });
         petButtle.attackTarget(monster, (_skillId: number) => {
             let skillCfg: any = null;
             let isDoubleHurt: boolean = false;
@@ -552,7 +553,7 @@ class BattleManager extends Laya.EventDispatcher {
         let barriers = self.getBarrierSectionConfig(id);
         if (barriers) {
             barriers.forEach(element => {
-                income += element.earnings * 10;
+                income += element.earnings * 6;
             });
         }
         self._model.barrierIncomeReordDic.Add(id, income);
@@ -571,7 +572,7 @@ class BattleManager extends Laya.EventDispatcher {
 
     /** 关卡奖励金币换算 */
     public getBarrierRewardToGold(stage: number, gold: number): number {
-        return gold * this.getBarrierIncome(stage) * 0.04;
+        return gold * this.getBarrierIncome(stage) * 0.8;
     }
 
     set hallScene(value: HallScene) { this._hallScene = value; }

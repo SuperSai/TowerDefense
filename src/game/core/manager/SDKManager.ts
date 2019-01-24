@@ -198,10 +198,11 @@ class SDKManager {
                 path: userData.miniPagePath(),
                 success(res) {
                     console.log("小程序跳转成功", res);
+                    HttpManager.Instance.requestAdvertLog("allow_" + appId);
                 }
             });
             //小程序跳转次数统计
-            HttpManager.Instance.requestShareAdFinish("minipro_" + appId);
+            HttpManager.Instance.requestAdvertLog("click_" + appId);
         } else {
             if (Laya.Browser.onMiniGame) {
                 Laya.Browser.window.wx.showModal({

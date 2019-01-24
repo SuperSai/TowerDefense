@@ -186,9 +186,13 @@ P 50FE6CDD invite_btn.png
 R 94571A2D item_bg.png
 P 10F98E01 reward_bg.png
 D images/levelHero
-P CB77502B levelHero_arrow.png
-P 75B83E5F levelHero_level_icon.png
+P 3DEF3161 levelHero_arrow.png
+P 5566A432 levelHero_base.png
+P EFDFDB7E levelHero_curr.png
+P 05697A9A levelHero_level_bg.png
 P CE6B89CF levelHero_name_bg.png
+P 8112B6EA levelHero_next.png
+R 054E355A levelHero_num.png
 P 95055F64 levelHero_titel.png
 D images/luckLottery
 P 6111854E luck_1.png

@@ -58,7 +58,7 @@ class FriendConcurView extends BaseView {
                 FriendConcurView.redPointNum += (data.p_status == 0 ? 1 : 0);
             }
         });
-        self.ui.rewardList.repeatY = listData.length;
+        self.ui.rewardList.vScrollBarSkin = '';
         self.ui.rewardList.array = listData;
     }
     onUpdateFriendList() {

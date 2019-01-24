@@ -2,7 +2,7 @@
     "x":0,
     "type":"View",
     "selectedBox":5,
-    "selecteID":4,
+    "selecteID":29,
     "props":{"sceneWidth":600,"sceneHeight":400,"sceneColor":"#000000","sceneBg":"laya/views/friendConcur/FriendConcur.jpg"},
     "nodeParent":-1,
     "label":"View",
@@ -82,7 +82,7 @@
                 {
                     "x":30,
                     "type":"List",
-                    "props":{"y":149,"x":49,"width":617,"var":"rewardList","spaceY":5,"repeatY":1,"repeatX":1,"height":636},
+                    "props":{"y":149,"x":49,"width":617,"var":"rewardList","spaceY":5,"repeatX":1,"height":636},
                     "nodeParent":5,
                     "label":"List(rewardList)",
                     "isOpen":true,

@@ -32,6 +32,7 @@ class ClearanceRewardView extends BaseView {
             let cfgData = itemArray[index];
             let rewardItem: RewardItem = ObjectPool.pop(RewardItem, "RewardItem");
             rewardItem.create(cfgData.img, cfgData.value);
+            rewardItem.x = index;
             self.ui.hbox.addChild(rewardItem);
         }
     }
@@ -64,6 +65,5 @@ class ClearanceRewardView extends BaseView {
         super.close(param);
         let self = this;
         DisplayUtils.removeAllChildren(self.ui.hbox);
-        self.callback && self.callback();
     }
 }
