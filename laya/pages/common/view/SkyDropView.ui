@@ -141,13 +141,14 @@
                     "props":{"y":401,"x":358,"var":"hbox2","anchorY":0.5,"anchorX":0.5,"align":"middle"},
                     "nodeParent":24,
                     "label":"HBox(hbox2)",
-                    "isOpen":false,
+                    "isOpen":true,
                     "isDirectory":true,
                     "isAniNode":true,
                     "hasChild":true,
                     "compId":22,
                     "child":[
                         {
+                            "x":45,
                             "type":"Label",
                             "props":{"y":2,"x":196,"text":"秒","fontSize":40,"font":"SimHei","color":"#884a00","bold":true},
                             "nodeParent":22,
@@ -161,6 +162,7 @@
                                 ]
                         },
                         {
+                            "x":45,
                             "type":"Label",
                             "props":{"text":"持续","fontSize":40,"font":"SimHei","color":"#884a00","bold":true},
                             "nodeParent":22,
@@ -173,8 +175,9 @@
                                 ]
                         },
                         {
+                            "x":45,
                             "type":"Label",
-                            "props":{"y":0,"x":81.5625,"width":68.578125,"var":"lblDuration","text":"180","height":44,"fontSize":44,"font":"SimHei","color":"#eb6626","bold":true,"align":"center"},
+                            "props":{"y":0,"x":81.5625,"var":"lblDuration","text":"180","fontSize":44,"font":"SimHei","color":"#eb6626","bold":true,"align":"center"},
                             "nodeParent":22,
                             "label":"Label(lblDuration)",
                             "isDirectory":false,

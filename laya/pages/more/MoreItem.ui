@@ -2,7 +2,7 @@
     "x":0,
     "type":"View",
     "selectedBox":1,
-    "selecteID":16,
+    "selecteID":4,
     "props":{"sceneWidth":750,"sceneHeight":1334,"sceneColor":"#000000","sceneBg":"laya/views/more/MoreItem.JPG"},
     "nodeParent":-1,
     "label":"View",
@@ -186,7 +186,7 @@
             "props":{"y":35,"x":420,"width":180,"var":"btnTry","stateNum":"1","skin":"images/component/frame_btn_small_blue.png","height":60},
             "nodeParent":1,
             "label":"Button(btnTry)",
-            "isOpen":false,
+            "isOpen":true,
             "isDirectory":true,
             "isAniNode":true,
             "hasChild":true,
@@ -234,7 +234,6 @@
             "compId":20,
             "child":[
                 {
-                    "x":30,
                     "type":"Script",
                     "source":"laya/pages/ScaleAnimScript.script",
                     "props":{},
@@ -248,7 +247,6 @@
                         ]
                 },
                 {
-                    "x":30,
                     "type":"Label",
                     "props":{"y":9,"x":15,"width":137,"text":"开始游戏","strokeColor":"#8d5d2e","stroke":3,"height":30,"fontSize":30,"color":"#ffffff","bold":true,"align":"center"},
                     "nodeParent":20,
@@ -260,7 +258,7 @@
                     "child":[
                         ]
                 }],
-            "$HIDDEN":false
+            "$HIDDEN":true
         },
         {
             "x":15,
@@ -287,7 +285,7 @@
                         ],
                     "$HIDDEN":false
                 }],
-            "$HIDDEN":false
+            "$HIDDEN":true
         },
         {
             "x":15,

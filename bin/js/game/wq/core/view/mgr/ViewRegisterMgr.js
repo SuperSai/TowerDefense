@@ -25,6 +25,7 @@ class ViewRegisterMgr {
         ViewMgr.Ins.register(ViewConst.AchiRewardView, new AchiRewardView());
         ViewMgr.Ins.register(ViewConst.AccelerateTipsView, new AccelerateTipsView());
         ViewMgr.Ins.register(ViewConst.EvolutionLevelView, new EvolutionLevelView());
+        ViewMgr.Ins.register(ViewConst.PlayCourtesyView, new PlayCourtesyView());
     }
     static get Instance() {
         if (!ViewRegisterMgr._instance) {

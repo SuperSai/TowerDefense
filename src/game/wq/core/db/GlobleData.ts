@@ -133,6 +133,7 @@ class GlobleData extends Laya.EventDispatcher {
      */
     public static getDataByFilter(type: string, filterType: any, filterValue: any): any[] {
         let dic: TSDictionary<number, any> = GlobleData.AllCacheData.TryGetValue(type);
+        if (dic == null) return [];
         let filterd: any[] = dic.TryGetListByCondition((bean) => bean[filterType] == filterValue);
         return filterd;
     }
@@ -140,13 +141,14 @@ class GlobleData extends Laya.EventDispatcher {
     /** 获取对应表的所有数据 */
     public static getAllValue(type: string): Array<any> {
         let dic: TSDictionary<number, any> = GlobleData.AllCacheData.TryGetValue(type);
-        return dic.getValues();
+        return dic == null ? [] : dic.getValues();
     }
     /**
      * 查找对应条件的数据
      */
     public static getDataByCondition(type: string, value: (value: any) => boolean): Array<any> {
         let dic: TSDictionary<number, any> = GlobleData.AllCacheData.TryGetValue(type);
+        if (dic == null) return [];
         let arr: any[] = dic.TryGetListByCondition(value);
         return arr;
     }

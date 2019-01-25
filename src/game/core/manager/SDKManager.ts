@@ -191,18 +191,18 @@ class SDKManager {
      * @param {string} appId
      * @memberof SDKManager
      */
-    public navigateToMiniProgram(appId: string): void {
+    public navigateToMiniProgram(appId: string, pageQuery: string = userData.miniPagePath()): void {
         if (systemInfo.checkVersion(WXSDKVersion.NAVIGATE_TO_MINI_PROGRAM)) {
             platform.navigateToMiniProgram({
                 appId: appId,
-                path: userData.miniPagePath(),
+                path: pageQuery,
                 success(res) {
                     console.log("小程序跳转成功", res);
-                    HttpManager.Instance.requestAdvertLog("allow_" + appId);
+                    HttpManager.Instance.requestAdvertLog("into", appId);
                 }
             });
             //小程序跳转次数统计
-            HttpManager.Instance.requestAdvertLog("click_" + appId);
+            HttpManager.Instance.requestAdvertLog("click", appId);
         } else {
             if (Laya.Browser.onMiniGame) {
                 Laya.Browser.window.wx.showModal({

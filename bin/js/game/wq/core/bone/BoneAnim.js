@@ -31,11 +31,16 @@ class BoneAnim extends Laya.Sprite {
         HttpManager.Instance.requestSaveLog("@David 龙骨动画路径：" + this._aniPath + " - 创建失败！");
     }
     parseComplete() {
-        //创建模式为1，可以启用换装
-        this._armature = this._factory.buildArmature(1);
-        this.addChild(this._armature);
-        this._armature.on(Laya.Event.STOPPED, this, this.completeHandler);
-        this.play();
+        if (Laya.loader.getRes(this._aniPath)) {
+            //创建模式为1，可以启用换装
+            this._armature = this._factory.buildArmature(1);
+            this.addChild(this._armature);
+            this._armature.on(Laya.Event.STOPPED, this, this.completeHandler);
+            this.play();
+        }
+        else {
+            this.destroy();
+        }
     }
     completeHandler() {
         if (this._armature && !this._isLoop) {

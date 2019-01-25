@@ -107,19 +107,23 @@ class GlobleData extends Laya.EventDispatcher {
      */
     static getDataByFilter(type, filterType, filterValue) {
         let dic = GlobleData.AllCacheData.TryGetValue(type);
+        if (dic == null)
+            return [];
         let filterd = dic.TryGetListByCondition((bean) => bean[filterType] == filterValue);
         return filterd;
     }
     /** 获取对应表的所有数据 */
     static getAllValue(type) {
         let dic = GlobleData.AllCacheData.TryGetValue(type);
-        return dic.getValues();
+        return dic == null ? [] : dic.getValues();
     }
     /**
      * 查找对应条件的数据
      */
     static getDataByCondition(type, value) {
         let dic = GlobleData.AllCacheData.TryGetValue(type);
+        if (dic == null)
+            return [];
         let arr = dic.TryGetListByCondition(value);
         return arr;
     }

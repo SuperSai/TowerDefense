@@ -42,11 +42,15 @@ class BoneAnim extends Laya.Sprite {
     }
 
     private parseComplete(): void {
-        //创建模式为1，可以启用换装
-        this._armature = this._factory.buildArmature(1);
-        this.addChild(this._armature);
-        this._armature.on(Laya.Event.STOPPED, this, this.completeHandler);
-        this.play();
+        if (Laya.loader.getRes(this._aniPath)) {
+            //创建模式为1，可以启用换装
+            this._armature = this._factory.buildArmature(1);
+            this.addChild(this._armature);
+            this._armature.on(Laya.Event.STOPPED, this, this.completeHandler);
+            this.play();
+        } else {
+            this.destroy();
+        }
     }
 
     private completeHandler(): void {

@@ -48,5 +48,7 @@ var ViewConst;
     ViewConst[ViewConst["AccelerateTipsView"] = 10023] = "AccelerateTipsView";
     /** 守卫升级动画界面 */
     ViewConst[ViewConst["EvolutionLevelView"] = 10024] = "EvolutionLevelView";
+    /** 试玩有礼界面 */
+    ViewConst[ViewConst["PlayCourtesyView"] = 10025] = "PlayCourtesyView";
 })(ViewConst || (ViewConst = {}));
 //# sourceMappingURL=ViewConst.js.map

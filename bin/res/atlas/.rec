@@ -233,6 +233,26 @@ P 084B8E3A finger.png
 P EB352E94 interact_circle.png
 D images/offlineReward
 R 21CFCE99 title.png
+D images/playCourtesy
+R E970B076 app_icon_bselsfk.png
+R B5374D45 app_icon_cgmm.png
+R E41D0FA6 app_icon_djj.png
+R F7CACFBE app_icon_gslyl.png
+R B3D57CEE app_icon_hlnc.png
+R DB9550EE app_icon_jdld2.png
+R 6A483DD6 app_icon_qmaxc.png
+R E2A17088 app_icon_ycy.png
+P DC1AE79C custom_service.png
+P 32FF997B playCourtesy_bg.png
+P A6F3D373 playCourtesy_btn_1.png
+P 20090776 playCourtesy_btn_2.png
+P C5D8CBA7 playCourtesy_btn_3.png
+P 111B2B83 playCourtesy_icon_bg.png
+P E68AAF3D playCourtesy_icon_bg1.png
+P 769EE259 playCourtesy_title.png
+P 9BC7BF56 playCourtesy_title_bg.png
+P C1AD1658 sound_closed.png
+P 4487D80E sound_opened.png
 D images/quest
 P 5EE9F3DA btn_obtain.png
 P 634234AE btn_obtained.png

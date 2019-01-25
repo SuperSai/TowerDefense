@@ -54,6 +54,8 @@ class UserData {
         this.skillStrengthenJsonRecord = ''; //防止提交相同数据给服务器
         this.lastHeartBeatQueryObj = {}; //防止提交相同心跳数据给服务器
         this.menuRedPointCount = 0;
+        /** 是否显示试玩有礼 */
+        this.showPlayCourtesy = true;
         this.statistics = new UserStatistics();
         //初始化车位
         for (let index = 0; index < 20; index++) {
@@ -849,7 +851,7 @@ class UserData {
                     PlayerManager.Instance.Info.dayGetGoldCount = self.shareAdTimes.share_no_money_num;
                     self.showShareGiftRedPoint = res.share_reward_flag;
                     self.showDailySignRedPoint = res.sign_flag;
-                    // that.showCarShopRedPoint = res.car_shop_flag;
+                    self.showPlayCourtesy = res.advert_popup;
                     self.showTaskRedPoint = res.task_flag;
                     self.showLuckPrizeRedPoint = res.roulette_flag;
                     self.showFollowRedPoint = res.subscribe_flag;

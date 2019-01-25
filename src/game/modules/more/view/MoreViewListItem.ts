@@ -110,10 +110,10 @@ class MoreViewListItem extends Laya.Component {
                         path: this._vo.pageQuery,
                         success(res) {
                             console.log("小程序跳转成功", res);
-                            HttpManager.Instance.requestAdvertLog("allow_" + this._vo.appId);
+                            HttpManager.Instance.requestAdvertLog("into", this._vo.appId);
                         }
                     });
-                    HttpManager.Instance.requestAdvertLog("click_" + this._vo.appId);
+                    HttpManager.Instance.requestAdvertLog("click", this._vo.appId);
                 } else {
                     platform.navigateToMiniProgram({
                         appId: this._vo.appId,
@@ -123,12 +123,12 @@ class MoreViewListItem extends Laya.Component {
                             questId: this._vo.questId,
                             success(res) {
                                 console.log("小程序跳转成功", res);
-                                HttpManager.Instance.requestAdvertLog("allow_" + this._vo.appId);
+                                HttpManager.Instance.requestAdvertLog("into", this._vo.appId);
                             }
                         },
                         envVersion: "develop"
                     });
-                    HttpManager.Instance.requestAdvertLog("click_" + this._vo.appId);
+                    HttpManager.Instance.requestAdvertLog("click", this._vo.appId);
                 }
             } else {
                 if (Laya.Browser.onMiniGame) {

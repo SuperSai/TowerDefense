@@ -148,7 +148,6 @@ class HttpManager {
     }
     /** 请求钻石升级 */
     requestUpdateKingLevel(_id, _level, _price, _callback = null) {
-        let that = this;
         let dataString = 'type=' + _id + '&value=' + _level + '&price=' + _price + '&unit=' + "diamond";
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
@@ -934,15 +933,32 @@ class HttpManager {
         });
     }
     /** 互推位操作日志 */
-    requestAdvertLog(type) {
-        let dataString = 'type=' + type;
+    requestAdvertLog(type, appId, callback = null) {
+        let dataString = 'type=' + type + "&appId=" + appId;
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
-            url: 'v3/advert/log',
+            url: 'v4/advert/log',
             method: 'Post',
             data: dataString,
             success: function (res) {
                 console.log(res);
+                if (res.result) {
+                    callback && callback(res);
+                }
+            },
+            fail: function (res) {
+                console.log(res);
+            }
+        });
+    }
+    /** 拉取积分墙数据 */
+    requestPlayCourtesy(callback) {
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+        HttpReqHelper.request({
+            url: 'v4/advert/info',
+            success: function (res) {
+                console.log("@David 拉取积分墙数据", res);
+                callback && callback(res);
             },
             fail: function (res) {
                 console.log(res);

@@ -109,10 +109,10 @@ class EffectUtils extends Laya.Sprite {
         let bloodClip: Laya.FontClip = poolData.obj;
         if (!poolData.isPool) {
             bloodClip.mouseEnabled = bloodClip.mouseThrough = false;
-            bloodClip.skin = "images/fontImg/blood_num.png";
             bloodClip.sheet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWSYZT";
             bloodClip.zOrder = parentNode.zOrder + 1;
         }
+        bloodClip.skin = "images/fontImg/blood_num.png";
         bloodClip.alpha = 1;
         bloodClip.value = content;
         if (pos) {
@@ -412,6 +412,13 @@ class EffectUtils extends Laya.Sprite {
             sprite = null;
             callBack && callBack();
         }))
+    }
+
+    static doGoodsFlyEffect(obj: Laya.Node, endPos: Laya.Point, callBack: Function, duration: number = 300): void {
+        Laya.Tween.to(obj, { x: endPos.x, y: endPos.y }, duration, null, Handler.create(this, () => {
+            Laya.Tween.clearTween(obj);
+            callBack && callBack();
+        }));
     }
 }
 

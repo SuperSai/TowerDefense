@@ -47,4 +47,6 @@ enum ViewConst {
     AccelerateTipsView,
     /** 守卫升级动画界面 */
     EvolutionLevelView,
+    /** 试玩有礼界面 */
+    PlayCourtesyView,
 }

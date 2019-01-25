@@ -163,11 +163,11 @@ class HallScene extends ui.hall.HallSceneUI {
     HallManager.Instance.checkIsFreeLottery();
 
     Laya.timer.once(1200, this, () => {
-      // self.showDaySignView();
-      if (!M.novice.isRunning) {
-        M.more.show();
+      if (!M.novice.isRunning && userData.showPlayCourtesy) {
+        ViewMgr.Ins.open(ViewConst.PlayCourtesyView);
       }
     });
+    this.showMenu(false);
   }
 
   /** 初始化用户数据 */
@@ -288,7 +288,8 @@ class HallScene extends ui.hall.HallSceneUI {
     self.btn_welfare.on(Laya.Event.CLICK, self, self.onShowWelfareView);//福利界面
     self.btnInvitation.on(Laya.Event.CLICK, self, self.onShowInvitation);//邀请界面
     this.btnMore.on(Laya.Event.CLICK, this, () => {
-      M.more.show();
+      // M.more.show();
+      ViewMgr.Ins.open(ViewConst.PlayCourtesyView);
     });
     if (self.btnTask) self.btnTask.on(Laya.Event.CLICK, self, self.showTaskView);
     if (self.surpassView) self.surpassView.on(Laya.Event.CLICK, self, self.onFriendRanking);
@@ -390,9 +391,11 @@ class HallScene extends ui.hall.HallSceneUI {
     let self = this;
     let monsterType: number = userData.isEvolution() ? 2 : 1;
     HallManager.Instance.hallData.buyMonsterType = monsterType;
+    let monsterInfo = BattleManager.Instance.getUnLockMonster(monsterType, userData.getCarLevel());
+    let curPrice = BattleManager.Instance.getMonsterPrice(monsterInfo.buyPrice, userData.queryBuyRecord(monsterInfo.id));
     if (!isUpdateGold) {
       if (userData.getCarLevel() > 8) {
-        if (this._monsterLevel <= Math.max(1, (userData.getCarLevel() - 3))) {
+        if (this._monsterLevel <= Math.max(1, (userData.getCarLevel() - 3)) || M.player.Info.userMoney >= curPrice) {
           this._monsterLevel = userData.getCarLevel();
         } else {
           this._monsterLevel--;
@@ -401,7 +404,7 @@ class HallScene extends ui.hall.HallSceneUI {
         this._monsterLevel = userData.getCarLevel();
       }
     }
-    let monsterInfo = BattleManager.Instance.getUnLockMonster(monsterType, this._monsterLevel);
+    monsterInfo = BattleManager.Instance.getUnLockMonster(monsterType, this._monsterLevel);
     let btnBuy = self.btnShopShortcut;
     if (monsterInfo && btnBuy) {
       if (HallManager.Instance.hallData.curNewMonsterId != monsterInfo.id) {
@@ -409,7 +412,7 @@ class HallScene extends ui.hall.HallSceneUI {
         btnBuy.off(Laya.Event.CLICK, self, HallManager.Instance.goldBuyHero);
         btnBuy.on(Laya.Event.CLICK, self, HallManager.Instance.goldBuyHero, [monsterInfo, btnBuy]);
       }
-      let curPrice = BattleManager.Instance.getMonsterPrice(monsterInfo.buyPrice, userData.queryBuyRecord(monsterInfo.id));
+      curPrice = BattleManager.Instance.getMonsterPrice(monsterInfo.buyPrice, userData.queryBuyRecord(monsterInfo.id));
       let imgPrice = btnBuy.getChildByName("imgPrice") as Laya.Image;
       if (imgPrice) {
         let txtPrice = imgPrice.getChildByName("txtPrice") as Laya.Label;
@@ -561,8 +564,24 @@ class HallScene extends ui.hall.HallSceneUI {
                     let skillBuff: number = userData.getSkillAdditionProbability(10);
                     let resultCoin: number = dropMoney * (1 + skillBuff + skyDropBuff);
                     let txtPos = { x: monsterSp.x - 20, y: monsterSp.y - 50 }
-                    EffectUtils.playImageTextEffect(that.roadView, "images/core/coin_40x40.png", "+" + MathUtils.bytesToSize(resultCoin), txtPos, monsterSp.zOrder + 100);
-                    that.updateGold(PlayerManager.Instance.Info.userMoney + resultCoin);
+                    let goldImg: Laya.Image = ObjectPool.pop(Laya.Image, "DropImage", "images/core/coin_40x40.png");
+                    if (goldImg) {
+                      goldImg.zOrder = monsterSp.zOrder - 2;
+                      this.roadView.addChild(goldImg);
+                      goldImg.pos(txtPos.x, txtPos.y);
+                      this.timerOnce(1500, this, () => {
+                        LayerMgr.Ins.addToLayer(goldImg, LAYER_TYPE.SCREEN_EFFECT_LAYER);
+                        let endPos: Laya.Point = PointUtils.localToGlobal(this.imgGold);
+                        EffectUtils.doGoodsFlyEffect(goldImg, endPos, () => {
+                          goldImg.removeSelf();
+                          ObjectPool.push(goldImg);
+                          that.updateGold(PlayerManager.Instance.Info.userMoney + resultCoin);
+                        })
+                      })
+                    } else {
+                      EffectUtils.playImageTextEffect(that.roadView, "images/core/coin_40x40.png", "+" + MathUtils.bytesToSize(resultCoin), txtPos, monsterSp.zOrder + 100);
+                      that.updateGold(PlayerManager.Instance.Info.userMoney + resultCoin);
+                    }
                   }
                 });
               });
@@ -938,7 +957,7 @@ class HallScene extends ui.hall.HallSceneUI {
             if (carParkSp.isSameLevel(monsterId)) {
               carParkSp.setAlpha(1);
             } else {
-              carParkSp.setAlpha(0.3);
+              carParkSp.setAlpha(0.1);
             }
           }
         }
@@ -1072,44 +1091,49 @@ class HallScene extends ui.hall.HallSceneUI {
                 HallManager.Instance.hallData.stagePrizeList.shift();
               }
               if (that.btnStagePrize) {
-                that.showStagePrize(HallManager.Instance.hallData.stagePrizeList.length > 0);
+                let isShow: boolean = HallManager.Instance.hallData.stagePrizeList
+                  && HallManager.Instance.hallData.stagePrizeList.length > 0
+                  && HallManager.Instance.hallData.stagePrizeList[0] > 0;
+                that.showStagePrize(isShow);
               }
             }
-            _nodeView.showPrizeUI(HallManager.Instance.hallData.stagePrizeList, (lastStage: number) => {
-              if (that.btnStagePrize) {
-                that.showStagePrize(HallManager.Instance.hallData.stagePrizeList.length > 0);
-              }
-              if (userData) {
-                //显示获得的奖品
-                let stagePrizeCfg: any = GlobleData.getData(GlobleData.BarrierRewardVO, lastStage);
-                if (stagePrizeCfg) {
-                  //发送奖励
-                  let bossM: number = MathUtils.parseStringNum(stagePrizeCfg.bossM);
-                  let gold: number = BattleManager.Instance.getBarrierRewardToGold(lastStage, MathUtils.parseStringNum(stagePrizeCfg.gold));
-                  let gem: number = MathUtils.parseStringNum(stagePrizeCfg.gem);
-                  HttpManager.Instance.requestStagePrizeDiamond(lastStage, gem, bossM, (_res: any) => {
-                    let stage = _res as number;
-                    if (stage > 0) {
-                      _nodeView.removeSelf();
-                      ViewMgr.Ins.open(ViewConst.ClearanceRewardView, () => {
-                        if (that.btnStagePrize.visible) {
-                          if (HallManager.Instance.hallData.stagePrizeList.length > 0) {
-                            that.showPassStageResult(HallManager.Instance.hallData.passStage, null, true);
-                          } else {
-                            that.showStagePrize(HallManager.Instance.hallData.stagePrizeList.length > 0);
+            if (that.btnStagePrize && HallManager.Instance.hallData.stagePrizeList.length > 0) {
+              _nodeView.showPrizeUI(HallManager.Instance.hallData.stagePrizeList, (lastStage: number) => {
+                if (that.btnStagePrize) {
+                  that.showStagePrize(HallManager.Instance.hallData.stagePrizeList.length > 0);
+                }
+                if (userData) {
+                  //显示获得的奖品
+                  let stagePrizeCfg: any = GlobleData.getData(GlobleData.BarrierRewardVO, lastStage);
+                  if (stagePrizeCfg) {
+                    //发送奖励
+                    let bossM: number = MathUtils.parseStringNum(stagePrizeCfg.bossM);
+                    let gold: number = BattleManager.Instance.getBarrierRewardToGold(lastStage, MathUtils.parseStringNum(stagePrizeCfg.gold));
+                    let gem: number = MathUtils.parseStringNum(stagePrizeCfg.gem);
+                    HttpManager.Instance.requestStagePrizeDiamond(lastStage, gem, bossM, (_res: any) => {
+                      let stage = _res as number;
+                      if (stage > 0) {
+                        _nodeView.removeSelf();
+                        ViewMgr.Ins.open(ViewConst.ClearanceRewardView, () => {
+                          if (that.btnStagePrize.visible) {
+                            if (HallManager.Instance.hallData.stagePrizeList.length > 0) {
+                              that.showPassStageResult(HallManager.Instance.hallData.passStage, null, true);
+                            } else {
+                              that.showStagePrize(HallManager.Instance.hallData.stagePrizeList.length > 0);
+                            }
                           }
-                        }
-                      }, stage, false);
-                      HttpManager.Instance.requestDiamondData();
-                      HttpManager.Instance.requestEssenceData();
+                        }, stage, false);
+                        HttpManager.Instance.requestDiamondData();
+                        HttpManager.Instance.requestEssenceData();
+                      }
+                    });
+                    if (gold > 0) {//金币礼包
+                      that.updateGold(PlayerManager.Instance.Info.userMoney + gold);
                     }
-                  });
-                  if (gold > 0) {//金币礼包
-                    that.updateGold(PlayerManager.Instance.Info.userMoney + gold);
                   }
                 }
-              }
-            });
+              });
+            }
           }
         }
       }, _callback, _stage);
@@ -1427,7 +1451,6 @@ class HallScene extends ui.hall.HallSceneUI {
   private menuRedPointIsShow(): void {
     let self = this;
     self.menuRedPoint.visible = userData.menuRedPointCount > 0;
-    self.showMenu(self.menuRedPoint.visible);
   }
 
   /** 刷新金币 */

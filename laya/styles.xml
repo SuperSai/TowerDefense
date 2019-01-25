@@ -54,4 +54,12 @@
    <item name="images/followReward" type="" compress="0" pack="0" quality="80" props="" picType="0" scale="0"/>
    <item name="images/followReward/followReward_btn.png" type="Image" compress="0" pack="0" quality="80" props="" picType="0" scale="0"/>
    <item name="images/fontImg/font_gongxi.png" type="Image" compress="0" pack="1" quality="80" props="" picType="0" scale="0"/>
+   <item name="images/playCourtesy/app_icon_bselsfk.png" type="Image" compress="0" pack="2" quality="80" props="" picType="0" scale="0"/>
+   <item name="images/playCourtesy/app_icon_cgmm.png" type="Image" compress="0" pack="2" quality="80" props="" picType="0" scale="0"/>
+   <item name="images/playCourtesy/app_icon_djj.png" type="Image" compress="0" pack="2" quality="80" props="" picType="0" scale="0"/>
+   <item name="images/playCourtesy/app_icon_gslyl.png" type="Image" compress="0" pack="2" quality="80" props="" picType="0" scale="0"/>
+   <item name="images/playCourtesy/app_icon_hlnc.png" type="Image" compress="0" pack="2" quality="80" props="" picType="0" scale="0"/>
+   <item name="images/playCourtesy/app_icon_jdld2.png" type="Image" compress="0" pack="2" quality="80" props="" picType="0" scale="0"/>
+   <item name="images/playCourtesy/app_icon_qmaxc.png" type="Image" compress="0" pack="2" quality="80" props="" picType="0" scale="0"/>
+   <item name="images/playCourtesy/app_icon_ycy.png" type="Image" compress="0" pack="2" quality="80" props="" picType="0" scale="0"/>
 </res>

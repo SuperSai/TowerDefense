@@ -77,6 +77,8 @@ class UserData {
     public lastHeartBeatQueryObj: any = {}; //防止提交相同心跳数据给服务器
 
     public menuRedPointCount: number = 0;
+    /** 是否显示试玩有礼 */
+    public showPlayCourtesy: boolean = true;
 
     constructor() {
         this.statistics = new UserStatistics();
@@ -885,7 +887,7 @@ class UserData {
                     PlayerManager.Instance.Info.dayGetGoldCount = self.shareAdTimes.share_no_money_num;
                     self.showShareGiftRedPoint = res.share_reward_flag;
                     self.showDailySignRedPoint = res.sign_flag;
-                    // that.showCarShopRedPoint = res.car_shop_flag;
+                    self.showPlayCourtesy = res.advert_popup;
                     self.showTaskRedPoint = res.task_flag;
                     self.showLuckPrizeRedPoint = res.roulette_flag;
                     self.showFollowRedPoint = res.subscribe_flag;
