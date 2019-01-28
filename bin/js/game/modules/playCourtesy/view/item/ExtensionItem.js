@@ -55,11 +55,15 @@ class ExtensionItem extends ui.playCourtesy.ExtensionItemUI {
     naviToApp() {
         switch (this._playStatus) {
             case 0:
-                SDKManager.Instance.navigateToMiniProgram(this._data.appid, this._data.page_query);
+                SDKManager.Instance.navigateToMiniProgram(this._data.appid, this._data.page_query, () => {
+                    ViewMgr.Ins.close(ViewConst.PlayCourtesyView);
+                });
                 break;
             case 1:
                 HttpManager.Instance.requestAdvertLog("reward", this._data.appid, () => {
+                    this._playStatus = 2;
                     this.changeBtn(2);
+                    MessageUtils.showMsgTips("试玩有礼奖励领取成功！");
                     HttpManager.Instance.requestDiamondData();
                     HttpManager.Instance.requestEssenceData();
                 });

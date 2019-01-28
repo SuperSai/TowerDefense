@@ -91,15 +91,15 @@ class EffectUtils extends Laya.Sprite {
     }
     /** 血量特效 */
     static playBloodTextEffect(parentNode, content, pos, isDoubleHurt = false) {
-        if (Math.random() < 0.5)
+        if (Math.random() < 0.6)
             return;
         let poolData = ObjectPool.popObj(Laya.FontClip, "BloodFontClip");
         let bloodClip = poolData.obj;
         if (!poolData.isPool) {
             bloodClip.mouseEnabled = bloodClip.mouseThrough = false;
             bloodClip.sheet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWSYZT";
-            bloodClip.zOrder = parentNode.zOrder + 1;
         }
+        bloodClip.zOrder = parentNode.zOrder + 1;
         bloodClip.skin = "images/fontImg/blood_num.png";
         bloodClip.alpha = 1;
         bloodClip.value = content;
@@ -113,11 +113,15 @@ class EffectUtils extends Laya.Sprite {
         parentNode.addChild(bloodClip);
         if (isDoubleHurt) {
             bloodClip.skin = "images/fontImg/crit_num.png";
-            Laya.Tween.from(bloodClip, { scaleX: 1.2, scaleY: 1.2 }, 200).to(bloodClip, { scaleX: 1, scaleY: 1, alpha: 0 }, 500, Laya.Ease.cubicInOut, Handler.create(this, () => {
-                Laya.Tween.clearTween(bloodClip);
-                bloodClip.removeSelf();
-                ObjectPool.push(bloodClip);
-            }), 200);
+            bloodClip.zOrder = parentNode.zOrder + 99;
+            ShakeUtils.Ins.shock(0, parentNode, 1);
+            Laya.Tween.to(bloodClip, { scaleX: 1.4, scaleY: 1.4 }, 200, Laya.Ease.circIn, Handler.create(this, () => {
+                Laya.Tween.to(bloodClip, { scaleX: 1, scaleY: 1, alpha: 0 }, 500, Laya.Ease.cubicInOut, Handler.create(this, () => {
+                    Laya.Tween.clearTween(bloodClip);
+                    bloodClip.removeSelf();
+                    ObjectPool.push(bloodClip);
+                }), 200);
+            }));
         }
         else {
             Laya.Tween.to(bloodClip, { y: (bloodClip.y - 70), alpha: 0 }, 2000, Laya.Ease.cubicInOut, Laya.Handler.create(this, (_bloodClip) => {

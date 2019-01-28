@@ -1041,6 +1041,92 @@ class StringUtils {
     }
 }
 //# sourceMappingURL=StringUtils.js.map
+/**
+ * 震动
+ */
+class ShakeUtils {
+    constructor() {
+        this.MAP = 0;
+        this.SPRITE = 1;
+        this.mapPoss = [new Laya.Point(0, 3), new Laya.Point(0, 0), new Laya.Point(0, -2)];
+        this.spritePoss = [new Laya.Point(5, 0), new Laya.Point(-5, 0), new Laya.Point(5, 0)];
+        this._shockLength = 0;
+        this._shockCount = 0;
+        this._rx = 0;
+        this._ry = 0;
+        this._type = 0;
+        this._repeatCount = 0;
+    }
+    destroy() {
+        this.stop();
+    }
+    shock(type = 0, target = null, repeatCount = 3) {
+        if (this._target) {
+            return;
+        }
+        this._type = type;
+        this._target = target;
+        if (this._type == this.MAP) {
+            this._shockPoss = this.mapPoss.concat();
+            this._shockLength = this._shockPoss.length;
+        }
+        else if (this._type == this.SPRITE) {
+            this._shockPoss = this.spritePoss.concat();
+            this._shockLength = this._shockPoss.length;
+        }
+        this.start(repeatCount);
+    }
+    start(num = 1) {
+        this.repeatCount = num;
+        this._shockCount = 0;
+        if (this._target) {
+            if (this._type != this.MAP) {
+                this._rx = this._target.x;
+            }
+            this._ry = this._target.y;
+            Laya.timer.frameLoop(1, this, this.onShockEnter);
+        }
+    }
+    stop() {
+        if (this._target) {
+            if (this._type != this.MAP) {
+                this._target.x = this._rx;
+            }
+            this._target.y = this._ry;
+            Laya.timer.clear(this, this.onShockEnter);
+        }
+        this._target = null;
+    }
+    onShockEnter(time) {
+        var maxCount = this._shockLength * this._repeatCount;
+        if (this._shockCount >= maxCount) {
+            this.stop();
+            return;
+        }
+        var index = this._shockCount % this._shockLength;
+        var pos = this._shockPoss[index];
+        if (this._target) {
+            if (this._type != this.MAP) {
+                this._target.x = this._rx + pos.x;
+            }
+            this._target.y = this._ry + pos.y;
+        }
+        this._shockCount++;
+    }
+    get repeatCount() {
+        return this._repeatCount;
+    }
+    set repeatCount(value) {
+        this._repeatCount = value;
+    }
+    static get Ins() {
+        if (!ShakeUtils._instance) {
+            ShakeUtils._instance = new ShakeUtils();
+        }
+        return ShakeUtils._instance;
+    }
+}
+//# sourceMappingURL=ShakeUtils.js.map
 class ResUtils {
     static loadGroup(group, onComplete, thisObject) {
         Laya.loader.load(this.combGroupList(group), Laya.Handler.create(thisObject, onComplete));
@@ -2728,7 +2814,6 @@ class HttpManager {
     }
     /** 通知服务器已领取离线收益 */
     requestNotifyServerPrize() {
-        let that = this;
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/userinfo/reward',
@@ -5182,7 +5267,7 @@ class UserData {
         return this.shareSwitchOpen;
     }
     //请求分享
-    toShare(_callback = null, _isTask = false, _isGroupShare = false, shareType = "share") {
+    toShare(_callback = null, _isTask = false, _isGroupShare = false, shareType = "share", isFail = true) {
         let that = this;
         let isTask = _isTask;
         let isGroupShare = _isGroupShare;
@@ -5208,7 +5293,7 @@ class UserData {
                 let shareData = this._shareSuccessRates[this._shareIndex];
                 let isSucces = MathUtils.rangeInt(0, 100) > shareData.fail ? true : false;
                 console.log("@David 测试分享机制：", shareData, " -- isSucces:", isSucces, " -- leaveTime:", leaveTime);
-                if (isAutoShare && leaveTime > shareData.time && isSucces) {
+                if (isAutoShare && leaveTime > shareData.time && isSucces || !isFail) {
                     that.shareFailedTimes = 0;
                     this._shareIndex++;
                     if (this._shareIndex >= this._shareSuccessRates.length) {
@@ -5336,13 +5421,19 @@ class UserData {
                 self.toShare((res) => {
                     callback && callback();
                     HttpManager.Instance.requestShareAdFinish("share_friend_concur", res);
-                }, isTask, isGroupShare, "help");
+                }, isTask, isGroupShare, "help", false);
                 break;
             case 15: //通关奖励
                 self.toShare((res) => {
                     callback && callback();
                     HttpManager.Instance.requestShareAdFinish("share_clearance_reward", res);
-                }, isTask, isGroupShare, "stage");
+                }, isTask, isGroupShare, "stage", false);
+                break;
+            case 16: //邀请好友
+                self.toShare((_res) => {
+                    callback && callback();
+                    HttpManager.Instance.requestShareAdFinish("share_other", _res);
+                }, isTask, isGroupShare, "Invaitation", false);
                 break;
             //分享无限次数
             default: {
@@ -5713,7 +5804,7 @@ class SDKManager {
      * @param {string} appId
      * @memberof SDKManager
      */
-    navigateToMiniProgram(appId, pageQuery = userData.miniPagePath()) {
+    navigateToMiniProgram(appId, pageQuery = userData.miniPagePath(), callback = null) {
         if (systemInfo.checkVersion(WXSDKVersion.NAVIGATE_TO_MINI_PROGRAM)) {
             platform.navigateToMiniProgram({
                 appId: appId,
@@ -5721,6 +5812,7 @@ class SDKManager {
                 success(res) {
                     console.log("小程序跳转成功", res);
                     HttpManager.Instance.requestAdvertLog("into", appId);
+                    callback && callback();
                 }
             });
             //小程序跳转次数统计
@@ -9452,16 +9544,21 @@ class EvolutionLevelView extends BaseView {
         this._effect.completeBack = () => {
             this._effect.armature.paused();
         };
+        this.addChild(this._effect);
+        this.ui.txt_level.value = this.datas[0];
         this.timerOnce(1000, this, () => {
             this.ui.effectLight.visible = true;
             this.ui.txt_name.visible = true;
             this.ui.txt_level.visible = true;
+            this.timerOnce(3000, this, this.removeView);
         });
-        this.addChild(this._effect);
-        this.ui.txt_level.value = this.datas[0];
+    }
+    removeView() {
+        ViewMgr.Ins.close(ViewConst.EvolutionLevelView);
     }
     close(...param) {
         super.close(param);
+        this.clearTimer(this, this.removeView);
         if (this._effect)
             this._effect.destroy();
         this._effect = null;
@@ -9685,11 +9782,11 @@ class FollowRewardView extends BaseView {
         //按钮事件
         that.ui.btnExit.on(Laya.Event.CLICK, that, that.onClickExit);
         that.ui.btnGet.on(Laya.Event.CLICK, that, that.onClickGet);
-        that.requestOfficialAccData((_res) => {
-            if (that.ui.imgBg && _res && _res.image && (_res.image.indexOf(".png") || _res.image.indexOf(".jpg"))) {
-                that.ui.imgBg.skin = _res.image;
-            }
-        });
+        // that.requestOfficialAccData((_res: any) => {
+        //     if (that.ui.imgBg && _res && _res.image && (_res.image.indexOf(".png") || _res.image.indexOf(".jpg"))) {
+        //         that.ui.imgBg.skin = _res.image;
+        //     }
+        // });
     }
     onClickExit() {
         ViewMgr.Ins.close(ViewConst.FollowRewardView);
@@ -9700,7 +9797,6 @@ class FollowRewardView extends BaseView {
     }
     //拉取奖励
     requestPrize() {
-        let that = this;
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/subscription/rewards',
@@ -9983,8 +10079,7 @@ class NoviceManager extends EventDispatcher {
             this.ui.visible = true;
             this.ui.viewInteract.visible = false;
             this._currStepId++;
-            if (this._currGroupSheets &&
-                this._currStepId <= this._currGroupSheets.length) {
+            if (this._currGroupSheets && this._currStepId <= this._currGroupSheets.length) {
                 const sheet = this._currGroupSheets[this._currStepId - 1];
                 this._currSheet = sheet;
                 if (sheet.activateType !== 0) {
@@ -10048,6 +10143,9 @@ class NoviceManager extends EventDispatcher {
                     });
                     const skipPos = sheet.skipPos.split(",");
                     this.ui.btnReturnNovice.pos(parseInt(skipPos[0]), parseInt(skipPos[1]));
+                }
+                else {
+                    this.ui.btnReturnNovice.visible = false;
                 }
             }
             else {
@@ -10625,11 +10723,6 @@ class HallScene extends ui.hall.HallSceneUI {
         HttpManager.Instance.requestAnnouncement();
         MessageUtils.showMsgTips("");
         HallManager.Instance.checkIsFreeLottery();
-        Laya.timer.once(1200, this, () => {
-            if (!M.novice.isRunning && userData.showPlayCourtesy) {
-                ViewMgr.Ins.open(ViewConst.PlayCourtesyView);
-            }
-        });
         this.showMenu(false);
     }
     /** 初始化用户数据 */
@@ -10651,6 +10744,9 @@ class HallScene extends ui.hall.HallSceneUI {
                 const now = new Date().getTime();
                 if (now - userData.lastHeartBeatTime > 10 * Time.MIN) {
                     M.http.requestOfflinePrizeData();
+                }
+                if (!M.novice.isRunning && userData.showPlayCourtesy) {
+                    ViewMgr.Ins.open(ViewConst.PlayCourtesyView);
                 }
                 //超越好友
                 self.showSurpassView();
@@ -11030,7 +11126,7 @@ class HallScene extends ui.hall.HallSceneUI {
                                             this.roadView.addChild(goldImg);
                                             goldImg.pos(txtPos.x, txtPos.y);
                                             this.timerOnce(1500, this, () => {
-                                                LayerMgr.Ins.addToLayer(goldImg, LAYER_TYPE.SCREEN_EFFECT_LAYER);
+                                                LayerMgr.Ins.addToLayer(goldImg, LAYER_TYPE.FRAME_LAYER);
                                                 let endPos = PointUtils.localToGlobal(this.imgGold);
                                                 EffectUtils.doGoodsFlyEffect(goldImg, endPos, () => {
                                                     goldImg.removeSelf();
@@ -12185,7 +12281,7 @@ class InvitationView extends BaseView {
                 imgHead.offAll(Laya.Event.CLICK);
                 imgHead.on(Laya.Event.CLICK, imgHead, () => {
                     AnimationUtils.lockBtnStage(imgHead);
-                    userData.toShareAd(null, 0, true);
+                    userData.toShareAd(null, 16, true);
                 });
             }
             //领取
@@ -13157,11 +13253,15 @@ class ExtensionItem extends ui.playCourtesy.ExtensionItemUI {
     naviToApp() {
         switch (this._playStatus) {
             case 0:
-                SDKManager.Instance.navigateToMiniProgram(this._data.appid, this._data.page_query);
+                SDKManager.Instance.navigateToMiniProgram(this._data.appid, this._data.page_query, () => {
+                    ViewMgr.Ins.close(ViewConst.PlayCourtesyView);
+                });
                 break;
             case 1:
                 HttpManager.Instance.requestAdvertLog("reward", this._data.appid, () => {
+                    this._playStatus = 2;
                     this.changeBtn(2);
+                    MessageUtils.showMsgTips("试玩有礼奖励领取成功！");
                     HttpManager.Instance.requestDiamondData();
                     HttpManager.Instance.requestEssenceData();
                 });
@@ -13378,28 +13478,29 @@ class HeroLevelView extends ui.randomReward.HeroLevelViewUI {
             self.removeView();
         }
         else {
-            if (Math.random() < 0.5) {
-                SDKManager.Instance.showVideoAd((_res) => {
-                    if (_res && _res.isEnded || _res === undefined) {
-                        if (self._callback)
-                            self._callback();
-                        self.removeView();
-                    }
-                }, () => {
-                    userData.toShareAd(() => {
-                        if (self._callback)
-                            self._callback();
-                        self.removeView();
-                    });
-                });
-            }
-            else {
-                userData.toShareAd(() => {
-                    if (self._callback)
-                        self._callback();
-                    self.removeView();
-                });
-            }
+            // if (Math.random() < 0.5) {
+            //     SDKManager.Instance.showVideoAd((_res: any) => {
+            //         if (_res && _res.isEnded || _res === undefined) {
+            //             if (self._callback) self._callback();
+            //             self.removeView();
+            //         }
+            //     }, () => {
+            //         userData.toShareAd(() => {
+            //             if (self._callback) self._callback();
+            //             self.removeView();
+            //         });
+            //     });
+            // } else {
+            //     userData.toShareAd(() => {
+            //         if (self._callback) self._callback();
+            //         self.removeView();
+            //     });
+            // }
+            userData.toShareAd(() => {
+                if (self._callback)
+                    self._callback();
+                self.removeView();
+            });
         }
     }
     onCancelHandler() {
@@ -15035,7 +15136,6 @@ class MaskLayer extends Layer {
      * @param caller
      * @param listener
      * @param args
-     *
      * @param maskAlpha
      */
     addChildWithMaskCall(caller, listener, args = null, maskAlpha = MaskLayer.DEFAULT_MASK_ALPHA) {
@@ -15342,15 +15442,15 @@ class EffectUtils extends Laya.Sprite {
     }
     /** 血量特效 */
     static playBloodTextEffect(parentNode, content, pos, isDoubleHurt = false) {
-        if (Math.random() < 0.5)
+        if (Math.random() < 0.6)
             return;
         let poolData = ObjectPool.popObj(Laya.FontClip, "BloodFontClip");
         let bloodClip = poolData.obj;
         if (!poolData.isPool) {
             bloodClip.mouseEnabled = bloodClip.mouseThrough = false;
             bloodClip.sheet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWSYZT";
-            bloodClip.zOrder = parentNode.zOrder + 1;
         }
+        bloodClip.zOrder = parentNode.zOrder + 1;
         bloodClip.skin = "images/fontImg/blood_num.png";
         bloodClip.alpha = 1;
         bloodClip.value = content;
@@ -15364,11 +15464,15 @@ class EffectUtils extends Laya.Sprite {
         parentNode.addChild(bloodClip);
         if (isDoubleHurt) {
             bloodClip.skin = "images/fontImg/crit_num.png";
-            Laya.Tween.from(bloodClip, { scaleX: 1.2, scaleY: 1.2 }, 200).to(bloodClip, { scaleX: 1, scaleY: 1, alpha: 0 }, 500, Laya.Ease.cubicInOut, Handler.create(this, () => {
-                Laya.Tween.clearTween(bloodClip);
-                bloodClip.removeSelf();
-                ObjectPool.push(bloodClip);
-            }), 200);
+            bloodClip.zOrder = parentNode.zOrder + 99;
+            ShakeUtils.Ins.shock(0, parentNode, 1);
+            Laya.Tween.to(bloodClip, { scaleX: 1.4, scaleY: 1.4 }, 200, Laya.Ease.circIn, Handler.create(this, () => {
+                Laya.Tween.to(bloodClip, { scaleX: 1, scaleY: 1, alpha: 0 }, 500, Laya.Ease.cubicInOut, Handler.create(this, () => {
+                    Laya.Tween.clearTween(bloodClip);
+                    bloodClip.removeSelf();
+                    ObjectPool.push(bloodClip);
+                }), 200);
+            }));
         }
         else {
             Laya.Tween.to(bloodClip, { y: (bloodClip.y - 70), alpha: 0 }, 2000, Laya.Ease.cubicInOut, Laya.Handler.create(this, (_bloodClip) => {

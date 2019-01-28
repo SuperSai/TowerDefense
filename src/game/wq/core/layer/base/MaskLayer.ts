@@ -48,7 +48,6 @@ class MaskLayer extends Layer {
      * @param caller
      * @param listener
      * @param args
-     *
      * @param maskAlpha
      */
     public addChildWithMaskCall(
@@ -79,9 +78,7 @@ class MaskLayer extends Layer {
         this._customMask = customMask;
         if (this._customMask.parent) {
             this._customMaskParent = this._customMask.parent as Laya.Sprite;
-            this._customMaskIndex = this._customMask.parent.getChildIndex(
-                this._customMask
-            );
+            this._customMaskIndex = this._customMask.parent.getChildIndex(this._customMask);
         }
         this._mask.alpha = 0;
         this.addChild(caller);
@@ -136,18 +133,9 @@ class MaskLayer extends Layer {
     protected initMask(): void {
         this._mask = new Laya.Sprite();
         this._mask.graphics.clear();
-        this._mask.graphics.drawRect(
-            0,
-            0,
-            LayerManager.stageDesignWidth,
-            LayerManager.stageDesignHeight,
-            Color.BLACK
-        );
+        this._mask.graphics.drawRect(0, 0, LayerManager.stageDesignWidth, LayerManager.stageDesignHeight, Color.BLACK);
         this._mask.alpha = MaskLayer.DEFAULT_MASK_ALPHA;
-        this._mask.size(
-            LayerManager.stageDesignWidth,
-            LayerManager.stageDesignHeight
-        );
+        this._mask.size(LayerManager.stageDesignWidth, LayerManager.stageDesignHeight);
         this._mask.on(Laya.Event.CLICK, this, this.applyClick);
     }
 

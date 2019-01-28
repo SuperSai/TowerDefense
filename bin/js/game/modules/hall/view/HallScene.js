@@ -156,11 +156,6 @@ class HallScene extends ui.hall.HallSceneUI {
         HttpManager.Instance.requestAnnouncement();
         MessageUtils.showMsgTips("");
         HallManager.Instance.checkIsFreeLottery();
-        Laya.timer.once(1200, this, () => {
-            if (!M.novice.isRunning && userData.showPlayCourtesy) {
-                ViewMgr.Ins.open(ViewConst.PlayCourtesyView);
-            }
-        });
         this.showMenu(false);
     }
     /** 初始化用户数据 */
@@ -182,6 +177,9 @@ class HallScene extends ui.hall.HallSceneUI {
                 const now = new Date().getTime();
                 if (now - userData.lastHeartBeatTime > 10 * Time.MIN) {
                     M.http.requestOfflinePrizeData();
+                }
+                if (!M.novice.isRunning && userData.showPlayCourtesy) {
+                    ViewMgr.Ins.open(ViewConst.PlayCourtesyView);
                 }
                 //超越好友
                 self.showSurpassView();
@@ -561,7 +559,7 @@ class HallScene extends ui.hall.HallSceneUI {
                                             this.roadView.addChild(goldImg);
                                             goldImg.pos(txtPos.x, txtPos.y);
                                             this.timerOnce(1500, this, () => {
-                                                LayerMgr.Ins.addToLayer(goldImg, LAYER_TYPE.SCREEN_EFFECT_LAYER);
+                                                LayerMgr.Ins.addToLayer(goldImg, LAYER_TYPE.FRAME_LAYER);
                                                 let endPos = PointUtils.localToGlobal(this.imgGold);
                                                 EffectUtils.doGoodsFlyEffect(goldImg, endPos, () => {
                                                     goldImg.removeSelf();

@@ -1,8 +1,8 @@
 {
     "x":0,
     "type":"View",
-    "selectedBox":1,
-    "selecteID":39,
+    "selectedBox":39,
+    "selecteID":38,
     "props":{"sceneWidth":750,"sceneHeight":1334,"sceneColor":"#000000","sceneBg":"laya/views/evolution/LevelHeroView.jpg"},
     "nodeParent":-1,
     "label":"View",
@@ -36,6 +36,7 @@
                     "compId":2,
                     "child":[
                         ],
+                    "$LOCKED":true,
                     "$HIDDEN":false
                 },
                 {

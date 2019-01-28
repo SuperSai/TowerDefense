@@ -665,7 +665,7 @@ class UserData {
         return this.shareSwitchOpen;
     }
     //请求分享
-    private toShare(_callback: any = null, _isTask: boolean = false, _isGroupShare: boolean = false, shareType: string = "share"): void {
+    private toShare(_callback: any = null, _isTask: boolean = false, _isGroupShare: boolean = false, shareType: string = "share", isFail: boolean = true): void {
         let that = this;
         let isTask: boolean = _isTask;
         let isGroupShare: boolean = _isGroupShare;
@@ -691,7 +691,7 @@ class UserData {
                 let shareData: any = this._shareSuccessRates[this._shareIndex];
                 let isSucces: boolean = MathUtils.rangeInt(0, 100) > shareData.fail ? true : false;
                 console.log("@David 测试分享机制：", shareData, " -- isSucces:", isSucces, " -- leaveTime:", leaveTime);
-                if (isAutoShare && leaveTime > shareData.time && isSucces) {
+                if (isAutoShare && leaveTime > shareData.time && isSucces || !isFail) {
                     that.shareFailedTimes = 0;
                     this._shareIndex++;
                     if (this._shareIndex >= this._shareSuccessRates.length) {
@@ -816,13 +816,19 @@ class UserData {
                 self.toShare((res) => {
                     callback && callback();
                     HttpManager.Instance.requestShareAdFinish("share_friend_concur", res);
-                }, isTask, isGroupShare, "help");
+                }, isTask, isGroupShare, "help", false);
                 break;
             case 15: //通关奖励
                 self.toShare((res) => {
                     callback && callback();
                     HttpManager.Instance.requestShareAdFinish("share_clearance_reward", res);
-                }, isTask, isGroupShare, "stage");
+                }, isTask, isGroupShare, "stage", false);
+                break;
+            case 16://邀请好友
+                self.toShare((_res: any) => {
+                    callback && callback();
+                    HttpManager.Instance.requestShareAdFinish("share_other", _res);
+                }, isTask, isGroupShare, "Invaitation", false);
                 break;
             //分享无限次数
             default: {

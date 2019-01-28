@@ -184,7 +184,7 @@ class SDKManager {
      * @param {string} appId
      * @memberof SDKManager
      */
-    navigateToMiniProgram(appId, pageQuery = userData.miniPagePath()) {
+    navigateToMiniProgram(appId, pageQuery = userData.miniPagePath(), callback = null) {
         if (systemInfo.checkVersion(WXSDKVersion.NAVIGATE_TO_MINI_PROGRAM)) {
             platform.navigateToMiniProgram({
                 appId: appId,
@@ -192,6 +192,7 @@ class SDKManager {
                 success(res) {
                     console.log("小程序跳转成功", res);
                     HttpManager.Instance.requestAdvertLog("into", appId);
+                    callback && callback();
                 }
             });
             //小程序跳转次数统计

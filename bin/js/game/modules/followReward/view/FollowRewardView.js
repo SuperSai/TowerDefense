@@ -13,11 +13,11 @@ class FollowRewardView extends BaseView {
         //按钮事件
         that.ui.btnExit.on(Laya.Event.CLICK, that, that.onClickExit);
         that.ui.btnGet.on(Laya.Event.CLICK, that, that.onClickGet);
-        that.requestOfficialAccData((_res) => {
-            if (that.ui.imgBg && _res && _res.image && (_res.image.indexOf(".png") || _res.image.indexOf(".jpg"))) {
-                that.ui.imgBg.skin = _res.image;
-            }
-        });
+        // that.requestOfficialAccData((_res: any) => {
+        //     if (that.ui.imgBg && _res && _res.image && (_res.image.indexOf(".png") || _res.image.indexOf(".jpg"))) {
+        //         that.ui.imgBg.skin = _res.image;
+        //     }
+        // });
     }
     onClickExit() {
         ViewMgr.Ins.close(ViewConst.FollowRewardView);
@@ -28,7 +28,6 @@ class FollowRewardView extends BaseView {
     }
     //拉取奖励
     requestPrize() {
-        let that = this;
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/subscription/rewards',

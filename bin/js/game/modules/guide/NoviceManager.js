@@ -74,8 +74,7 @@ class NoviceManager extends EventDispatcher {
             this.ui.visible = true;
             this.ui.viewInteract.visible = false;
             this._currStepId++;
-            if (this._currGroupSheets &&
-                this._currStepId <= this._currGroupSheets.length) {
+            if (this._currGroupSheets && this._currStepId <= this._currGroupSheets.length) {
                 const sheet = this._currGroupSheets[this._currStepId - 1];
                 this._currSheet = sheet;
                 if (sheet.activateType !== 0) {
@@ -139,6 +138,9 @@ class NoviceManager extends EventDispatcher {
                     });
                     const skipPos = sheet.skipPos.split(",");
                     this.ui.btnReturnNovice.pos(parseInt(skipPos[0]), parseInt(skipPos[1]));
+                }
+                else {
+                    this.ui.btnReturnNovice.visible = false;
                 }
             }
             else {

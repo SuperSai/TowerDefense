@@ -31,7 +31,6 @@ class MaskLayer extends Layer {
      * @param caller
      * @param listener
      * @param args
-     *
      * @param maskAlpha
      */
     addChildWithMaskCall(caller, listener, args = null, maskAlpha = MaskLayer.DEFAULT_MASK_ALPHA) {

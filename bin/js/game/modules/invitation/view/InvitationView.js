@@ -76,7 +76,7 @@ class InvitationView extends BaseView {
                 imgHead.offAll(Laya.Event.CLICK);
                 imgHead.on(Laya.Event.CLICK, imgHead, () => {
                     AnimationUtils.lockBtnStage(imgHead);
-                    userData.toShareAd(null, 0, true);
+                    userData.toShareAd(null, 16, true);
                 });
             }
             //领取

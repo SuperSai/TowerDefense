@@ -65,24 +65,28 @@ class HeroLevelView extends ui.randomReward.HeroLevelViewUI {
             if (self._callback) self._callback();
             self.removeView();
         } else {
-            if (Math.random() < 0.5) {
-                SDKManager.Instance.showVideoAd((_res: any) => {
-                    if (_res && _res.isEnded || _res === undefined) {
-                        if (self._callback) self._callback();
-                        self.removeView();
-                    }
-                }, () => {
-                    userData.toShareAd(() => {
-                        if (self._callback) self._callback();
-                        self.removeView();
-                    });
-                });
-            } else {
-                userData.toShareAd(() => {
-                    if (self._callback) self._callback();
-                    self.removeView();
-                });
-            }
+            // if (Math.random() < 0.5) {
+            //     SDKManager.Instance.showVideoAd((_res: any) => {
+            //         if (_res && _res.isEnded || _res === undefined) {
+            //             if (self._callback) self._callback();
+            //             self.removeView();
+            //         }
+            //     }, () => {
+            //         userData.toShareAd(() => {
+            //             if (self._callback) self._callback();
+            //             self.removeView();
+            //         });
+            //     });
+            // } else {
+            //     userData.toShareAd(() => {
+            //         if (self._callback) self._callback();
+            //         self.removeView();
+            //     });
+            // }
+            userData.toShareAd(() => {
+                if (self._callback) self._callback();
+                self.removeView();
+            });
         }
     }
 

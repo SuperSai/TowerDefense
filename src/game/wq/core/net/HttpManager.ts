@@ -319,7 +319,6 @@ class HttpManager {
 
     /** 通知服务器已领取离线收益 */
     public requestNotifyServerPrize(): void {
-        let that = this;
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
             url: 'v1/userinfo/reward',

@@ -630,7 +630,7 @@ class UserData {
         return this.shareSwitchOpen;
     }
     //请求分享
-    toShare(_callback = null, _isTask = false, _isGroupShare = false, shareType = "share") {
+    toShare(_callback = null, _isTask = false, _isGroupShare = false, shareType = "share", isFail = true) {
         let that = this;
         let isTask = _isTask;
         let isGroupShare = _isGroupShare;
@@ -656,7 +656,7 @@ class UserData {
                 let shareData = this._shareSuccessRates[this._shareIndex];
                 let isSucces = MathUtils.rangeInt(0, 100) > shareData.fail ? true : false;
                 console.log("@David 测试分享机制：", shareData, " -- isSucces:", isSucces, " -- leaveTime:", leaveTime);
-                if (isAutoShare && leaveTime > shareData.time && isSucces) {
+                if (isAutoShare && leaveTime > shareData.time && isSucces || !isFail) {
                     that.shareFailedTimes = 0;
                     this._shareIndex++;
                     if (this._shareIndex >= this._shareSuccessRates.length) {
@@ -784,13 +784,19 @@ class UserData {
                 self.toShare((res) => {
                     callback && callback();
                     HttpManager.Instance.requestShareAdFinish("share_friend_concur", res);
-                }, isTask, isGroupShare, "help");
+                }, isTask, isGroupShare, "help", false);
                 break;
             case 15: //通关奖励
                 self.toShare((res) => {
                     callback && callback();
                     HttpManager.Instance.requestShareAdFinish("share_clearance_reward", res);
-                }, isTask, isGroupShare, "stage");
+                }, isTask, isGroupShare, "stage", false);
+                break;
+            case 16: //邀请好友
+                self.toShare((_res) => {
+                    callback && callback();
+                    HttpManager.Instance.requestShareAdFinish("share_other", _res);
+                }, isTask, isGroupShare, "Invaitation", false);
                 break;
             //分享无限次数
             default: {

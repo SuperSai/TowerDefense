@@ -110,10 +110,7 @@ class NoviceManager extends EventDispatcher {
             this.ui.viewInteract.visible = false;
 
             this._currStepId++;
-            if (
-                this._currGroupSheets &&
-                this._currStepId <= this._currGroupSheets.length
-            ) {
+            if (this._currGroupSheets && this._currStepId <= this._currGroupSheets.length) {
                 const sheet: NoviceGuide = this._currGroupSheets[this._currStepId - 1];
                 this._currSheet = sheet;
 
@@ -184,6 +181,8 @@ class NoviceManager extends EventDispatcher {
                     })
                     const skipPos: string[] = sheet.skipPos.split(",");
                     this.ui.btnReturnNovice.pos(parseInt(skipPos[0]), parseInt(skipPos[1]));
+                } else {
+                    this.ui.btnReturnNovice.visible = false;
                 }
             } else {
                 this.nextGroup();
