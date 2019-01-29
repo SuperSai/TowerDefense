@@ -3,7 +3,7 @@
 */
 class SkyDropView extends BaseView {
     constructor() {
-        super(LAYER_TYPE.SUB_FRAME_LAYER, ui.common.view.SkyDropViewUI);
+        super(M.layer.subFrameLayer, ui.common.view.SkyDropViewUI);
     }
     initData() {
         super.initData();

@@ -23,7 +23,7 @@ class LuckPrizeView extends BaseView {
     ]; //奖励物品列表
 
     constructor() {
-        super(LAYER_TYPE.FRAME_LAYER, ui.luckPrize.LuckPrizeViewUI);
+        super(M.layer.frameLayer, ui.luckPrize.LuckPrizeViewUI);
         this.setResources(["luckLottery"]);
     }
 

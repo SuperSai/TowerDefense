@@ -4,7 +4,7 @@
 class DiamondBuyView extends BaseView {
 
     constructor() {
-        super(LAYER_TYPE.SUB_FRAME_LAYER, ui.common.view.DiamondBuyViewUI);
+        super(M.layer.subFrameLayer, ui.common.view.DiamondBuyViewUI);
     }
 
     //初始化

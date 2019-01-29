@@ -4,7 +4,7 @@
 class ClearanceRewardView extends BaseView {
 
     constructor() {
-        super(LAYER_TYPE.SUB_FRAME_LAYER, ui.settlement.ClearanceRewardViewUI);
+        super(M.layer.subFrameLayer, ui.settlement.ClearanceRewardViewUI);
         this.setResources(["ClearanceReward"]);
     }
 

@@ -7,7 +7,7 @@ class BaseView extends Laya.View {
         super();
         this.isRemoveBanner = true;
         this._resources = null;
-        this._myParent = LayerMgr.Ins.getLayerByType($layer);
+        this._myParent = $layer;
         this._isInit = false;
         this._isShowMask = isShowMask;
         this._ui = $class;
@@ -20,14 +20,12 @@ class BaseView extends Laya.View {
     addToParent() {
         AlignUtils.setToScreenGoldenPos(this);
         if (this._isShowMask) {
-            this._myParent.maskEnabled = true;
             this._myParent.addChildWithMaskCall(this, () => {
                 this.removeFromParent();
                 this.close();
             });
         }
         else {
-            this._myParent.maskEnabled = false;
             this._myParent.addChild(this);
         }
     }

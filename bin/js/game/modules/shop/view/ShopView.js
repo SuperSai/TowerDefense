@@ -3,7 +3,7 @@
 */
 class ShopView extends BaseView {
     constructor() {
-        super(LAYER_TYPE.FRAME_LAYER, ui.shop.ShopViewUI);
+        super(M.layer.frameLayer, ui.shop.ShopViewUI);
         this.isScroll = true;
         this.setResources(["shop"]);
     }

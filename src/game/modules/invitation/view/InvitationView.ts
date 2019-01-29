@@ -3,7 +3,7 @@
 */
 class InvitationView extends BaseView {
     constructor() {
-        super(LAYER_TYPE.FRAME_LAYER, ui.invitation.InvitationViewUI);
+        super(M.layer.frameLayer, ui.invitation.InvitationViewUI);
         this.setResources(["invitation"]);
     }
 

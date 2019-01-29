@@ -3,7 +3,7 @@
 */
 class AdditionalRewardView extends BaseView {
     constructor() {
-        super(LAYER_TYPE.SUB_FRAME_LAYER, ui.randomReward.AdditionalRewardViewUI);
+        super(M.layer.subFrameLayer, ui.randomReward.AdditionalRewardViewUI);
         this.setResources(["randomReward"]);
     }
     initData() {

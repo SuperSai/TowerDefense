@@ -13,25 +13,25 @@ class LayerManager extends EventDispatcher {
 		return Laya.stage.mouseY / LayerManager.adaptScaleY;
 	}
 
-    /** 获取对象的实际舞台变形数据 */
-	public static getRealStageRect(target:Sprite):Rectangle{
-	    const loc:Point = PointUtils.localToGlobal(target);
-	    const rect:Rectangle = new Rectangle(
-	        loc.x * LayerManager.adaptScale + this.left,
-            loc.y * LayerManager.adaptScale + this.top,
-            target.width * LayerManager.adaptScale,
-            target.height * LayerManager.adaptScale);
+	/** 获取对象的实际舞台变形数据 */
+	public static getRealStageRect(target: Sprite): Rectangle {
+		const loc: Point = PointUtils.localToGlobal(target);
+		const rect: Rectangle = new Rectangle(
+			loc.x * LayerManager.adaptScale + this.left,
+			loc.y * LayerManager.adaptScale + this.top,
+			target.width * LayerManager.adaptScale,
+			target.height * LayerManager.adaptScale);
 
-        // const scaleFactor: number = LayerManager.stageDesignWidth / LayerManager.clientWidth;
-        const scaleFactor: number = Laya.stage.designWidth / Laya.Browser.clientWidth;
+		// const scaleFactor: number = LayerManager.stageDesignWidth / LayerManager.clientWidth;
+		const scaleFactor: number = Laya.stage.designWidth / Laya.Browser.clientWidth;
 
-        rect.x = Math.round(rect.x / scaleFactor);
-        rect.y = Math.round(rect.y / scaleFactor);
-        rect.width = Math.round(rect.width / scaleFactor);
-        rect.height = Math.round(rect.height / scaleFactor);
+		rect.x = Math.round(rect.x / scaleFactor);
+		rect.y = Math.round(rect.y / scaleFactor);
+		rect.width = Math.round(rect.width / scaleFactor);
+		rect.height = Math.round(rect.height / scaleFactor);
 
-        return rect;
-    }
+		return rect;
+	}
 
 	/** Laya.stage 的设计宽度，一般为人为设定 */
 	public static stageDesignWidth: number = 0;
@@ -86,6 +86,11 @@ class LayerManager extends EventDispatcher {
 	 * 主要添加工具按钮栏，活动按钮栏，功能按钮栏等各个模块的快速入口，如有聊天框一般也放在这一层。
 	 */
 	public navLayer: Layer;
+	/**
+	 * 飘物层，一般处于导航层之上。
+	 * 主要添加场景中的飞行物
+	 */
+	public flyLayer: Layer;
 	/**
 	 * 窗口层，一般处于导航层之上。
 	 * 主要添加各个功能的窗口视图。
@@ -187,6 +192,7 @@ class LayerManager extends EventDispatcher {
 		let idx: number = 0;
 		this.renderLayer = this.createLayer(idx++, "renderLayer", container);
 		this.navLayer = this.createLayer(idx++, "navLayer", container);
+		this.flyLayer = this.createLayer(idx++, "flyLayer", container);
 		this.frameLayer = this.createMaskLayer(idx++, "frameLayer", container);
 		this.subFrameLayer = this.createMaskLayer(idx++, "subFrameLayer", container);
 		this.alertLayer = this.createMaskLayer(idx++, "alertLayer", container);
@@ -198,16 +204,16 @@ class LayerManager extends EventDispatcher {
 		this.debugLayer = this.createLayer(idx++, "debugLayer", container);
 
 		for (const layer of this._layers) {
-		    layer.pos(left, top);
-		    layer.scale(adaptScale, adaptScale);
+			layer.pos(left, top);
+			layer.scale(adaptScale, adaptScale);
 		}
 	}
-	private createLayer(index: number,name: string,container: Laya.Sprite): Layer {
+	private createLayer(index: number, name: string, container: Laya.Sprite): Layer {
 		this._layers.push(container.addChild(new Layer(index, name)) as Layer);
 		return this._layers[this._layers.length - 1];
 	}
 
-	private createMaskLayer(index: number,name: string,container: Laya.Sprite): MaskLayer {
+	private createMaskLayer(index: number, name: string, container: Laya.Sprite): MaskLayer {
 		this._layers.push(container.addChild(
 			new MaskLayer(index, name)
 		) as MaskLayer);

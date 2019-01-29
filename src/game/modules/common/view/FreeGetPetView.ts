@@ -4,7 +4,7 @@
 class FreeGetPetView extends BaseView {
 
     constructor() {
-        super(LAYER_TYPE.SUB_FRAME_LAYER, ui.common.view.FreeGetPetViewUI);
+        super(M.layer.subFrameLayer, ui.common.view.FreeGetPetViewUI);
     }
 
     public initData(): void {

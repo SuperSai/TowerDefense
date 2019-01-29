@@ -4,7 +4,7 @@
 class NoticeView extends BaseView {
 
     constructor() {
-        super(LAYER_TYPE.NOTE_LAYER, ui.common.view.NoticeViewUI);
+        super(M.layer.noteLayer, ui.common.view.NoticeViewUI);
     }
 
     public initData(): void {

@@ -18,7 +18,7 @@ class Main {
         // Laya.URL.basePath = PathConfig.RES_URL;
         M.layer.initLayer(Laya.stage, 750, 1334);
         userData = new UserData();
-        LayerMgr.Ins.initLayer(Laya.stage, 750, 1334);
+        // LayerMgr.Ins.initLayer(Laya.stage, 750, 1334);
         systemInfo = new WXSystemInfo();
         try {
             const infoSync = Laya.Browser.window.wx.getSystemInfoSync();
@@ -46,7 +46,7 @@ class Main {
         EffectUtils.showWaitEffect();
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
-            url: 'v3/token/user',
+            url: 'v4/token/user',
             method: "Post",
             data: StringUtils.toUrlQueryString({ userName: account, password: pwd }),
             success: res => {

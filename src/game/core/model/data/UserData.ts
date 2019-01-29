@@ -891,6 +891,7 @@ class UserData {
                     self.offlineRewardCount = res.remain_online_num;
                     self.shareAdTimes = res.operation;
                     PlayerManager.Instance.Info.dayGetGoldCount = self.shareAdTimes.share_no_money_num;
+                    PlayerManager.Instance.Info.freeAcc = self.shareAdTimes.free_acce;
                     self.showShareGiftRedPoint = res.share_reward_flag;
                     self.showDailySignRedPoint = res.sign_flag;
                     self.showPlayCourtesy = res.advert_popup;

@@ -21,6 +21,8 @@ class PlayerInfo {
         this.levelOffect = 2;
         /** 是否从我的小程序进入游戏 */
         this.isMySceneEnter = false;
+        /** 加速免费次数 */
+        this.freeAcc = 0;
     }
 }
 //# sourceMappingURL=PlayerInfo.js.map

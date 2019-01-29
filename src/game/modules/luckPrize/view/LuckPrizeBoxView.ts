@@ -4,7 +4,7 @@
 class LuckPrizeBoxView extends BaseView {
 
     constructor() {
-        super(LAYER_TYPE.SUB_FRAME_LAYER, ui.luckPrize.LuckPrizeBoxViewUI);
+        super(M.layer.subFrameLayer, ui.luckPrize.LuckPrizeBoxViewUI);
         this.myParent.maskEnabled = false;
     }
 

@@ -3,7 +3,7 @@
 */
 class TaskView extends BaseView {
     constructor() {
-        super(LAYER_TYPE.FRAME_LAYER, ui.task.TaskViewUI);
+        super(M.layer.frameLayer, ui.task.TaskViewUI);
         this.setResources(["quest", "component"]);
     }
     //初始化
@@ -248,12 +248,12 @@ class TaskView extends BaseView {
                                         MessageUtils.showMsgTips("奖励领取成功");
                                         if (item.reward_type == "money") {
                                             MessageUtils.shopMsgByObj(btnGet, "+" + MathUtils.bytesToSize(awardNum), EFFECT_TYPE.GOLD);
-                                            LayerMgr.Ins.addToLayer(new FlyEffect().play("rollingCoin", LayerManager.mouseX, LayerManager.mouseY), LAYER_TYPE.SCREEN_EFFECT_LAYER);
+                                            M.layer.screenEffectLayer.addChild(new FlyEffect().play("rollingCoin", LayerManager.mouseX, LayerManager.mouseY));
                                             EventsManager.Instance.event(EventsType.GOLD_CHANGE, { money: M.player.Info.userMoney += awardNum });
                                         }
                                         else {
                                             MessageUtils.shopMsgByObj(btnGet, "+" + awardNum, EFFECT_TYPE.DIAMOND);
-                                            LayerMgr.Ins.addToLayer(new FlyEffect().play("diamond", LayerManager.mouseX, LayerManager.mouseY), LAYER_TYPE.SCREEN_EFFECT_LAYER);
+                                            M.layer.screenEffectLayer.addChild(new FlyEffect().play("diamond", LayerManager.mouseX, LayerManager.mouseY));
                                             EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, res);
                                         }
                                         _btnObj.visible = false;

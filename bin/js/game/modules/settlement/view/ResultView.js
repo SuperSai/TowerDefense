@@ -58,13 +58,15 @@ class ResultView extends ui.settlement.ResultViewUI {
                 btnGet.on(Laya.Event.CLICK, btnGet, () => {
                     that.prizeList.pop(); //移除最后一个
                     _callback && _callback(that.lastStage);
-                    if (that.prizeList.length > 0) {
-                        that.showPrizeUI(that.prizeList, _callback);
-                    }
-                    else {
-                        DisplayUtils.removeAllChildren(this.hbox);
-                        that.removeSelf();
-                    }
+                    this.timerOnce(1000, this, () => {
+                        if (that.prizeList.length > 0) {
+                            that.showPrizeUI(that.prizeList, _callback);
+                        }
+                        else {
+                            DisplayUtils.removeAllChildren(this.hbox);
+                            that.removeSelf();
+                        }
+                    });
                 });
             }
             let btnShare = imgBg.getChildByName("btnShare");

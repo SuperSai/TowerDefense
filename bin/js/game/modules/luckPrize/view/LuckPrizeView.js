@@ -3,7 +3,7 @@
 */
 class LuckPrizeView extends BaseView {
     constructor() {
-        super(LAYER_TYPE.FRAME_LAYER, ui.luckPrize.LuckPrizeViewUI);
+        super(M.layer.frameLayer, ui.luckPrize.LuckPrizeViewUI);
         this.costDiamond = 120;
         /** 免费抽奖次数 */
         this._freeCount = 0;

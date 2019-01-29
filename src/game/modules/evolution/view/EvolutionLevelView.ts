@@ -5,7 +5,7 @@ class EvolutionLevelView extends BaseView {
 
     private _effect: BoneAnim;
     constructor() {
-        super(LAYER_TYPE.SCREEN_EFFECT_LAYER, ui.evolution.EvolutionLevelViewUI);
+        super(M.layer.screenEffectLayer, ui.evolution.EvolutionLevelViewUI);
         this.setResources(["guardLevel"]);
     }
 

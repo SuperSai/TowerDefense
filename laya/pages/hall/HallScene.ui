@@ -1,8 +1,8 @@
 {
     "x":0,
     "type":"View",
-    "selectedBox":25,
-    "selecteID":329,
+    "selectedBox":1,
+    "selecteID":2,
     "referenceLines":null,
     "props":{"y":0,"x":0,"width":750,"sceneColor":"#000000","sceneBg":"laya/views/Game.JPG","height":1334},
     "nodeParent":-1,
@@ -552,13 +552,14 @@
                             "props":{"y":1163,"x":400,"var":"btnShop","stateNum":1,"skin":"images/hall/gbtn_shop.png","name":"btnShop"},
                             "nodeParent":37,
                             "label":"Button(btnShop)",
-                            "isOpen":false,
+                            "isOpen":true,
                             "isDirectory":true,
                             "isAniNode":true,
                             "hasChild":true,
                             "compId":15,
                             "child":[
                                 {
+                                    "x":60,
                                     "type":"Script",
                                     "source":"laya/pages/ScaleAnimScript.script",
                                     "props":{},
@@ -572,6 +573,7 @@
                                         ]
                                 },
                                 {
+                                    "x":60,
                                     "type":"Image",
                                     "props":{"y":-12,"x":41,"skin":"images/hall/shop_btn_icon.png"},
                                     "nodeParent":15,
@@ -584,6 +586,7 @@
                                         ]
                                 },
                                 {
+                                    "x":60,
                                     "type":"Label",
                                     "props":{"y":91,"x":13,"width":150,"text":"酒馆","strokeColor":"#946430","stroke":3,"name":"txtPrice","fontSize":34,"color":"#ffffff","bold":true,"align":"center"},
                                     "nodeParent":15,
@@ -596,6 +599,7 @@
                                         ]
                                 },
                                 {
+                                    "x":60,
                                     "type":"Image",
                                     "props":{"y":-3,"x":136,"visible":false,"skin":"images/core/red_dot_hint.png","name":"imgRedPoint"},
                                     "nodeParent":15,
@@ -1205,13 +1209,14 @@
                             "props":{"y":1101,"x":30,"var":"btnAcce","stateNum":1,"skin":"images/hall/gbtn_acce.png","scaleY":1,"scaleX":1,"name":"btnAcce"},
                             "nodeParent":37,
                             "label":"Button(btnAcce)",
-                            "isOpen":false,
+                            "isOpen":true,
                             "isDirectory":true,
                             "isAniNode":true,
                             "hasChild":true,
                             "compId":11,
                             "child":[
                                 {
+                                    "x":60,
                                     "type":"Script",
                                     "source":"laya/pages/ScaleAnimScript.script",
                                     "props":{},
@@ -1225,6 +1230,7 @@
                                         ]
                                 },
                                 {
+                                    "x":60,
                                     "type":"Image",
                                     "props":{"y":60,"x":75,"visible":false,"var":"imgAccIcon","skin":"images/core/video_icon.png"},
                                     "nodeParent":11,
@@ -1237,6 +1243,7 @@
                                         ]
                                 },
                                 {
+                                    "x":60,
                                     "type":"Image",
                                     "props":{"y":-19,"x":9,"visible":false,"skin":"images/hall/daojishi_di.png","name":"imgAcce"},
                                     "nodeParent":11,
@@ -1248,6 +1255,7 @@
                                     "compId":249,
                                     "child":[
                                         {
+                                            "x":75,
                                             "type":"Label",
                                             "props":{"y":8,"x":8,"width":80,"text":"00:00","name":"txtAcceTime","fontSize":28,"color":"#ffffff","align":"center"},
                                             "nodeParent":249,

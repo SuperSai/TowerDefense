@@ -6,7 +6,7 @@ class RewardGoldView extends BaseView {
     private _money: number;
 
     constructor() {
-        super(LAYER_TYPE.SUB_FRAME_LAYER, ui.common.view.RewardGoldViewUI);
+        super(M.layer.subFrameLayer, ui.common.view.RewardGoldViewUI);
         this.setResources(["rewardGold"]);
     }
 

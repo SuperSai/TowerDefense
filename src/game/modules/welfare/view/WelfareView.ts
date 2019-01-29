@@ -5,7 +5,7 @@ class WelfareView extends BaseView {
 
 
     constructor() {
-        super(LAYER_TYPE.SUB_FRAME_LAYER, ui.welfare.WelfareViewUI);
+        super(M.layer.subFrameLayer, ui.welfare.WelfareViewUI);
         this.setResources(["welfare"]);
     }
 

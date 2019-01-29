@@ -5,7 +5,7 @@ class StrengthenView extends BaseView {
     private indexArray: Array<number> = [10, 2, 1, 3];
 
     constructor() {
-        super(LAYER_TYPE.FRAME_LAYER, ui.strengthen.StrengthenViewUI);
+        super(M.layer.frameLayer, ui.strengthen.StrengthenViewUI);
         this.setResources(["strengthen"]);
     }
 
@@ -98,7 +98,7 @@ class StrengthenView extends BaseView {
                                         that.refreshBoxUI(_btnInfo.skillId);
                                         let bone: BoneAnim = new BoneAnim("qhcg");
                                         AlignUtils.setToScreenGoldenPos(bone);
-                                        LayerMgr.Ins.addToLayer(bone, LAYER_TYPE.SCREEN_EFFECT_LAYER);
+                                        M.layer.screenEffectLayer.addChild(bone);
                                         bone.completeBack = () => {
                                             bone.destroy();
                                         }

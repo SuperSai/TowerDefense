@@ -21,5 +21,7 @@ class PlayerInfo {
     /** 关卡开放等级 */
     public levelOffect: number = 2;
     /** 是否从我的小程序进入游戏 */
-    public isMySceneEnter:boolean = false;
+    public isMySceneEnter: boolean = false;
+    /** 加速免费次数 */
+    public freeAcc: number = 0;
 }

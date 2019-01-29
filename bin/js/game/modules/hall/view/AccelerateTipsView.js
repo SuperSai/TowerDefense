@@ -3,7 +3,7 @@
 */
 class AccelerateTipsView extends BaseView {
     constructor() {
-        super(LAYER_TYPE.NOTE_LAYER, ui.hall.AccelerateTipsViewUI);
+        super(M.layer.noteLayer, ui.hall.AccelerateTipsViewUI);
         this.setResources(["accelerate"]);
     }
     initUI() {

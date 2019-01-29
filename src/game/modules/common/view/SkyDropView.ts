@@ -6,7 +6,7 @@ class SkyDropView extends BaseView {
     private sheet: SkyDropSheet;
 
     constructor() {
-        super(LAYER_TYPE.SUB_FRAME_LAYER, ui.common.view.SkyDropViewUI);
+        super(M.layer.subFrameLayer, ui.common.view.SkyDropViewUI);
     }
 
     public initData(): void {

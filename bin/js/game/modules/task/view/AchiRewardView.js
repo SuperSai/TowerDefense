@@ -3,7 +3,7 @@
 */
 class AchiRewardView extends BaseView {
     constructor() {
-        super(LAYER_TYPE.NOTE_LAYER, ui.task.AchiRewardViewUI, false);
+        super(M.layer.noteLayer, ui.task.AchiRewardViewUI, false);
         this._rewardName = "金币";
         this._awardNum = 0;
         this.myParent.maskEnabled = false;
@@ -60,13 +60,13 @@ class AchiRewardView extends BaseView {
                     if (this.datas[0].reward_type != "money") {
                         MessageUtils.showMsgTips("成就奖励:" + this._rewardName + "x" + this._awardNum);
                         let point = PointUtils.localToGlobal(this.ui.imgIcon);
-                        LayerMgr.Ins.addToLayer(new FlyEffect().play("diamond", point.x, point.y), LAYER_TYPE.SCREEN_EFFECT_LAYER);
+                        M.layer.screenEffectLayer.addChild(new FlyEffect().play("diamond", point.x, point.y));
                         EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: M.player.Info.userDiamond += this._awardNum });
                     }
                     else {
                         MessageUtils.showMsgTips("成就奖励:" + this._rewardName + "x" + MathUtils.bytesToSize(this._awardNum));
                         let point = PointUtils.localToGlobal(this.ui.imgIcon);
-                        LayerMgr.Ins.addToLayer(new FlyEffect().play("rollingCoin", point.x, point.y), LAYER_TYPE.SCREEN_EFFECT_LAYER);
+                        M.layer.screenEffectLayer.addChild(new FlyEffect().play("rollingCoin", point.x, point.y));
                         EventsManager.Instance.event(EventsType.GOLD_CHANGE, { money: M.player.Info.userMoney += this._awardNum });
                     }
                 }

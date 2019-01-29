@@ -4,7 +4,7 @@
 class RewardGetView extends BaseView {
 
     constructor() {
-        super(LAYER_TYPE.SUB_FRAME_LAYER, ui.common.view.RewardGetViewUI);
+        super(M.layer.subFrameLayer, ui.common.view.RewardGetViewUI);
     }
 
     public initData(): void {

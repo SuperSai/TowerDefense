@@ -25,7 +25,7 @@ class Token {
         Laya.Browser.window.wx.login({
             success: function (res) {
                 Laya.Browser.window.wx.request({
-                    url: PathConfig.AppUrl + 'v3/token/user',
+                    url: PathConfig.AppUrl + 'v4/token/user',
                     method: 'POST',
                     data: {
                         code: res.code,
@@ -1719,7 +1719,7 @@ class MessageUtils {
         msg.visible = content == "" ? false : true;
         msg.zOrder = 999;
         AlignUtils.setToScreenGoldenPos(msg);
-        LayerMgr.Ins.addToLayer(msg, LAYER_TYPE.ROLL_MSG_LAYER);
+        M.layer.rollMessageLayer.addChild(msg);
         Laya.Tween.to(msg, { x: msg.x, y: msg.y - 100, alpha: 0 }, 4000, Laya.Ease.cubicInOut, Laya.Handler.create(self, ($msg) => {
             Laya.Tween.clearTween($msg);
             $msg.zOrder = 1;
@@ -1768,7 +1768,7 @@ class MessageUtils {
             hbox.align = "middle";
             const global = PointUtils.localToGlobal(obj);
             hbox.pos(global.x, global.y);
-            LayerMgr.Ins.addToLayer(hbox, LAYER_TYPE.SCREEN_EFFECT_LAYER);
+            M.layer.screenEffectLayer.addChild(hbox);
             hbox.x += (obj.width - hbox.width) / 2;
             Laya.Tween.to(hbox, { y: hbox.y - 50, alpha: 0 }, 2000, null, Laya.Handler.create(this, () => {
                 Laya.Tween.clearTween(hbox);
@@ -1778,7 +1778,7 @@ class MessageUtils {
         else {
             const global = PointUtils.localToGlobal(obj);
             label.pos(global.x, global.y);
-            LayerMgr.Ins.addToLayer(label, LAYER_TYPE.SCREEN_EFFECT_LAYER);
+            M.layer.screenEffectLayer.addChild(label);
             label.x += (obj.width - label.width) / 2;
             Laya.Tween.to(label, { y: label.y - 50, alpha: 0 }, 2000, null, Laya.Handler.create(this, () => {
                 Laya.Tween.clearTween(label);
@@ -5492,6 +5492,7 @@ class UserData {
                     self.offlineRewardCount = res.remain_online_num;
                     self.shareAdTimes = res.operation;
                     PlayerManager.Instance.Info.dayGetGoldCount = self.shareAdTimes.share_no_money_num;
+                    PlayerManager.Instance.Info.freeAcc = self.shareAdTimes.free_acce;
                     self.showShareGiftRedPoint = res.share_reward_flag;
                     self.showDailySignRedPoint = res.sign_flag;
                     self.showPlayCourtesy = res.advert_popup;
@@ -5592,6 +5593,8 @@ class PlayerInfo {
         this.levelOffect = 2;
         /** 是否从我的小程序进入游戏 */
         this.isMySceneEnter = false;
+        /** 加速免费次数 */
+        this.freeAcc = 0;
     }
 }
 //# sourceMappingURL=PlayerInfo.js.map
@@ -6187,6 +6190,7 @@ class LayerManager extends EventDispatcher {
         let idx = 0;
         this.renderLayer = this.createLayer(idx++, "renderLayer", container);
         this.navLayer = this.createLayer(idx++, "navLayer", container);
+        this.flyLayer = this.createLayer(idx++, "flyLayer", container);
         this.frameLayer = this.createMaskLayer(idx++, "frameLayer", container);
         this.subFrameLayer = this.createMaskLayer(idx++, "subFrameLayer", container);
         this.alertLayer = this.createMaskLayer(idx++, "alertLayer", container);
@@ -8008,11 +8012,13 @@ var ui;
             constructor() { super(); }
             createChildren() {
                 View.regComponent("ScaleAnimScript", ScaleAnimScript);
+                View.regComponent("SkeletonPlayer", laya.ani.bone.Skeleton);
+                View.regComponent("MonsterSprite", MonsterSprite);
                 super.createChildren();
                 this.createView(ui.evolution.EvolutionViewUI.uiView);
             }
         }
-        EvolutionViewUI.uiView = { "type": "View", "props": { "width": 715, "height": 1014 }, "child": [{ "type": "View", "props": { "y": 0, "x": 0, "width": 715, "var": "mainView", "name": "mainView", "height": 1014 }, "child": [{ "type": "Image", "props": { "y": 0, "x": 0, "width": 715, "skin": "images/component/frame_9calce_01.png", "sizeGrid": "158,62,69,62", "name": "imgBg", "height": 1014 }, "child": [{ "type": "Image", "props": { "y": 33, "x": 259, "skin": "images/fontImg/king_title_icon.png" } }, { "type": "Image", "props": { "y": 494, "x": 36, "skin": "images/component/frame_line_01.png" } }, { "type": "Label", "props": { "y": 449, "x": 66, "text": "升级条件:", "fontSize": 32, "color": "#c83d33", "align": "left" } }, { "type": "Button", "props": { "y": -8, "x": 634, "var": "btnExit", "stateNum": 1, "skin": "images/component/frame_close_btn.png" }, "child": [{ "type": "Script", "props": { "y": 0, "x": 0, "runtime": "ScaleAnimScript" } }] }, { "type": "Button", "props": { "y": 796, "x": 197, "var": "btnUpdate", "stateNum": 1, "skin": "images/component/yellow_btn.png", "labelStrokeColor": "#946430", "labelStroke": 2, "labelSize": 50, "labelColors": "#ffffff", "labelBold": true, "label": "升级", "disabled": true }, "child": [{ "type": "Script", "props": { "y": 0, "x": 0, "runtime": "ScaleAnimScript" } }] }, { "type": "Box", "props": { "y": 507, "x": 32, "var": "heroBox" }, "child": [{ "type": "Image", "props": { "skin": "images/component/frame_9calce_05.png" } }, { "type": "HBox", "props": { "y": 11, "x": 32, "var": "nameHbox", "space": 5, "align": "middle" }, "child": [{ "type": "Label", "props": { "y": 2, "x": 179, "var": "txtNeedItem", "text": "0/1", "fontSize": 28, "color": "#9a8d00", "align": "left" } }, { "type": "Label", "props": { "var": "txtItemName", "text": "刺王龙 Lv11:", "fontSize": 30, "color": "#9a2525", "align": "left" } }] }] }, { "type": "Box", "props": { "y": 558, "x": 32, "var": "diamondBox" }, "child": [{ "type": "Image", "props": { "skin": "images/component/frame_9calce_05.png" } }, { "type": "Image", "props": { "y": 13, "x": 32, "skin": "images/core/diamond_icon.png", "scaleY": 0.6, "scaleX": 0.6 } }, { "type": "Label", "props": { "y": 13, "x": 156, "var": "txtNeedDiamond", "text": "0/50", "fontSize": 28, "color": "#9a8d00", "align": "left" } }, { "type": "Label", "props": { "y": 11, "x": 73, "var": "txtDiamondName", "text": "钻石:", "fontSize": 30, "color": "#9a2525", "align": "left" } }] }, { "type": "Box", "props": { "y": 140, "x": 33 }, "child": [{ "type": "Image", "props": { "width": 649, "skin": "images/component/frame_9calce_02.png", "sizeGrid": "25,27,32,27", "height": 270 } }, { "type": "Image", "props": { "y": 90, "x": 97, "skin": "images/component/frame_9calce_06.png" } }, { "type": "Image", "props": { "y": 30, "x": 97, "skin": "images/component/frame_9calce_07.png", "sizeGrid": "0,31,0,33" } }, { "type": "Image", "props": { "y": 148, "x": 97, "skin": "images/component/frame_9calce_06.png" } }, { "type": "Image", "props": { "y": 90, "x": 429, "skin": "images/component/frame_9calce_06.png" } }, { "type": "Image", "props": { "y": 148, "x": 429, "skin": "images/component/frame_9calce_06.png" } }, { "type": "Label", "props": { "y": 35, "x": 33, "text": "等级:", "fontSize": 28, "color": "#9a2525" } }, { "type": "Label", "props": { "y": 95, "x": 33, "text": "攻击:", "fontSize": 28, "color": "#9a2525" } }, { "type": "Label", "props": { "y": 154, "x": 33, "text": "速度:", "fontSize": 28, "color": "#9a2525" } }, { "type": "Label", "props": { "y": 95, "x": 306, "text": "攻击加成:", "fontSize": 28, "color": "#9a2525" } }, { "type": "Label", "props": { "y": 154, "x": 306, "text": "暴击加成:", "fontSize": 28, "color": "#9a2525" } }, { "type": "Label", "props": { "y": 215, "x": 33, "text": "技能效果:", "fontSize": 28, "color": "#9a2525" } }, { "type": "Label", "props": { "y": 154, "x": 449, "var": "txtDoubleAdd", "text": "0.8%", "fontSize": 30, "color": "#ffffff", "bold": true, "align": "left" } }, { "type": "Label", "props": { "y": 154, "x": 114, "var": "txtAtkSpeed", "text": "0.3s", "fontSize": 30, "color": "#ffffff", "bold": true, "align": "left" } }, { "type": "Label", "props": { "y": 95, "x": 449, "var": "txtAtkAdd", "text": "1.5%", "fontSize": 30, "color": "#ffffff", "bold": true, "align": "left" } }, { "type": "Label", "props": { "y": 96, "x": 114, "var": "txtAtk", "text": "10", "fontSize": 30, "color": "#ffffff", "bold": true, "align": "left" } }, { "type": "Label", "props": { "y": 35, "x": 114, "var": "txtKingLevel", "text": "1", "fontSize": 30, "color": "#ffffff", "bold": true, "align": "left" } }, { "type": "Label", "props": { "y": 215, "x": 162, "width": 400, "var": "txtSkillDes", "text": "增加所有上阵英雄的攻击和暴击", "fontSize": 28, "color": "#8b6107", "align": "left" } }] }] }] }] };
+        EvolutionViewUI.uiView = { "type": "View", "props": {}, "child": [{ "type": "Box", "props": { "y": 0, "x": 0, "width": 713, "height": 1050 }, "child": [{ "type": "Image", "props": { "y": 6, "width": 716, "skin": "images/component/frame_9calce_01.png", "sizeGrid": "158,62,69,62", "height": 1044 } }, { "type": "Image", "props": { "y": 144, "x": 31, "width": 649, "skin": "images/component/frame_9calce_02.png", "sizeGrid": "25,27,32,27", "height": 405 } }, { "type": "Image", "props": { "y": 178, "x": 473, "skin": "images/component/frame_9calce_06.png" } }, { "type": "Image", "props": { "y": 32, "x": 249, "skin": "images/fontImg/king_title_icon.png" } }, { "type": "Image", "props": { "y": 238, "x": 473, "skin": "images/component/frame_9calce_06.png" } }, { "type": "Image", "props": { "y": 297, "x": 473, "skin": "images/component/frame_9calce_06.png" } }, { "type": "Image", "props": { "y": 355, "x": 473, "skin": "images/component/frame_9calce_06.png" } }, { "type": "Image", "props": { "y": 413, "x": 473, "skin": "images/component/frame_9calce_06.png" } }, { "type": "Image", "props": { "y": 612, "x": 36, "skin": "images/component/frame_line_01.png" } }, { "type": "Box", "props": { "y": 630, "x": 31, "var": "heroBox" }, "child": [{ "type": "Image", "props": { "skin": "images/component/frame_9calce_05.png" } }, { "type": "HBox", "props": { "y": 11, "x": 32, "var": "nameHbox", "space": 5, "align": "bottom" }, "child": [{ "type": "Label", "props": { "var": "txtItemName", "text": "艾曼拉 Lv11:", "fontSize": 30, "color": "#9a2525", "bold": true, "align": "left" } }, { "type": "Label", "props": { "y": 3, "x": 181.806640625, "var": "txtNeedItem0", "text": "0", "fontSize": 28, "color": "#9a8d00", "bold": true, "align": "left" } }, { "type": "Label", "props": { "y": 3, "x": 202.37890625, "var": "txtNeedItem1", "text": "/1", "fontSize": 28, "color": "#9a8d00", "bold": true, "align": "left" } }] }, { "type": "Image", "props": { "y": 9, "x": 540, "var": "iconImg0", "skin": "images/hall/hall_gou.png" } }] }, { "type": "Box", "props": { "y": 703, "x": 31, "var": "diamondBox" }, "child": [{ "type": "Image", "props": { "skin": "images/component/frame_9calce_05.png" } }, { "type": "Image", "props": { "y": 13, "x": 32, "skin": "images/core/diamond_icon.png", "scaleY": 0.6, "scaleX": 0.6 } }, { "type": "Label", "props": { "y": 11, "x": 73, "var": "txtDiamondName", "text": "钻石:", "fontSize": 30, "color": "#9a2525", "bold": true, "align": "left" } }, { "type": "Image", "props": { "y": 11, "x": 540, "var": "iconImg1", "skin": "images/hall/hall_xx.png" } }, { "type": "HBox", "props": { "y": 15, "x": 156, "align": "middle" }, "child": [{ "type": "Label", "props": { "var": "txtNeedDiamond0", "text": "0", "fontSize": 28, "color": "#9a8d00", "bold": true, "align": "left" } }, { "type": "Label", "props": { "y": 1, "x": 19, "var": "txtNeedDiamond1", "text": "/50", "fontSize": 28, "color": "#9a8d00", "bold": true, "align": "left" } }] }] }, { "type": "Button", "props": { "x": 634, "var": "btnExit", "stateNum": 1, "skin": "images/component/frame_close_btn.png" }, "child": [{ "type": "Script", "props": { "y": 0, "x": 0, "runtime": "ScaleAnimScript" } }] }, { "type": "Button", "props": { "y": 827, "x": 194, "var": "btnUpdate", "stateNum": 1, "skin": "images/component/yellow_btn.png", "labelStrokeColor": "#946430", "labelStroke": 2, "labelSize": 50, "labelColors": "#ffffff", "labelBold": true, "label": "升级", "disabled": true }, "child": [{ "type": "Script", "props": { "y": 0, "x": 0, "runtime": "ScaleAnimScript" } }] }, { "type": "Label", "props": { "y": 566, "x": 64, "text": "升级条件:", "fontSize": 32, "color": "#c83d33", "bold": true, "align": "left" } }, { "type": "Label", "props": { "y": 496, "x": 102, "text": "技能效果:", "fontSize": 28, "color": "#9a2525", "bold": true } }, { "type": "Label", "props": { "y": 419, "x": 350, "text": "暴击加成:", "fontSize": 28, "color": "#9a2525", "bold": true } }, { "type": "Label", "props": { "y": 360, "x": 350, "text": "攻击加成:", "fontSize": 28, "color": "#9a2525", "bold": true } }, { "type": "Label", "props": { "y": 303, "x": 407, "text": "速度:", "fontSize": 28, "color": "#9a2525", "bold": true } }, { "type": "Label", "props": { "y": 243, "x": 407, "text": "攻击:", "fontSize": 28, "color": "#9a2525", "bold": true } }, { "type": "Label", "props": { "y": 497, "x": 231, "width": 400, "var": "txtSkillDes", "text": "增加所有上阵英雄的攻击和暴击", "fontSize": 28, "color": "#8b6107", "bold": true, "align": "left" } }, { "type": "Label", "props": { "y": 418, "x": 489, "var": "txtDoubleAdd", "text": "0.8%", "fontSize": 30, "color": "#ffffff", "bold": true, "align": "left" } }, { "type": "Label", "props": { "y": 182, "x": 489, "var": "txtKingLevel", "text": "1", "fontSize": 30, "color": "#ffffff", "bold": true, "align": "left" } }, { "type": "Label", "props": { "y": 302, "x": 489, "var": "txtAtkSpeed", "text": "0.3s", "fontSize": 30, "color": "#ffffff", "bold": true, "align": "left" } }, { "type": "Label", "props": { "y": 361, "x": 489, "var": "txtAtkAdd", "text": "1.5%", "fontSize": 30, "color": "#ffffff", "bold": true, "align": "left" } }, { "type": "Label", "props": { "y": 244, "x": 489, "var": "txtAtk", "text": "10", "fontSize": 30, "color": "#ffffff", "bold": true, "align": "left" } }, { "type": "Label", "props": { "y": 183, "x": 407, "text": "等级:", "fontSize": 28, "color": "#9a2525", "bold": true } }, { "type": "Label", "props": { "y": 1050, "x": 260, "text": "点击空白处关闭", "fontSize": 30, "color": "#ffffff" } }, { "type": "SkeletonPlayer", "props": { "y": 301, "x": 180, "url": "images/effect/bone/bglight.sk", "scaleY": 0.5, "scaleX": 0.5 } }, { "type": "Sprite", "props": { "y": 385, "x": 197, "width": 32, "var": "spMountGuard", "scaleX": -1, "runtime": "MonsterSprite", "height": 32 } }, { "type": "Image", "props": { "y": 424, "x": 88, "skin": "images/hall/hall_base.png" } }] }] };
         evolution.EvolutionViewUI = EvolutionViewUI;
     })(evolution = ui.evolution || (ui.evolution = {}));
 })(ui || (ui = {}));
@@ -8630,7 +8636,7 @@ class BaseView extends Laya.View {
         super();
         this.isRemoveBanner = true;
         this._resources = null;
-        this._myParent = LayerMgr.Ins.getLayerByType($layer);
+        this._myParent = $layer;
         this._isInit = false;
         this._isShowMask = isShowMask;
         this._ui = $class;
@@ -8643,14 +8649,12 @@ class BaseView extends Laya.View {
     addToParent() {
         AlignUtils.setToScreenGoldenPos(this);
         if (this._isShowMask) {
-            this._myParent.maskEnabled = true;
             this._myParent.addChildWithMaskCall(this, () => {
                 this.removeFromParent();
                 this.close();
             });
         }
         else {
-            this._myParent.maskEnabled = false;
             this._myParent.addChild(this);
         }
     }
@@ -8741,7 +8745,7 @@ class BaseView extends Laya.View {
 */
 class DiamondBuyView extends BaseView {
     constructor() {
-        super(LAYER_TYPE.SUB_FRAME_LAYER, ui.common.view.DiamondBuyViewUI);
+        super(M.layer.subFrameLayer, ui.common.view.DiamondBuyViewUI);
     }
     //初始化
     initUI() {
@@ -8830,7 +8834,7 @@ class DiamondBuyView extends BaseView {
 */
 class FreeGetPetView extends BaseView {
     constructor() {
-        super(LAYER_TYPE.SUB_FRAME_LAYER, ui.common.view.FreeGetPetViewUI);
+        super(M.layer.subFrameLayer, ui.common.view.FreeGetPetViewUI);
     }
     initData() {
         super.initData();
@@ -8875,7 +8879,7 @@ class MessageTips extends ui.common.view.MessageTipsUI {
 */
 class NoticeView extends BaseView {
     constructor() {
-        super(LAYER_TYPE.NOTE_LAYER, ui.common.view.NoticeViewUI);
+        super(M.layer.noteLayer, ui.common.view.NoticeViewUI);
     }
     initData() {
         super.initData();
@@ -8888,7 +8892,7 @@ class NoticeView extends BaseView {
 */
 class OfflineRewardsView extends BaseView {
     constructor() {
-        super(LAYER_TYPE.SUB_FRAME_LAYER, ui.common.view.OfflineRewardsViewUI);
+        super(M.layer.subFrameLayer, ui.common.view.OfflineRewardsViewUI);
         this._price = 0;
     }
     //初始化
@@ -8945,7 +8949,7 @@ class OfflineRewardsView extends BaseView {
 */
 class RewardGetView extends BaseView {
     constructor() {
-        super(LAYER_TYPE.SUB_FRAME_LAYER, ui.common.view.RewardGetViewUI);
+        super(M.layer.subFrameLayer, ui.common.view.RewardGetViewUI);
     }
     initData() {
         super.initData();
@@ -8987,7 +8991,7 @@ class RewardGetView extends BaseView {
 */
 class RewardGoldView extends BaseView {
     constructor() {
-        super(LAYER_TYPE.SUB_FRAME_LAYER, ui.common.view.RewardGoldViewUI);
+        super(M.layer.subFrameLayer, ui.common.view.RewardGoldViewUI);
         this.setResources(["rewardGold"]);
     }
     //初始化
@@ -9070,7 +9074,7 @@ class RewardGoldView extends BaseView {
 */
 class SkillExplainView extends BaseView {
     constructor() {
-        super(LAYER_TYPE.SUB_FRAME_LAYER, ui.common.view.SkillExplainViewUI);
+        super(M.layer.subFrameLayer, ui.common.view.SkillExplainViewUI);
     }
     //初始化
     initUI() {
@@ -9533,7 +9537,7 @@ EvolutionAdvancedView.isOpen = false;
 */
 class EvolutionLevelView extends BaseView {
     constructor() {
-        super(LAYER_TYPE.SCREEN_EFFECT_LAYER, ui.evolution.EvolutionLevelViewUI);
+        super(M.layer.screenEffectLayer, ui.evolution.EvolutionLevelViewUI);
         this.setResources(["guardLevel"]);
     }
     initData() {
@@ -9574,7 +9578,7 @@ class EvolutionLevelView extends BaseView {
 */
 class EvolutionView extends BaseView {
     constructor() {
-        super(LAYER_TYPE.FRAME_LAYER, ui.evolution.EvolutionViewUI);
+        super(M.layer.frameLayer, ui.evolution.EvolutionViewUI);
         this._diamond = 0;
         this._needDiamond = 0;
     }
@@ -9589,7 +9593,7 @@ class EvolutionView extends BaseView {
             ViewMgr.Ins.close(ViewConst.EvolutionView);
         });
         self.refreshBoxUI();
-        LayerMgr.Ins.getLayerByType(LAYER_TYPE.FRAME_LAYER).on(LayerEvent.LAYER_ANIMATION_COMPLETE, this, (complete) => {
+        M.layer.frameLayer.on(LayerEvent.LAYER_ANIMATION_COMPLETE, this, (complete) => {
             if (complete) {
                 if (!NoviceManager.isComplete) {
                     M.novice.on(NoviceEvent.ACTIVATE_TARGET, self, (eventParam) => {
@@ -9604,11 +9608,12 @@ class EvolutionView extends BaseView {
                 M.novice.manuallyEventOut();
             }
         });
+        let bossId = userData.isEvolution() ? 100003 : 100002;
+        this.ui.spMountGuard.setKind(bossId);
     }
     refreshBoxUI() {
         let self = this;
         let kingLevel = userData.getKingLevel();
-        console.log("@David 守卫等级：", kingLevel);
         let kingVO = GlobleData.getData(GlobleData.KindLevelConfigVO, kingLevel);
         //界面初始化
         if (kingVO) {
@@ -9636,13 +9641,31 @@ class EvolutionView extends BaseView {
             let isShow = kingLevel > 10;
             self.ui.heroBox.visible = isShow;
             self.ui.txtItemName.text = heroName;
-            self.ui.txtNeedItem.text = Math.min(currHeroCount, needHeroCount) + '/' + needHeroCount;
-            self.ui.txtNeedDiamond.text = Math.min(self._diamond, self._needDiamond) + '/' + self._needDiamond;
-            if (isShow) {
-                self.ui.diamondBox.pos(32, 558);
+            self.ui.txtNeedItem0.text = Math.min(currHeroCount, needHeroCount);
+            self.ui.txtNeedItem1.text = '/' + needHeroCount;
+            if (currHeroCount >= needHeroCount) {
+                self.ui.txtNeedItem0.color = "#9a8d00";
+                self.ui.iconImg0.skin = "images/hall/hall_gou.png";
             }
             else {
-                self.ui.diamondBox.pos(32, 507);
+                self.ui.txtNeedItem0.color = "#ea1010";
+                self.ui.iconImg0.skin = "images/hall/hall_xx.png";
+            }
+            self.ui.txtNeedDiamond0.text = Math.min(self._diamond, self._needDiamond);
+            self.ui.txtNeedDiamond1.text = '/' + self._needDiamond;
+            if (self._diamond >= self._needDiamond) {
+                self.ui.txtNeedDiamond0.color = "#9a8d00";
+                self.ui.iconImg1.skin = "images/hall/hall_gou.png";
+            }
+            else {
+                self.ui.txtNeedDiamond0.color = "#ea1010";
+                self.ui.iconImg1.skin = "images/hall/hall_xx.png";
+            }
+            if (isShow) {
+                self.ui.diamondBox.pos(32, 703);
+            }
+            else {
+                self.ui.diamondBox.pos(32, 630);
             }
             self.ui.nameHbox.refresh();
         }
@@ -9772,7 +9795,7 @@ class LevelHeroView extends ui.evolution.LevelHeroViewUI {
 */
 class FollowRewardView extends BaseView {
     constructor() {
-        super(LAYER_TYPE.FRAME_LAYER, ui.follow.FollowRewardViewUI, false);
+        super(M.layer.frameLayer, ui.follow.FollowRewardViewUI, false);
         this.setResources(["followReward"]);
     }
     //初始化
@@ -9932,7 +9955,7 @@ class FriendConcurItem extends ui.friendConcur.FriendConcurItemUI {
 */
 class FriendConcurView extends BaseView {
     constructor() {
-        super(LAYER_TYPE.FRAME_LAYER, ui.friendConcur.FriendConcurUI);
+        super(M.layer.frameLayer, ui.friendConcur.FriendConcurUI);
         this.setResources(["friendConcur"]);
     }
     //初始化
@@ -10044,7 +10067,7 @@ class NoviceManager extends EventDispatcher {
                 this._container = container;
             }
             else {
-                this._container = LayerMgr.Ins.getLayerByType(LAYER_TYPE.GUIDE_LAYER);
+                this._container = M.layer.guideLayer;
             }
             this._currStepId = 0;
             this._currGroupSheets = [].concat(NoviceGuide.getSheetByFieldValue("groupId", this._currGroupId));
@@ -10098,14 +10121,14 @@ class NoviceManager extends EventDispatcher {
                 const position = StringUtils.splitStringToPoint(sheet.position);
                 if (this._currStepType === NoviceType.DEFAULT) {
                     // 剧情对话
-                    LayerMgr.Ins.getLayerByType(LAYER_TYPE.GUIDE_LAYER).maskEnabled = true;
+                    M.layer.guideLayer.maskEnabled = true;
                     this.ui.viewStackNovice.selectedIndex = NoviceType.DEFAULT - 1;
                     this.updateDisplay(sheet, position.x, position.y);
                     this.activateMaskClick();
                 }
                 else if (this._currStepType === NoviceType.CLICK) {
                     // 点击指引
-                    LayerMgr.Ins.getLayerByType(LAYER_TYPE.GUIDE_LAYER).maskEnabled = false;
+                    M.layer.guideLayer.maskEnabled = false;
                     this.ui.mouseEnabled = true;
                     this.ui.viewStackNovice.selectedIndex = NoviceType.CLICK - 1;
                     this.ui.viewStackNovice.mouseEnabled = true;
@@ -10122,7 +10145,7 @@ class NoviceManager extends EventDispatcher {
                 }
                 else if (this._currStepType === NoviceType.DRAG) {
                     // 拖拽指引
-                    LayerMgr.Ins.getLayerByType(LAYER_TYPE.GUIDE_LAYER).maskEnabled = false;
+                    M.layer.guideLayer.maskEnabled = false;
                     this.ui.viewStackNovice.selectedIndex = NoviceType.CLICK - 1;
                     this.ui.viewStackNovice.mouseEnabled = false;
                     this.ui.viewInteract.visible = true;
@@ -10171,7 +10194,7 @@ class NoviceManager extends EventDispatcher {
         if (!NoviceManager.isComplete) {
             NoviceManager.isComplete = true;
             this.saveGroupId(this._currGroupId = 999);
-            LayerMgr.Ins.getLayerByType(LAYER_TYPE.GUIDE_LAYER).off(Laya.Event.CLICK, this, this.onMaskClick);
+            M.layer.guideLayer.off(Laya.Event.CLICK, this, this.onMaskClick);
             if (this.ui) {
                 this.ui.btnReturnNovice.off(Laya.Event.CLICK, this, this.__onCompleteNovice);
                 this.ui && Laya.Tween.clearAll(this.ui.imgFinger);
@@ -10218,7 +10241,7 @@ class NoviceManager extends EventDispatcher {
             if (!this._currSheet || !this._currSheet.eventParam)
                 return;
             if (targetName === this._currSheet.eventParam) {
-                LayerMgr.Ins.getLayerByType(LAYER_TYPE.GUIDE_LAYER).maskEnabled = true;
+                M.layer.guideLayer.maskEnabled = true;
                 target.off(Laya.Event.CLICK, this, this.onTargetClick);
                 this.recoverTargets();
                 this.nextStep();
@@ -10271,12 +10294,12 @@ class NoviceManager extends EventDispatcher {
     activateMaskClick() {
         Laya.timer.once(Time.SEC_IN_MILI * 0.05, this, () => {
             // prettier-ignore
-            LayerMgr.Ins.getLayerByType(LAYER_TYPE.GUIDE_LAYER).on(Laya.Event.CLICK, this, this.onMaskClick);
+            M.layer.guideLayer.on(Laya.Event.CLICK, this, this.onMaskClick);
         });
     }
     onMaskClick() {
         if (this._currStepType === NoviceType.DEFAULT) {
-            LayerMgr.Ins.getLayerByType(LAYER_TYPE.GUIDE_LAYER).off(Laya.Event.CLICK, this, this.onMaskClick);
+            M.layer.guideLayer.off(Laya.Event.CLICK, this, this.onMaskClick);
             this.nextStep();
         }
     }
@@ -10548,7 +10571,7 @@ var ITEM_ID;
 */
 class AccelerateTipsView extends BaseView {
     constructor() {
-        super(LAYER_TYPE.NOTE_LAYER, ui.hall.AccelerateTipsViewUI);
+        super(M.layer.noteLayer, ui.hall.AccelerateTipsViewUI);
         this.setResources(["accelerate"]);
     }
     initUI() {
@@ -10757,7 +10780,10 @@ class HallScene extends ui.hall.HallSceneUI {
                     }
                     else {
                         this.imgAccIcon.visible = true;
-                        if (userData.getAdTimes(10) > 0) {
+                        if (M.player.Info.freeAcc > 0) {
+                            this.imgAccIcon.skin = "images/core/red_dot_hint.png";
+                        }
+                        else if (userData.getAdTimes(10) > 0) {
                             this.imgAccIcon.skin = "images/core/video_icon.png";
                         }
                         else if (userData.getShareTimes(10) > 0) {
@@ -11126,7 +11152,7 @@ class HallScene extends ui.hall.HallSceneUI {
                                             this.roadView.addChild(goldImg);
                                             goldImg.pos(txtPos.x, txtPos.y);
                                             this.timerOnce(1500, this, () => {
-                                                LayerMgr.Ins.addToLayer(goldImg, LAYER_TYPE.FRAME_LAYER);
+                                                M.layer.flyLayer.addChild(goldImg);
                                                 let endPos = PointUtils.localToGlobal(this.imgGold);
                                                 EffectUtils.doGoodsFlyEffect(goldImg, endPos, () => {
                                                     goldImg.removeSelf();
@@ -11751,7 +11777,7 @@ class HallScene extends ui.hall.HallSceneUI {
                 bone.destroy();
             };
             AlignUtils.setToScreenGoldenPos(bone);
-            LayerMgr.Ins.addToLayer(bone, LAYER_TYPE.SCREEN_EFFECT_LAYER);
+            M.layer.screenEffectLayer.addChild(bone);
         }
         //加速开始
         that.setCarAcce(2);
@@ -11792,7 +11818,10 @@ class HallScene extends ui.hall.HallSceneUI {
                 }
                 that.btnAcce.mouseEnabled = true;
                 this.imgAccIcon.visible = true;
-                if (userData.getAdTimes(10) > 0) {
+                if (M.player.Info.freeAcc > 0) {
+                    this.imgAccIcon.skin = "images/core/red_dot_hint.png";
+                }
+                else if (userData.getAdTimes(10) > 0) {
                     this.imgAccIcon.skin = "images/core/video_icon.png";
                 }
                 else if (userData.getShareTimes(10) > 0) {
@@ -12029,13 +12058,19 @@ class HallScene extends ui.hall.HallSceneUI {
             self.playAcceEffectView();
         }
         else {
-            //显示广告
-            let adStage = userData.toShareAd(() => {
+            if (PlayerManager.Instance.Info.freeAcc > 0) {
                 self.playAcceEffectView();
-            }, 10, false, true);
-            //无分享广告则显示钻石购买
-            if (adStage > 0) {
-                self.onDiamondBuyAcce();
+                PlayerManager.Instance.Info.freeAcc--;
+            }
+            else {
+                //显示广告
+                let adStage = userData.toShareAd(() => {
+                    self.playAcceEffectView();
+                }, 10, false, true);
+                //无分享广告则显示钻石购买
+                if (adStage > 0) {
+                    self.onDiamondBuyAcce();
+                }
             }
         }
     }
@@ -12208,7 +12243,7 @@ class HallScene extends ui.hall.HallSceneUI {
 */
 class InvitationView extends BaseView {
     constructor() {
-        super(LAYER_TYPE.FRAME_LAYER, ui.invitation.InvitationViewUI);
+        super(M.layer.frameLayer, ui.invitation.InvitationViewUI);
         this.setResources(["invitation"]);
     }
     initData() {
@@ -12366,7 +12401,7 @@ class InvitationView extends BaseView {
 */
 class LuckPrizeBoxView extends BaseView {
     constructor() {
-        super(LAYER_TYPE.SUB_FRAME_LAYER, ui.luckPrize.LuckPrizeBoxViewUI);
+        super(M.layer.subFrameLayer, ui.luckPrize.LuckPrizeBoxViewUI);
         this.myParent.maskEnabled = false;
     }
     initData() {
@@ -12433,7 +12468,7 @@ class LuckPrizeBoxView extends BaseView {
 */
 class LuckPrizeItemView extends BaseView {
     constructor() {
-        super(LAYER_TYPE.SUB_FRAME_LAYER, ui.luckPrize.LuckPrizeItemViewUI);
+        super(M.layer.subFrameLayer, ui.luckPrize.LuckPrizeItemViewUI);
     }
     initData() {
         super.initData();
@@ -12474,14 +12509,14 @@ class LuckPrizeItemView extends BaseView {
         gold = gold * HallManager.Instance.hallData.magnification;
         this.ui.txtItemName.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.20", this.datas[0].name, MathUtils.bytesToSize(gold));
         let point = PointUtils.localToGlobal(this.ui.imgItem);
-        LayerMgr.Ins.addToLayer(new FlyEffect().play("rollingCoin", point.x, point.y), LAYER_TYPE.SCREEN_EFFECT_LAYER);
+        M.layer.screenEffectLayer.addChild(new FlyEffect().play("rollingCoin", point.x, point.y));
         EventsManager.Instance.event(EventsType.GOLD_CHANGE, { money: M.player.Info.userMoney += gold });
     }
     showDiamond(name, diamond) {
         diamond = diamond * HallManager.Instance.hallData.magnification;
         this.ui.txtItemName.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.20", name, diamond);
         let point = PointUtils.localToGlobal(this.ui.imgItem);
-        LayerMgr.Ins.addToLayer(new FlyEffect().play("diamond", point.x, point.y), LAYER_TYPE.SCREEN_EFFECT_LAYER);
+        M.layer.screenEffectLayer.addChild(new FlyEffect().play("diamond", point.x, point.y));
         HttpManager.Instance.requestDiamondData(); //刷新钻石数量
     }
     showEssence(name, essence) {
@@ -12517,7 +12552,7 @@ class LuckPrizeItemView extends BaseView {
 */
 class LuckPrizeView extends BaseView {
     constructor() {
-        super(LAYER_TYPE.FRAME_LAYER, ui.luckPrize.LuckPrizeViewUI);
+        super(M.layer.frameLayer, ui.luckPrize.LuckPrizeViewUI);
         this.costDiamond = 120;
         /** 免费抽奖次数 */
         this._freeCount = 0;
@@ -13298,7 +13333,7 @@ class SmallItem extends ui.playCourtesy.SmallItemUI {
 */
 class PlayCourtesyView extends BaseView {
     constructor() {
-        super(LAYER_TYPE.SUB_FRAME_LAYER, ui.playCourtesy.PlayCourtesyViewUI);
+        super(M.layer.subFrameLayer, ui.playCourtesy.PlayCourtesyViewUI);
         this.setResources(["playCourtesy"]);
     }
     initUI() {
@@ -13374,7 +13409,7 @@ class PlayCourtesyView extends BaseView {
 */
 class AdditionalRewardView extends BaseView {
     constructor() {
-        super(LAYER_TYPE.SUB_FRAME_LAYER, ui.randomReward.AdditionalRewardViewUI);
+        super(M.layer.subFrameLayer, ui.randomReward.AdditionalRewardViewUI);
         this.setResources(["randomReward"]);
     }
     initData() {
@@ -13790,7 +13825,7 @@ class ClearanceFail extends ui.settlement.ClearanceFailUI {
 */
 class ClearanceRewardView extends BaseView {
     constructor() {
-        super(LAYER_TYPE.SUB_FRAME_LAYER, ui.settlement.ClearanceRewardViewUI);
+        super(M.layer.subFrameLayer, ui.settlement.ClearanceRewardViewUI);
         this.setResources(["ClearanceReward"]);
     }
     //初始化
@@ -13910,13 +13945,15 @@ class ResultView extends ui.settlement.ResultViewUI {
                 btnGet.on(Laya.Event.CLICK, btnGet, () => {
                     that.prizeList.pop(); //移除最后一个
                     _callback && _callback(that.lastStage);
-                    if (that.prizeList.length > 0) {
-                        that.showPrizeUI(that.prizeList, _callback);
-                    }
-                    else {
-                        DisplayUtils.removeAllChildren(this.hbox);
-                        that.removeSelf();
-                    }
+                    this.timerOnce(1000, this, () => {
+                        if (that.prizeList.length > 0) {
+                            that.showPrizeUI(that.prizeList, _callback);
+                        }
+                        else {
+                            DisplayUtils.removeAllChildren(this.hbox);
+                            that.removeSelf();
+                        }
+                    });
                 });
             }
             let btnShare = imgBg.getChildByName("btnShare");
@@ -14021,7 +14058,7 @@ class ResultView extends ui.settlement.ResultViewUI {
 */
 class ShopView extends BaseView {
     constructor() {
-        super(LAYER_TYPE.FRAME_LAYER, ui.shop.ShopViewUI);
+        super(M.layer.frameLayer, ui.shop.ShopViewUI);
         this.isScroll = true;
         this.setResources(["shop"]);
     }
@@ -14278,7 +14315,7 @@ class ShopView extends BaseView {
 */
 class StrengthenView extends BaseView {
     constructor() {
-        super(LAYER_TYPE.FRAME_LAYER, ui.strengthen.StrengthenViewUI);
+        super(M.layer.frameLayer, ui.strengthen.StrengthenViewUI);
         this.indexArray = [10, 2, 1, 3];
         this.setResources(["strengthen"]);
     }
@@ -14370,7 +14407,7 @@ class StrengthenView extends BaseView {
                                         that.refreshBoxUI(_btnInfo.skillId);
                                         let bone = new BoneAnim("qhcg");
                                         AlignUtils.setToScreenGoldenPos(bone);
-                                        LayerMgr.Ins.addToLayer(bone, LAYER_TYPE.SCREEN_EFFECT_LAYER);
+                                        M.layer.screenEffectLayer.addChild(bone);
                                         bone.completeBack = () => {
                                             bone.destroy();
                                         };
@@ -14403,7 +14440,7 @@ class StrengthenView extends BaseView {
 */
 class AchiRewardView extends BaseView {
     constructor() {
-        super(LAYER_TYPE.NOTE_LAYER, ui.task.AchiRewardViewUI, false);
+        super(M.layer.noteLayer, ui.task.AchiRewardViewUI, false);
         this._rewardName = "金币";
         this._awardNum = 0;
         this.myParent.maskEnabled = false;
@@ -14460,13 +14497,13 @@ class AchiRewardView extends BaseView {
                     if (this.datas[0].reward_type != "money") {
                         MessageUtils.showMsgTips("成就奖励:" + this._rewardName + "x" + this._awardNum);
                         let point = PointUtils.localToGlobal(this.ui.imgIcon);
-                        LayerMgr.Ins.addToLayer(new FlyEffect().play("diamond", point.x, point.y), LAYER_TYPE.SCREEN_EFFECT_LAYER);
+                        M.layer.screenEffectLayer.addChild(new FlyEffect().play("diamond", point.x, point.y));
                         EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: M.player.Info.userDiamond += this._awardNum });
                     }
                     else {
                         MessageUtils.showMsgTips("成就奖励:" + this._rewardName + "x" + MathUtils.bytesToSize(this._awardNum));
                         let point = PointUtils.localToGlobal(this.ui.imgIcon);
-                        LayerMgr.Ins.addToLayer(new FlyEffect().play("rollingCoin", point.x, point.y), LAYER_TYPE.SCREEN_EFFECT_LAYER);
+                        M.layer.screenEffectLayer.addChild(new FlyEffect().play("rollingCoin", point.x, point.y));
                         EventsManager.Instance.event(EventsType.GOLD_CHANGE, { money: M.player.Info.userMoney += this._awardNum });
                     }
                 }
@@ -14493,7 +14530,7 @@ class AchiRewardView extends BaseView {
 */
 class TaskView extends BaseView {
     constructor() {
-        super(LAYER_TYPE.FRAME_LAYER, ui.task.TaskViewUI);
+        super(M.layer.frameLayer, ui.task.TaskViewUI);
         this.setResources(["quest", "component"]);
     }
     //初始化
@@ -14738,12 +14775,12 @@ class TaskView extends BaseView {
                                         MessageUtils.showMsgTips("奖励领取成功");
                                         if (item.reward_type == "money") {
                                             MessageUtils.shopMsgByObj(btnGet, "+" + MathUtils.bytesToSize(awardNum), EFFECT_TYPE.GOLD);
-                                            LayerMgr.Ins.addToLayer(new FlyEffect().play("rollingCoin", LayerManager.mouseX, LayerManager.mouseY), LAYER_TYPE.SCREEN_EFFECT_LAYER);
+                                            M.layer.screenEffectLayer.addChild(new FlyEffect().play("rollingCoin", LayerManager.mouseX, LayerManager.mouseY));
                                             EventsManager.Instance.event(EventsType.GOLD_CHANGE, { money: M.player.Info.userMoney += awardNum });
                                         }
                                         else {
                                             MessageUtils.shopMsgByObj(btnGet, "+" + awardNum, EFFECT_TYPE.DIAMOND);
-                                            LayerMgr.Ins.addToLayer(new FlyEffect().play("diamond", LayerManager.mouseX, LayerManager.mouseY), LAYER_TYPE.SCREEN_EFFECT_LAYER);
+                                            M.layer.screenEffectLayer.addChild(new FlyEffect().play("diamond", LayerManager.mouseX, LayerManager.mouseY));
                                             EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, res);
                                         }
                                         _btnObj.visible = false;
@@ -14806,7 +14843,7 @@ var QuestSubView;
 */
 class WelfareView extends BaseView {
     constructor() {
-        super(LAYER_TYPE.SUB_FRAME_LAYER, ui.welfare.WelfareViewUI);
+        super(M.layer.subFrameLayer, ui.welfare.WelfareViewUI);
         this.setResources(["welfare"]);
     }
     initUI() {
@@ -15465,7 +15502,6 @@ class EffectUtils extends Laya.Sprite {
         if (isDoubleHurt) {
             bloodClip.skin = "images/fontImg/crit_num.png";
             bloodClip.zOrder = parentNode.zOrder + 99;
-            ShakeUtils.Ins.shock(0, parentNode, 1);
             Laya.Tween.to(bloodClip, { scaleX: 1.4, scaleY: 1.4 }, 200, Laya.Ease.circIn, Handler.create(this, () => {
                 Laya.Tween.to(bloodClip, { scaleX: 1, scaleY: 1, alpha: 0 }, 500, Laya.Ease.cubicInOut, Handler.create(this, () => {
                     Laya.Tween.clearTween(bloodClip);
@@ -16154,7 +16190,7 @@ class ManagerShortcuts {
 */
 class SkyDropView extends BaseView {
     constructor() {
-        super(LAYER_TYPE.SUB_FRAME_LAYER, ui.common.view.SkyDropViewUI);
+        super(M.layer.subFrameLayer, ui.common.view.SkyDropViewUI);
     }
     initData() {
         super.initData();
@@ -16394,7 +16430,7 @@ class Main {
         // Laya.URL.basePath = PathConfig.RES_URL;
         M.layer.initLayer(Laya.stage, 750, 1334);
         userData = new UserData();
-        LayerMgr.Ins.initLayer(Laya.stage, 750, 1334);
+        // LayerMgr.Ins.initLayer(Laya.stage, 750, 1334);
         systemInfo = new WXSystemInfo();
         try {
             const infoSync = Laya.Browser.window.wx.getSystemInfoSync();
@@ -16422,7 +16458,7 @@ class Main {
         EffectUtils.showWaitEffect();
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
-            url: 'v3/token/user',
+            url: 'v4/token/user',
             method: "Post",
             data: StringUtils.toUrlQueryString({ userName: account, password: pwd }),
             success: res => {

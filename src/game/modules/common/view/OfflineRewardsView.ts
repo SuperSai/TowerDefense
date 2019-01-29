@@ -6,7 +6,7 @@ class OfflineRewardsView extends BaseView {
     private _price: number = 0;
 
     constructor() {
-        super(LAYER_TYPE.SUB_FRAME_LAYER, ui.common.view.OfflineRewardsViewUI);
+        super(M.layer.subFrameLayer, ui.common.view.OfflineRewardsViewUI);
     }
 
     //初始化

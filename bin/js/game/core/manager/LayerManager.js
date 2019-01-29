@@ -71,6 +71,7 @@ class LayerManager extends EventDispatcher {
         let idx = 0;
         this.renderLayer = this.createLayer(idx++, "renderLayer", container);
         this.navLayer = this.createLayer(idx++, "navLayer", container);
+        this.flyLayer = this.createLayer(idx++, "flyLayer", container);
         this.frameLayer = this.createMaskLayer(idx++, "frameLayer", container);
         this.subFrameLayer = this.createMaskLayer(idx++, "subFrameLayer", container);
         this.alertLayer = this.createMaskLayer(idx++, "alertLayer", container);

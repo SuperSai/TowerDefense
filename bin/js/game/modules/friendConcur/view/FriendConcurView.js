@@ -3,7 +3,7 @@
 */
 class FriendConcurView extends BaseView {
     constructor() {
-        super(LAYER_TYPE.FRAME_LAYER, ui.friendConcur.FriendConcurUI);
+        super(M.layer.frameLayer, ui.friendConcur.FriendConcurUI);
         this.setResources(["friendConcur"]);
     }
     //初始化

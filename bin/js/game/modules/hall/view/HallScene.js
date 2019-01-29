@@ -190,7 +190,10 @@ class HallScene extends ui.hall.HallSceneUI {
                     }
                     else {
                         this.imgAccIcon.visible = true;
-                        if (userData.getAdTimes(10) > 0) {
+                        if (M.player.Info.freeAcc > 0) {
+                            this.imgAccIcon.skin = "images/core/red_dot_hint.png";
+                        }
+                        else if (userData.getAdTimes(10) > 0) {
                             this.imgAccIcon.skin = "images/core/video_icon.png";
                         }
                         else if (userData.getShareTimes(10) > 0) {
@@ -559,7 +562,7 @@ class HallScene extends ui.hall.HallSceneUI {
                                             this.roadView.addChild(goldImg);
                                             goldImg.pos(txtPos.x, txtPos.y);
                                             this.timerOnce(1500, this, () => {
-                                                LayerMgr.Ins.addToLayer(goldImg, LAYER_TYPE.FRAME_LAYER);
+                                                M.layer.flyLayer.addChild(goldImg);
                                                 let endPos = PointUtils.localToGlobal(this.imgGold);
                                                 EffectUtils.doGoodsFlyEffect(goldImg, endPos, () => {
                                                     goldImg.removeSelf();
@@ -1184,7 +1187,7 @@ class HallScene extends ui.hall.HallSceneUI {
                 bone.destroy();
             };
             AlignUtils.setToScreenGoldenPos(bone);
-            LayerMgr.Ins.addToLayer(bone, LAYER_TYPE.SCREEN_EFFECT_LAYER);
+            M.layer.screenEffectLayer.addChild(bone);
         }
         //加速开始
         that.setCarAcce(2);
@@ -1225,7 +1228,10 @@ class HallScene extends ui.hall.HallSceneUI {
                 }
                 that.btnAcce.mouseEnabled = true;
                 this.imgAccIcon.visible = true;
-                if (userData.getAdTimes(10) > 0) {
+                if (M.player.Info.freeAcc > 0) {
+                    this.imgAccIcon.skin = "images/core/red_dot_hint.png";
+                }
+                else if (userData.getAdTimes(10) > 0) {
                     this.imgAccIcon.skin = "images/core/video_icon.png";
                 }
                 else if (userData.getShareTimes(10) > 0) {
@@ -1462,13 +1468,19 @@ class HallScene extends ui.hall.HallSceneUI {
             self.playAcceEffectView();
         }
         else {
-            //显示广告
-            let adStage = userData.toShareAd(() => {
+            if (PlayerManager.Instance.Info.freeAcc > 0) {
                 self.playAcceEffectView();
-            }, 10, false, true);
-            //无分享广告则显示钻石购买
-            if (adStage > 0) {
-                self.onDiamondBuyAcce();
+                PlayerManager.Instance.Info.freeAcc--;
+            }
+            else {
+                //显示广告
+                let adStage = userData.toShareAd(() => {
+                    self.playAcceEffectView();
+                }, 10, false, true);
+                //无分享广告则显示钻石购买
+                if (adStage > 0) {
+                    self.onDiamondBuyAcce();
+                }
             }
         }
     }

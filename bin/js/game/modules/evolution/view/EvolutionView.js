@@ -3,7 +3,7 @@
 */
 class EvolutionView extends BaseView {
     constructor() {
-        super(LAYER_TYPE.FRAME_LAYER, ui.evolution.EvolutionViewUI);
+        super(M.layer.frameLayer, ui.evolution.EvolutionViewUI);
         this._diamond = 0;
         this._needDiamond = 0;
     }
@@ -18,7 +18,7 @@ class EvolutionView extends BaseView {
             ViewMgr.Ins.close(ViewConst.EvolutionView);
         });
         self.refreshBoxUI();
-        LayerMgr.Ins.getLayerByType(LAYER_TYPE.FRAME_LAYER).on(LayerEvent.LAYER_ANIMATION_COMPLETE, this, (complete) => {
+        M.layer.frameLayer.on(LayerEvent.LAYER_ANIMATION_COMPLETE, this, (complete) => {
             if (complete) {
                 if (!NoviceManager.isComplete) {
                     M.novice.on(NoviceEvent.ACTIVATE_TARGET, self, (eventParam) => {
@@ -33,11 +33,12 @@ class EvolutionView extends BaseView {
                 M.novice.manuallyEventOut();
             }
         });
+        let bossId = userData.isEvolution() ? 100003 : 100002;
+        this.ui.spMountGuard.setKind(bossId);
     }
     refreshBoxUI() {
         let self = this;
         let kingLevel = userData.getKingLevel();
-        console.log("@David 守卫等级：", kingLevel);
         let kingVO = GlobleData.getData(GlobleData.KindLevelConfigVO, kingLevel);
         //界面初始化
         if (kingVO) {
@@ -65,13 +66,31 @@ class EvolutionView extends BaseView {
             let isShow = kingLevel > 10;
             self.ui.heroBox.visible = isShow;
             self.ui.txtItemName.text = heroName;
-            self.ui.txtNeedItem.text = Math.min(currHeroCount, needHeroCount) + '/' + needHeroCount;
-            self.ui.txtNeedDiamond.text = Math.min(self._diamond, self._needDiamond) + '/' + self._needDiamond;
-            if (isShow) {
-                self.ui.diamondBox.pos(32, 558);
+            self.ui.txtNeedItem0.text = Math.min(currHeroCount, needHeroCount);
+            self.ui.txtNeedItem1.text = '/' + needHeroCount;
+            if (currHeroCount >= needHeroCount) {
+                self.ui.txtNeedItem0.color = "#9a8d00";
+                self.ui.iconImg0.skin = "images/hall/hall_gou.png";
             }
             else {
-                self.ui.diamondBox.pos(32, 507);
+                self.ui.txtNeedItem0.color = "#ea1010";
+                self.ui.iconImg0.skin = "images/hall/hall_xx.png";
+            }
+            self.ui.txtNeedDiamond0.text = Math.min(self._diamond, self._needDiamond);
+            self.ui.txtNeedDiamond1.text = '/' + self._needDiamond;
+            if (self._diamond >= self._needDiamond) {
+                self.ui.txtNeedDiamond0.color = "#9a8d00";
+                self.ui.iconImg1.skin = "images/hall/hall_gou.png";
+            }
+            else {
+                self.ui.txtNeedDiamond0.color = "#ea1010";
+                self.ui.iconImg1.skin = "images/hall/hall_xx.png";
+            }
+            if (isShow) {
+                self.ui.diamondBox.pos(32, 703);
+            }
+            else {
+                self.ui.diamondBox.pos(32, 630);
             }
             self.ui.nameHbox.refresh();
         }

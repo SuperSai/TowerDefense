@@ -14,7 +14,7 @@ class MessageUtils {
         msg.visible = content == "" ? false : true;
         msg.zOrder = 999;
         AlignUtils.setToScreenGoldenPos(msg);
-        LayerMgr.Ins.addToLayer(msg, LAYER_TYPE.ROLL_MSG_LAYER);
+        M.layer.rollMessageLayer.addChild(msg);
         Laya.Tween.to(msg, { x: msg.x, y: msg.y - 100, alpha: 0 }, 4000, Laya.Ease.cubicInOut, Laya.Handler.create(self, ($msg) => {
             Laya.Tween.clearTween($msg);
             $msg.zOrder = 1;
@@ -63,7 +63,7 @@ class MessageUtils {
             hbox.align = "middle";
             const global = PointUtils.localToGlobal(obj);
             hbox.pos(global.x, global.y);
-            LayerMgr.Ins.addToLayer(hbox, LAYER_TYPE.SCREEN_EFFECT_LAYER);
+            M.layer.screenEffectLayer.addChild(hbox);
             hbox.x += (obj.width - hbox.width) / 2;
             Laya.Tween.to(hbox, { y: hbox.y - 50, alpha: 0 }, 2000, null, Laya.Handler.create(this, () => {
                 Laya.Tween.clearTween(hbox);
@@ -73,7 +73,7 @@ class MessageUtils {
         else {
             const global = PointUtils.localToGlobal(obj);
             label.pos(global.x, global.y);
-            LayerMgr.Ins.addToLayer(label, LAYER_TYPE.SCREEN_EFFECT_LAYER);
+            M.layer.screenEffectLayer.addChild(label);
             label.x += (obj.width - label.width) / 2;
             Laya.Tween.to(label, { y: label.y - 50, alpha: 0 }, 2000, null, Laya.Handler.create(this, () => {
                 Laya.Tween.clearTween(label);

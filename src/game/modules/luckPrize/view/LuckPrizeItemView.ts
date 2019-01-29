@@ -4,7 +4,7 @@
 class LuckPrizeItemView extends BaseView {
 
     constructor() {
-        super(LAYER_TYPE.SUB_FRAME_LAYER, ui.luckPrize.LuckPrizeItemViewUI);
+        super(M.layer.subFrameLayer, ui.luckPrize.LuckPrizeItemViewUI);
     }
 
     public initData(): void {
@@ -50,7 +50,7 @@ class LuckPrizeItemView extends BaseView {
         gold = gold * HallManager.Instance.hallData.magnification;
         this.ui.txtItemName.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.20", this.datas[0].name, MathUtils.bytesToSize(gold));
         let point: Laya.Point = PointUtils.localToGlobal(this.ui.imgItem);
-        LayerMgr.Ins.addToLayer(new FlyEffect().play("rollingCoin", point.x, point.y), LAYER_TYPE.SCREEN_EFFECT_LAYER);
+        M.layer.screenEffectLayer.addChild(new FlyEffect().play("rollingCoin", point.x, point.y));
         EventsManager.Instance.event(EventsType.GOLD_CHANGE, { money: M.player.Info.userMoney += gold });
     }
 
@@ -58,7 +58,7 @@ class LuckPrizeItemView extends BaseView {
         diamond = diamond * HallManager.Instance.hallData.magnification;
         this.ui.txtItemName.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.20", name, diamond);
         let point: Laya.Point = PointUtils.localToGlobal(this.ui.imgItem);
-        LayerMgr.Ins.addToLayer(new FlyEffect().play("diamond", point.x, point.y), LAYER_TYPE.SCREEN_EFFECT_LAYER);
+        M.layer.screenEffectLayer.addChild(new FlyEffect().play("diamond", point.x, point.y));
         HttpManager.Instance.requestDiamondData(); //刷新钻石数量
     }
 

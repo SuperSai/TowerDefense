@@ -3,7 +3,7 @@
 */
 class SkillExplainView extends BaseView {
     constructor() {
-        super(LAYER_TYPE.SUB_FRAME_LAYER, ui.common.view.SkillExplainViewUI);
+        super(M.layer.subFrameLayer, ui.common.view.SkillExplainViewUI);
     }
     //初始化
     initUI() {

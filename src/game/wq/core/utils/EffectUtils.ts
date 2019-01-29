@@ -125,7 +125,6 @@ class EffectUtils extends Laya.Sprite {
         if (isDoubleHurt) {
             bloodClip.skin = "images/fontImg/crit_num.png";
             bloodClip.zOrder = parentNode.zOrder + 99;
-            ShakeUtils.Ins.shock(0, parentNode, 1);
             Laya.Tween.to(bloodClip, { scaleX: 1.4, scaleY: 1.4 }, 200, Laya.Ease.circIn, Handler.create(this, () => {
                 Laya.Tween.to(bloodClip, { scaleX: 1, scaleY: 1, alpha: 0 }, 500, Laya.Ease.cubicInOut, Handler.create(this, () => {
                     Laya.Tween.clearTween(bloodClip);

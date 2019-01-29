@@ -3,7 +3,7 @@
 */
 class PlayCourtesyView extends BaseView {
     constructor() {
-        super(LAYER_TYPE.SUB_FRAME_LAYER, ui.playCourtesy.PlayCourtesyViewUI);
+        super(M.layer.subFrameLayer, ui.playCourtesy.PlayCourtesyViewUI);
         this.setResources(["playCourtesy"]);
     }
     initUI() {

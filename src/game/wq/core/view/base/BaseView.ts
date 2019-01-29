@@ -6,7 +6,7 @@ class BaseView extends Laya.View implements IBaseView {
     public callback: Function;
     public isRemoveBanner: boolean = true;
 
-    private _myParent: MaskLayer;
+    private _myParent: any;
     private _isInit: boolean;
     private _resources: string[] = null;
     private _ui: any;
@@ -14,16 +14,16 @@ class BaseView extends Laya.View implements IBaseView {
     private _datas: any[];
 
     /** 构造函数 */
-    public constructor($layer: number, $class: any, isShowMask: boolean = true) {
+    public constructor($layer: Layer, $class: any, isShowMask: boolean = true) {
         super();
-        this._myParent = LayerMgr.Ins.getLayerByType($layer);
+        this._myParent = $layer;
         this._isInit = false;
         this._isShowMask = isShowMask;
         this._ui = $class;
     }
 
     /** 获取我的父级 */
-    public get myParent(): MaskLayer {
+    public get myParent(): any {
         return this._myParent;
     }
 
@@ -31,13 +31,11 @@ class BaseView extends Laya.View implements IBaseView {
     public addToParent(): void {
         AlignUtils.setToScreenGoldenPos(this);
         if (this._isShowMask) {
-            this._myParent.maskEnabled = true;
             this._myParent.addChildWithMaskCall(this, () => {
                 this.removeFromParent();
                 this.close();
             });
         } else {
-            this._myParent.maskEnabled = false;
             this._myParent.addChild(this);
         }
     }
