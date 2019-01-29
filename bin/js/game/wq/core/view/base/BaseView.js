@@ -19,7 +19,7 @@ class BaseView extends Laya.View {
     /** 添加到父级 */
     addToParent() {
         AlignUtils.setToScreenGoldenPos(this);
-        if (this._isShowMask) {
+        if (this._isShowMask && this._myParent instanceof MaskLayer) {
             this._myParent.addChildWithMaskCall(this, () => {
                 this.removeFromParent();
                 this.close();

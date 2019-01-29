@@ -8648,7 +8648,7 @@ class BaseView extends Laya.View {
     /** 添加到父级 */
     addToParent() {
         AlignUtils.setToScreenGoldenPos(this);
-        if (this._isShowMask) {
+        if (this._isShowMask && this._myParent instanceof MaskLayer) {
             this._myParent.addChildWithMaskCall(this, () => {
                 this.removeFromParent();
                 this.close();
@@ -14369,7 +14369,6 @@ class StrengthenView extends BaseView {
             if ($skillId == skillId) {
                 let strengthenLevel = userData.querySkillAddition($skillId);
                 let curProbability = SkillManager.Instance.getSkillStrengthenLevelProbability($skillId, strengthenLevel);
-                // let probability: number = SkillManager.Instance.getSkillStrengthenProbability(skillId, 1);
                 let price = SkillManager.Instance.getSkillStrengthenCost($skillId, strengthenLevel + 1);
                 let imgBg = that.ui.mainView.getChildByName("imgBg");
                 if (imgBg) {
@@ -14398,7 +14397,7 @@ class StrengthenView extends BaseView {
                                     MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.17"));
                                     return;
                                 }
-                                if (userData.querySkillAddition(_btnInfo.skillId) >= 50) {
+                                if (userData.querySkillAddition(_btnInfo.skillId) >= 50 || price <= 0) {
                                     return MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.16"));
                                 }
                                 HttpManager.Instance.requestSkillStrengthen(_btnInfo.skillId, 1, _btnInfo.price, 1, (_res) => {

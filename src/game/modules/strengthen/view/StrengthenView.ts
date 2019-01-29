@@ -60,7 +60,6 @@ class StrengthenView extends BaseView {
             if ($skillId == skillId) {
                 let strengthenLevel: number = userData.querySkillAddition($skillId);
                 let curProbability: number = SkillManager.Instance.getSkillStrengthenLevelProbability($skillId, strengthenLevel);
-                // let probability: number = SkillManager.Instance.getSkillStrengthenProbability(skillId, 1);
                 let price: number = SkillManager.Instance.getSkillStrengthenCost($skillId, strengthenLevel + 1);
                 let imgBg = that.ui.mainView.getChildByName("imgBg") as Laya.Image;
                 if (imgBg) {
@@ -89,7 +88,7 @@ class StrengthenView extends BaseView {
                                     MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.17"));
                                     return;
                                 }
-                                if (userData.querySkillAddition(_btnInfo.skillId) >= 50) {
+                                if (userData.querySkillAddition(_btnInfo.skillId) >= 50 || price <= 0) {
                                     return MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.16"));
                                 }
                                 HttpManager.Instance.requestSkillStrengthen(_btnInfo.skillId, 1, _btnInfo.price, 1, (_res: any) => {

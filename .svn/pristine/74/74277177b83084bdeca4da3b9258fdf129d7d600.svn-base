@@ -1,0 +1,31 @@
+/*
+* 技能说明界面;
+*/
+class SkillExplainView extends BaseView {
+
+    constructor() {
+        super(M.layer.subFrameLayer, ui.common.view.SkillExplainViewUI);
+    }
+
+    //初始化
+    public initUI(): void {
+        super.initUI();
+        this.isRemoveBanner = false;
+    }
+
+    public addEvents(): void {
+        super.addEvents();
+        let self = this;
+        self.ui.btnExit.on(Laya.Event.CLICK, self, self.onClickClose);
+    }
+
+    public removeEvents(): void {
+        super.removeEvents()
+        let self = this;
+        self.ui.btnExit.off(Laya.Event.CLICK, self, self.onClickClose);
+    }
+
+    private onClickClose(): any {
+        ViewMgr.Ins.close(ViewConst.SkillExplainView);
+    }
+}
