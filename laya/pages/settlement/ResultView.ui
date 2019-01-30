@@ -1,8 +1,8 @@
 {
     "x":0,
     "type":"View",
-    "selectedBox":2,
-    "selecteID":9,
+    "selectedBox":6,
+    "selecteID":38,
     "props":{"sceneWidth":750,"sceneHeight":1334,"sceneColor":"#000000","mouseThrough":true,"mouseEnabled":true},
     "nodeParent":-1,
     "label":"View",
@@ -109,7 +109,7 @@
                         {
                             "x":45,
                             "type":"Label",
-                            "props":{"y":382,"x":133,"text":"分享到群，点击分享链接即可领取","fontSize":30,"color":"#ff0400"},
+                            "props":{"y":382,"x":133,"visible":false,"text":"分享到群，点击分享链接即可领取","fontSize":30,"color":"#ff0400"},
                             "nodeParent":2,
                             "label":"Label",
                             "isDirectory":false,
@@ -168,6 +168,19 @@
                                     "isAniNode":true,
                                     "hasChild":false,
                                     "compId":7,
+                                    "child":[
+                                        ]
+                                },
+                                {
+                                    "x":60,
+                                    "type":"Image",
+                                    "props":{"y":58,"x":186,"skin":"images/core/video_icon.png"},
+                                    "nodeParent":6,
+                                    "label":"Image",
+                                    "isDirectory":false,
+                                    "isAniNode":true,
+                                    "hasChild":false,
+                                    "compId":38,
                                     "child":[
                                         ]
                                 },

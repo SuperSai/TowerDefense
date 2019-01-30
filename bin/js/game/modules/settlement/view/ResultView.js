@@ -85,19 +85,26 @@ class ResultView extends ui.settlement.ResultViewUI {
                         }
                     }
                     else {
-                        userData.toShareAd(() => {
-                            // that.prizeList.pop();//移除最后一个
-                            // _callback && _callback(that.lastStage);
-                            // if (that.prizeList.length > 0) {
-                            //     that.showPrizeUI(that.prizeList, _callback);
-                            // } else {
-                            //     DisplayUtils.removeAllChildren(this.hbox);
-                            //     that.removeSelf();
-                            // }
-                            DisplayUtils.removeAllChildren(this.hbox);
-                            that.removeSelf();
-                            MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.38"));
-                        }, 15);
+                        SDKManager.Instance.showVideoAd((res) => {
+                            if (res && res.isEnded || res === undefined) {
+                                that.prizeList.pop(); //移除最后一个
+                                _callback && _callback(that.lastStage);
+                                if (that.prizeList.length > 0) {
+                                    that.showPrizeUI(that.prizeList, _callback);
+                                }
+                                else {
+                                    DisplayUtils.removeAllChildren(this.hbox);
+                                    that.removeSelf();
+                                }
+                            }
+                        }, () => {
+                            MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.15"));
+                        }, false);
+                        // userData.toShareAd(() => {
+                        //     DisplayUtils.removeAllChildren(this.hbox);
+                        //     that.removeSelf();
+                        //     MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.38"))
+                        // }, 15);
                     }
                 });
             }

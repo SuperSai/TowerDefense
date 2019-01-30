@@ -325,13 +325,14 @@
                     "props":{"y":320,"width":572,"var":"carparkList","spaceY":16,"spaceX":10,"repeatY":5,"repeatX":4,"name":"carparkList","mouseEnabled":false,"height":700,"centerX":45},
                     "nodeParent":2,
                     "label":"List(carparkList)",
-                    "isOpen":false,
+                    "isOpen":true,
                     "isDirectory":true,
                     "isAniNode":true,
                     "hasChild":true,
                     "compId":38,
                     "child":[
                         {
+                            "x":45,
                             "type":"Box",
                             "props":{"y":80,"x":67,"width":100,"visible":false,"renderType":"render","height":100},
                             "nodeParent":38,
@@ -343,6 +344,7 @@
                             "compId":40,
                             "child":[
                                 {
+                                    "x":60,
                                     "type":"Sprite",
                                     "props":{"y":-14,"x":-14,"width":128,"runtime":"MonsterSprite","name":"car","height":128},
                                     "nodeParent":40,
@@ -354,6 +356,7 @@
                                     "compId":41,
                                     "child":[
                                         {
+                                            "x":75,
                                             "type":"Image",
                                             "props":{"y":75,"x":64,"width":100,"visible":false,"skin":"images/hall/game_select_light.png","name":"imgLight","height":50,"anchorY":0.5,"anchorX":0.5},
                                             "nodeParent":41,
@@ -367,6 +370,7 @@
                                             "$HIDDEN":false
                                         },
                                         {
+                                            "x":75,
                                             "type":"Image",
                                             "props":{"y":64,"x":64,"visible":false,"skin":"images/hall/game_lockIcon.png","name":"imgLock","anchorY":0.5,"anchorX":0.5},
                                             "nodeParent":41,
@@ -380,6 +384,7 @@
                                             "$HIDDEN":false
                                         },
                                         {
+                                            "x":75,
                                             "type":"Image",
                                             "props":{"y":87,"x":79,"width":31,"visible":false,"skin":"images/hall/lv_001.png","sizeGrid":"10,9,11,8","name":"imgLevel","height":25},
                                             "nodeParent":41,
@@ -405,6 +410,7 @@
                                             "$HIDDEN":false
                                         },
                                         {
+                                            "x":75,
                                             "type":"Label",
                                             "props":{"y":24,"x":34,"width":53,"text":"18关","strokeColor":"#83551a","stroke":2,"name":"txt_openLevel","height":18,"fontSize":18,"color":"#ffffff","align":"center"},
                                             "nodeParent":41,
@@ -417,6 +423,7 @@
                                                 ]
                                         },
                                         {
+                                            "x":75,
                                             "type":"Sprite",
                                             "props":{"y":74,"x":62,"width":1,"name":"heroPos","height":1},
                                             "nodeParent":41,
@@ -1309,7 +1316,7 @@
                                         ]
                                 }]
                         }],
-                    "$LOCKED":false,
+                    "$LOCKED":true,
                     "$HIDDEN":false
                 },
                 {
