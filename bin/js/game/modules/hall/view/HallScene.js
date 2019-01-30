@@ -851,7 +851,8 @@ class HallScene extends ui.hall.HallSceneUI {
         if (NoviceManager.cache.checkPetSynthesisLevel) {
             NoviceManager.cache.checkPetSynthesisLevel(currHeroLevel + 1);
         }
-        self.curMonsterSprite.clearStage();
+        if (self.curMonsterSprite)
+            self.curMonsterSprite.clearStage();
         heroItem.playMergeEffetc(self.mainView, heroId);
         //检测等级刷新
         if (userData.updateCarLevel(BattleManager.Instance.getLevel(nextCardId))) {
@@ -868,7 +869,8 @@ class HallScene extends ui.hall.HallSceneUI {
         // self.refreshShortcutCreateBtn();
         HallManager.Instance.updateIncomePerSec(HallManager.Instance.getCalculateIncomePerSec(self.carparkList));
         //本地保存
-        userData.setCarparkSave(heroItem, self.curMonsterSprite);
+        if (self.curMonsterSprite)
+            userData.setCarparkSave(heroItem, self.curMonsterSprite);
         //任务统计
         // HttpManager.Instance.requestDailyTaskData(1);
         //检查守卫是否可以升级
@@ -1471,6 +1473,7 @@ class HallScene extends ui.hall.HallSceneUI {
             if (PlayerManager.Instance.Info.freeAcc > 0) {
                 self.playAcceEffectView();
                 PlayerManager.Instance.Info.freeAcc--;
+                HttpManager.Instance.requestShareAdFinish("free_acce");
             }
             else {
                 //显示广告

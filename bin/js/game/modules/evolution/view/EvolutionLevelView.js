@@ -3,7 +3,7 @@
 */
 class EvolutionLevelView extends BaseView {
     constructor() {
-        super(M.layer.screenEffectLayer, ui.evolution.EvolutionLevelViewUI);
+        super(M.layer.subFrameLayer, ui.evolution.EvolutionLevelViewUI);
         this.setResources(["guardLevel"]);
     }
     initData() {
@@ -20,15 +20,10 @@ class EvolutionLevelView extends BaseView {
             this.ui.effectLight.visible = true;
             this.ui.txt_name.visible = true;
             this.ui.txt_level.visible = true;
-            this.timerOnce(3000, this, this.removeView);
         });
-    }
-    removeView() {
-        ViewMgr.Ins.close(ViewConst.EvolutionLevelView);
     }
     close(...param) {
         super.close(param);
-        this.clearTimer(this, this.removeView);
         if (this._effect)
             this._effect.destroy();
         this._effect = null;

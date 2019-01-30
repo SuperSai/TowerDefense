@@ -5,6 +5,7 @@ class LevelHeroView extends ui.evolution.LevelHeroViewUI {
 
     private _callback: Function;
     private _cancenCallback: Function;
+    private _isSuccess: boolean = false;
 
     constructor(callback: Function = null, cancenCallback: Function = null) {
         super();
@@ -23,7 +24,7 @@ class LevelHeroView extends ui.evolution.LevelHeroViewUI {
             if (_parentNode) {
                 let nodeView = new LevelHeroView(callback, cancenCallback);
                 AlignUtils.setToScreenGoldenPos(nodeView);
-                M.layer.subFrameLayer.addChildWithMaskCall(nodeView, nodeView.removeView);
+                M.layer.subFrameLayer.addChildWithMaskCall(nodeView, nodeView.removeHeroView);
             }
         }));
     }
@@ -43,25 +44,27 @@ class LevelHeroView extends ui.evolution.LevelHeroViewUI {
 
     private addEvents(): void {
         this.btn_sure.on(Laya.Event.CLICK, this, this.onClickSure);
-        this.btn_next.on(Laya.Event.CLICK, this, this.removeView);
-        this.btn_exit.on(Laya.Event.CLICK, this, this.removeView);
+        this.btn_next.on(Laya.Event.CLICK, this, this.removeHeroView);
+        this.btn_exit.on(Laya.Event.CLICK, this, this.removeHeroView);
     }
 
     private removeEvents(): void {
         this.btn_sure.off(Laya.Event.CLICK, this, this.onClickSure);
-        this.btn_next.off(Laya.Event.CLICK, this, this.removeView);
-        this.btn_exit.off(Laya.Event.CLICK, this, this.removeView);
+        this.btn_next.off(Laya.Event.CLICK, this, this.removeHeroView);
+        this.btn_exit.off(Laya.Event.CLICK, this, this.removeHeroView);
     }
 
     private onClickSure(): void {
         if (EvolutionManager.Instance.canEvolutionUpgrade()) {
             if (GlobalConfig.DEBUG) {
+                this._isSuccess = true;
                 MessageUtils.showMsgTips("升级成功");
                 HallManager.Instance.hallData.isUpdate = false;
                 this._callback && this._callback(userData.getKingLevel() + 1, M.player.Info.userDiamond - EvolutionManager.Instance.getEvolutionLevelDiamond());
             } else {
                 HttpManager.Instance.requestUpdateKingLevel(EvolutionView.kingEvolutionType, userData.getKingLevel(), EvolutionManager.Instance.getEvolutionLevelDiamond(), (_res: any) => {
                     if (_res && _res.type) {
+                        this._isSuccess = true;
                         ViewMgr.Ins.open(ViewConst.EvolutionLevelView, () => {
                             MessageUtils.showMsgTips("升级成功");
                             HallManager.Instance.hallData.isUpdate = false;
@@ -75,9 +78,11 @@ class LevelHeroView extends ui.evolution.LevelHeroViewUI {
         }
     }
 
-    private removeView(): void {
+    private removeHeroView(): void {
         this.removeEvents();
         this.removeSelf();
-        this._cancenCallback && this._cancenCallback();
+        if (!this._isSuccess) {
+            this._cancenCallback && this._cancenCallback();
+        }
     }
 }

@@ -1,8 +1,8 @@
 {
     "x":0,
     "type":"View",
-    "selectedBox":118,
-    "selecteID":121,
+    "selectedBox":78,
+    "selecteID":79,
     "props":{"width":714,"sceneWidth":750,"sceneHeight":1334,"sceneColor":"#000000","height":1018},
     "nodeParent":-1,
     "label":"View",
@@ -186,13 +186,14 @@
                                     "props":{"y":281,"x":39,"stateNum":"1","skin":"images/component/frame_btn_small_yellow.png","name":"btnStrengthen","labelStrokeColor":"#e5ad1e","labelStroke":2,"labelSize":30,"labelColors":"#ffffff","labelBold":true},
                                     "nodeParent":26,
                                     "label":"Button(btnStrengthen)",
-                                    "isOpen":false,
+                                    "isOpen":true,
                                     "isDirectory":true,
                                     "isAniNode":true,
                                     "hasChild":true,
                                     "compId":41,
                                     "child":[
                                         {
+                                            "x":75,
                                             "type":"Label",
                                             "props":{"y":16,"x":22,"text":"强化","strokeColor":"#946430","stroke":2,"name":"txtBtn","fontSize":28,"color":"#f0f7f7","bold":true,"align":"left"},
                                             "nodeParent":41,
@@ -205,6 +206,7 @@
                                                 ]
                                         },
                                         {
+                                            "x":75,
                                             "type":"Script",
                                             "source":"laya/pages/ScaleAnimScript.script",
                                             "props":{"y":0,"x":0},
@@ -218,6 +220,7 @@
                                                 ]
                                         },
                                         {
+                                            "x":75,
                                             "type":"Image",
                                             "props":{"y":16,"x":83,"skin":"images/strengthen/strengthen_item_shitou.png","scaleY":0.7,"scaleX":0.7,"name":"imgIcon"},
                                             "nodeParent":41,
@@ -231,6 +234,7 @@
                                                 ]
                                         },
                                         {
+                                            "x":75,
                                             "type":"Label",
                                             "props":{"y":16,"x":115,"text":"0","strokeColor":"#946430","stroke":4,"name":"txtEssence","fontSize":26,"color":"#ffffff","bold":true,"align":"left"},
                                             "nodeParent":41,
@@ -380,7 +384,7 @@
                                         {
                                             "x":75,
                                             "type":"Label",
-                                            "props":{"y":16,"x":22,"text":"强化","strokeColor":"#946430","stroke":4,"name":"txtBtn","fontSize":30,"color":"#ffffff","bold":true,"align":"left"},
+                                            "props":{"y":16,"x":22,"text":"强化","strokeColor":"#946430","stroke":2,"name":"txtBtn","fontSize":30,"color":"#ffffff","align":"left"},
                                             "nodeParent":78,
                                             "label":"Label(txtBtn)",
                                             "isDirectory":false,

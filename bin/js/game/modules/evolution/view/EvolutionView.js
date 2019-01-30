@@ -86,6 +86,7 @@ class EvolutionView extends BaseView {
                 self.ui.txtNeedDiamond0.color = "#ea1010";
                 self.ui.iconImg1.skin = "images/hall/hall_xx.png";
             }
+            self.ui.hboxDiamond.refresh();
             if (isShow) {
                 self.ui.diamondBox.pos(32, 703);
             }

@@ -1,8 +1,8 @@
 {
     "x":0,
     "type":"View",
-    "selectedBox":173,
-    "selecteID":171,
+    "selectedBox":1,
+    "selecteID":173,
     "props":{"sceneWidth":750,"sceneHeight":1334,"sceneColor":"#000000","sceneBg":"laya/views/evolution/EvolutionView.jpg"},
     "nodeParent":-1,
     "label":"View",
@@ -238,13 +238,14 @@
                     "props":{"y":703,"x":31,"var":"diamondBox"},
                     "nodeParent":173,
                     "label":"Box(diamondBox)",
-                    "isOpen":false,
+                    "isOpen":true,
                     "isDirectory":true,
                     "isAniNode":true,
                     "hasChild":true,
                     "compId":154,
                     "child":[
                         {
+                            "x":45,
                             "type":"Image",
                             "props":{"skin":"images/component/frame_9calce_05.png"},
                             "nodeParent":154,
@@ -258,6 +259,7 @@
                             "$HIDDEN":false
                         },
                         {
+                            "x":45,
                             "type":"Image",
                             "props":{"y":13,"x":32,"skin":"images/core/diamond_icon.png","scaleY":0.6,"scaleX":0.6},
                             "nodeParent":154,
@@ -270,6 +272,7 @@
                                 ]
                         },
                         {
+                            "x":45,
                             "type":"Label",
                             "props":{"y":11,"x":73,"var":"txtDiamondName","text":"钻石:","fontSize":30,"color":"#9a2525","bold":true,"align":"left"},
                             "nodeParent":154,
@@ -282,6 +285,7 @@
                                 ]
                         },
                         {
+                            "x":45,
                             "type":"Image",
                             "props":{"y":11,"x":540,"var":"iconImg1","skin":"images/hall/hall_xx.png"},
                             "nodeParent":154,
@@ -294,10 +298,11 @@
                                 ]
                         },
                         {
+                            "x":45,
                             "type":"HBox",
-                            "props":{"y":15,"x":156,"align":"middle"},
+                            "props":{"y":15,"x":156,"var":"hboxDiamond","align":"middle"},
                             "nodeParent":154,
-                            "label":"HBox",
+                            "label":"HBox(hboxDiamond)",
                             "isOpen":true,
                             "isDirectory":true,
                             "isAniNode":true,
@@ -305,6 +310,7 @@
                             "compId":160,
                             "child":[
                                 {
+                                    "x":60,
                                     "type":"Label",
                                     "props":{"var":"txtNeedDiamond0","text":"0","fontSize":28,"color":"#9a8d00","bold":true,"align":"left"},
                                     "nodeParent":160,
@@ -317,6 +323,7 @@
                                         ]
                                 },
                                 {
+                                    "x":60,
                                     "type":"Label",
                                     "props":{"y":1,"x":19,"var":"txtNeedDiamond1","text":"/50","fontSize":28,"color":"#9a8d00","bold":true,"align":"left"},
                                     "nodeParent":160,
