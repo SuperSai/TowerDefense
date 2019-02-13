@@ -24,6 +24,7 @@ class LuckPrizeBoxView extends BaseView {
                     }
                     break;
             }
+            this.ui.imgTitle.skin = "images/luckLottery/luck_item_title_" + HallManager.Instance.hallData.magnification + ".png";
             this.ui.txt_des.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.40", this.datas[0].num);
         }
     }

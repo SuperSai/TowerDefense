@@ -1,8 +1,8 @@
 {
     "x":0,
     "type":"View",
-    "selectedBox":1,
-    "selecteID":11,
+    "selectedBox":11,
+    "selecteID":2,
     "props":{"width":608,"sceneWidth":750,"sceneHeight":1334,"sceneColor":"#000000","sceneBg":"laya/views/luckPrize/LuckPrizeBoxView.jpg","height":721},
     "nodeParent":-1,
     "label":"View",
@@ -40,9 +40,9 @@
                 {
                     "x":30,
                     "type":"Image",
-                    "props":{"skin":"images/luckLottery/luck_item_title_2.png"},
+                    "props":{"var":"imgTitle","skin":"images/luckLottery/luck_item_title_2.png"},
                     "nodeParent":11,
-                    "label":"Image",
+                    "label":"Image(imgTitle)",
                     "isDirectory":false,
                     "isAniNode":true,
                     "hasChild":false,
