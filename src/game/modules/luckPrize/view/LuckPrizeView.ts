@@ -226,18 +226,18 @@ class LuckPrizeView extends BaseView {
 
     /** 更新滚动的名字 */
     private onUpdateRollName(): void {
-        this.ui.maskImg.mask = this.ui.rollBg;
-        this.timerLoop(900, this, this.timeLoopRollName);
+        (this.ui.rollBox as Laya.Box).scrollRect = new Laya.Rectangle(0, 0, this.ui.rollBox.width, this.ui.rollBox.height);
+        this.timerLoop(600, this, this.timeLoopRollName);
     }
 
     private timeLoopRollName(): void {
         let vo: LotteryRosterVO = GlobleData.getData(GlobleData.LotteryRosterVO, MathUtils.rangeInt(1, 100));
         let rollName: RollNameItem = ObjectPool.pop(RollNameItem, "RollNameItem");
         if (vo) rollName.init(vo);
-        this.ui.rollBg.addChild(rollName);
+        this.ui.rollBox.addChild(rollName);
         rollName.x = 63;// (this.ui.rollBg.width - rollName.width) / 2;
-        rollName.y = this.ui.rollBg.height - rollName.height;
-        Laya.Tween.to(rollName, { y: 0 }, 2500, Laya.Ease.linearNone, Handler.create(this, () => {
+        rollName.y = this.ui.rollBox.height + rollName.height;
+        Laya.Tween.to(rollName, { y: -rollName.height }, 2500, Laya.Ease.linearNone, Handler.create(this, () => {
             Laya.Tween.clearTween(rollName);
             DisplayUtils.removeFromParent(rollName);
             ObjectPool.push(rollName);

@@ -1,8 +1,8 @@
 {
     "x":0,
     "type":"View",
-    "selectedBox":1,
-    "selecteID":62,
+    "selectedBox":62,
+    "selecteID":93,
     "props":{"y":0,"x":0,"width":750,"sceneColor":"#000000","name":"rolledTIme","height":1011},
     "nodeParent":-1,
     "label":"View(rolledTIme)",
@@ -224,21 +224,6 @@
                 {
                     "x":30,
                     "type":"Image",
-                    "props":{"y":897,"x":118,"width":514,"var":"maskImg","skin":"images/core/blank.png","height":107},
-                    "nodeParent":62,
-                    "label":"Image(maskImg)",
-                    "isDirectory":false,
-                    "isAniNode":true,
-                    "hasChild":false,
-                    "compId":92,
-                    "child":[
-                        ],
-                    "$LOCKED":false,
-                    "$HIDDEN":false
-                },
-                {
-                    "x":30,
-                    "type":"Image",
                     "props":{"y":896,"x":118,"width":514,"var":"rollBg","skin":"images/luckLottery/luck_lottery_bg.png","sizeGrid":"38,61,44,94","height":107},
                     "nodeParent":62,
                     "label":"Image(rollBg)",
@@ -250,6 +235,19 @@
                     "child":[
                         ],
                     "$LOCKED":false
+                },
+                {
+                    "x":30,
+                    "type":"Box",
+                    "props":{"y":901,"x":123,"width":505,"var":"rollBox","height":97},
+                    "nodeParent":62,
+                    "label":"Box(rollBox)",
+                    "isDirectory":false,
+                    "isAniNode":true,
+                    "hasChild":false,
+                    "compId":93,
+                    "child":[
+                        ]
                 }],
             "$HIDDEN":false
         }],
