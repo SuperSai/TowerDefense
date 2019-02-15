@@ -385,18 +385,21 @@ class HallScene extends ui.hall.HallSceneUI {
         let monsterType = userData.isEvolution() ? 2 : 1;
         HallManager.Instance.hallData.buyMonsterType = monsterType;
         let monsterInfo = BattleManager.Instance.getUnLockMonster(monsterType, userData.getCarLevel());
-        let curPrice = BattleManager.Instance.getMonsterPrice(monsterInfo.buyPrice, userData.queryBuyRecord(monsterInfo.id));
-        if (!isUpdateGold) {
-            if (userData.getCarLevel() > 8) {
-                if (this._monsterLevel <= Math.max(1, (userData.getCarLevel() - 3)) || M.player.Info.userMoney >= curPrice) {
-                    this._monsterLevel = userData.getCarLevel();
+        let curPrice = 0;
+        if (monsterInfo) {
+            curPrice = BattleManager.Instance.getMonsterPrice(monsterInfo.buyPrice, userData.queryBuyRecord(monsterInfo.id));
+            if (!isUpdateGold) {
+                if (userData.getCarLevel() > 8) {
+                    if (this._monsterLevel <= Math.max(1, (userData.getCarLevel() - 3)) || M.player.Info.userMoney >= curPrice) {
+                        this._monsterLevel = userData.getCarLevel();
+                    }
+                    else {
+                        this._monsterLevel--;
+                    }
                 }
                 else {
-                    this._monsterLevel--;
+                    this._monsterLevel = userData.getCarLevel();
                 }
-            }
-            else {
-                this._monsterLevel = userData.getCarLevel();
             }
         }
         monsterInfo = BattleManager.Instance.getUnLockMonster(monsterType, this._monsterLevel);

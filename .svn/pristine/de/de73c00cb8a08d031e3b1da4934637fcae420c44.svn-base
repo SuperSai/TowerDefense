@@ -15,10 +15,10 @@ class Main {
             return "ascii";
         };
         //启动OPPO
-        // if (window['qg']) {
-        //     // 引擎初始化前先初始化适配库
-        //     laya.quickgame.mini.MiniAdpter.init();
-        // }
+        if (window['qg']) {
+            // 引擎初始化前先初始化适配库
+            laya.quickgame.mini.MiniAdpter.init();
+        }
         Laya.init(750, 1334, Laya.WebGL);
         Laya.stage.scaleMode = Laya.Stage.SCALE_NOSCALE;
         // Laya.URL.basePath = PathConfig.RES_URL;

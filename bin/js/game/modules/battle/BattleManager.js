@@ -508,7 +508,7 @@ class BattleManager extends Laya.EventDispatcher {
                     return barrier;
                 }
             }
-            else if (barrier.id) {
+            else if (typeof barrier.id === "string") {
                 let stageId = barrier.id; //关卡
                 if (stageId.indexOf('_') != -1) {
                     stageId = stageId.substr(0, stageId.indexOf('_')); //取出关卡id

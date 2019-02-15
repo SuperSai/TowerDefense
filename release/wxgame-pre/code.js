@@ -3244,7 +3244,7 @@ class HttpManager {
     /** 分享礼包 */
     requestShareGift(param) {
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
-        console.log("@David 点击分享卡牌进入游戏的参数：", param);
+        console.log("@David 点击分享卡牌进入游戏的参数：", param.query);
         HttpReqHelper.request({
             url: "v1/share/friend",
             method: "POST",
@@ -5989,7 +5989,7 @@ class PathConfig {
 // public static AppUrl: string = "https://yamdev.xiaoduogame.cn/api/"; //测试服地址
 PathConfig.AppUrl = "https://pokemon.vuggame.com/api/"; //正式服地址
 PathConfig.AppResUrl = "https://miniapp.vuggame.com/pokemon_vuggame_com_single/";
-PathConfig.RES_URL = PathConfig.AppResUrl + "v6/";
+PathConfig.RES_URL = PathConfig.AppResUrl + "v7/";
 PathConfig.Language = PathConfig.RES_URL + "config/language.txt";
 PathConfig.MonsterUrl = PathConfig.RES_URL + "anim/{0}.atlas";
 PathConfig.GameResUrl = "images/skill/{0}.png";
@@ -7642,7 +7642,7 @@ class BattleManager extends Laya.EventDispatcher {
                     return barrier;
                 }
             }
-            else if (barrier.id) {
+            else if (typeof barrier.id === "string") {
                 let stageId = barrier.id; //关卡
                 if (stageId.indexOf('_') != -1) {
                     stageId = stageId.substr(0, stageId.indexOf('_')); //取出关卡id
@@ -8201,7 +8201,7 @@ var ui;
                 this.createView(ui.luckPrize.LuckPrizeBoxViewUI.uiView);
             }
         }
-        LuckPrizeBoxViewUI.uiView = { "type": "View", "props": { "width": 608, "height": 721 }, "child": [{ "type": "Box", "props": { "y": 0, "x": 0, "width": 630, "height": 721 }, "child": [{ "type": "SkeletonPlayer", "props": { "y": 342, "x": 302, "url": "images/effect/bone/bglight.sk" } }, { "type": "Image", "props": { "var": "imgTitle", "skin": "images/luckLottery/luck_item_title_2.png" } }, { "type": "Image", "props": { "y": 263, "x": 225, "skin": "images/component/frame_9calce_03.png", "scaleY": 1.2, "scaleX": 1.2, "sizeGrid": "26,31,23,28" } }, { "type": "Button", "props": { "y": 597, "x": 140, "var": "btn_get", "stateNum": 1, "skin": "images/component/yellow_btn.png", "labelStrokeColor": "#946430", "labelStroke": 2, "labelSize": 35, "labelColors": "#ffffff,#ffffff,#ffffff,#ffffff", "labelBold": true, "label": "看视频免费抽1次" } }, { "type": "Image", "props": { "y": 295, "x": 252, "skin": "images/luckLottery/luck_item_box.png" } }, { "type": "Label", "props": { "y": 483, "x": 219, "text": "中大奖啦", "strokeColor": "#946430", "stroke": 2, "fontSize": 45, "color": "#ffebbc", "bold": true, "align": "center" } }, { "type": "Label", "props": { "y": 533, "x": 131, "var": "txt_des", "text": "下次转盘2倍奖励", "strokeColor": "#946430", "stroke": 2, "fontSize": 45, "color": "#ffebbc", "bold": true, "align": "center" } }, { "type": "Button", "props": { "y": 0, "x": 536, "var": "btnExit", "stateNum": 1, "skin": "images/component/frame_close_btn.png" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }] }] };
+        LuckPrizeBoxViewUI.uiView = { "type": "View", "props": { "width": 608, "height": 721 }, "child": [{ "type": "Box", "props": { "y": 0, "x": 0, "width": 630, "height": 721 }, "child": [{ "type": "SkeletonPlayer", "props": { "y": 342, "x": 302, "url": "images/effect/bone/bglight.sk" } }, { "type": "Image", "props": { "y": 0, "x": 110, "var": "imgTitle", "skin": "images/luckLottery/luck_item_title_2.png" } }, { "type": "Button", "props": { "y": 561, "x": 152, "var": "btn_get", "stateNum": 1, "skin": "images/component/yellow_btn.png", "labelStrokeColor": "#946430", "labelStroke": 2, "labelSize": 35, "labelColors": "#ffffff,#ffffff,#ffffff,#ffffff", "labelBold": true, "label": "看视频免费抽1次" } }, { "type": "Image", "props": { "y": 209, "x": 115, "skin": "images/luckLottery/luck_item_box.png" } }, { "type": "Button", "props": { "y": 0, "x": 533, "var": "btnExit", "stateNum": 1, "skin": "images/component/frame_close_btn.png" }, "child": [{ "type": "Script", "props": { "runtime": "ScaleAnimScript" } }] }] }] };
         luckPrize.LuckPrizeBoxViewUI = LuckPrizeBoxViewUI;
     })(luckPrize = ui.luckPrize || (ui.luckPrize = {}));
 })(ui || (ui = {}));
@@ -10976,18 +10976,21 @@ class HallScene extends ui.hall.HallSceneUI {
         let monsterType = userData.isEvolution() ? 2 : 1;
         HallManager.Instance.hallData.buyMonsterType = monsterType;
         let monsterInfo = BattleManager.Instance.getUnLockMonster(monsterType, userData.getCarLevel());
-        let curPrice = BattleManager.Instance.getMonsterPrice(monsterInfo.buyPrice, userData.queryBuyRecord(monsterInfo.id));
-        if (!isUpdateGold) {
-            if (userData.getCarLevel() > 8) {
-                if (this._monsterLevel <= Math.max(1, (userData.getCarLevel() - 3)) || M.player.Info.userMoney >= curPrice) {
-                    this._monsterLevel = userData.getCarLevel();
+        let curPrice = 0;
+        if (monsterInfo) {
+            curPrice = BattleManager.Instance.getMonsterPrice(monsterInfo.buyPrice, userData.queryBuyRecord(monsterInfo.id));
+            if (!isUpdateGold) {
+                if (userData.getCarLevel() > 8) {
+                    if (this._monsterLevel <= Math.max(1, (userData.getCarLevel() - 3)) || M.player.Info.userMoney >= curPrice) {
+                        this._monsterLevel = userData.getCarLevel();
+                    }
+                    else {
+                        this._monsterLevel--;
+                    }
                 }
                 else {
-                    this._monsterLevel--;
+                    this._monsterLevel = userData.getCarLevel();
                 }
-            }
-            else {
-                this._monsterLevel = userData.getCarLevel();
             }
         }
         monsterInfo = BattleManager.Instance.getUnLockMonster(monsterType, this._monsterLevel);
@@ -12425,7 +12428,7 @@ class LuckPrizeBoxView extends BaseView {
                     break;
             }
             this.ui.imgTitle.skin = "images/luckLottery/luck_item_title_" + HallManager.Instance.hallData.magnification + ".png";
-            this.ui.txt_des.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.40", this.datas[0].num);
+            // this.ui.txt_des.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.40", this.datas[0].num);
         }
     }
     addEvents() {
@@ -16436,6 +16439,11 @@ class Main {
             }
             return "ascii";
         };
+        //启动OPPO
+        // if (window['qg']) {
+        //     // 引擎初始化前先初始化适配库
+        //     laya.quickgame.mini.MiniAdpter.init();
+        // }
         Laya.init(750, 1334, Laya.WebGL);
         Laya.stage.scaleMode = Laya.Stage.SCALE_NOSCALE;
         // Laya.URL.basePath = PathConfig.RES_URL;

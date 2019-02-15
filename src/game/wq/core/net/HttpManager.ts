@@ -781,7 +781,7 @@ class HttpManager {
     /** 分享礼包 */
     public requestShareGift(param: any): void {
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
-        console.log("@David 点击分享卡牌进入游戏的参数：", param);
+        console.log("@David 点击分享卡牌进入游戏的参数：", param.query);
         HttpReqHelper.request({
             url: "v1/share/friend",
             method: "POST",
