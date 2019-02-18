@@ -25,18 +25,18 @@ class FlyEffect extends Sprite {
         anim.loadAtlas("images/effect/" + this._animationName + ".json");
         anim.interval = 25;
         // }
-        const scale = Math.random() * 0.15 + 0.65;
+        let scale = Math.random() * 0.15 + 0.65;
         anim.pivot(30, 30).pos(fromX + RandomUtils.rangeInt(5, 10), fromY + RandomUtils.rangeInt(5, 10)).scale(scale, scale);
         anim.play(0, true);
         anim.alpha = 1;
-        const iX = fromX + Math.random() * (toX - fromX);
-        const iY = fromY + Math.random() * (toY - fromY);
-        const points = [];
+        let iX = fromX + Math.random() * (toX - fromX);
+        let iY = fromY + Math.random() * (toY - fromY);
+        let points = [];
         points.push(new Point(anim.x, anim.y));
         points.push(new Point(iX, iY));
         points.push(new Point(toX, toY));
         // prettier-ignore
-        const path = PathUtils.CreateBezierPoints(points, RandomUtils.rangeInt(25, 40));
+        let path = PathUtils.CreateBezierPoints(points, RandomUtils.rangeInt(25, 40));
         // @ts-ignore
         anim.path = path;
         // @ts-ignore
@@ -53,9 +53,9 @@ class FlyEffect extends Sprite {
     onLoop() {
         let len = this._anims.length;
         for (let i = 0; i < len; i++) {
-            const anim = this._anims[i];
+            let anim = this._anims[i];
             // @ts-ignore
-            const idx = anim.pathIndex++;
+            let idx = anim.pathIndex++;
             // @ts-ignore
             if (idx === anim.pathLength) {
                 this._anims.splice(i, 1);
@@ -65,7 +65,7 @@ class FlyEffect extends Sprite {
             }
             else {
                 // @ts-ignore
-                const point = anim.path[idx];
+                let point = anim.path[idx];
                 anim.pos(point.x, point.y);
             }
         }

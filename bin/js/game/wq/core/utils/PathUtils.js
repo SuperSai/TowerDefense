@@ -1,18 +1,18 @@
 class PathUtils {
     static CreateBezierPoints(anchorpoints, pointsAmount = 120) {
-        const points = [];
+        let points = [];
         for (let i = 0; i < pointsAmount; i++) {
-            const point = this.MultiPointBezier(anchorpoints, i / pointsAmount);
+            let point = this.MultiPointBezier(anchorpoints, i / pointsAmount);
             points.push(point);
         }
         return points;
     }
     static MultiPointBezier(points, t) {
-        const len = points.length;
+        let len = points.length;
         let x = 0;
         let y = 0;
         for (let i = 0; i < len; i++) {
-            const point = points[i];
+            let point = points[i];
             x +=
                 point.x *
                     Math.pow(1 - t, len - 1 - i) *

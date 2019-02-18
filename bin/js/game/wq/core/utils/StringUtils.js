@@ -317,7 +317,7 @@ class StringUtils {
                     }
                 }
             }
-            if (result.lastIndexOf(",\r\n") === result.length - tabIncreaseSize - 1) {
+            if (result.length > 0 && result.lastIndexOf(",\r\n") === result.length - tabIncreaseSize - 1) {
                 result = result.substr(0, result.length - tabIncreaseSize - 1) + "\r\n";
             }
             if (tab === 0) {

@@ -61,7 +61,7 @@ class MessageUtils {
             hbox.addChild(image);
             hbox.addChild(label);
             hbox.align = "middle";
-            const global = PointUtils.localToGlobal(obj);
+            let global = PointUtils.localToGlobal(obj);
             hbox.pos(global.x, global.y);
             M.layer.screenEffectLayer.addChild(hbox);
             hbox.x += (obj.width - hbox.width) / 2;
@@ -71,7 +71,7 @@ class MessageUtils {
             }, null, true));
         }
         else {
-            const global = PointUtils.localToGlobal(obj);
+            let global = PointUtils.localToGlobal(obj);
             label.pos(global.x, global.y);
             M.layer.screenEffectLayer.addChild(label);
             label.x += (obj.width - label.width) / 2;

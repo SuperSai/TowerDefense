@@ -7,7 +7,7 @@ class DisplayUtils {
     static mouseEnabled(display, value) {
         display.mouseEnabled = value;
         if (display.numChildren > 0) {
-            for (const child of display._childs) {
+            for (let child of display._childs) {
                 this.mouseEnabled(child, value);
             }
         }

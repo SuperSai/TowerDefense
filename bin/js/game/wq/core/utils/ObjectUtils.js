@@ -78,7 +78,7 @@ class ObjectUtils {
                 continue;
             if (key == "__types__")
                 continue;
-            const attrValue = oldData[key];
+            let attrValue = oldData[key];
             if (attrValue != undefined) {
                 newObj[key] = oldData[key];
             }
@@ -87,12 +87,12 @@ class ObjectUtils {
     static assign(target, source, useTargetKeys) {
         if (target && source) {
             if (useTargetKeys) {
-                for (const key in target) {
+                for (let key in target) {
                     target[key] = source[key];
                 }
             }
             else {
-                for (const key in source) {
+                for (let key in source) {
                     target[key] = source[key];
                 }
             }

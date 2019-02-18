@@ -16,7 +16,7 @@ class CacheObject {
         Laya.timer.callLater(this, this.__save);
     }
     setCacheGroup(cacheObj) {
-        for (const key in cacheObj) {
+        for (let key in cacheObj) {
             this._waitingCaches[key] = cacheObj[key];
         }
         Laya.timer.callLater(this, this.__save);
@@ -37,13 +37,13 @@ class CacheObject {
         return this._cache.hasOwnProperty(key);
     }
     loadCache(success, fail) {
-        const storage = window.localStorage;
+        let storage = window.localStorage;
         let b;
         if (storage) {
-            const jsonStr = storage.getItem(this._key);
+            let jsonStr = storage.getItem(this._key);
             if (jsonStr) {
                 if (jsonStr) {
-                    const cache = JSON.parse(jsonStr);
+                    let cache = JSON.parse(jsonStr);
                     if (cache) {
                         b = true;
                         this._cache = cache;
@@ -60,7 +60,7 @@ class CacheObject {
     clearCache() {
         this._cache = {};
         this._waitingCaches = {};
-        const storage = window.localStorage;
+        let storage = window.localStorage;
         if (storage) {
             storage.removeItem(this._key);
             console.log("@FREEMAN: 本地缓存{" + this._key + "}已清除。");
@@ -68,11 +68,11 @@ class CacheObject {
     }
     __save() {
         if (Object.keys(this._waitingCaches).length) {
-            for (const key in this._waitingCaches) {
+            for (let key in this._waitingCaches) {
                 this._cache[key] = this._waitingCaches[key];
             }
             try {
-                const storage = window.localStorage;
+                let storage = window.localStorage;
                 if (storage) {
                     storage.setItem(this._key, JSON.stringify(this._cache));
                 }

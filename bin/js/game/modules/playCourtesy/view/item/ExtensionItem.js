@@ -24,10 +24,10 @@ class ExtensionItem extends ui.playCourtesy.ExtensionItemUI {
     }
     initReward() {
         let index = 0;
-        for (const key in this._data.reward) {
+        for (let key in this._data.reward) {
             let vo = GlobleData.getData(GlobleData.ItemVO, parseInt(key));
             if (vo) {
-                const value = this._data.reward[key];
+                let value = this._data.reward[key];
                 let path = PathConfig.ItemUrl.replace("{0}", vo.smallIcon);
                 this["imgIcon" + index].skin = path;
                 this["txt_num" + index].text = value;

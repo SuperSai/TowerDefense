@@ -69,7 +69,7 @@ class MaskLayer extends Layer {
     }
     removeChild(node) {
         super.removeChild(node);
-        const sp = node;
+        let sp = node;
         if (sp) {
             if (sp.layer_tween) {
                 sp.layer_tween.complete();
@@ -106,18 +106,18 @@ class MaskLayer extends Layer {
     }
     superAddChild(node, index) {
         if (this._useAnimation && !this._animationComplete) {
-            const sp = node;
+            let sp = node;
             if (sp && !sp.layer_tween) {
                 if (!sp.layer_origin_scale) {
                     sp.layer_origin_scale = new Laya.Point(sp.scaleX, sp.scaleY);
                 }
-                const comp = sp;
-                const size = new Laya.Point();
+                let comp = sp;
+                let size = new Laya.Point();
                 if (comp) {
                     size.setTo(comp.displayWidth, comp.displayHeight);
                 }
                 else {
-                    const rect = sp.getBounds();
+                    let rect = sp.getBounds();
                     size.setTo(rect.width, rect.height);
                 }
                 sp.layer_tween = Laya.Tween.from(node, { x: sp.x + (size.x >> 1), y: sp.y + (size.y >> 1), scaleX: 0, scaleY: 0 }, 300, Laya.Ease.backInOut, Handler.create(this, () => {

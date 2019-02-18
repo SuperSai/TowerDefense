@@ -31,7 +31,7 @@ class SkyDropView extends BaseView {
                 break;
             }
         }
-        const numStr = (this.sheet.num * 100).toString() + "%";
+        let numStr = (this.sheet.num * 100).toString() + "%";
         this.ui.lblNum.text = numStr;
         this.ui.lblDuration.text = (this.sheet.duration * 0.001).toString();
         this.ui.hbox1.refresh();

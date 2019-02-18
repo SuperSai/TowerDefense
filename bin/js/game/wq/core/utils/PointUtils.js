@@ -56,7 +56,7 @@ class PointUtils {
      *
      */
     static localToGlobal(target, moveRightNow) {
-        const pt = new Point(target.x, target.y);
+        let pt = new Point(target.x, target.y);
         let parent = target.parent;
         while (parent && !(parent instanceof Layer)) {
             pt.x += parent.x - parent.pivotX - (parent.scrollRect ? parent.scrollRect.x : 0);
@@ -77,8 +77,8 @@ class PointUtils {
      *
      */
     static parentToParent(target, newParent, moveRightNow) {
-        const pt = PointUtils.localToGlobal(target);
-        const zeroPt = new Point();
+        let pt = PointUtils.localToGlobal(target);
+        let zeroPt = new Point();
         let parent = newParent;
         while (parent && !(parent instanceof Layer)) {
             zeroPt.x += parent.x;

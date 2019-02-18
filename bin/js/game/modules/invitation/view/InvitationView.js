@@ -54,7 +54,7 @@ class InvitationView extends BaseView {
                 txtTitle.changeText('第' + collectNum + '个好友');
             }
             let awardNum = 0;
-            const imgAwardIcon = cell.getChildByName('imgAwardIcon');
+            let imgAwardIcon = cell.getChildByName('imgAwardIcon');
             if (imgAwardIcon) {
                 switch (item.reward_type) {
                     case "essence":
@@ -71,7 +71,7 @@ class InvitationView extends BaseView {
                     txtDiamond.changeText('' + awardNum);
                 }
             }
-            const imgHead = cell.getChildByName('imgHead');
+            let imgHead = cell.getChildByName('imgHead');
             if (imgHead) {
                 imgHead.offAll(Laya.Event.CLICK);
                 imgHead.on(Laya.Event.CLICK, imgHead, () => {
@@ -81,7 +81,7 @@ class InvitationView extends BaseView {
             }
             //领取
             let btnGet = cell.getChildByName('btnGet');
-            const btnInvite = cell.getChildByName("btnInvite");
+            let btnInvite = cell.getChildByName("btnInvite");
             if (btnGet) {
                 btnGet.visible = true;
                 if (boxStage > 0) {
