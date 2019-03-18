@@ -190,11 +190,13 @@ class LuckPrizeView extends BaseView {
     /** 看视频抽奖 */
     handlerLookVideoLottery() {
         SDKManager.Instance.showVideoAd((_res) => {
-            if (_res && _res.isEnded || _res == undefined) {
+            if (_res && _res.isEnded || _res === undefined) {
                 this.doLotteryByType(LOTTERY_TYPE.VIDEO);
             }
             else {
-                this.startBtnEnabled(false);
+                userData.toShareAd(() => {
+                    this.doLotteryByType(LOTTERY_TYPE.VIDEO);
+                });
             }
         }, () => {
             userData.toShareAd(() => {

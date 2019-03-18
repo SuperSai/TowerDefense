@@ -13,6 +13,14 @@ class Token {
 
         if (launchOptions && launchOptions.query && launchOptions.query.channel) {
             channel = "" + launchOptions.query.channel + "_" + launchOptions.scene;
+        } else if (launchOptions && launchOptions.referrerInfo) {
+            if (launchOptions.referrerInfo.extraData && launchOptions.referrerInfo.extraData.channel) {
+                channel = "" + launchOptions.referrerInfo.extraData.channel + "_" + launchOptions.scene;
+            } else {
+                if (launchOptions.referrerInfo.appId) {
+                    channel = launchOptions.referrerInfo.appId + "_" + launchOptions.scene;
+                }
+            }
         }
 
         wx.login({

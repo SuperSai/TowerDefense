@@ -245,16 +245,19 @@ class TaskView extends BaseView {
                                 if (res) {
                                     if (res.code == 1) {
                                         ViewMgr.Ins.close(ViewConst.AchiRewardView);
-                                        MessageUtils.showMsgTips("奖励领取成功");
-                                        if (item.reward_type == "money") {
-                                            MessageUtils.shopMsgByObj(btnGet, "+" + MathUtils.bytesToSize(awardNum), EFFECT_TYPE.GOLD);
+                                        if (res.reward_type == "diamond") {
+                                            MessageUtils.showMsgTips("成就奖励:钻石" + "x" + awardNum);
+                                            M.layer.screenEffectLayer.addChild(new FlyEffect().play("diamond", LayerManager.mouseX, LayerManager.mouseY));
+                                            EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, { diamond: M.player.Info.userDiamond = res.sum });
+                                        }
+                                        else if (res.reward_type == "money") {
+                                            MessageUtils.showMsgTips("成就奖励:金币" + "x" + MathUtils.bytesToSize(awardNum));
                                             M.layer.screenEffectLayer.addChild(new FlyEffect().play("rollingCoin", LayerManager.mouseX, LayerManager.mouseY));
                                             EventsManager.Instance.event(EventsType.GOLD_CHANGE, { money: M.player.Info.userMoney += awardNum });
                                         }
-                                        else {
-                                            MessageUtils.shopMsgByObj(btnGet, "+" + awardNum, EFFECT_TYPE.DIAMOND);
-                                            M.layer.screenEffectLayer.addChild(new FlyEffect().play("diamond", LayerManager.mouseX, LayerManager.mouseY));
-                                            EventsManager.Instance.event(EventsType.DIAMOND_CHANGE, res);
+                                        else if (res.reward_type == "essence") {
+                                            MessageUtils.showMsgTips("成就奖励:精华" + "x" + MathUtils.bytesToSize(awardNum));
+                                            M.player.Info.userEssence = res.sum;
                                         }
                                         _btnObj.visible = false;
                                         _item.task_status = 2;

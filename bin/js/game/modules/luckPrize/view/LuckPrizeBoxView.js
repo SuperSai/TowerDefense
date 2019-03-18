@@ -23,7 +23,6 @@ class LuckPrizeBoxView extends BaseView {
                     break;
             }
             this.ui.imgTitle.skin = "images/luckLottery/luck_item_title_" + HallManager.Instance.hallData.magnification + ".png";
-            // this.ui.txt_des.text = LanguageManager.Instance.getLanguageText("hallScene.label.txt.40", this.datas[0].num);
         }
     }
     addEvents() {
@@ -38,16 +37,21 @@ class LuckPrizeBoxView extends BaseView {
     }
     onGetReward() {
         SDKManager.Instance.showVideoAd((_res) => {
-            if (_res && _res.isEnded || _res == undefined) {
+            if (_res && _res.isEnded || _res === undefined) {
+                console.log("@David 分享--------------------333333-----------");
                 this.updateMagnification();
             }
             else {
+                console.log("@David 分享--------------------222222-----------");
                 userData.toShareAd(() => {
+                    console.log("@David 分享--------------------4444444-----------");
                     this.updateMagnification();
                 });
             }
         }, () => {
+            console.log("@David 分享--------------------11111-----------");
             userData.toShareAd(() => {
+                console.log("@David 分享--------------------55555555-----------");
                 this.updateMagnification();
             });
         });

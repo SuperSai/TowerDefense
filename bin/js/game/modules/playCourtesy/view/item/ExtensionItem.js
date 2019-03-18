@@ -11,9 +11,11 @@ class ExtensionItem extends ui.playCourtesy.ExtensionItemUI {
         this._data = value;
         if (this._data) {
             this._playStatus = this._data.play_status;
-            this.initView();
-            this.initReward();
-            this.changeBtn(this._playStatus);
+            this.timer.callLater(this, () => {
+                this.initView();
+                this.initReward();
+                this.changeBtn(this._playStatus);
+            });
             this.btn_click.on(Laya.Event.CLICK, this, this.naviToApp);
         }
     }

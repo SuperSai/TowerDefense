@@ -316,10 +316,10 @@ class HallScene extends ui.hall.HallSceneUI {
         let appId = "";
         switch (evt.target) {
             case self.btn_fly:
-                appId = "wx5bf2e598a2acbb50";
+                appId = "wxf87fd0818c986cb0";
                 break;
             case self.btn_eliminate:
-                appId = "wx06f4827d100da314";
+                appId = "wxda615accb3cc240a";
                 break;
         }
         SDKManager.Instance.navigateToMiniProgram(appId);
@@ -401,6 +401,11 @@ class HallScene extends ui.hall.HallSceneUI {
                     }
                 }
                 else {
+                    this._monsterLevel = userData.getCarLevel();
+                }
+            }
+            else {
+                if (M.player.Info.userMoney >= curPrice) {
                     this._monsterLevel = userData.getCarLevel();
                 }
             }
@@ -495,6 +500,7 @@ class HallScene extends ui.hall.HallSceneUI {
         self.playKingUpdateEffect();
         Laya.SoundManager.playSound("musics/kingUpdate.mp3");
         self.checkKingIsUpdate();
+        this.refreshShortcutCreateBtn();
     }
     //商店进化
     onEvolutionShop(_level) {
@@ -670,6 +676,7 @@ class HallScene extends ui.hall.HallSceneUI {
                                 if (carParkSp.isEnabled()) {
                                     carParkSp.setStage(3);
                                     that.curMonsterSprite = carParkSp;
+                                    that.curMonsterSprite.visible = false;
                                     //复制模型
                                     that.parkMonsterModelSp = ObjectPool.pop(MonsterSprite, "NewMonsterSprite");
                                     that.parkMonsterModelSp.setKind(carParkSp.monsterId, index);
@@ -738,29 +745,24 @@ class HallScene extends ui.hall.HallSceneUI {
                                                     MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.06"));
                                                 }
                                                 else if (currHeroLevel >= EvolutionManager.Instance.getHeroLevel()) { //提示守卫是否可以升级
-                                                    if (currHeroLevel > 10 || userData.isEvolution()) {
-                                                        LevelHeroView.Create(this, (kingLevel, money) => {
-                                                            //英雄升级
-                                                            this.handlerHeroLevel(heroItem, heroId, index, currHeroLevel);
-                                                            if (kingLevel > HallManager.Instance.hallData.userKingLevel) {
-                                                                that.setKingLevel(kingLevel);
-                                                            }
-                                                            if (money >= 0) { //刷新钻石
-                                                                that.updateDiamond(money);
-                                                            }
-                                                            that.playKingUpdateEffect();
-                                                            Laya.SoundManager.playSound("musics/kingUpdate.mp3");
-                                                            that.checkKingIsUpdate();
-                                                            //移除高亮提示
-                                                            that.setCarparkLight(null);
-                                                        }, () => {
-                                                            that.curMonsterSprite = null;
-                                                        });
-                                                    }
-                                                    else {
-                                                        MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.02"));
+                                                    LevelHeroView.Create(this, (kingLevel, money) => {
+                                                        //英雄升级
+                                                        this.handlerHeroLevel(heroItem, heroId, index, currHeroLevel);
+                                                        if (kingLevel > HallManager.Instance.hallData.userKingLevel) {
+                                                            that.setKingLevel(kingLevel);
+                                                        }
+                                                        if (money >= 0) { //刷新钻石
+                                                            that.updateDiamond(money);
+                                                        }
+                                                        that.playKingUpdateEffect();
+                                                        Laya.SoundManager.playSound("musics/kingUpdate.mp3");
+                                                        that.checkKingIsUpdate();
+                                                        //移除高亮提示
+                                                        that.setCarparkLight(null);
+                                                        this.refreshShortcutCreateBtn();
+                                                    }, () => {
                                                         that.curMonsterSprite = null;
-                                                    }
+                                                    });
                                                 }
                                                 else { //英雄升级
                                                     this.handlerHeroLevel(heroItem, heroId, index, currHeroLevel);
@@ -799,6 +801,7 @@ class HallScene extends ui.hall.HallSceneUI {
                 }
                 else if (that.curMonsterSprite && !M.novice.isRunning) {
                     //取消选中状态
+                    that.curMonsterSprite.visible = true;
                     if (ObjectUtils.isHit(that.curMonsterSprite)) {
                         if (that.curMonsterSprite.isRunning()) {
                             that.curMonsterSprite.setStage(1);
@@ -1497,7 +1500,22 @@ class HallScene extends ui.hall.HallSceneUI {
     onBattleClearanc() {
         let self = this;
         if (HallManager.Instance.hallData.passSection >= HallManager.Instance.hallData.maxSection) {
-            self.showPassStageResult(HallManager.Instance.hallData.passStage);
+            if (!ViewMgr.Ins.isShow(ViewConst.LuckPrizeView)) {
+                self.showPassStageResult(HallManager.Instance.hallData.passStage);
+            }
+            else {
+                HallManager.Instance.hallData.stagePrizeList.push(HallManager.Instance.hallData.passStage);
+                //只取最近5条
+                if (HallManager.Instance.hallData.stagePrizeList.length > 5) {
+                    HallManager.Instance.hallData.stagePrizeList.shift();
+                }
+                if (self.btnStagePrize) {
+                    let isShow = HallManager.Instance.hallData.stagePrizeList
+                        && HallManager.Instance.hallData.stagePrizeList.length > 0
+                        && HallManager.Instance.hallData.stagePrizeList[0] > 0;
+                    self.showStagePrize(isShow);
+                }
+            }
             userData.setUserCloudStorage(); //上传腾讯云
         }
         else if (HallManager.Instance.hallData.passSection >= (HallManager.Instance.hallData.maxSection - 1)) {

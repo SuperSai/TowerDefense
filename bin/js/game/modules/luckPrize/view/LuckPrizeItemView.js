@@ -4,6 +4,7 @@
 class LuckPrizeItemView extends BaseView {
     constructor() {
         super(M.layer.subFrameLayer, ui.luckPrize.LuckPrizeItemViewUI);
+        this.myParent.maskEnabled = false;
     }
     initData() {
         super.initData();

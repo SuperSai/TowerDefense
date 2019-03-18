@@ -26,6 +26,21 @@ class SDKManager {
             if (userData && userData.isLoadStorage()) {
                 M.http.requestOfflinePrizeData();
             }
+            // // 参数的query字段中可以获取到gdt_vid、weixinadinfo、channel等参数值
+            // let query = data.query;
+            // if (query) {
+            //     let channel = query.channel;
+            //     let gdt_vid = query.gdt_vid;
+            //     let weixinadinfo = query.weixinadinfo;
+            //     // 获取⼴告id
+            //     let aid = 0;
+            //     if (weixinadinfo) {
+            //         let weixinadinfoArr = weixinadinfo.split(".");
+            //         aid = weixinadinfoArr[0];
+            //     }
+            //     console.log("来源⼴告的⼴告id是：", aid, channel);
+            //     HttpManager.Instance.requestInterfaces(aid, channel);
+            // }
         });
 
         platform.onHide(function () {
@@ -78,19 +93,20 @@ class SDKManager {
     /** 显示banner广告 */
     public showBannerAd(): any {
         let self = this;
-        if (!systemInfo.checkVersion("2.0.4")) {
-            return;
-        }
-        self.createBanner();
-        return self._bannerAd;
+        return;
+        // if (!systemInfo.checkVersion("2.0.4")) {
+        //     return;
+        // }
+        // self.createBanner();
+        // return self._bannerAd;
     }
 
     /** 关闭banner广告 */
     public closeBannerAd(): void {
         let self = this;
-        if (!systemInfo.checkVersion("2.0.4")) return;
-        self._isForbidBannerAd = true;
-        self.createBanner(false);
+        // if (!systemInfo.checkVersion("2.0.4")) return;
+        // self._isForbidBannerAd = true;
+        // self.createBanner(false);
     }
 
     public createBanner(isShow: boolean = true): void {
@@ -147,36 +163,36 @@ class SDKManager {
                 noAdCallback && noAdCallback();
                 return;
                 //无视频可看弹窗
-                let hintDialog = new ui.common.view.VideoAdViewUI();
-                AlignUtils.setToScreenGoldenPos(hintDialog);
-                M.layer.subFrameLayer.addChildWithMaskCall(hintDialog, hintDialog.removeSelf);
-                let imgBg = hintDialog.getChildByName("imgBg") as Laya.Image;
-                if (imgBg) {
-                    let btnExit = imgBg.getChildByName("btnExit") as Laya.Button;
-                    if (btnExit) {
-                        btnExit.on(Laya.Event.CLICK, btnExit, () => {
-                            hintDialog.removeSelf();
-                        });
-                    }
-                    let btnShare = imgBg.getChildByName("btnShare") as Laya.Button;
-                    if (btnShare) {
-                        btnShare.offAll(Laya.Event.CLICK);
-                        btnShare.on(Laya.Event.CLICK, btnShare, () => {
-                            hintDialog.removeSelf();
-                            if (noAdCallback) {
-                                noAdCallback();
-                            } else {
-                                userData.toShareAd();
-                            }
-                        });
-                        //不开启分享
-                        btnShare.visible = shareEnabled;
-                    }
-                    hintDialog.once(Laya.Event.REMOVED, hintDialog, () => {
-                        videoAd.offError(errCallback);
-                        self._videoAd = null;
-                    });
-                }
+                // let hintDialog = new ui.common.view.VideoAdViewUI();
+                // AlignUtils.setToScreenGoldenPos(hintDialog);
+                // M.layer.subFrameLayer.addChildWithMaskCall(hintDialog, hintDialog.removeSelf);
+                // let imgBg = hintDialog.getChildByName("imgBg") as Laya.Image;
+                // if (imgBg) {
+                //     let btnExit = imgBg.getChildByName("btnExit") as Laya.Button;
+                //     if (btnExit) {
+                //         btnExit.on(Laya.Event.CLICK, btnExit, () => {
+                //             hintDialog.removeSelf();
+                //         });
+                //     }
+                //     let btnShare = imgBg.getChildByName("btnShare") as Laya.Button;
+                //     if (btnShare) {
+                //         btnShare.offAll(Laya.Event.CLICK);
+                //         btnShare.on(Laya.Event.CLICK, btnShare, () => {
+                //             hintDialog.removeSelf();
+                //             if (noAdCallback) {
+                //                 noAdCallback();
+                //             } else {
+                //                 userData.toShareAd();
+                //             }
+                //         });
+                //         //不开启分享
+                //         btnShare.visible = shareEnabled;
+                //     }
+                //     hintDialog.once(Laya.Event.REMOVED, hintDialog, () => {
+                //         videoAd.offError(errCallback);
+                //         self._videoAd = null;
+                //     });
+                // }
             };
             videoAd.onError(errCallback);
             self._isForbidBannerAd = true;

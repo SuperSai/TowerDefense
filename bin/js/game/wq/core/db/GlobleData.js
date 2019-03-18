@@ -82,7 +82,9 @@ class GlobleData extends Laya.EventDispatcher {
             self._jsonCount--;
         }
         finally {
-            this.onEnterFrameLoader();
+            Laya.timer.callLater(this, () => {
+                this.onEnterFrameLoader();
+            });
         }
     }
     starSingleParse(csvStr) {
@@ -96,6 +98,8 @@ class GlobleData extends Laya.EventDispatcher {
     /** 获取对应表的指定某条数据 */
     static getData(type, key) {
         let dic = GlobleData.AllCacheData.TryGetValue(type);
+        if (dic == null || dic.TryGetValue(key) == null)
+            return null;
         return dic.TryGetValue(key);
     }
     /**

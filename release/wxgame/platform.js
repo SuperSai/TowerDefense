@@ -119,16 +119,13 @@ class WxgamePlatform {
         var that = this;
         wx.getSetting({
             success: res => {
-                // console.log("@FREEMAN: 获取用户授权成功：{", res ,"}");
-                // console.log(res)
                 // 获取用户信息
                 if (that.authenticLoginBtn) {
                     that.authenticLoginBtn.destroy();
                     that.authenticLoginBtn = null;
                 }
-
-                // console.log("@FREEMAN: res.authSetting['scope.userInfo'] =", res.authSetting['scope.userInfo']);
                 if (res.authSetting['scope.userInfo']) {
+                    _statusCallback && _statusCallback(4); //已经授权成功
                     // 已经授权，可以直接调用 getUserInfo 获取头像昵称，不会弹框
                     wx.getUserInfo({
                         success: res2 => {
@@ -144,9 +141,6 @@ class WxgamePlatform {
                             if (res2.userInfo.avatarUrl === "https://wx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTJOWVKpqeMShRw1ngiaLEanOI0noTEp3mU6zs1RJmIASZFib77Ih7nJiahUC05cZ09nv9YexjlVy1cyw/132") {
                                 Laya.Browser.onSong = true;
                             }
-
-                            // 可以将 res 发送给后台解码出 unionId
-                            // globalData.userInfo = res.userInfo
                             _statusCallback && _statusCallback(3); //进入游戏
                             if (_callback) {
                                 _callback(res2);
@@ -161,34 +155,22 @@ class WxgamePlatform {
                         }
                     })
                 } else {
-
+                    _statusCallback && _statusCallback(5); //还没有授权
                     if (that.authenticLoginBtn) {
                         console.log("--that.authenticLoginBtn show--");
                         that.authenticLoginBtn.show();
                         return;
                     }
-                    // console.log(that.btnGame.x, that.btnGame.y);
-
-                    // let systemInfo = wx.getSystemInfoSync();
-                    // let pRatio = systemInfo.windowWidth/750.0;
-
                     if (!res.authSetting['scope.userInfo']) {
-                        // console.log("@FREEMAN: wx.createUserInfoButton()");
                         let button = wx.createUserInfoButton({
                             type: 'text',
                             text: '', //'获取用户信息',
                             style: {
-                                // left: _btnVect.x * pRatio,
-                                // top: _btnVect.y * pRatio,
-                                // width: _btnVect.width * pRatio,
-                                // height: _btnVect.height * pRatio,o,
                                 left: _btnVect.x,
                                 top: _btnVect.y,
                                 width: _btnVect.width,
                                 height: _btnVect.height,
                                 lineHeight: 40,
-                                // backgroundColor: '#ff0000',
-                                // color: '#ffffff',
                                 textAlign: 'center',
                                 fontSize: 16,
                                 borderRadius: 4,
@@ -197,11 +179,7 @@ class WxgamePlatform {
                             withCredentials: true
                         });
                         button.onTap((res1) => {
-                            // console.log("@FREEMAN: wx.createUserInfoButton.onTap res:{", res1 ,"}");
-
-                            if (res1.errMsg === "getUserInfo:fail auth deny") {
-
-                            } else {
+                            if (res1.errMsg === "getUserInfo:fail auth deny") {} else {
                                 _statusCallback && _statusCallback(1); //微信登录授权
                             }
                             button.hide();
@@ -210,7 +188,6 @@ class WxgamePlatform {
                         })
                         that.authenticLoginBtn = button;
                     } else {
-                        // console.log("@FREEMAN: wx.createOpenSettingButton()");
                         let button = wx.createOpenSettingButton({
                             type: 'text',
                             text: '', //'打开设置',
@@ -220,8 +197,6 @@ class WxgamePlatform {
                                 width: _btnVect.width,
                                 height: _btnVect.height,
                                 lineHeight: 40,
-                                // backgroundColor: '#ff0000',
-                                // color: '#ffffff',
                                 textAlign: 'center',
                                 fontSize: 16,
                                 borderRadius: 4,
@@ -229,12 +204,6 @@ class WxgamePlatform {
                             }
                         })
                         button.onTap((res1) => {
-                            // console.log("@FREEMAN: wx.createOpenSettingButton.onTap res:{", res1 ,"}");
-                            // if (res1.errMsg == "getUserInfo:fail auth deny") {
-
-                            // } else {
-                            //     _statusCallback && _statusCallback(2); //微信设置授权
-                            // }
                             button.hide();
                             //重新验证
                             that.authenticLogin(_callback, _btnVect, _statusCallback);
@@ -310,9 +279,6 @@ class WxgamePlatform {
     httpToken(_url, _callback, _forceNew = false) {
         //token校验
         let token = wx.getStorageSync('token');
-        // if(!token){
-        // token = (M && M.player) ? M.player.token : null;
-        // }
         if (token && _forceNew == false) {
             _callback && _callback(token);
         } else {

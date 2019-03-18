@@ -921,7 +921,7 @@ class HttpManager {
     requestTaskReward(itemId, callback, type) {
         let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
         HttpReqHelper.request({
-            url: 'v2/task/rewards/' + itemId + "?type=" + type,
+            url: 'v3/task/rewards/' + itemId + "?type=" + type,
             success: function (res) {
                 console.log("requestTaskReward", res);
                 callback && callback(res);
@@ -961,6 +961,20 @@ class HttpManager {
             },
             fail: function (res) {
                 console.log(res);
+            }
+        });
+    }
+    /** 广告来源记录 */
+    requestInterfaces(aid, channel) {
+        console.log("@David 广告来源记录:", aid, channel);
+        let HttpReqHelper = new HttpRequestHelper(PathConfig.AppUrl);
+        HttpReqHelper.request({
+            url: 'api/v4/advert/from_wx/?' + aid + "&" + channel,
+            success: function (res) {
+                console.log("@David 广告来源记录成功！");
+            },
+            fail: function (res) {
+                console.log("@David 广告来源记录失败！");
             }
         });
     }

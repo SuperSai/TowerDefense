@@ -22,7 +22,7 @@ class RewardGoldView extends BaseView {
         let monsterLevel = userData.getCarLevel();
         let monsterInfo = BattleManager.Instance.getUnLockMonster(monsterType, monsterLevel);
         if (monsterInfo) {
-            self._money = BattleManager.Instance.getMonsterPrice(monsterInfo.buyPrice, userData.queryBuyRecord(monsterInfo.id));
+            self._money = BattleManager.Instance.getMonsterPrice(monsterInfo.buyPrice, userData.queryBuyRecordTop());
         }
         self.ui.txt_gold.text = MathUtils.bytesToSize(self._money);
     }

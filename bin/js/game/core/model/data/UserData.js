@@ -124,6 +124,25 @@ class UserData {
         }
         return 0;
     }
+    /**
+     * 查询购买记录的最高值
+      */
+    queryBuyRecordTop() {
+        let buyTimes = 0;
+        let index = 0;
+        for (let key in this.carBuyRecordArray) {
+            let element = this.carBuyRecordArray[key];
+            if (element) {
+                if (index > (this.carBuyRecordArray.length - 4)) {
+                    if (buyTimes < this.carBuyRecordArray[key].buyTimes) {
+                        buyTimes = this.carBuyRecordArray[key].buyTimes;
+                    }
+                }
+                index++;
+            }
+        }
+        return buyTimes;
+    }
     /** 刷新技能加成 */
     refreshSkillAddition(_skillId) {
         let that = this;

@@ -1,6 +1,15 @@
 class MainLoadingView extends Laya.Sprite {
     constructor() {
         super();
+        this.tipsArr = [
+            "等待时间越久离线金币越多哟",
+            "正在召集英雄上阵",
+            "别忘每天的免费转盘抽奖哟",
+            "签到天数越久奖励越丰盛~",
+            "邀请好友召唤英雄，获取超多奖励",
+            "每天登陆都有大量离线金币领取"
+        ];
+        this._isClick = false;
         this.ui = new ui.login.LoginSceneUI();
         this.ui.probox.visible = false;
         this.addChild(this.ui);
@@ -10,6 +19,7 @@ class MainLoadingView extends Laya.Sprite {
         Laya.timer.once(15e3, this, () => {
             this.ui.btnRefresh.visible = true;
             this.ui.btnRefresh.on(Laya.Event.CLICK, this, () => {
+                this.ui.btnRefresh.mouseEnabled = false;
                 this.prepareAccount();
             });
         });
@@ -23,14 +33,17 @@ class MainLoadingView extends Laya.Sprite {
         }
     }
     loadCache(complete) {
-        GameEnterManager.Instance.init();
-        SDKManager.Instance.initWX();
-        userData.loadCache();
-        GlobleData.Instance.setup(() => {
-            userData.loadStorage(() => {
-                this.startToLoad();
+        if (!this._isClick) {
+            this._isClick = true;
+            GameEnterManager.Instance.init();
+            SDKManager.Instance.initWX();
+            userData.loadCache();
+            GlobleData.Instance.setup(() => {
+                userData.loadStorage(() => {
+                    this.startToLoad();
+                });
             });
-        });
+        }
     }
     startToLoad() {
         this.ui.probox.visible = true;
@@ -101,7 +114,6 @@ class MainLoadingView extends Laya.Sprite {
     }
     checkAuthority() {
         let curStatus = 0;
-        this.ui.btn_enter.visible = true;
         this.onShowBreathEffect();
         this.timerLoop(2000, this, this.onShowBreathEffect);
         let rect = LayerManager.getRealStageRect(this.ui.bg);
@@ -149,7 +161,19 @@ class MainLoadingView extends Laya.Sprite {
                 //进入游戏
                 EffectUtils.stopWaitEffect();
             }
+            else if (_status == 4) { //已經授權
+                this.ui.btn_enter.visible = true;
+                this.ui.btn_enter.text = this.tipsArr[MathUtils.rangeInt(0, this.tipsArr.length - 1)];
+                this.timerLoop(1500, this, this.showTips);
+            }
+            else if (_status == 5) { //还没有授权
+                this.ui.btn_enter.visible = true;
+                this.ui.btn_enter.text = "点击任意位置进入游戏";
+            }
         });
+    }
+    showTips() {
+        this.ui.btn_enter.text = this.tipsArr[MathUtils.rangeInt(0, this.tipsArr.length - 1)];
     }
     onShowBreathEffect() {
         Laya.Tween.clearTween(this.ui.btn_enter);
@@ -185,6 +209,7 @@ class MainLoadingView extends Laya.Sprite {
         if (Laya.Browser.onMiniGame) {
             Laya.Browser.window.wx.postMessage({ message: "friendRank" });
         }
+        this.clearTimer(this, this.showTips);
         Laya.timer.clearAll(this);
         this.destroy();
     }

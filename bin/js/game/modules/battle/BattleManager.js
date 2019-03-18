@@ -334,7 +334,7 @@ class BattleManager extends Laya.EventDispatcher {
             }
             for (let i = 1; i < 3; i++) {
                 let pet = self.getMonsterItem(stageSectionCfg["mId" + i]);
-                if (pet && !self._oldMonsterDic.ContainsKey(pet.id)) {
+                if (pet != null && !self._oldMonsterDic.ContainsKey(pet.id)) {
                     let resUrl = PathConfig.MonsterUrl.replace("{0}", pet.modelImgUrl);
                     resList.push({ url: resUrl, type: Laya.Loader.ATLAS });
                     self._oldMonsterDic.Add(pet.id, pet.id);

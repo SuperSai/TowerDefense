@@ -31,6 +31,9 @@ class LevelHeroView extends ui.evolution.LevelHeroViewUI {
         this.txt_level.value = userData.getKingLevel() + "";
         this.txt_uplevel.value = (userData.getKingLevel() + 1) + "";
         this.btn_sure.disabled = !EvolutionManager.Instance.canEvolutionUpgrade();
+        let kingLevel = userData.getKingLevel();
+        let isShow = kingLevel > 10;
+        this.boxLevel.visible = isShow;
         let bossId = userData.isEvolution() ? 100003 : 100002;
         this.spMountGuard.setKind(bossId);
     }

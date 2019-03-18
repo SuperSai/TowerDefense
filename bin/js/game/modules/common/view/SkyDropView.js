@@ -64,8 +64,16 @@ class SkyDropView extends BaseView {
             if (res && res.isEnded || res === undefined) {
                 this.success();
             }
+            else {
+                userData.toShareAd(() => {
+                    this.success();
+                });
+            }
         }, () => {
-            MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.15"));
+            // MessageUtils.showMsgTips(LanguageManager.Instance.getLanguageText("hallScene.label.txt.15"));
+            userData.toShareAd(() => {
+                this.success();
+            });
         }, false);
     }
     success() {

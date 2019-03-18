@@ -2,8 +2,16 @@ class Token {
     requestCreate(complete) {
         let launchOptions = Laya.Browser.window.wx.getLaunchOptionsSync();
         console.log("@FREEMAN: 启动参数：", launchOptions);
+        // 获取⼴告id
+        let aid = 0;
         let channel = "0_" + launchOptions.scene;
         if (launchOptions && launchOptions.query && launchOptions.query.channel) {
+            let gdt_vid = launchOptions.query.gdt_vid;
+            let weixinadinfo = launchOptions.query.weixinadinfo;
+            if (weixinadinfo) {
+                let weixinadinfoArr = weixinadinfo.split(".");
+                aid = weixinadinfoArr[0];
+            }
             channel = "" + launchOptions.query.channel + "_" + launchOptions.scene;
         }
         else if (launchOptions && launchOptions.referrerInfo) {
@@ -19,11 +27,12 @@ class Token {
         Laya.Browser.window.wx.login({
             success: function (res) {
                 Laya.Browser.window.wx.request({
-                    url: PathConfig.AppUrl + 'v4/token/user',
+                    url: PathConfig.AppUrl + 'v5/token/user',
                     method: 'POST',
                     data: {
                         code: res.code,
-                        channel
+                        channel: channel,
+                        aid: aid
                     },
                     success: function (res1) {
                         let token = res1.data.token;
